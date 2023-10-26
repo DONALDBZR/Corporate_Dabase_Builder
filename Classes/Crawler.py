@@ -5,6 +5,7 @@ from selenium.webdriver.remote.webelement import WebElement
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
+from Classes.Environment import Environment
 
 
 class Crawler:
@@ -37,13 +38,18 @@ class Crawler:
     """
     It is responsible for setting the options for the webdriver.
     """
+    __target: str
+    """
+    The target on which the data will be taken from.
+    """
     
     def __init__(self) -> None:
         """
         Initializing the application which will go on the target to
         scrape the data needed.
         """
-        pass
+        ENV = Environment()
+        self.setTarget(ENV.getTarget())
 
     def getDriver(self) -> WebDriver:
         return self.__driver
@@ -74,3 +80,9 @@ class Crawler:
 
     def setOptions(self, options: Options) -> None:
         self.__options = options
+
+    def getTarget(self) -> str:
+        return self.__target
+    
+    def setTarget(self, target: str) -> None:
+        self.__target = target
