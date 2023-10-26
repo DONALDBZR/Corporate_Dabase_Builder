@@ -33,6 +33,10 @@ class Crawler:
     """
     It is responsible for controlling of chromedriver.
     """
+    __options: Options
+    """
+    It is responsible for setting the options for the webdriver.
+    """
     
     def __init__(self) -> None:
         """
@@ -64,3 +68,9 @@ class Crawler:
 
     def setServices(self, services: Service) -> None:
         self.__services = services
+
+    def getOptions(self) -> Options:
+        return self.__options
+
+    def setOptions(self, options: Options) -> None:
+        self.__options = options
