@@ -23,6 +23,12 @@ class Crawler:
     used to indicate the beginning and end of an HTML element in
     an HTML document.
     """
+    __html_tag: WebElement
+    """
+    An HTML tag which is pieces of markup language used to
+    indicate the beginning and end of an HTML element in an HTML
+    document.
+    """
     
     def __init__(self) -> None:
         """
@@ -42,3 +48,9 @@ class Crawler:
 
     def setHtmlTags(self, html_tags: list[WebElement]) -> None:
         self.__html_tags = html_tags
+
+    def getHtmlTag(self) -> WebElement:
+        return self.__html_tag
+
+    def setHtmlTag(self, html_tag: WebElement) -> None:
+        self.__html_tag = html_tag
