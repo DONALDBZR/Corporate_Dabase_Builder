@@ -51,6 +51,7 @@ class Crawler:
         ENV = Environment()
         self.setTarget(ENV.getTarget())
         self.__setServices()
+        self.__setOptions()
 
     def getDriver(self) -> WebDriver:
         return self.__driver
@@ -96,3 +97,19 @@ class Crawler:
             (void)
         """
         self.setServices(Service(ChromeDriverManager().install()))
+
+    def __setOptions(self) -> None:
+        """
+        Setting the options for the ChromeDriver.
+
+        Return:
+            (void)
+        """
+        self.setOptions(Options())
+        self.getOptions().add_argument('--headless')
+        self.getOptions().add_argument('--no-sandbox')
+        self.getOptions().add_argument('--disable-dev-shm-usage')
+        self.getOptions().add_argument('--disable-blink-features=AutomationControlled')
+        self.getOptions().add_experimental_option("excludeSwitches", ["enable-automation"])
+        self.getOptions().add_experimental_option('useAutomationExtension', False)
+        self.getOptions().add_argument("start-maximized")
