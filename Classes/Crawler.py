@@ -52,6 +52,9 @@ class Crawler:
         self.setTarget(ENV.getTarget())
         self.__setServices()
         self.__setOptions()
+        self.setDriver(webdriver.Chrome(self.getOptions(), self.getServices()))
+        self.getDriver().execute_cdp_cmd('Network.setUserAgentOverride', {"userAgent": 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36'})
+        self.getDriver().execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => false})")
 
     def getDriver(self) -> WebDriver:
         return self.__driver
