@@ -50,6 +50,7 @@ class Crawler:
         """
         ENV = Environment()
         self.setTarget(ENV.getTarget())
+        self.__setServices()
 
     def getDriver(self) -> WebDriver:
         return self.__driver
@@ -86,3 +87,12 @@ class Crawler:
     
     def setTarget(self, target: str) -> None:
         self.__target = target
+
+    def __setServices(self) -> None:
+        """
+        Setting the services for the ChromeDriver.
+
+        Return:
+            (void)
+        """
+        self.setServices(Service(ChromeDriverManager().install()))
