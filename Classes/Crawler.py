@@ -29,6 +29,10 @@ class Crawler:
     indicate the beginning and end of an HTML element in an HTML
     document.
     """
+    __services: Service
+    """
+    It is responsible for controlling of chromedriver.
+    """
     
     def __init__(self) -> None:
         """
@@ -54,3 +58,9 @@ class Crawler:
 
     def setHtmlTag(self, html_tag: WebElement) -> None:
         self.__html_tag = html_tag
+
+    def getServices(self) -> Service:
+        return self.__services
+
+    def setServices(self, services: Service) -> None:
+        self.__services = services
