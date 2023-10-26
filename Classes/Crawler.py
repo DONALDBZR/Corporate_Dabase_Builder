@@ -17,6 +17,12 @@ class Crawler:
     Controls the ChromeDriver and allows you to drive the
     browser.
     """
+    __html_tags: list[WebElement]
+    """
+    A list of HTML tags which are pieces of markup language
+    used to indicate the beginning and end of an HTML element in
+    an HTML document.
+    """
     
     def __init__(self) -> None:
         """
@@ -30,3 +36,9 @@ class Crawler:
 
     def setDriver(self, driver: WebDriver) -> None:
         self.__driver = driver
+
+    def getHtmlTags(self) -> list[WebElement]:
+        return self.__html_tags
+
+    def setHtmlTags(self, html_tags: list[WebElement]) -> None:
+        self.__html_tags = html_tags
