@@ -1,5 +1,6 @@
-import logging
 from logging.__init__ import Logger
+from Classes.Environment import Environment
+import logging
 
 
 class Corporate_Database_Builder_Logger:
@@ -17,10 +18,12 @@ class Corporate_Database_Builder_Logger:
         Instantiating the Logger which will keep track of everything
         that the application does.
         """
+        ENV = Environment()
         logging.basicConfig(
-            filename="/media/darkness4869/Archive/.PY files/Logs/Extractio.log", encoding="utf-8",
+            filename=f"{ENV.getDirectory()}/Logs/CDB.log",
+            encoding="utf-8",
             filemode="a",
-            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+            format="%(asctime)s\n%(name)s\n%(levelname)s\n%(message)s"
         )
         self.setLogger(logging.getLogger(__name__))
 
