@@ -114,7 +114,6 @@ class Crawler:
             (void)
         """
         self.setOptions(Options())
-        self.getOptions().add_argument('--headless')
         self.getOptions().add_argument('--no-sandbox')
         self.getOptions().add_argument('--disable-dev-shm-usage')
         self.getOptions().add_argument('--disable-blink-features=AutomationControlled')
