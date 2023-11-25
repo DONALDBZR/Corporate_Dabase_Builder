@@ -152,7 +152,7 @@ class Database_Handler:
         Executing the SQL query which will send a command to the
         database server
 
-        Returns:
+        Return:
             (void)
         """
         self.__getDatabaseHandler().commit()
@@ -162,7 +162,8 @@ class Database_Handler:
         Fetching all the data that is requested from the command that
         was sent to the database server
 
-        Returns: array
+        Return:
+            (array)
         """
         result_set = self.__getStatement().fetchall()
         self.__getStatement().close()
