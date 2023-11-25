@@ -269,17 +269,18 @@ class Database_Handler:
         Creating records to store data into the database server.
 
         Parameters:
-            table:      string: Table Name
-            columns:    string: Column names
-            values:     string: Data to be inserted
+            table:      (string):   Table Name
+            columns:    (string):   Column names
+            values:     (string):   Data to be inserted
 
-        Returns: void
+        Return:
+            (void)
         """
         query = f"INSERT INTO {table}({columns}) VALUES ({values})"
         self.setQuery(query)
         self.setParameters(parameters)
         self.getLogger().inform(
-            f"Query: {self.getQuery()}\nParameters: {self.getParameters()}\nCurrent Time: {datetime.datetime.now()}"
+            f"Query built for adding data!\nQuery: {self.getQuery()}\nParameters: {self.getParameters()}\n"
         )
         self._query(self.getQuery(), self.getParameters())
         self._execute()
