@@ -7,6 +7,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from Classes.Environment import Environment
 from Classes.Logger import Corporate_Database_Builder_Logger
+import time
 
 
 class Crawler:
@@ -161,4 +162,6 @@ class Crawler:
         Return:
             (void)
         """
+        delay = self.ENV.calculateDelay(self.getTarget())
         self.getDriver().get(self.getTarget())
+        time.sleep(delay)
