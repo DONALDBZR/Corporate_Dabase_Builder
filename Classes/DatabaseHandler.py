@@ -61,6 +61,7 @@ class Database_Handler:
         """
         ENV = Environment()
         self.setLogger(Corporate_Database_Builder_Logger())
+        self.getLogger().setLogger(logging.getLogger(__name__))
         self.__setHost(ENV.getHost())
         self.__setDatabase(ENV.getDatabase())
         self.__setUsername(ENV.getUsername())
