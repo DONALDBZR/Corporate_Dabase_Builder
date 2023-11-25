@@ -174,13 +174,13 @@ class Database_Handler:
         Retrieving data from the database.
 
         Parameters:
-            parameters:         array|null: The parameters to be passed into the query.
-            table_name:         string:     The name of the table.
-            column_names:       string:     The name of the columns.
-            join_condition      string:     Joining table condition.
-            filter_condition    string:     Items to be filtered with.
-            sort_condition      string:     The items to be sorted.
-            limit_condition     int:     The amount of items to be returned
+            parameters:         (array|null):   The parameters to be passed into the query.
+            table_name:         (string):       The name of the table.
+            column_names:       (string):       The name of the columns.
+            join_condition      (string):       Joining table condition.
+            filter_condition    (string):       Items to be filtered with.
+            sort_condition      (string):       The items to be sorted.
+            limit_condition     (int):          The amount of items to be returned
 
         Returns: array
         """
@@ -192,7 +192,7 @@ class Database_Handler:
         self._get_sort(sort_condition)
         self._get_limit(limit_condition)
         self.getLogger().inform(
-            f"Query: {self.getQuery()}\nParameters: {self.getParameters()}\nCurrent Time: {datetime.datetime.now()}"
+            f"Query built for retrieving data!\nQuery: {self.getQuery()}\nParameters: {self.getParameters()}\n"
         )
         self._query(self.getQuery(), self.getParameters())
         return self._resultSet()
