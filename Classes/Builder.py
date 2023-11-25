@@ -10,6 +10,11 @@ class Builder:
     The main web-scrapper which will scraope the data from the
     database needed.
     """
+    __date: str
+    """
+    The date to be used as a filter to retrieve the dataset to
+    build the corporate database.
+    """
 
     def __init__(self, date: str) -> None:
         """
@@ -17,8 +22,9 @@ class Builder:
         the dependencies.
 
         Parameters:
-            date:   (string):   The date to be used as a filterto retrieve the dataset to build the corporate database.
+            date:   (string):   The date to be used as a filter to retrieve the dataset to build the corporate database.
         """
+        self.setDate(date)
         self.setCrawler(Crawler())
 
     def getCrawler(self) -> Crawler:
@@ -26,3 +32,9 @@ class Builder:
     
     def setCrawler(self, crawler: Crawler) -> None:
         self.__crawler = crawler
+
+    def getDate(self) -> str:
+        return self.__date
+    
+    def setDate(self, date: str) -> None:
+        self.__date = date
