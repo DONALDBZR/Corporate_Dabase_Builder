@@ -23,7 +23,7 @@ class Corporate_Database_Builder_Logger:
             filename=f"{ENV.getDirectory()}/Logs/CDB.log",
             encoding="utf-8",
             filemode="a",
-            format="%(asctime)s\n%(name)s\n%(levelname)s\n%(message)s"
+            format="Current Time: %(asctime)s\nModule: %(name)s\nLog Level: %(levelname)s\nMessage: %(message)s"
         )
         self.setLogger(logging.getLogger(__name__))
 
