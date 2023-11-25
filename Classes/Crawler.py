@@ -8,6 +8,7 @@ from selenium.webdriver.chrome.options import Options
 from Classes.Environment import Environment
 from Classes.Logger import Corporate_Database_Builder_Logger
 import time
+import logging
 
 
 class Crawler:
@@ -62,6 +63,7 @@ class Crawler:
         """
         self.ENV = Environment()
         self.setLogger(Corporate_Database_Builder_Logger())
+        self.getLogger().setLogger(logging.getLogger(__name__))
         self.setTarget(self.ENV.getTarget())
         self.__setServices()
         self.__setOptions()
