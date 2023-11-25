@@ -1,3 +1,7 @@
 For using this application, it needs to have its own virtual environment to have all of its dependencies.
 
-python -m venv ./venv
+python3 -m venv ./venv
+
+The virtual environment will also need to be activated for the application to be able to inject all of its dependencies.
+
+source ./venv/bin/activate
