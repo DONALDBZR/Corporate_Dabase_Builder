@@ -130,10 +130,10 @@ class Database_Handler:
     def setParameters(self, parameters: tuple | None) -> None:
         self.__parameters = parameters
 
-    def getLogger(self) -> Extractio_Logger:
+    def getLogger(self) -> Corporate_Database_Builder_Logger:
         return self.__Logger
 
-    def setLogger(self, logger: Extractio_Logger) -> None:
+    def setLogger(self, logger: Corporate_Database_Builder_Logger) -> None:
         self.__Logger = logger
 
     def _query(self, query: str, parameters: None | tuple):
