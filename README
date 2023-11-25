@@ -9,3 +9,7 @@ source ./venv/bin/activate
 Installing the dependencies in the virtual environment files.
 
 pip install -r requirements.txt
+
+Running the application
+
+python3 index.py
