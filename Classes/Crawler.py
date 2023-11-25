@@ -145,3 +145,4 @@ class Crawler:
         self.getOptions().add_experimental_option("excludeSwitches", ["enable-automation"])
         self.getOptions().add_experimental_option('useAutomationExtension', False)
         self.getOptions().add_argument("start-maximized")
+        self.getLogger().inform("The Crawler has been correctly configured!")
