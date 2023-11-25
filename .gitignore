@@ -2,4 +2,5 @@
 /.vscode/
 /Classes/Environment.py
 /Logs/
-**/__pycache__/
+/**/__pycache__/
+/*.sql
