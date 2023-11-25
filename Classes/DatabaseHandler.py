@@ -313,18 +313,19 @@ class Database_Handler:
         Deleting data from the database.
 
         Parameters:
-            table:      string: Table
-            parameters: array:  Data to be used for data manipulation.
-            condition:  string: Specification
+            table:      (string):   Table
+            parameters: (array):    Data to be used for data manipulation.
+            condition:  (string):   Specification
 
-        Returns: void
+        Return:
+            (void)
         """
         query = f"DELETE FROM {table}"
         self.setQuery(query)
         self.setParameters(parameters)
         self._get_filter(condition)
         self.getLogger().inform(
-            f"Query: {self.getQuery()}\nParameters: {self.getParameters()}\nCurrent Time: {datetime.datetime.now()}"
+            f"Query built for removing data!\nQuery: {self.getQuery()}\nParameters: {self.getParameters()}"
         )
         self._query(self.getQuery(), self.getParameters())
         self._execute()
