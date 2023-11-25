@@ -59,12 +59,12 @@ class Database_Handler:
         Instantiating the class which will try to connect to the
         database.
         """
-        self.setLogger(Extractio_Logger())
-        self.getLogger().setLogger(logging.getLogger("mysql"))
-        self.__setHost(Environment.HOST)
-        self.__setDatabase(Environment.DATABASE)
-        self.__setUsername(Environment.USERNAME)
-        self.__setPassword(Environment.PASSWORD)
+        ENV = Environment()
+        self.setLogger(Corporate_Database_Builder_Logger())
+        self.__setHost(ENV.getHost())
+        self.__setDatabase(ENV.getDatabase())
+        self.__setUsername(ENV.getUsername())
+        self.__setPassword(ENV.getPassword())
         try:
             self.__setDatabaseHandler(
                 mysql.connector.connect(
@@ -75,11 +75,11 @@ class Database_Handler:
                 )
             )
             self.getLogger().inform(
-                f"The application has been successfully connected to the database server!\nCurrent Time: {datetime.datetime.now()}"
+                "The application has been successfully connected to the database server!"
             )
         except mysql.connector.Error as error:
             self.getLogger().error(
-                f"Connection Failed: {error}\nCurrent Time: {datetime.datetime.now()}"
+                f"Connection Failed!\nError: {error}"
             )
 
     def __getHost(self) -> str:
