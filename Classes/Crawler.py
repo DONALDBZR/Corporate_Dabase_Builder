@@ -54,6 +54,7 @@ class Crawler:
         scrape the data needed.
         """
         ENV = Environment()
+        self.setLogger(Corporate_Database_Builder_Logger())
         self.setTarget(ENV.getTarget())
         self.__setServices()
         self.__setOptions()
@@ -72,6 +73,7 @@ class Crawler:
         self.getDriver().execute_script(
             "Object.defineProperty(navigator, 'webdriver', {get: () => false})"
         )
+        self.getLogger().inform("The Crawler has been successfully initialized!")
 
     def getDriver(self) -> WebDriver:
         return self.__driver
