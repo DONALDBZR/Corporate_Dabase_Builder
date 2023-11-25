@@ -47,15 +47,21 @@ class Crawler:
     """
     The logger that will all the action of the application.
     """
+    ENV: Environment
+    """
+    The ENV file of the application which stores the important
+    information which allows the application to operate
+    smoothly.
+    """
     
     def __init__(self) -> None:
         """
         Initializing the application which will go on the target to
         scrape the data needed.
         """
-        ENV = Environment()
+        self.ENV = Environment()
         self.setLogger(Corporate_Database_Builder_Logger())
-        self.setTarget(ENV.getTarget())
+        self.setTarget(self.ENV.getTarget())
         self.__setServices()
         self.__setOptions()
         self.setDriver(
