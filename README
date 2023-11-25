@@ -5,3 +5,7 @@ python3 -m venv ./venv
 The virtual environment will also need to be activated for the application to be able to inject all of its dependencies.
 
 source ./venv/bin/activate
+
+Installing the dependencies in the virtual environment files.
+
+pip install -r requirements.txt
