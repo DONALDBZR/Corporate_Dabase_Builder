@@ -129,6 +129,7 @@ class Crawler:
                 ChromeDriverManager().install()
             )
         )
+        self.getLogger().inform("The Web Driver has been succesfully installed!")
 
     def __setOptions(self) -> None:
         """
