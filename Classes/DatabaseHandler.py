@@ -182,7 +182,8 @@ class Database_Handler:
             sort_condition      (string):       The items to be sorted.
             limit_condition     (int):          The amount of items to be returned
 
-        Returns: array
+        Return:
+            (array)
         """
         query = f"SELECT {column_names} FROM {table_name}"
         self.setQuery(query)
@@ -203,9 +204,10 @@ class Database_Handler:
         least two tables.
 
         Parameters:
-            condition:  string: The JOIN statement that is used.
+            condition:  (string): The JOIN statement that is used.
 
-        Returns: void
+        Return:
+            (void)
         """
         if condition == "":
             query = self.getQuery()
