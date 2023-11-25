@@ -180,14 +180,3 @@ class Crawler:
         delay = self.ENV.calculateDelay(self.getTarget())
         self.getDriver().get(self.getTarget())
         time.sleep(delay)
-        self.retrieveData()
-
-    def retrieveData(self) -> None:
-        """
-        Retrieving the the corporate database for the previous
-        quarter.
-
-        Return:
-            (void)
-        """
-        pass
