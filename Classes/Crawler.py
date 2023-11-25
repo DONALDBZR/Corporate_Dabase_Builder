@@ -74,6 +74,7 @@ class Crawler:
             "Object.defineProperty(navigator, 'webdriver', {get: () => false})"
         )
         self.getLogger().inform("The Crawler has been successfully initialized!")
+        self.enterTarget()
 
     def getDriver(self) -> WebDriver:
         return self.__driver
@@ -146,3 +147,12 @@ class Crawler:
         self.getOptions().add_experimental_option('useAutomationExtension', False)
         self.getOptions().add_argument("start-maximized")
         self.getLogger().inform("The Crawler has been correctly configured!")
+
+    def enterTarget(self) -> None:
+        """
+        Entering the target.
+
+        Return:
+            (void)
+        """
+        self.getDriver().get(self.getTarget())
