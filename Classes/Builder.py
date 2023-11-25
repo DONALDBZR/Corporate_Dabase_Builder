@@ -11,10 +11,13 @@ class Builder:
     database needed.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, date: str) -> None:
         """
         Initializing the builder which will import and initialize
         the dependencies.
+
+        Parameters:
+            date:   (string):   The date to be used as a filterto retrieve the dataset to build the corporate database.
         """
         self.setCrawler(Crawler())
 
