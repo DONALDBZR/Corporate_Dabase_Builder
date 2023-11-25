@@ -2,3 +2,4 @@
 /.vscode/
 /Classes/Environment.py
 /Logs/
+**/__pycache__/
