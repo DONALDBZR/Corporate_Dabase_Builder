@@ -2,7 +2,7 @@ from mysql.connector.pooling import PooledMySQLConnection
 from mysql.connector.connection import MySQLConnection
 from mysql.connector.cursor import MySQLCursor
 from Environment import Environment
-from Logger import Extractio_Logger
+from Logger import Corporate_Database_Builder_Logger
 import mysql.connector
 import logging
 import datetime
@@ -16,69 +16,42 @@ class Database_Handler:
     __host: str
     """
     The host of the application
-
-    Type: string
-    visibility: private
     """
     __database: str
     """
     The database of the application
-
-    Type: string
-    visibility: private
     """
     __username: str
     """
     The user that have access to the database
-
-    Type: string
-    visibility: private
     """
     __password: str
     """
     The password that allows the required user to connect to the
     database.
-
-    Type: string
-    visibility: private
     """
     __database_handler: "PooledMySQLConnection | MySQLConnection"
     """
     The database handler needed to execute the queries needed
-
-    Type: PooledMySQLConnection | MySQLConnection
-    visibility: private
     """
     __statement: "MySQLCursor"
     """
     The statement to be used to execute all of the requests to
     the database server
-
-    Type: MySQLCursor
-    visibility: private
     """
     __query: str
     """
     The query to be used to be sent to the database server to
     either get, post, update or delete data.
-
-    Type: string
-    Visibility: private
     """
     __parameters: tuple | None
     """
     Parameters that the will be used to sanitize the query which
     is either get, post, update or delete.
-
-    Type: array|null
-    Visibility: private
     """
-    __Logger: Extractio_Logger
+    __Logger: Corporate_Database_Builder_Logger
     """
     The logger that will all the action of the application.
-
-    Type: Extractio_Logger
-    Visibility: private
     """
 
     def __init__(self):
