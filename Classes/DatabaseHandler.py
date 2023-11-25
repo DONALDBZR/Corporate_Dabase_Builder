@@ -141,7 +141,8 @@ class Database_Handler:
         Preparing the SQL query that is going to be handled by the
         database handler.
 
-        Returns: Generator[MySQLCursor, None, None] | None
+        Return:
+            (Generator[MySQLCursor, None, None] | None)
         """
         self.__setStatement(self.__getDatabaseHandler().cursor(prepared=True))
         self.__getStatement().execute(query, parameters)
