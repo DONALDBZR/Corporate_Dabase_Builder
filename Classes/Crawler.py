@@ -111,7 +111,11 @@ class Crawler:
         Return:
             (void)
         """
-        self.setServices(Service(ChromeDriverManager().install()))
+        self.setServices(
+            Service(
+                ChromeDriverManager().install()
+            )
+        )
 
     def __setOptions(self) -> None:
         """
