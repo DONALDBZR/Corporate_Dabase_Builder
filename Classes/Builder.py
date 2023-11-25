@@ -38,3 +38,9 @@ class Builder:
     
     def setDate(self, date: str) -> None:
         self.__date = date
+    
+    def firstRun(self) -> None:
+        """
+        The first run consists of retrieving the metadata needed of any existing company in Mauritius.
+        """
+        pass
