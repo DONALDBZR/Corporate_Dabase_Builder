@@ -6,6 +6,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from Classes.Environment import Environment
+from Classes.Logger import Corporate_Database_Builder_Logger
 
 
 class Crawler:
@@ -41,6 +42,10 @@ class Crawler:
     __target: str
     """
     The target on which the data will be taken from.
+    """
+    __logger: Corporate_Database_Builder_Logger
+    """
+    The logger that will all the action of the application.
     """
     
     def __init__(self) -> None:
@@ -103,6 +108,12 @@ class Crawler:
     
     def setTarget(self, target: str) -> None:
         self.__target = target
+
+    def getLogger(self) -> Corporate_Database_Builder_Logger:
+        return self.__logger
+    
+    def setLogger(self, logger: Corporate_Database_Builder_Logger) -> None:
+        self.__logger = logger
 
     def __setServices(self) -> None:
         """
