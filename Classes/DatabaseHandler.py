@@ -196,7 +196,7 @@ class Database_Handler:
         self._get_sort(sort_condition)
         self._get_limit(limit_condition)
         self.getLogger().inform(
-            f"Query built for retrieving data!\nQuery: {self.getQuery()}\nParameters: {self.getParameters()}\n"
+            f"Query built for retrieving data!\nQuery: {self.getQuery()}\nParameters: {self.getParameters()}"
         )
         self._query(self.getQuery(), self.getParameters())
         return self._resultSet()
