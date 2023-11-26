@@ -224,4 +224,21 @@ class Crawler:
                 f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[1]/table/tbody"
             )
         )
+        self.scrapeMetadata(0, 10, amount, delay)
+        return response
+    
+    def scrapeMetadata(self, amount_data_found: int, amount_data_per_page: int, amount: int, delay: float) -> dict:
+        """
+        Scraping the metadata from the target's application.
+
+        Parameters:
+            amount_data_found:      (int):      The amount of data that the crawler has found.
+            amount_data_per_page:   (int):      The amount of data per page.
+            amount:                 (int):      The total amount of data.
+            delay:                  (float):    The amount of time in seconds that the crawler will wait to not get caught by the bot detection.
+
+        Return:
+            (object)
+        """
+        response = {}
         return response
