@@ -217,7 +217,7 @@ class Crawler:
         print(f"Data Amount: {data_amount}")
         amount = int(data_amount)
         self.getLogger().inform(
-            f"Search completed for corporate metadata between {date_from} and {date_to}\nDate From: {date_from}, Date To: {date_to}\nAmount: {amount}"
+            f"Search completed for corporate metadata between {date_from} and {date_to}\nDate From: {date_from}\nDate To: {date_to}\nAmount: {amount}"
         )
         self.setHtmlTag(
             self.getDriver().find_element(
