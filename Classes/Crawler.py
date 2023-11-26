@@ -285,31 +285,20 @@ class Crawler:
         Return:
             (void)
         """
-        for second_index in range(0, amount_data_per_page, 1):
-            name = self.getHtmlTags()[second_index].find_element(
-                By.XPATH,
-                "/td[2]"
-            ).text
-            file_number = self.getHtmlTags()[second_index].find_element(
-                By.XPATH,
-                "/td[3]"
-            ).text
-            category = self.getHtmlTags()[second_index].find_element(
-                By.XPATH,
-                "/td[4]"
-            ).text
-            date_incorporation = self.getHtmlTags()[second_index].find_element(
-                By.XPATH,
-                "/td[5]"
-            ).text
-            nature = self.getHtmlTags()[second_index].find_element(
-                By.XPATH,
-                "/td[6]"
-            ).text
-            status = self.getHtmlTags()[second_index].find_element(
-                By.XPATH,
-                "/td[7]"
-            ).text
+        rows = self.getHtmlTags()
+        for index in range(0, amount_data_per_page, 1):
+            self.setHtmlTags(
+                rows[index].find_elements(
+                    By.TAG_NAME,
+                    "td"
+                )
+            )
+            name = self.getHtmlTags()[1].text
+            file_number = self.getHtmlTags()[2].text
+            category = self.getHtmlTags()[3].text
+            date_incorporation = self.getHtmlTags()[4].text
+            nature = self.getHtmlTags()[5].text
+            status = self.getHtmlTags()[6].text
             data: dict[str, str | None] = {
                 "business_registration_number": None,
                 "name": name,
