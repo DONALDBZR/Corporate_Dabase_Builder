@@ -42,7 +42,7 @@ class Builder:
         self.setDatabaseHandler(Database_Handler())
         self.getLogger().setLogger(logging.getLogger(__name__))
         self.getLogger().inform("The builder has been initialized!")
-        self.setCrawler(Crawler())
+        # self.setCrawler(Crawler())
         self.firstRun()
 
     def getCrawler(self) -> Crawler:
@@ -81,7 +81,7 @@ class Builder:
         data: tuple[int, str, str, str] = self.getDatabaseHandler().get_data(
             table_name="FinancialCalendar",
             filter_condition=f"CONCAT(YEAR('{str(self.getDate().date())}'), '-', start_date) < '{str(self.getDate().date())}' AND CONCAT(YEAR('{str(self.getDate().date())}'), '-', end_date) > '{str(self.getDate().date())}'",
-            column_names=f"YEAR('{str(self.getDate().date())}') AS year, quarter, FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(YEAR('{str(self.getDate().date())}'), '-', start_date)), '%m/%d/%Y') AS start_date, FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(YEAR('{str(self.getDate().date())}'), '-', end_date)), '%m/%d/%Y) AS end_date"
+            column_names=f"YEAR('{str(self.getDate().date())}') AS year, quarter, FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(YEAR('{str(self.getDate().date())}'), '-', start_date)), '%m/%d/%Y') AS start_date, FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(YEAR('{str(self.getDate().date())}'), '-', end_date)), '%m/%d/%Y') AS end_date"
         )[0]
         quarter = {
             "year": int(data[0]),
