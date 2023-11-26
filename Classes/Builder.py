@@ -77,10 +77,11 @@ class Builder:
         Return:
             (void)
         """
+        query = "SELECT YEAR(CURDATE()) AS year, quarter, FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(YEAR(CURDATE()), '-', start_date)), '%m/%d/%Y') AS start_date, FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(YEAR(CURDATE()), '-', end_date)), '%m/%d/%Y') AS end_date FROM FinancialCalendar WHERE CONCAT(YEAR(CURDATE()), '-', start_date) < CURDATE() AND CONCAT(YEAR(CURDATE()), '-', end_date) > CURDATE()"
         data: tuple[int, str, str, str] = self.getDatabaseHandler().get_data(
             table_name="FinancialCalendar",
             filter_condition=f"CONCAT(YEAR('{str(self.getDate().date())}'), '-', start_date) < '{str(self.getDate().date())}' AND CONCAT(YEAR('{str(self.getDate().date())}'), '-', end_date) > '{str(self.getDate().date())}'",
-            column_names=f"YEAR('{str(self.getDate().date())}') AS year, quarter, CONCAT(YEAR('{str(self.getDate().date())}'), '-', start_date) AS start_date, CONCAT(YEAR('{str(self.getDate().date())}'), '-', end_date) AS end_date"
+            column_names=f"YEAR('{str(self.getDate().date())}') AS year, quarter, FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(YEAR('{str(self.getDate().date())}'), '-', start_date)), '%m/%d/%Y') AS start_date, FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(YEAR('{str(self.getDate().date())}'), '-', end_date)), '%m/%d/%Y) AS end_date"
         )[0]
         quarter = {
             "year": int(data[0]),
@@ -88,3 +89,4 @@ class Builder:
             "start_date": str(data[2]),
             "end_date": str(data[3])
         }
+        print(quarter)
