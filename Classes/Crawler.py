@@ -210,16 +210,21 @@ class Crawler:
         )
         self.getHtmlTag().click()
         time.sleep(delay)
-        amount = int(
-            self.getDriver().find_element(
-                By.XPATH,
-                f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[2]/mat-paginator/div/div/div[2]/div"
-            ).text.replace(" 1 – 10 of ", "").replace(" ", "")
-        )
-        print(amount)
-        self.getLogger().inform(
-            f"Search completed for corporate metadata between {date_from} and {date_to}\nDate From: {date_from}, Date To: {date_to}\nAmount: {amount}"
-        )
+        data_amount = self.getDriver().find_element(
+            By.XPATH,
+            f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[2]/mat-paginator/div/div/div[2]/div"
+        ).text
+        print(f"Data Amount: {data_amount}")
+        # amount = int(
+        #     self.getDriver().find_element(
+        #         By.XPATH,
+        #         f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[2]/mat-paginator/div/div/div[2]/div"
+        #     ).text.replace(" 1 – 10 of ", "").replace(" ", "")
+        # )
+        # print(amount)
+        # self.getLogger().inform(
+        #     f"Search completed for corporate metadata between {date_from} and {date_to}\nDate From: {date_from}, Date To: {date_to}\nAmount: {amount}"
+        # )
         # self.setHtmlTag(
         #     self.getDriver().find_element(
         #         By.XPATH,
