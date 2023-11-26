@@ -123,4 +123,7 @@ class Builder:
                 "status": 200,
                 "message": f"Data from the quarter {quarter['year']} {quarter['quarter']} can be taken"
             }
+        self.getLogger().inform(
+            f"The date has been validated.\nStatus: {response['status']}\nMessage: {response['message']}"
+        )
         return response
