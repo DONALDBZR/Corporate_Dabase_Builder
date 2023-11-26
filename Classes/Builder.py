@@ -128,7 +128,4 @@ class Builder:
         self.getLogger().inform(
             f"The date has been validated.\nStatus: {response['status']}\nMessage: {response['message']}"
         )
-        print(
-            f"Date: {date.date()}\nStart Date: {quarter['start_date']}\nResponse: {response}"
-        )
         return response
