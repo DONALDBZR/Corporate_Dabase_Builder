@@ -89,9 +89,13 @@ class Builder:
             "start_date": str(data[2]),
             "end_date": str(data[3])
         }
-        self.validateFinancialCalendarEndDate(quarter, self.getDate())
-        response = self.getCrawler().retrieveCorporateMetadata(quarter["start_date"], quarter["end_date"])
-        print(quarter)
+        validation: dict[str, int | str] = self.validateFinancialCalendarEndDate(quarter, self.getDate())
+        if validation["status"] != 200:
+            self.getLogger().error(f"Error has been raised by the application!\nError: FinCorp{validation['status']}: {validation['message']}")
+            raise Exception(f"Error has been raised by the application!\nError: FinCorp{validation['status']}: {validation['message']}")
+        else
+            response = self.getCrawler().retrieveCorporateMetadata(quarter["start_date"], quarter["end_date"])
+            print(quarter)
 
     def validateFinancialCalendarEndDate(self, quarter: dict[str, int | str], date: datetime) -> dict[str, int | str]:
         """
