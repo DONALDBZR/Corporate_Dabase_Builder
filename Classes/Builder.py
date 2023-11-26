@@ -1,4 +1,5 @@
 from Classes.Crawler import Crawler
+from datetime import datetime
 
 
 class Builder:
@@ -10,7 +11,7 @@ class Builder:
     The main web-scrapper which will scraope the data from the
     database needed.
     """
-    __date: str
+    __date: datetime
     """
     The date to be used as a filter to retrieve the dataset to
     build the corporate database.
@@ -33,14 +34,18 @@ class Builder:
     def setCrawler(self, crawler: Crawler) -> None:
         self.__crawler = crawler
 
-    def getDate(self) -> str:
+    def getDate(self) -> datetime:
         return self.__date
     
-    def setDate(self, date: str) -> None:
+    def setDate(self, date: datetime) -> None:
         self.__date = date
     
     def firstRun(self) -> None:
         """
-        The first run consists of retrieving the metadata needed of any existing company in Mauritius.
+        The first run consists of retrieving the metadata needed of
+        any existing company in Mauritius.
+
+        Return:
+            (void)
         """
-        pass
+        
