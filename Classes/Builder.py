@@ -93,7 +93,7 @@ class Builder:
         if validation["status"] != 200:
             self.getLogger().error(f"Error has been raised by the application!\nError: FinCorp{validation['status']}: {validation['message']}")
             raise Exception(f"Error has been raised by the application!\nError: FinCorp{validation['status']}: {validation['message']}")
-        else
+        else:
             response = self.getCrawler().retrieveCorporateMetadata(quarter["start_date"], quarter["end_date"])
             print(quarter)
 
