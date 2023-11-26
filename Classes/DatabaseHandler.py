@@ -283,7 +283,7 @@ class Database_Handler:
         self.setQuery(query)
         self.setParameters(parameters)
         self.getLogger().inform(
-            f"Query built for adding data!\nQuery: {self.getQuery()}\nParameters: {self.getParameters()}\n"
+            f"Query built for adding data!\nQuery: {self.getQuery()}\nParameters: {self.getParameters()}"
         )
         self._query(self.getQuery(), self.getParameters())
         self._execute()
