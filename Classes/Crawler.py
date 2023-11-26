@@ -260,47 +260,63 @@ class Crawler:
                     "/tr"
                 )
             )
-            for second_index in range(0, amount_data_per_page, 1):
-                name = self.getHtmlTags()[second_index].find_element(
-                    By.XPATH,
-                    "/td[2]"
-                ).text
-                file_number = self.getHtmlTags()[second_index].find_element(
-                    By.XPATH,
-                    "/td[3]"
-                ).text
-                category = self.getHtmlTags()[second_index].find_element(
-                    By.XPATH,
-                    "/td[4]"
-                ).text
-                date_incorporation = self.getHtmlTags()[second_index].find_element(
-                    By.XPATH,
-                    "/td[5]"
-                ).text
-                nature = self.getHtmlTags()[second_index].find_element(
-                    By.XPATH,
-                    "/td[6]"
-                ).text
-                status = self.getHtmlTags()[second_index].find_element(
-                    By.XPATH,
-                    "/td[7]"
-                ).text
-                data: dict[str, str | None] = {
-                    "business_registration_number": None,
-                    "name": name,
-                    "file_number": file_number,
-                    "category": category,
-                    "date_incorporation": date_incorporation,
-                    "nature": nature,
-                    "status": status,
-                }
-                amount_data_found += 1
-                done = (amount_data_found / amount) * 100
-                self.getLogger().inform(
-                    f"Retrieving corporate metadata.\nPercentage Done: {done}%\nBRN: {data['business_registration_number']}\nName: {data['name']}\nFile Number: {data['file_number']}\nCategory: {data['category']}\nDate of Incorporation: {data['date_incorporation']}\nNature: {data['nature']}\nStatus: {data['status']}"
-                )
-                print(f"Data: {data}")
-                self.getCorporateMetadata().append(data)
+            amount_data_found += self.getPageTableData(amount_data_per_page, amount_data_found, amount)
             reading_delay = delay * len(self.getHtmlTags())
             time.sleep(reading_delay)
         return response
+    
+    def getPageTableData(self, amount_data_per_page: int, amount_data_found: int, amount: int) -> int:
+        """
+        Retrieving the corporate metadata that is in the table which
+        is generally displayed in a way order.
+
+        Parameters:
+            amount_data_per_page:   (int):      The amount of data per page.
+            amount_data_found:      (int):      The amount of data that the crawler has found.
+            amount:                 (int):      The total amount of data.
+
+        Return:
+            (void)
+        """
+        for second_index in range(0, amount_data_per_page, 1):
+            name = self.getHtmlTags()[second_index].find_element(
+                By.XPATH,
+                "/td[2]"
+            ).text
+            file_number = self.getHtmlTags()[second_index].find_element(
+                By.XPATH,
+                "/td[3]"
+            ).text
+            category = self.getHtmlTags()[second_index].find_element(
+                By.XPATH,
+                "/td[4]"
+            ).text
+            date_incorporation = self.getHtmlTags()[second_index].find_element(
+                By.XPATH,
+                "/td[5]"
+            ).text
+            nature = self.getHtmlTags()[second_index].find_element(
+                By.XPATH,
+                "/td[6]"
+            ).text
+            status = self.getHtmlTags()[second_index].find_element(
+                By.XPATH,
+                "/td[7]"
+            ).text
+            data: dict[str, str | None] = {
+                "business_registration_number": None,
+                "name": name,
+                "file_number": file_number,
+                "category": category,
+                "date_incorporation": date_incorporation,
+                "nature": nature,
+                "status": status,
+            }
+            amount_data_found += 1
+            done = (amount_data_found / amount) * 100
+            self.getLogger().inform(
+                f"Retrieving corporate metadata.\nPercentage Done: {done}%\nBRN: {data['business_registration_number']}\nName: {data['name']}\nFile Number: {data['file_number']}\nCategory: {data['category']}\nDate of Incorporation: {data['date_incorporation']}\nNature: {data['nature']}\nStatus: {data['status']}"
+            )
+            print(f"Data: {data}")
+            self.getCorporateMetadata().append(data)
+        return amount_data_found
