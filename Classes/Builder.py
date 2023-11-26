@@ -89,6 +89,7 @@ class Builder:
             "start_date": str(data[2]),
             "end_date": str(data[3])
         }
+        print(f"Quarter: {quarter}")
         validation: dict[str, int | str] = self.validateFinancialCalendarEndDate(quarter, self.getDate())
         if validation["status"] != 200:
             self.getLogger().error(f"Error has been raised by the application!\nError: FinCorp{validation['status']}: {validation['message']}")
@@ -112,8 +113,9 @@ class Builder:
         """
         response: dict[str, int | str]
         start_date = datetime.timestamp(datetime.strptime(str(quarter["start_date"]), "%m/%d/%Y"))
+        end_date = datetime.timestamp(datetime.strptime(str(quarter["end_date"]), "%m/%d/%Y"))
         date_entered = datetime.timestamp(date)
-        if date_entered > start_date:
+        if date_entered < start_date and date_entered > end_date:
             response = {
                 "status": 401,
                 "message": "Data from the current quarter cannot be taken!"
@@ -125,5 +127,8 @@ class Builder:
             }
         self.getLogger().inform(
             f"The date has been validated.\nStatus: {response['status']}\nMessage: {response['message']}"
+        )
+        print(
+            f"Date: {date.date()}\nStart Date: {quarter['start_date']}\nResponse: {response}"
         )
         return response
