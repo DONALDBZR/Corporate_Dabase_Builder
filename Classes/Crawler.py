@@ -213,7 +213,7 @@ class Crawler:
         data_amount = self.getDriver().find_element(
             By.XPATH,
             f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[2]/mat-paginator/div/div/div[2]/div"
-        ).text
+        ).text.replace("1 – 10 of ", "")
         print(f"Data Amount: {data_amount}")
         # amount = int(
         #     self.getDriver().find_element(
