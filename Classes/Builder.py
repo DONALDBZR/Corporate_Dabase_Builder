@@ -78,15 +78,16 @@ class Builder:
             (void)
         """
         filters = (str(self.getDate().date()),)
-        data: tuple[int, str, str, str] = self.getDatabaseHandler().get_data(
+        data: list[tuple[int, str, str, str]] = self.getDatabaseHandler().get_data(
             table_name="FinancialCalendar",
             filter_condition=f"CONCAT(YEAR('{str(self.getDate().date)}'), '-', start_date) < '{str(self.getDate().date)}' AND CONCAT(YEAR('{str(self.getDate().date)}'), '-', end_date) > '{str(self.getDate().date)}'",
             column_names=f"YEAR('{str(self.getDate().date())}') AS year, quarter, CONCAT(YEAR('{str(self.getDate().date())}'), '-', start_date) AS start_date, CONCAT(YEAR('{str(self.getDate().date())}'), '-', end_date) AS end_date"
-        )[0]
-        quarter = {
-            "year": int(data[0]),
-            "quarter": str(data[1]),
-            "start_date": str(data[2]),
-            "end_date": str(data[3])
-        }
-        print(quarter)
+        )
+        print(data)
+        # quarter = {
+        #     "year": int(data[0]),
+        #     "quarter": str(data[1]),
+        #     "start_date": str(data[2]),
+        #     "end_date": str(data[3])
+        # }
+        # print(quarter)
