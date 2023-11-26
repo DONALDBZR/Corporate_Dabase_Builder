@@ -77,7 +77,7 @@ class Builder:
         Return:
             (void)
         """
-        filters = (str(self.getDate()),)
+        filters = (str(self.getDate().date()),)
         data: tuple[int, str, str, str] = self.getDatabaseHandler().get_data(
             parameters=filters,
             table_name="FinancialCalendar",
