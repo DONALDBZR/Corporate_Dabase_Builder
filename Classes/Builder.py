@@ -81,8 +81,8 @@ class Builder:
         data: tuple[int, str, str, str] = self.getDatabaseHandler().get_data(
             parameters=filters,
             table_name="FinancialCalendar",
-            filter_condition=f"CONCAT(YEAR({self.getDate()}), '-', start_date) < {self.getDate()} AND CONCAT(YEAR({self.getDate()}), '-', end_date) > {self.getDate()}",
-            column_names=f"YEAR({self.getDate()}) AS year, quarter, CONCAT(YEAR({self.getDate()}), '-', start_date) AS start_date, CONCAT(YEAR({self.getDate()}), '-', end_date) AS end_date"
+            filter_condition=f"CONCAT(YEAR({str(self.getDate())}), '-', start_date) < {str(self.getDate())} AND CONCAT(YEAR({str(self.getDate())}), '-', end_date) > {str(self.getDate())}",
+            column_names=f"YEAR({str(self.getDate())}) AS year, quarter, CONCAT(YEAR({str(self.getDate())}), '-', start_date) AS start_date, CONCAT(YEAR({str(self.getDate())}), '-', end_date) AS end_date"
         )[0]
         quarter = {
             "year": int(data[0]),
