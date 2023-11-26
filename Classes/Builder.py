@@ -111,9 +111,9 @@ class Builder:
             (object)
         """
         response: dict[str, int | str]
-        end_date = datetime.timestamp(datetime.strptime(str(quarter["end_date"]), "%m/%d/%Y"))
+        start_date = datetime.timestamp(datetime.strptime(str(quarter["start_date"]), "%m/%d/%Y"))
         date_entered = datetime.timestamp(date)
-        if date_entered > end_date:
+        if date_entered > start_date:
             response = {
                 "status": 401,
                 "message": "Data from the current quarter cannot be taken!"
