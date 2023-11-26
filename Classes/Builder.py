@@ -93,6 +93,7 @@ class Builder:
             self.getLogger().error(f"Error has been raised by the application!\nError: FinCorp{validation['status']}: {validation['message']}")
             raise Exception(f"Error has been raised by the application!\nError: FinCorp{validation['status']}: {validation['message']}")
         else:
+            self.setCrawler(Crawler())
             response = self.getCrawler().retrieveCorporateMetadata(
                 str(quarter["start_date"]),
                 str(quarter["end_date"])
