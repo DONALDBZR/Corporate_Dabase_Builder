@@ -7,7 +7,6 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from Classes.Environment import Environment
 from Classes.Logger import Corporate_Database_Builder_Logger
-from Classes.DatabaseHandler import Database_Handler
 import time
 import logging
 
@@ -56,11 +55,6 @@ class Crawler:
     information which allows the application to operate
     smoothly.
     """
-    __Database_Handler: Database_Handler
-    """
-    The database handler that will communicate with the database
-    server.
-    """
     
     def __init__(self) -> None:
         """
@@ -69,7 +63,6 @@ class Crawler:
         """
         self.ENV = Environment()
         self.setLogger(Corporate_Database_Builder_Logger())
-        self.setDatabaseHandler(Database_Handler())
         self.getLogger().setLogger(logging.getLogger(__name__))
         self.setTarget(self.ENV.getTarget())
         self.__setServices()
@@ -134,12 +127,6 @@ class Crawler:
     def setLogger(self, logger: Corporate_Database_Builder_Logger) -> None:
         self.__logger = logger
 
-    def getDatabaseHandler(self) -> Database_Handler:
-        return self.__Database_Handler
-    
-    def setDatabaseHandler(self, database_handler: Database_Handler) -> None:
-        self.__Database_Handler = database_handler
-
     def __setServices(self) -> None:
         """
         Setting the services for the ChromeDriver.
@@ -178,5 +165,49 @@ class Crawler:
             (void)
         """
         delay = self.ENV.calculateDelay(self.getTarget())
+        self.getLogger().inform(
+            f"Entering the target.\nDelay: {delay}s\nTarget: {self.getTarget()}"
+        )
         self.getDriver().get(self.getTarget())
         time.sleep(delay)
+
+    def retrieveCorporateMetadata(self, date_from: str, date_to: str) -> dict:
+        """
+        Retrieving corporate metadata about the companies that
+        operate in Mauritius.
+
+        Parameters:
+            date_from:  (str):  The start date of the search.
+            date_to:    (str):  The end date of the search
+
+        Return:
+            (object)
+        """
+        delay: float = (((self.ENV.calculateDelay(date_from) + self.ENV.calculateDelay(date_to)) / 2) / (40 * 5)) * 60
+        print(f"Delay: {delay}s")
+        response: dict = {}
+        self.setHtmlTag(
+            self.getDriver().find_element(
+                By.XPATH,
+                f"{self.ENV.getTargetApplicationRootXpath()}/cbris-header/div/div/form/div/div[2]/div[2]/div[1]/input"
+            )
+        )
+        self.getHtmlTag().send_keys(date_from)
+        time.sleep(delay)
+        self.setHtmlTag(
+            self.getDriver().find_element(
+                By.XPATH,
+                f"{self.ENV.getTargetApplicationRootXpath()}/cbris-header/div/div/form/div/div[2]/div[2]/div[2]/input"
+            )
+        )
+        self.getHtmlTag().send_keys(date_to)
+        time.sleep(delay)
+        self.setHtmlTag(
+            self.getDriver().find_element(
+                By.XPATH,
+                f"{self.ENV.getTargetApplicationRootXpath()}/cbris-header/div/div/form/div/div[2]/div[3]/div[2]/button"
+            )
+        )
+        self.getHtmlTag().click()
+        time.sleep(delay)
+        return response
