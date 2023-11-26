@@ -23,6 +23,10 @@ class Builder:
     The database handler that will communicate with the database
     server.
     """
+    __logger: Corporate_Database_Builder_Logger
+    """
+    The logger that will all the action of the application.
+    """
 
     def __init__(self, date: str) -> None:
         """
@@ -52,6 +56,12 @@ class Builder:
     
     def setDatabaseHandler(self, database_handler: Database_Handler) -> None:
         self.__Database_Handler = database_handler
+
+    def getLogger(self) -> Corporate_Database_Builder_Logger:
+        return self.__logger
+    
+    def setLogger(self, logger: Corporate_Database_Builder_Logger) -> None:
+        self.__logger = logger
     
     def firstRun(self) -> None:
         """
