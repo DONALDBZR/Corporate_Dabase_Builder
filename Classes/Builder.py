@@ -89,7 +89,6 @@ class Builder:
             "start_date": str(data[2]),
             "end_date": str(data[3])
         }
-        print(f"Quarter: {quarter}")
         validation: dict[str, int | str] = self.validateFinancialCalendarEndDate(quarter, self.getDate())
         if validation["status"] != 200:
             self.getLogger().error(f"Error has been raised by the application!\nError: FinCorp{validation['status']}: {validation['message']}")
