@@ -216,14 +216,13 @@ class Crawler:
         ).text.replace("1 – 10 of ", "")
         print(f"Data Amount: {data_amount}")
         amount = int(data_amount)
-        print(amount)
-        # self.getLogger().inform(
-        #     f"Search completed for corporate metadata between {date_from} and {date_to}\nDate From: {date_from}, Date To: {date_to}\nAmount: {amount}"
-        # )
-        # self.setHtmlTag(
-        #     self.getDriver().find_element(
-        #         By.XPATH,
-        #         f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[1]/table/tbody"
-        #     )
-        # )
+        self.getLogger().inform(
+            f"Search completed for corporate metadata between {date_from} and {date_to}\nDate From: {date_from}, Date To: {date_to}\nAmount: {amount}"
+        )
+        self.setHtmlTag(
+            self.getDriver().find_element(
+                By.XPATH,
+                f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[1]/table/tbody"
+            )
+        )
         return response
