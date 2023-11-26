@@ -82,7 +82,7 @@ class Builder:
             parameters=filters,
             table_name="FinancialCalendar",
             filter_condition="CONCAT(YEAR(%s), '-', start_date) < %s AND CONCAT(YEAR(%s), '-', end_date) > %s",
-            column_names=f"YEAR({str(self.getDate().date())}) AS year, quarter, CONCAT(YEAR({str(self.getDate().date())}), '-', start_date) AS start_date, CONCAT(YEAR({str(self.getDate().date())}), '-', end_date) AS end_date"
+            column_names=f"YEAR('{str(self.getDate().date())}') AS year, quarter, CONCAT(YEAR('{str(self.getDate().date())}'), '-', start_date) AS start_date, CONCAT(YEAR('{str(self.getDate().date())}'), '-', end_date) AS end_date"
         )[0]
         quarter = {
             "year": int(data[0]),
