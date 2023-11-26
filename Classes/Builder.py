@@ -40,9 +40,10 @@ class Builder:
         self.setDate(datetime.strptime(date, "%Y-%m-%d"))
         self.setLogger(Corporate_Database_Builder_Logger())
         self.setDatabaseHandler(Database_Handler())
-        self.getLogger().setLogger(logging.getLogger(__name__))
-        self.getLogger().inform("The builder has been initialized!")
-        self.setCrawler(Crawler())
+        # self.getLogger().setLogger(logging.getLogger(__name__))
+        # self.getLogger().inform("The builder has been initialized!")
+        # self.setCrawler(Crawler())
+        self.firstRun()
 
     def getCrawler(self) -> Crawler:
         return self.__crawler
@@ -76,3 +77,17 @@ class Builder:
         Return:
             (void)
         """
+        filters = (self.getDate(),)
+        data: tuple[int, str, str, str] = self.getDatabaseHandler().get_data(
+            parameters=filters,
+            table_name="FinancialCalendar",
+            filter_condition=f"CONCAT({self.getDate().year}, '-', start_date) < {self.getDate()} AND CONCAT({self.getDate().year}, '-', end_date) > {self.getDate()}",
+            column_names=f"{self.getDate().year} AS year, quarter, CONCAT({self.getDate().year}, '-', start_date) AS start_date, CONCAT({self.getDate().year}, '-', end_date) AS end_date"
+        )[0]
+        quarter = {
+            "year": int(data[0]),
+            "quarter": str(data[1]),
+            "start_date": str(data[2]),
+            "end_date": str(data[3])
+        }
+        print(quarter)
