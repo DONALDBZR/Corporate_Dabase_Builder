@@ -88,4 +88,3 @@ class Builder:
             "start_date": str(data[2]),
             "end_date": str(data[3])
         }
-        print(quarter)
