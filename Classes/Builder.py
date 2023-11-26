@@ -93,7 +93,7 @@ class Builder:
         response = self.getCrawler().retrieveCorporateMetadata(quarter["start_date"], quarter["end_date"])
         print(quarter)
 
-    def validateFinancialCalendarEndDate(self, quarter: dict[str, int | str], date: datetime) -> dict:
+    def validateFinancialCalendarEndDate(self, quarter: dict[str, int | str], date: datetime) -> dict[str, int | str]:
         """
         Validating the quarter against to be able to date to know
         that the Crawler must take for a quarter that is before the
@@ -106,7 +106,7 @@ class Builder:
         Return:
             (object)
         """
-        response: dict
+        response: dict[str, int | str]
         end_date = datetime.timestamp(datetime.strptime(str(quarter["end_date"]), "%m/%d/%Y"))
         date_entered = datetime.timestamp(date)
         if date_entered > end_date:
