@@ -40,9 +40,9 @@ class Builder:
         self.setDate(datetime.strptime(date, "%Y-%m-%d"))
         self.setLogger(Corporate_Database_Builder_Logger())
         self.setDatabaseHandler(Database_Handler())
-        # self.getLogger().setLogger(logging.getLogger(__name__))
-        # self.getLogger().inform("The builder has been initialized!")
-        # self.setCrawler(Crawler())
+        self.getLogger().setLogger(logging.getLogger(__name__))
+        self.getLogger().inform("The builder has been initialized!")
+        self.setCrawler(Crawler())
         self.firstRun()
 
     def getCrawler(self) -> Crawler:
