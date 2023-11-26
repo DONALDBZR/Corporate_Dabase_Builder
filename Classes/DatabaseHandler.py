@@ -145,6 +145,9 @@ class Database_Handler:
             (Generator[MySQLCursor, None, None] | None)
         """
         self.__setStatement(self.__getDatabaseHandler().cursor(prepared=True))
+        self.getLogger().debug(
+            f"Query to be used as a request to the database server!\nQuery: {query}\nParameters: {parameters}"
+        )
         self.__getStatement().execute(query, parameters)
 
     def _execute(self) -> None:
