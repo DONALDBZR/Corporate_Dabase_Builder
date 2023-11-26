@@ -183,7 +183,7 @@ class Crawler:
         Return:
             (object)
         """
-        delay: float = (((self.ENV.calculateDelay(date_from) + self.ENV.calculateDelay(date_to)) / 2) / (40 * 5)) * 60
+        delay: float = (self.ENV.calculateDelay(date_from) + self.ENV.calculateDelay(date_to)) / 2
         print(f"Delay: {delay}s")
         response: dict = {}
         self.setHtmlTag(
