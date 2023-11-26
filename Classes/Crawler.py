@@ -55,6 +55,10 @@ class Crawler:
     information which allows the application to operate
     smoothly.
     """
+    __corporate_metadata: list[dict[str, str | None]]
+    """
+    The metadata of the companies that are in Mauritius.
+    """
     
     def __init__(self) -> None:
         """
@@ -126,6 +130,12 @@ class Crawler:
     
     def setLogger(self, logger: Corporate_Database_Builder_Logger) -> None:
         self.__logger = logger
+
+    def getCorporateMetadata(self) -> list[dict[str, str | None]]:
+        return self.__corporate_metadata
+    
+    def setCorporateMetadata(self, corporate_metadata: list[dict[str, str | None]]) -> None:
+        self.__corporate_metadata = corporate_metadata
 
     def __setServices(self) -> None:
         """
@@ -241,4 +251,14 @@ class Crawler:
             (object)
         """
         response = {}
+        amount_page = int(amount / amount_data_per_page)
+        for index in range(0, amount_page, 1):
+            self.setHtmlTags(
+                self.getHtmlTag().find_elements(
+                    By.XPATH,
+                    f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[1]/table/tbody/tr"
+                )
+            )
+            amount_data_found = len(self.getHtmlTags())
+            for 
         return response
