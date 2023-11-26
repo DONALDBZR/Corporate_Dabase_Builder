@@ -1,4 +1,6 @@
 from Classes.Crawler import Crawler
+from Classes.DatabaseHandler import Database_Handler
+from Classes.Logger import Corporate_Database_Builder_Logger
 from datetime import datetime
 
 
@@ -16,6 +18,11 @@ class Builder:
     The date to be used as a filter to retrieve the dataset to
     build the corporate database.
     """
+    __Database_Handler: Database_Handler
+    """
+    The database handler that will communicate with the database
+    server.
+    """
 
     def __init__(self, date: str) -> None:
         """
@@ -25,7 +32,7 @@ class Builder:
         Parameters:
             date:   (string):   The date to be used as a filter to retrieve the dataset to build the corporate database.
         """
-        self.setDate(date)
+        self.setDate(datetime.strptime(date, "%Y-%m-%d"))
         self.setCrawler(Crawler())
 
     def getCrawler(self) -> Crawler:
@@ -39,6 +46,12 @@ class Builder:
     
     def setDate(self, date: datetime) -> None:
         self.__date = date
+
+    def getDatabaseHandler(self) -> Database_Handler:
+        return self.__Database_Handler
+    
+    def setDatabaseHandler(self, database_handler: Database_Handler) -> None:
+        self.__Database_Handler = database_handler
     
     def firstRun(self) -> None:
         """
@@ -48,4 +61,3 @@ class Builder:
         Return:
             (void)
         """
-        
