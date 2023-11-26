@@ -2,7 +2,7 @@ from mysql.connector.pooling import PooledMySQLConnection
 from mysql.connector.connection import MySQLConnection
 from mysql.connector.cursor import MySQLCursor
 from Classes.Environment import Environment
-from Logger import Corporate_Database_Builder_Logger
+from Classes.Logger import Corporate_Database_Builder_Logger
 import mysql.connector
 import logging
 
