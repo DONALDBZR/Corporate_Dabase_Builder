@@ -265,6 +265,7 @@ class Crawler:
             )
             reading_delay = delay * len(self.getHtmlTags())
             amount_data_found += self.getPageTableData(amount_data_per_page, amount_data_found, amount)
+            time.sleep(reading_delay)
             self.setHtmlTag(
                 self.getDriver().find_element(
                     By.XPATH,
@@ -275,7 +276,12 @@ class Crawler:
                 f"The extraction of corporate metadata is in progress.\nAmount of data found: {amount_data_found}\nIteration: {index}"
             )
             self.getHtmlTag().click()
-            time.sleep(reading_delay)
+            self.setHtmlTag(
+                self.getDriver().find_element(
+                    By.XPATH,
+                    self.ENV.getTargetApplicationRootXpath()
+                )
+            )
         return response
     
     def interceptCookie(self) -> None:
