@@ -272,7 +272,7 @@ class Crawler:
                 )
             )
             self.getLogger().debug(
-                f"The extraction of corporate metadata is in progress.\nAmount of data found: {amount_data_found}\n"
+                f"The extraction of corporate metadata is in progress.\nAmount of data found: {amount_data_found}\nIteration" {index}"
             )
             time.sleep(reading_delay)
             self.getHtmlTag().click()
