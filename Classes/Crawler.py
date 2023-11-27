@@ -291,6 +291,23 @@ class Crawler:
             )
         return response
     
+    def writeCache(self) -> None:
+        """
+        Writing data to the cache directory.
+
+        Return:
+            (void)
+        """
+        file_name = f"{time.time()}.json"
+        file = open(
+            f"{self.ENV.getDirectory()}/Cache/{file_name}",
+            "w"
+        )
+        file.write(json.dumps(self.getCorporateMetadata(), indent=4))
+        file.close()
+        self.getLogger().inform("The data has been written to the cache.")
+
+    
     def readCache(self) -> None:
         """
         Reading data from the cache directory.
@@ -307,8 +324,10 @@ class Crawler:
                 "r"
             )
             self.setCorporateMetadata(json.load(file))
+            file.close()
         else:
             self.setCorporateMetadata([])
+        self.getLogger().inform("The data has been read from the cache!")
     
     def interceptCookie(self) -> None:
         """
