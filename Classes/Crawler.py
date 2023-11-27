@@ -272,10 +272,10 @@ class Crawler:
                 )
             )
             self.getLogger().debug(
-                f"The extraction of corporate metadata is in progress.\nAmount of data found: {amount_data_found}\nIteration" {index}"
+                f"The extraction of corporate metadata is in progress.\nAmount of data found: {amount_data_found}\nIteration: {index}"
             )
-            time.sleep(reading_delay)
             self.getHtmlTag().click()
+            time.sleep(reading_delay)
         return response
     
     def interceptCookie(self) -> None:
