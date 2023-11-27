@@ -236,6 +236,7 @@ class Crawler:
         )
         table_body = self.getHtmlTag()
         self.interceptCookie()
+        self.setHtmlTag(table_body)
         self.scrapeMetadata(0, 10, amount, delay)
         return response
     
