@@ -255,15 +255,18 @@ class Crawler:
         """
         response = {}
         self.setCorporateMetadata([])
+        data_amount = amount
         amount_page = int(amount / amount_data_per_page)
         table_body = self.getHtmlTag()
         for index in range(0, amount_page, 1):
+            self.readCache()
             self.setHtmlTags(
                 table_body.find_elements(
                     By.TAG_NAME,
                     "tr"
                 )
             )
+            amount = data_amount
             reading_delay = delay * len(self.getHtmlTags())
             amount_data_found += self.getPageTableData(amount_data_per_page, amount_data_found, amount)
             time.sleep(reading_delay)
@@ -276,6 +279,7 @@ class Crawler:
             self.getLogger().debug(
                 f"The extraction of corporate metadata is in progress.\nAmount of data found: {amount_data_found}\nIteration: {index}"
             )
+            self.writeCache()
             self.getHtmlTag().click()
             self.setHtmlTag(
                 self.getDriver().find_element(
