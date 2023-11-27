@@ -234,7 +234,7 @@ class Crawler:
                 f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[1]/table/tbody"
             )
         )
-        print(f"Table Body: {table_body}")
+        print(f"Table Body: {self.getHtmlTag()}")
         self.scrapeMetadata(0, 10, amount, delay)
         return response
     
