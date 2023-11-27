@@ -333,6 +333,5 @@ class Crawler:
             self.getLogger().inform(
                 f"Retrieving corporate metadata.\nPercentage Done: {done}%\nBRN: {data['business_registration_number']}\nName: {data['name']}\nFile Number: {data['file_number']}\nCategory: {data['category']}\nDate of Incorporation: {data['date_incorporation']}\nNature: {data['nature']}\nStatus: {data['status']}"
             )
-            print(f"Data: {data}")
             self.getCorporateMetadata().append(data)
         return amount_data_found
