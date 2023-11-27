@@ -256,24 +256,23 @@ class Crawler:
         response = {}
         self.setCorporateMetadata([])
         amount_page = int(amount / amount_data_per_page)
-        for first_index in range(0, amount_page, 1):
+        for index in range(0, amount_page, 1):
             self.setHtmlTags(
                 self.getHtmlTag().find_elements(
                     By.TAG_NAME,
                     "tr"
                 )
             )
-            amount_data_found += self.getPageTableData(amount_data_per_page, amount_data_found, amount)
             reading_delay = delay * len(self.getHtmlTags())
+            amount_data_found += self.getPageTableData(amount_data_per_page, amount_data_found, amount)
             self.setHtmlTag(
                 self.getDriver().find_element(
                     By.XPATH,
                     f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[2]/mat-paginator/div/div/div[2]/button[3]"
                 )
             )
-            done = (amount_data_found / amount) * 100
             self.getLogger().debug(
-                f"The extraction of corporate metadata is in progress.\nAmount of data found: {amount_data_found}\nDone: {done}"
+                f"The extraction of corporate metadata is in progress.\nAmount of data found: {amount_data_found}\n"
             )
             time.sleep(reading_delay)
             self.getHtmlTag().click()
