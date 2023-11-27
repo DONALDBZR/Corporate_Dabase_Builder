@@ -234,7 +234,6 @@ class Crawler:
                 f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[1]/table/tbody"
             )
         )
-        print(f"Table Body: {self.getHtmlTag()}")
         self.scrapeMetadata(0, 10, amount, delay)
         return response
     
@@ -257,8 +256,8 @@ class Crawler:
         for first_index in range(0, amount_page, 1):
             self.setHtmlTags(
                 self.getHtmlTag().find_elements(
-                    By.XPATH,
-                    "/tr"
+                    By.TAG_NAME,
+                    "tr"
                 )
             )
             amount_data_found += self.getPageTableData(amount_data_per_page, amount_data_found, amount)
