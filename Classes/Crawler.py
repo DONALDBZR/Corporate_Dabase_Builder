@@ -271,8 +271,12 @@ class Crawler:
                     f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[2]/mat-paginator/div/div/div[2]/button[3]"
                 )
             )
-            self.getHtmlTag().click()
+            done = (amount_data_found / amount) * 100
+            self.getLogger().debug(
+                f"The extraction of corporate metadata is in progress.\nAmount of data found: {amount_data_found}\nDone: {done}"
+            )
             time.sleep(reading_delay)
+            self.getHtmlTag().click()
         return response
     
     def interceptCookie(self) -> None:
