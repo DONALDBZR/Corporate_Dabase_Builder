@@ -274,6 +274,22 @@ class Crawler:
             time.sleep(reading_delay)
         return response
     
+    def interceptCookie(self) -> None:
+        """
+        Intercepting the cookie in order not to be recognize as a
+        bot.
+
+        Return:
+            (void)
+        """
+        self.setHtmlTag(
+            self.getDriver().find_element(
+                By.XPATH,
+                f"{self.ENV.getTargetApplicationRootXpath()}/cbris-policy/div/div/button[1]"
+            )
+        )
+        self.getHtmlTag().click()
+    
     def getPageTableData(self, amount_data_per_page: int, amount_data_found: int, amount: int) -> int:
         """
         Retrieving the corporate metadata that is in the table which
