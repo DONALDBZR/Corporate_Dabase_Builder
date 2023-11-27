@@ -9,6 +9,8 @@ from Classes.Environment import Environment
 from Classes.Logger import Corporate_Database_Builder_Logger
 import time
 import logging
+import os
+import json
 
 
 class Crawler:
@@ -288,6 +290,25 @@ class Crawler:
                 )
             )
         return response
+    
+    def readCache(self) -> None:
+        """
+        Reading data from the cache directory.
+
+        Return:
+            (void)
+        """
+        files = os.listdir(
+            f"{self.ENV.getDirectory()}/Cache"
+        )
+        if len(files) > 0:
+            file = open(
+                f"{self.ENV.getDirectory()}/Cache/{max(files)}",
+                "r"
+            )
+            self.setCorporateMetadata(json.load(file))
+        else:
+            self.setCorporateMetadata([])
     
     def interceptCookie(self) -> None:
         """
