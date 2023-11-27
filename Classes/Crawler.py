@@ -234,6 +234,8 @@ class Crawler:
                 f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[1]/table/tbody"
             )
         )
+        table_body = self.getHtmlTag()
+        self.interceptCookie()
         self.scrapeMetadata(0, 10, amount, delay)
         return response
     
