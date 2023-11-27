@@ -289,6 +289,7 @@ class Crawler:
             )
         )
         self.getHtmlTag().click()
+        self.getLogger().inform("The cookie has been intercepted!")
     
     def getPageTableData(self, amount_data_per_page: int, amount_data_found: int, amount: int) -> int:
         """
