@@ -306,8 +306,7 @@ class Crawler:
             (void)
         """
         rows = self.getHtmlTags()
-        print(f"Amount of data per page: {len(self.getHtmlTags())}")
-        for index in range(0, amount_data_per_page, 1):
+        for index in range(0, len(self.getHtmlTags()), 1):
             self.setHtmlTags(
                 rows[index].find_elements(
                     By.TAG_NAME,
