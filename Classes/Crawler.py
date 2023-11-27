@@ -256,9 +256,10 @@ class Crawler:
         response = {}
         self.setCorporateMetadata([])
         amount_page = int(amount / amount_data_per_page)
+        table_body = self.getHtmlTag()
         for index in range(0, amount_page, 1):
             self.setHtmlTags(
-                self.getHtmlTag().find_elements(
+                table_body.find_elements(
                     By.TAG_NAME,
                     "tr"
                 )
