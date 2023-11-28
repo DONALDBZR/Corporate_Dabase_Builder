@@ -239,7 +239,9 @@ class Crawler:
         table_body = self.getHtmlTag()
         self.interceptCookie()
         self.setHtmlTag(table_body)
-        self.scrapeMetadata(0, 10, amount, delay)
+        self.readCache()
+        amount_data_found = len(self.getCorporateMetadata())
+        self.scrapeMetadata(amount_data_found, 10, amount, delay)
         return response
     
     def scrapeMetadata(self, amount_data_found: int, amount_data_per_page: int, amount: int, delay: float) -> dict:
