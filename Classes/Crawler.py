@@ -197,9 +197,10 @@ class Crawler:
         Return:
             (object)
         """
-        delay: float = (self.ENV.calculateDelay(date_from) + self.ENV.calculateDelay(date_to)) / 2
+        delay: float = ((self.ENV.calculateDelay(date_from) + self.ENV.calculateDelay(date_to)) / 2) * 1.1
         amount: int
         response: dict = {}
+        print(f"Delay: {delay}s")
         self.setHtmlTag(
             self.getDriver().find_element(
                 By.XPATH,
