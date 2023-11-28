@@ -63,6 +63,11 @@ class Crawler:
     """
     The metadata of the companies that are in Mauritius.
     """
+    __wait: WebDriverWait
+    """
+    The controller which allows the Web Driver to control its
+    interactions with the components.
+    """
     
     def __init__(self) -> None:
         """
@@ -140,6 +145,12 @@ class Crawler:
     
     def setCorporateMetadata(self, corporate_metadata: list[dict[str, str | None]]) -> None:
         self.__corporate_metadata = corporate_metadata
+
+    def getWait(self) -> WebDriverWait:
+        return self.__wait
+    
+    def setWait(self, wait: WebDriverWait) -> None:
+        self.__wait = wait
 
     def __setServices(self) -> None:
         """
@@ -272,10 +283,13 @@ class Crawler:
             else:
                 skip_delay = delay * 2
                 time.sleep(skip_delay)
-                WebDriverWait(
-                    self.getDriver(),
-                    skip_delay
-                ).until(
+                self.setWait(
+                    WebDriverWait(
+                        self.getDriver(),
+                        skip_delay
+                    )
+                )
+                self.getWait().until(
                     expected_conditions.element_to_be_clickable(
                         (
                             By.XPATH,
