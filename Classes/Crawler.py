@@ -269,7 +269,7 @@ class Crawler:
                 )
             )
             amount = data_amount
-            self.getPageTableData(amount_data_per_page, amount_data_found, amount)
+            self.getPageTableData(amount_data_found, amount)
             amount_data_found += amount_data_per_page
             reading_delay = delay * amount_data_per_page
             done = (amount_data_found / amount) * 100
@@ -348,13 +348,12 @@ class Crawler:
         self.getHtmlTag().click()
         self.getLogger().inform("The cookie has been intercepted!")
     
-    def getPageTableData(self, amount_data_per_page: int, amount_data_found: int, amount: int) -> int:
+    def getPageTableData(self, amount_data_found: int, amount: int) -> None:
         """
         Retrieving the corporate metadata that is in the table which
         is generally displayed in a way order.
 
         Parameters:
-            amount_data_per_page:   (int):      The amount of data per page.
             amount_data_found:      (int):      The amount of data that the crawler has found.
             amount:                 (int):      The total amount of data.
 
@@ -362,7 +361,7 @@ class Crawler:
             (void)
         """
         rows = self.getHtmlTags()
-        for index in range(0, len(self.getHtmlTags()), 1):
+        for index in range(0, len(rows), 1):
             self.setHtmlTags(
                 rows[index].find_elements(
                     By.TAG_NAME,
@@ -389,7 +388,6 @@ class Crawler:
             self.getLogger().inform(
                 f"Retrieving corporate metadata.\nPercentage Done: {done}%\nBRN: {data['business_registration_number']}\nName: {data['name']}\nFile Number: {data['file_number']}\nCategory: {data['category']}\nDate of Incorporation: {data['date_incorporation']}\nNature: {data['nature']}\nStatus: {data['status']}"
             )
-        return amount_data_found
     
     def checkCorporateMetadata(self, name: str, data: dict[str, str | None]) -> int:
         """
