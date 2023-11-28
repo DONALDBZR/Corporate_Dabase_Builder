@@ -280,14 +280,7 @@ class Crawler:
                             f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[2]/mat-paginator/div/div/div[2]/button[3]"
                         )
                     )
-                )
-                self.setHtmlTag(
-                    self.getDriver().find_element(
-                        By.XPATH,
-                        f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[2]/mat-paginator/div/div/div[2]/button[3]"
-                    )
-                )
-                self.getHtmlTag().click()
+                ).click()
 
     def scrapeMetadata(self, amount_data_found: int, amount_data_per_page: int, amount: int, delay: float) -> dict:
         """
