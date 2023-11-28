@@ -208,7 +208,7 @@ class Crawler:
         Return:
             (object)
         """
-        delay: float = ((self.ENV.calculateDelay(date_from) + self.ENV.calculateDelay(date_to)) / 2) * (1.1 ** 9)
+        delay: float = (self.ENV.calculateDelay(date_from) + self.ENV.calculateDelay(date_to)) / 2
         amount: int
         response: dict = {}
         print(f"Delay: {delay}s")
@@ -236,10 +236,11 @@ class Crawler:
         )
         self.getHtmlTag().click()
         time.sleep(delay)
+        wait_delay = delay * (1.1 ** 10)
         self.setWait(
             WebDriverWait(
                 self.getDriver(),
-                delay
+                wait_delay
             )
         )
         self.getWait().until(
@@ -295,8 +296,8 @@ class Crawler:
             if str(len(self.getCorporateMetadata())) in validator:
                 break
             else:
-                skip_delay = delay * 2
-                time.sleep(skip_delay)
+                skip_delay = delay * (1.1 ** 0)
+                time.sleep(delay)
                 self.setWait(
                     WebDriverWait(
                         self.getDriver(),
