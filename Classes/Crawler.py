@@ -243,7 +243,7 @@ class Crawler:
             )
         )
         self.getWait().until(
-            expected_conditions.element_to_be_clickable(
+            expected_conditions.presence_of_element_located(
                 (
                     By.XPATH,
                     f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[2]/mat-paginator/div/div/div[2]/div"
