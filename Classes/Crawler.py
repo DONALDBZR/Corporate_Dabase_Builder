@@ -318,9 +318,10 @@ class Crawler:
                 f"The extraction of corporate metadata is in progress.\nAmount of data found: {amount_data_found}\nIteration: {index}\nDone: {done}%"
             )
             self.writeCache()
+            wait_delay = delay * 2
             WebDriverWait(
                 self.getDriver(),
-                delay
+                wait_delay
             ).until(
                 expected_conditions.element_to_be_clickable(
                     (
