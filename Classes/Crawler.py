@@ -269,8 +269,10 @@ class Crawler:
                 )
             )
             amount = data_amount
-            amount_data_found += self.getPageTableData(amount_data_per_page, amount_data_found, amount)
+            self.getPageTableData(amount_data_per_page, amount_data_found, amount)
+            amount_data_found += amount_data_per_page
             reading_delay = delay * amount_data_per_page
+            done = (amount_data_found / amount) * 100
             time.sleep(reading_delay)
             self.setHtmlTag(
                 self.getDriver().find_element(
@@ -279,7 +281,7 @@ class Crawler:
                 )
             )
             self.getLogger().debug(
-                f"The extraction of corporate metadata is in progress.\nAmount of data found: {amount_data_found}\nIteration: {index}"
+                f"The extraction of corporate metadata is in progress.\nAmount of data found: {amount_data_found}\nIteration: {index}\nDone: {done}%"
             )
             self.writeCache()
             self.getHtmlTag().click()
