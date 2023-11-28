@@ -241,9 +241,41 @@ class Crawler:
         self.setHtmlTag(table_body)
         self.readCache()
         amount_data_found = len(self.getCorporateMetadata())
+        pages = int(amount / 10)
+        self.refreshPage(pages, delay)
+        self.setHtmlTag(table_body)
         self.scrapeMetadata(amount_data_found, 10, amount, delay)
         return response
-    
+
+    def refreshPage(self, pages: int, delay: float) -> None:
+        """
+        Refreshing the data up to the latest data that the crawler
+        has taken.
+
+        Parameters:
+            pages:  (int):      The amount of pages
+            delay:  (float):    The delay in seconds
+
+        Return:
+            (void)
+        """
+        for index in range(0, pages, 1):
+            validator = self.getDriver().find_element(
+                By.XPATH,
+                f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[2]/mat-paginator/div/div/div[2]/div"
+            ).text
+            if str(len(self.getCorporateMetadata())) in validator:
+                break
+            else:
+                time.sleep(delay)
+                self.setHtmlTag(
+                    self.getDriver().find_element(
+                        By.XPATH,
+                        f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[2]/mat-paginator/div/div/div[2]/button[3]"
+                    )
+                )
+                self.getHtmlTag().click()
+
     def scrapeMetadata(self, amount_data_found: int, amount_data_per_page: int, amount: int, delay: float) -> dict:
         """
         Scraping the metadata from the target's application.
