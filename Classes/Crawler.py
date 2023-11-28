@@ -269,9 +269,8 @@ class Crawler:
                 )
             )
             amount = data_amount
-            reading_delay = delay * len(self.getHtmlTags())
             amount_data_found += self.getPageTableData(amount_data_per_page, amount_data_found, amount)
-            time.sleep(reading_delay)
+            time.sleep(delay)
             self.setHtmlTag(
                 self.getDriver().find_element(
                     By.XPATH,
