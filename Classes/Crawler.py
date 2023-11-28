@@ -197,7 +197,7 @@ class Crawler:
         Return:
             (object)
         """
-        delay: float = ((self.ENV.calculateDelay(date_from) + self.ENV.calculateDelay(date_to)) / 2) * (1.1 ** 8)
+        delay: float = ((self.ENV.calculateDelay(date_from) + self.ENV.calculateDelay(date_to)) / 2) * (1.1 ** 9)
         amount: int
         response: dict = {}
         print(f"Delay: {delay}s")
