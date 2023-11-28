@@ -7,6 +7,8 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from Classes.Environment import Environment
 from Classes.Logger import Corporate_Database_Builder_Logger
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions
 import time
 import logging
 import os
@@ -268,6 +270,17 @@ class Crawler:
                 break
             else:
                 time.sleep(delay)
+                WebDriverWait(
+                    self.getDriver(),
+                    delay
+                ).until(
+                    expected_conditions.visibility_of_element_located(
+                        (
+                            By.XPATH,
+                            f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[2]/mat-paginator/div/div/div[2]/button[3]"
+                        )
+                    )
+                )
                 self.setHtmlTag(
                     self.getDriver().find_element(
                         By.XPATH,
