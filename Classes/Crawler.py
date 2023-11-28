@@ -270,10 +270,11 @@ class Crawler:
             if str(len(self.getCorporateMetadata())) in validator:
                 break
             else:
-                delay *= 2
+                skip_delay = delay * 2
+                time.sleep(skip_delay)
                 WebDriverWait(
                     self.getDriver(),
-                    delay
+                    skip_delay
                 ).until(
                     expected_conditions.element_to_be_clickable(
                         (
