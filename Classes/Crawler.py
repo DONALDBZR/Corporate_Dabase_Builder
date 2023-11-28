@@ -271,9 +271,8 @@ class Crawler:
             amount = data_amount
             self.getPageTableData(amount_data_found, amount)
             amount_data_found += amount_data_per_page
-            reading_delay = delay * amount_data_per_page
             done = (amount_data_found / amount) * 100
-            time.sleep(reading_delay)
+            time.sleep(delay)
             self.setHtmlTag(
                 self.getDriver().find_element(
                     By.XPATH,
