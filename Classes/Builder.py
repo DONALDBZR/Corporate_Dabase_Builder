@@ -89,8 +89,8 @@ class Builder:
                 "%m/%d/%Y"
             )
             period = {
-                "date_from": str(quarter["start_date"]),
-                "date_to": date_to
+                "start_date": str(quarter["start_date"]),
+                "end_date": date_to
             }
             self.setCrawler(Crawler())
             response = self.getCrawler().retrieveCorporateMetadata(
