@@ -91,35 +91,3 @@ class Builder:
                 str(period["end_date"])
             )
             print(response)
-
-    def validateFinancialCalendarEndDate(self, quarter: dict[str, int | str], date: datetime) -> dict[str, int | str]:
-        """
-        Validating the quarter against to be able to date to know
-        that the Crawler must take for a quarter that is before the
-        current quarter.
-
-        Parameters:
-            quarter:    (object):   The quarter to be used as parameter for the search
-            date:       (Datetime): The date entered by the user.
-
-        Return:
-            (object)
-        """
-        response: dict[str, int | str]
-        start_date = datetime.timestamp(datetime.strptime(str(quarter["start_date"]), "%m/%d/%Y"))
-        end_date = datetime.timestamp(datetime.strptime(str(quarter["end_date"]), "%m/%d/%Y"))
-        date_entered = datetime.timestamp(date)
-        if date_entered < start_date and date_entered > end_date:
-            response = {
-                "status": 401,
-                "message": "Data from the current quarter cannot be taken!"
-            }
-        else:
-            response = {
-                "status": 200,
-                "message": f"Data from the quarter {quarter['year']} {quarter['quarter']} can be taken"
-            }
-        self.getLogger().inform(
-            f"The date has been validated.\nStatus: {response['status']}\nMessage: {response['message']}"
-        )
-        return response
