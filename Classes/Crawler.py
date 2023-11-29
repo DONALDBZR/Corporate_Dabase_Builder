@@ -297,7 +297,7 @@ class Crawler:
             if str(len(self.getCorporateMetadata())) in validator:
                 break
             else:
-                skip_delay = delay * (1.1 ** 1)
+                skip_delay = delay * 1
                 time.sleep(skip_delay)
                 self.setWait(
                     WebDriverWait(
