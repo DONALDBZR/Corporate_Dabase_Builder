@@ -309,7 +309,7 @@ class Crawler:
                 f"The extraction of corporate metadata is in progress.\nAmount of data found: {amount_data_found}\nIteration: {index}\nDone: {done}%"
             )
             self.writeCache()
-            wait_delay = delay * 3
+            wait_delay = delay * (1.1 ** 0)
             WebDriverWait(
                 self.getDriver(),
                 wait_delay
