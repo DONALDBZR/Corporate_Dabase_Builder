@@ -235,8 +235,9 @@ class Crawler:
             )
         )
         self.getHtmlTag().click()
-        time.sleep(delay)
-        wait_delay = delay * (1.1 ** 10)
+        wait_delay = delay * (1.1 ** 30)
+        print(f"Wait Delay: {wait_delay}s")
+        time.sleep(wait_delay)
         self.setWait(
             WebDriverWait(
                 self.getDriver(),
