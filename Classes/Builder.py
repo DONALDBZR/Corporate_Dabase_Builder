@@ -81,9 +81,16 @@ class Builder:
                 "start_date": str(FinancialCalendar[2]),
                 "end_date": str(FinancialCalendar[3])
             }
+            date_to = datetime.strftime(
+                datetime.strptime(
+                    str(quarter["start_date"]),
+                    "%m/%d/%Y"
+                ) + timedelta(weeks=1),
+                "%m/%d/%Y"
+            )
             period = {
                 "date_from": str(quarter["start_date"]),
-                "date_to": datetime.strftime(datetime.strptime(str(quarter["start_date"]), "%m/%d/%Y") + timedelta(weeks=1), "%m/%d/%Y")
+                "date_to": date_to
             }
             self.setCrawler(Crawler())
             response = self.getCrawler().retrieveCorporateMetadata(
