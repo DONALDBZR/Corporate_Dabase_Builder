@@ -24,6 +24,10 @@ class Builder:
     """
     The logger that will all the action of the application.
     """
+    __data: list[dict[str, str | None]]
+    """
+    The data that is fed from the Crawler.
+    """
 
     def __init__(self) -> None:
         """
@@ -53,6 +57,12 @@ class Builder:
     
     def setLogger(self, logger: Corporate_Database_Builder_Logger) -> None:
         self.__logger = logger
+
+    def getData(self) -> list[dict[str, str | None]]:
+        return self.__data
+    
+    def setData(self, data: list[dict[str, str | None]]) -> None:
+        self.__data = data
     
     def firstRun(self) -> None:
         """
