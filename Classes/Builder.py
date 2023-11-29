@@ -14,11 +14,6 @@ class Builder:
     The main web-scrapper which will scraope the data from the
     database needed.
     """
-    __date: datetime
-    """
-    The date to be used as a filter to retrieve the dataset to
-    build the corporate database.
-    """
     __Database_Handler: Database_Handler
     """
     The database handler that will communicate with the database
@@ -29,15 +24,11 @@ class Builder:
     The logger that will all the action of the application.
     """
 
-    def __init__(self, date: str) -> None:
+    def __init__(self) -> None:
         """
         Initializing the builder which will import and initialize
         the dependencies.
-
-        Parameters:
-            date:   (string):   The date to be used as a filter to retrieve the dataset to build the corporate database.
         """
-        self.setDate(datetime.strptime(date, "%Y-%m-%d"))
         self.setLogger(Corporate_Database_Builder_Logger())
         self.setDatabaseHandler(Database_Handler())
         self.getLogger().setLogger(logging.getLogger(__name__))
@@ -49,12 +40,6 @@ class Builder:
     
     def setCrawler(self, crawler: Crawler) -> None:
         self.__crawler = crawler
-
-    def getDate(self) -> datetime:
-        return self.__date
-    
-    def setDate(self, date: datetime) -> None:
-        self.__date = date
 
     def getDatabaseHandler(self) -> Database_Handler:
         return self.__Database_Handler
