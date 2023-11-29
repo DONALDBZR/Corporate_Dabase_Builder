@@ -2,6 +2,7 @@ from Classes.Crawler import Crawler
 from Classes.DatabaseHandler import Database_Handler
 from Classes.Logger import Corporate_Database_Builder_Logger
 from datetime import datetime
+from datetime import timedelta
 import logging
 
 
@@ -61,27 +62,33 @@ class Builder:
         Return:
             (void)
         """
-        query = "SELECT YEAR(CURDATE()) AS year, quarter, FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(YEAR(CURDATE()), '-', start_date)), '%m/%d/%Y') AS start_date, FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(YEAR(CURDATE()), '-', end_date)), '%m/%d/%Y') AS end_date FROM FinancialCalendar WHERE CONCAT(YEAR(CURDATE()), '-', start_date) < CURDATE() AND CONCAT(YEAR(CURDATE()), '-', end_date) > CURDATE()"
-        data: tuple[int, str, str, str] = self.getDatabaseHandler().get_data(
+        quarter: dict[str, int | str]
+        period: dict[str, str]
+        FinancialCalendar: tuple[int, str, str, str] = self.getDatabaseHandler().get_data(
             table_name="FinancialCalendar",
-            filter_condition=f"CONCAT(YEAR('{str(self.getDate().date())}'), '-', start_date) < '{str(self.getDate().date())}' AND CONCAT(YEAR('{str(self.getDate().date())}'), '-', end_date) > '{str(self.getDate().date())}'",
-            column_names=f"YEAR('{str(self.getDate().date())}') AS year, quarter, FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(YEAR('{str(self.getDate().date())}'), '-', start_date)), '%m/%d/%Y') AS start_date, FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(YEAR('{str(self.getDate().date())}'), '-', end_date)), '%m/%d/%Y') AS end_date"
-        )[0]
-        quarter: dict[str, int | str] = {
-            "year": int(data[0]),
-            "quarter": str(data[1]),
-            "start_date": str(data[2]),
-            "end_date": str(data[3])
-        }
-        validation: dict[str, int | str] = self.validateFinancialCalendarEndDate(quarter, self.getDate())
-        if validation["status"] != 200:
-            self.getLogger().error(f"Error has been raised by the application!\nError: FinCorp{validation['status']}: {validation['message']}")
-            raise Exception(f"Error has been raised by the application!\nError: FinCorp{validation['status']}: {validation['message']}")
+            filter_condition="CONCAT(YEAR(CURDATE()), '-', start_date) < CURDATE() AND CONCAT(YEAR(CURDATE()), '-', end_date) > CURDATE()",
+            column_names="YEAR(CURDATE()) AS year, quarter, FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(YEAR(CURDATE()), '-', start_date)), '%m/%d/%Y') AS start_date, FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(YEAR(CURDATE()), '-', end_date)), '%m/%d/%Y') AS end_date"
+        )[0] # type: ignore
+        logs: list[tuple[int, str, int, str, int, int , int, int]] = self.getDatabaseHandler().get_data(
+            table_name="FinCorpLogs"
+        ) # type: ignore
+        if len(logs) > 0:
+            pass
         else:
+            quarter = {
+                "year": int(FinancialCalendar[0]),
+                "quarter": str(FinancialCalendar[1]),
+                "start_date": str(FinancialCalendar[2]),
+                "end_date": str(FinancialCalendar[3])
+            }
+            period = {
+                "date_from": str(quarter["start_date"]),
+                "date_to": datetime.strftime(datetime.strptime(str(quarter["start_date"]), "%m/%d/%Y") + timedelta(weeks=1), "%m/%d/%Y")
+            }
             self.setCrawler(Crawler())
             response = self.getCrawler().retrieveCorporateMetadata(
-                str(quarter["start_date"]),
-                str(quarter["end_date"])
+                str(period["start_date"]),
+                str(period["end_date"])
             )
             print(response)
 
