@@ -97,4 +97,16 @@ class Builder:
                 str(period["start_date"]),
                 str(period["end_date"])
             )
-            print(response)
+            if response["status"] == 200:
+                self.setData(self.getCrawler().getCorporateMetadata())
+                self.storeCorporateMetadata()
+                self.getCrawler().getDriver().quit()
+                self.getLogger().inform("Storing the corporate metadata!")
+            else:
+                self.getCrawler().getDriver().quit()
+                self.getLogger().error(
+                    f"The application has failed to collect the data!  Please check the logs!\nStatus: {response['status']}"
+                )
+                raise Exception(
+                    f"The application has failed to collect the data!  Please check the logs!\nStatus: {response['status']}"
+                )
