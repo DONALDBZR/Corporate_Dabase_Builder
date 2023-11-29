@@ -272,6 +272,13 @@ class Crawler:
         self.readCache()
         amount_data_found = len(self.getCorporateMetadata())
         self.scrapeMetadata(amount_data_found, 10, amount, delay)
+        response = {
+            "status": 200,
+            "amount": amount
+        }
+        self.getLogger().inform(
+            f"The metadata has been retrieved and stored in the cache database.\nStatus: {response['status']}\nAmount: {response['amount']}"
+        )
         return response
 
     def scrapeMetadata(self, amount_data_found: int, amount_data_per_page: int, amount: int, delay: float) -> dict:
