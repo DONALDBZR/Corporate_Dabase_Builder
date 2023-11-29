@@ -97,16 +97,29 @@ class Builder:
                 str(period["start_date"]),
                 str(period["end_date"])
             )
-            if response["status"] == 200:
-                self.setData(self.getCrawler().getCorporateMetadata())
-                self.storeCorporateMetadata()
-                self.getCrawler().getDriver().quit()
-                self.getLogger().inform("Storing the corporate metadata!")
-            else:
-                self.getCrawler().getDriver().quit()
-                self.getLogger().error(
-                    f"The application has failed to collect the data!  Please check the logs!\nStatus: {response['status']}"
-                )
-                raise Exception(
-                    f"The application has failed to collect the data!  Please check the logs!\nStatus: {response['status']}"
-                )
+            self.validateCorporateMetadata(response["status"])
+
+    def validateCorporateMetadata(self, status: int) -> None:
+        """
+        Validating the response from the Crawler to save the data
+        into the database server.
+
+        Parameters:
+            status: (int):  The response status from the Crawler.
+
+        Return:
+            (void)
+        """
+        if status == 200:
+            self.setData(self.getCrawler().getCorporateMetadata())
+            self.storeCorporateMetadata()
+            self.getCrawler().getDriver().quit()
+            self.getLogger().inform("Storing the corporate metadata!")
+        else:
+            self.getCrawler().getDriver().quit()
+            self.getLogger().error(
+                f"The application has failed to collect the data!  Please check the logs!\nStatus: {status}"
+            )
+            raise Exception(
+                f"The application has failed to collect the data!  Please check the logs!\nStatus: {status}"
+            )
