@@ -196,7 +196,7 @@ class Crawler:
         self.getDriver().get(self.getTarget())
         time.sleep(delay)
 
-    def retrieveCorporateMetadata(self, date_from: str, date_to: str) -> dict:
+    def retrieveCorporateMetadata(self, date_from: str, date_to: str) -> dict[str, int]:
         """
         Retrieving corporate metadata about the companies that
         operate in Mauritius.
