@@ -16,8 +16,13 @@ source ./venv/bin/activate
 pip install -r requirements.txt
 ```
 
-# Running the application
+# Installing the scripts to be automated
 
 ```bash
-python3 index.py
+crontab -e
+```
+
+# The first module has to be configured to be run each 15 minutes
+```bash
+*/15 * * * * ./venv/bin/python3 ./Auto/collect_corporate_metadata.py
 ```
