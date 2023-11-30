@@ -133,3 +133,27 @@ class Builder:
             raise Exception(
                 f"The application has failed to collect the data!  Please check the logs!\nStatus: {status}"
             )
+
+    def storeCorporateMetadata(self) -> None:
+        """
+        Storing the metadata into the database server.
+
+        Return:
+            (void)
+        """
+        for index in range(0, len(self.getData()), 1):
+            CompanyDetails = self.getData()[index]
+            parameters: tuple[str, str, str, int, str, str] = (
+                str(CompanyDetails["name"]),
+                str(CompanyDetails["file_number"]),
+                str(CompanyDetails["category"]),
+                int(datetime.strptime(str(CompanyDetails["date_incorporation"]), "%d/%m/%Y").timestamp()),
+                str(CompanyDetails["nature"]),
+                str(CompanyDetails["status"])
+            )
+            self.getDatabaseHandler().post_data(
+                table="CompanyDetails",
+                parameters=parameters,
+                columns="name, file_number, category, date_incorporation, nature, status",
+                values="%s, %s, %s, $i, %s, %s"
+            )
