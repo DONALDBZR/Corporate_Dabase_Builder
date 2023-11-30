@@ -63,7 +63,7 @@ class Builder:
     def setData(self, data: list[dict[str, str | None]]) -> None:
         self.__data = data
     
-    def firstRun(self) -> None:
+    def collectCorporateMetadata(self) -> None:
         """
         The first run consists of retrieving the metadata needed of
         any existing company in Mauritius.
