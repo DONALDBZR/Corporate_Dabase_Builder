@@ -1,6 +1,6 @@
 /venv/
 /.vscode/
-/Classes/Environment.py
+/Auto/Classes/Environment.py
 /Logs/
 /**/__pycache__/
 /*.sql
