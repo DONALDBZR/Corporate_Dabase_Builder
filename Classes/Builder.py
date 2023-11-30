@@ -72,7 +72,7 @@ class Builder:
             (void)
         """
         quarter: dict[str, int | str]
-        period: dict[str, str]
+        request: dict[str, str] = {}
         FinancialCalendar: tuple[int, str, str, str] = self.getDatabaseHandler().get_data(
             table_name="FinancialCalendar",
             filter_condition="CONCAT(YEAR(CURDATE()), '-', start_date) < CURDATE() AND CONCAT(YEAR(CURDATE()), '-', end_date) > CURDATE()",
@@ -97,16 +97,16 @@ class Builder:
                 ) + timedelta(weeks=1),
                 "%m/%d/%Y"
             )
-            period = {
+            request = {
                 "start_date": str(quarter["start_date"]),
                 "end_date": date_to
             }
             self.setCrawler(Crawler())
-            response = self.getCrawler().retrieveCorporateMetadata(
-                str(period["start_date"]),
-                str(period["end_date"])
-            )
-            self.validateCorporateMetadata(response["status"])
+        response = self.getCrawler().retrieveCorporateMetadata(
+            str(request["start_date"]),
+            str(request["end_date"])
+        )
+        self.validateCorporateMetadata(response["status"])
 
     def validateCorporateMetadata(self, status: int) -> None:
         """
