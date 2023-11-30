@@ -301,7 +301,7 @@ class Crawler:
         table_body = self.getHtmlTag()
         for index in range(0, amount_page, 1):
             self.readCache()
-            wait_delay = delay * (1.1 ** 1)
+            wait_delay = delay * (1.1 ** 2)
             self.setHtmlTags(
                 table_body.find_elements(
                     By.TAG_NAME,
