@@ -4,6 +4,7 @@ from Classes.Logger import Corporate_Database_Builder_Logger
 from datetime import datetime
 from datetime import timedelta
 import logging
+import inspect
 
 
 class Builder:
@@ -106,35 +107,57 @@ class Builder:
             str(request["start_date"]),
             str(request["end_date"])
         )
-        self.validateCorporateMetadata(response, request)
+        self.validateCorporateMetadata(response, request, quarter) # type: ignore
 
-    def validateCorporateMetadata(self, status: int) -> None:
+    def validateCorporateMetadata(self, response: dict[str, int], request: dict[str, str], quarter: dict[str, int | str]) -> None:
         """
         Validating the response from the Crawler to save the data
         into the database server.
 
         Parameters:
-            status: (int):  The response status from the Crawler.
+            response:   (object):   The response after retrieving the data.
+            request:    (object):   The request used to retrieve the data.
+            quarter:    (object):   The data of the quarter.
 
         Return:
             (void)
         """
-        if status == 200:
+        if response["status"] == 200:
+            method_name = inspect.stack()[0].function
+            date_start = int(datetime.strptime(
+                str(request["start_date"]),
+                "%m/%d/%Y"
+            ).timestamp())
+            date_end = int(datetime.strptime(
+                str(request["end_date"]),
+                "%m/%d/%Y"
+            ).timestamp())
+            parameters: tuple[str, str, int, int, int, int] = (
+                method_name,
+                str(quarter["quarter"]),
+                date_start,
+                date_end,
+                int(response["status"]),
+                int(response["amount"])
+            )
             self.setData(self.getCrawler().getCorporateMetadata())
             self.getCrawler().getDriver().quit()
             self.getLogger().inform("Storing the corporate metadata!")
             self.storeCorporateMetadata()
             query = "INSERT INTO FinCorpLogs (method_name, quarter, date_start, date_to, status, amount) VALUES ('method_name:varchar', 'quarter:varchar', date_start:int, date_to:int, status:int, amount:int)"
             self.getDatabaseHandler().post_data(
-                table="Fin"
+                table="FinCorpLogs",
+                columns="method_name, quarter, date_start, date_to, status, amount",
+                values="%s, %s, %s, %s, %s, %s",
+                parameters=parameters
             )
         else:
             self.getCrawler().getDriver().quit()
             self.getLogger().error(
-                f"The application has failed to collect the data!  Please check the logs!\nStatus: {status}"
+                f"The application has failed to collect the data!  Please check the logs!\nStatus: {response['status']}"
             )
             raise Exception(
-                f"The application has failed to collect the data!  Please check the logs!\nStatus: {status}"
+                f"The application has failed to collect the data!  Please check the logs!\nStatus: {response['status']}"
             )
 
     def storeCorporateMetadata(self) -> None:
@@ -150,7 +173,10 @@ class Builder:
                 str(CompanyDetails["name"]),
                 str(CompanyDetails["file_number"]),
                 str(CompanyDetails["category"]),
-                int(datetime.strptime(str(CompanyDetails["date_incorporation"]), "%d/%m/%Y").timestamp()),
+                int(datetime.strptime(
+                    str(CompanyDetails["date_incorporation"]),
+                    "%d/%m/%Y"
+                ).timestamp()),
                 str(CompanyDetails["nature"]),
                 str(CompanyDetails["status"])
             )
