@@ -106,7 +106,7 @@ class Builder:
             str(request["start_date"]),
             str(request["end_date"])
         )
-        self.validateCorporateMetadata(response["status"])
+        self.validateCorporateMetadata(response, request)
 
     def validateCorporateMetadata(self, status: int) -> None:
         """
@@ -121,9 +121,13 @@ class Builder:
         """
         if status == 200:
             self.setData(self.getCrawler().getCorporateMetadata())
-            self.storeCorporateMetadata()
             self.getCrawler().getDriver().quit()
             self.getLogger().inform("Storing the corporate metadata!")
+            self.storeCorporateMetadata()
+            query = "INSERT INTO FinCorpLogs (method_name, quarter, date_start, date_to, status, amount) VALUES ('method_name:varchar', 'quarter:varchar', date_start:int, date_to:int, status:int, amount:int)"
+            self.getDatabaseHandler().post_data(
+                table="Fin"
+            )
         else:
             self.getCrawler().getDriver().quit()
             self.getLogger().error(
