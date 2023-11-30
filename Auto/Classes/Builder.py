@@ -154,5 +154,5 @@ class Builder:
                 table="CompanyDetails",
                 parameters=parameters,
                 columns="name, file_number, category, date_incorporation, nature, status",
-                values="%s, %s, %s, $i, %s, %s"
+                values="%s, %s, %s, %i, %s, %s"
             )
