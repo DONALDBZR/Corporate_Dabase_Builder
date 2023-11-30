@@ -122,16 +122,16 @@ class Builder:
         Return:
             (void)
         """
+        method_name = inspect.stack()[0].function
+        date_start = int(datetime.strptime(
+            str(request["start_date"]),
+            "%m/%d/%Y"
+        ).timestamp())
+        date_end = int(datetime.strptime(
+            str(request["end_date"]),
+            "%m/%d/%Y"
+        ).timestamp())
         if response["status"] == 200:
-            method_name = inspect.stack()[0].function
-            date_start = int(datetime.strptime(
-                str(request["start_date"]),
-                "%m/%d/%Y"
-            ).timestamp())
-            date_end = int(datetime.strptime(
-                str(request["end_date"]),
-                "%m/%d/%Y"
-            ).timestamp())
             parameters: tuple[str, str, int, int, int, int] = (
                 method_name,
                 str(quarter["quarter"]),
@@ -144,7 +144,6 @@ class Builder:
             self.getCrawler().getDriver().quit()
             self.getLogger().inform("Storing the corporate metadata!")
             self.storeCorporateMetadata()
-            query = "INSERT INTO FinCorpLogs (method_name, quarter, date_start, date_to, status, amount) VALUES ('method_name:varchar', 'quarter:varchar', date_start:int, date_to:int, status:int, amount:int)"
             self.getDatabaseHandler().post_data(
                 table="FinCorpLogs",
                 columns="method_name, quarter, date_start, date_to, status, amount",
@@ -152,7 +151,21 @@ class Builder:
                 parameters=parameters
             )
         else:
+            parameters: tuple[str, str, int, int, int, int] = (
+                method_name,
+                str(quarter["quarter"]),
+                date_start,
+                date_end,
+                int(response["status"]),
+                0
+            )
             self.getCrawler().getDriver().quit()
+            self.getDatabaseHandler().post_data(
+                table="FinCorpLogs",
+                columns="method_name, quarter, date_start, date_to, status, amount",
+                values="%s, %s, %s, %s, %s, %s",
+                parameters=parameters
+            )
             self.getLogger().error(
                 f"The application has failed to collect the data!  Please check the logs!\nStatus: {response['status']}"
             )
