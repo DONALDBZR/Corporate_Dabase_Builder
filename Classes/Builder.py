@@ -38,7 +38,6 @@ class Builder:
         self.setDatabaseHandler(Database_Handler())
         self.getLogger().setLogger(logging.getLogger(__name__))
         self.getLogger().inform("The builder has been initialized!")
-        self.firstRun()
 
     def getCrawler(self) -> Crawler:
         return self.__crawler
