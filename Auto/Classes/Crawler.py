@@ -317,14 +317,17 @@ class Crawler:
                 f"The extraction of corporate metadata is in progress.\nAmount of data found: {amount_data_found}\nIteration: {index}\nDone: {done}%"
             )
             self.writeCache()
-            time.sleep(wait_delay)
-            self.setHtmlTag(
-                self.getDriver().find_element(
+            WebDriverWait(
+                self.getDriver(),
+                wait_delay
+            ).until(
+                expected_conditions.element_to_be_clickable(
+                    (
                         By.XPATH,
                         f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[2]/mat-paginator/div/div/div[2]/button[3]"
                     )
-            )
-            self.getHtmlTag().click()
+                )
+            ).click()
             self.setHtmlTag(
                 self.getDriver().find_element(
                     By.XPATH,
