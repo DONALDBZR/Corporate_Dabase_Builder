@@ -235,7 +235,7 @@ class Crawler:
             )
         )
         self.getHtmlTag().click()
-        wait_delay = delay * (1.1 ** 1)
+        wait_delay = delay * (1.1 ** 2)
         print(f"Wait Delay: {wait_delay}s")
         time.sleep(wait_delay)
         self.setWait(
@@ -299,7 +299,7 @@ class Crawler:
         data_amount = amount
         amount_page = int(amount / amount_data_per_page)
         table_body = self.getHtmlTag()
-        wait_delay = delay * (1.1 ** 5)
+        wait_delay = delay * (1.1 ** 7)
         print(f"Scrape Delay: {wait_delay}s")
         for index in range(0, amount_page, 1):
             self.readCache()
