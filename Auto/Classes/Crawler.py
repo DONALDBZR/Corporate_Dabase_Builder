@@ -299,9 +299,10 @@ class Crawler:
         data_amount = amount
         amount_page = int(amount / amount_data_per_page)
         table_body = self.getHtmlTag()
+        wait_delay = delay * (1.1 ** 5)
+        print(f"Scrape Delay: {wait_delay}s")
         for index in range(0, amount_page, 1):
             self.readCache()
-            wait_delay = delay * (1.1 ** 5)
             self.setHtmlTags(
                 table_body.find_elements(
                     By.TAG_NAME,
@@ -327,7 +328,7 @@ class Crawler:
                         f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[2]/mat-paginator/div/div/div[2]/button[3]"
                     )
                 ),
-                "Unclickable Element"
+                "Unclickable Element!  Increase the delay!"
             ).click()
             self.setHtmlTag(
                 self.getDriver().find_element(
