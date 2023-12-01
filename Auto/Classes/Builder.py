@@ -79,18 +79,38 @@ class Builder:
             filter_condition="CONCAT(YEAR(CURDATE()), '-', start_date) < CURDATE() AND CONCAT(YEAR(CURDATE()), '-', end_date) > CURDATE()",
             column_names="YEAR(CURDATE()) AS year, quarter, FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(YEAR(CURDATE()), '-', start_date)), '%m/%d/%Y') AS start_date, FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(YEAR(CURDATE()), '-', end_date)), '%m/%d/%Y') AS end_date"
         )[0] # type: ignore
-        logs: list[tuple[int, str, int, str, int, int , int, int]] = self.getDatabaseHandler().get_data(
-            table_name="FinCorpLogs"
-        ) # type: ignore
+        logs: tuple[str, str] = self.getDatabaseHandler().get_data(
+            table_name="FinCorpLogs",
+            parameters=None,
+            filter_condition="status = 200",
+            column_names="MIN(FROM_UNIXTIME(date_start, '%m/%d/%Y')) AS start_date, MAX(FROM_UNIXTIME(date_to, '%m/%d/%Y')) AS end_date"
+        )[0] # type: ignore
+        quarter = {
+            "year": int(FinancialCalendar[0]),
+            "quarter": str(FinancialCalendar[1]),
+            "start_date": str(FinancialCalendar[2]),
+            "end_date": str(FinancialCalendar[3])
+        }
         if len(logs) > 0:
-            pass
-        else:
-            quarter = {
-                "year": int(FinancialCalendar[0]),
-                "quarter": str(FinancialCalendar[1]),
-                "start_date": str(FinancialCalendar[2]),
-                "end_date": str(FinancialCalendar[3])
+            date_start = datetime.strftime(
+                datetime.strptime(
+                    max(logs),
+                    "%m/%d/%Y"
+                ) + timedelta(days=1),
+                "%m/%d/%Y"
+            )
+            date_end = datetime.strftime(
+                datetime.strptime(
+                    date_start,
+                    "%m/%d/%Y"
+                ) + timedelta(weeks=1),
+                "%m/%d/%Y"
+            )
+            request = {
+                "start_date": date_start,
+                "end_date": date_end
             }
+        else:
             date_to = datetime.strftime(
                 datetime.strptime(
                     str(quarter["start_date"]),
@@ -103,6 +123,7 @@ class Builder:
                 "end_date": date_to
             }
             self.setCrawler(Crawler())
+        print(request)
         response = self.getCrawler().retrieveCorporateMetadata(
             str(request["start_date"]),
             str(request["end_date"])
