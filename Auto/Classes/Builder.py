@@ -13,7 +13,7 @@ class Builder:
     """
     __crawler: Crawler
     """
-    The main web-scrapper which will scraope the data from the
+    The main web-scrapper which will scrape the data from the
     database needed.
     """
     __Database_Handler: Database_Handler
