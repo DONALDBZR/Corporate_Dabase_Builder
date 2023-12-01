@@ -122,8 +122,7 @@ class Builder:
                 "start_date": str(quarter["start_date"]),
                 "end_date": date_to
             }
-            self.setCrawler(Crawler())
-        print(request)
+        self.setCrawler(Crawler())
         response = self.getCrawler().retrieveCorporateMetadata(
             str(request["start_date"]),
             str(request["end_date"])
