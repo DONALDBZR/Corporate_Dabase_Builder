@@ -486,7 +486,6 @@ class Crawler:
             By.XPATH,
             ".."
         )
-        element_code = element.get_attribute("innerHTML")
         try:
             self.getHtmlTag().click()
         except ElementClickInterceptedException:
