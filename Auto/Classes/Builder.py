@@ -93,9 +93,7 @@ class Builder:
             "end_date": str(FinancialCalendar[3])
         }
         if len(logs) > 0:
-            request = self.handleRequest(logs);
-            print(request)
-            sys.exit()
+            request = self.handleRequest(logs)
         else:
             date_to = datetime.strftime(
                 datetime.strptime(
