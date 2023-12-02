@@ -142,7 +142,7 @@ class Builder:
             date_end,
             "%m/%d/%Y"
         ).timestamp()
-        current_date = datetime.now() + timedelta(days=1)
+        current_date = datetime.now() - timedelta(days=1)
         current_time = current_date.timestamp()
         if date_end_unixtime > current_time:
             date_end = datetime.strftime(
