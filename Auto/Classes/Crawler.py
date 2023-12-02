@@ -314,7 +314,6 @@ class Crawler:
             self.getPageTableData(amount_data_found, amount)
             amount_data_found += amount_data_per_page
             done = (amount_data_found / amount) * 100
-            time.sleep(wait_delay)
             self.getLogger().debug(
                 f"The extraction of corporate metadata is in progress.\nAmount of data found: {amount_data_found}\nIteration: {index}\nDone: {done}%"
             )
@@ -339,6 +338,7 @@ class Crawler:
             (void)
         """
         try:
+            time.sleep(delay)
             self.setHtmlTag(
                 self.getDriver().find_element(
                     By.XPATH,
