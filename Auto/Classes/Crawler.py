@@ -319,7 +319,7 @@ class Crawler:
                 f"The extraction of corporate metadata is in progress.\nAmount of data found: {amount_data_found}\nIteration: {index}\nDone: {done}%"
             )
             self.writeCache()
-            self.nextPage()
+            self.nextPage(wait_delay)
             self.setHtmlTag(
                 self.getDriver().find_element(
                     By.XPATH,
@@ -328,9 +328,12 @@ class Crawler:
             )
         return response
 
-    def nextPage(self) -> None:
+    def nextPage(self, delay: float) -> None:
         """
         Going to the next page.
+
+        Parameters:
+            delay:  (float):    The amount of time for the application to wait before execution.
 
         Return:
             (void)
@@ -344,8 +347,9 @@ class Crawler:
             )
             self.getHtmlTag().click()
         except ElementClickInterceptedException:
+            exception_delay = delay * 1.1
             self.getLogger().error(f"Element is not clickable.  The application will try again in three seconds!\nElement X-Path: {self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[2]/mat-paginator/div/div/div[2]/button[3]\nStatus: 504")
-            self.nextPage()
+            self.nextPage(exception_delay)
 
     def writeCache(self) -> None:
         """
