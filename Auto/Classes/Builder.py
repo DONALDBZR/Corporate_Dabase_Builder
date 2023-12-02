@@ -5,6 +5,7 @@ from datetime import datetime
 from datetime import timedelta
 import logging
 import inspect
+import sys
 
 
 class Builder:
@@ -92,24 +93,9 @@ class Builder:
             "end_date": str(FinancialCalendar[3])
         }
         if len(logs) > 0:
-            date_start = datetime.strftime(
-                datetime.strptime(
-                    max(logs),
-                    "%m/%d/%Y"
-                ) + timedelta(days=1),
-                "%m/%d/%Y"
-            )
-            date_end = datetime.strftime(
-                datetime.strptime(
-                    date_start,
-                    "%m/%d/%Y"
-                ) + timedelta(weeks=1),
-                "%m/%d/%Y"
-            )
-            request = {
-                "start_date": date_start,
-                "end_date": date_end
-            }
+            request = self.handleRequest(logs);
+            print(request)
+            sys.exit()
         else:
             date_to = datetime.strftime(
                 datetime.strptime(
@@ -129,6 +115,52 @@ class Builder:
             0
         )
         self.validateCorporateMetadata(response, request, quarter) # type: ignore
+
+    def handleRequest(self, logs: tuple[str, str]) -> dict:
+        """
+        Handling the request before that it is sent to the Crawler.
+
+        Parameters:
+            logs:   (array):    The data from FinCorpLogs
+
+        Return:
+            (object)
+        """
+        date_start = datetime.strftime(
+            datetime.strptime(
+                max(logs),
+                "%m/%d/%Y"
+            ) + timedelta(days=1),
+            "%m/%d/%Y"
+        )
+        date_end = datetime.strftime(
+            datetime.strptime(
+                date_start,
+                "%m/%d/%Y"
+            ) + timedelta(weeks=1),
+            "%m/%d/%Y"
+        )
+        date_end_unixtime = datetime.strptime(date_end, "%m/%d/%Y").timestamp()
+        current_time = datetime.now().timestamp()
+        if date_end_unixtime > current_time:
+            date_end = datetime.strftime(
+                datetime.strptime(
+                    min(logs),
+                    "%m/%d/%Y"
+                ) - timedelta(days=1),
+                "%m/%d/%Y"
+            )
+            date_start = datetime.strftime(
+                datetime.strptime(
+                    date_end,
+                    "%m/%d/%Y"
+                ) - timedelta(weeks=1),
+                "%m/%d/%Y"
+            )
+        return {
+            "start_date": date_start,
+            "end_date": date_end
+        }
 
     def validateCorporateMetadata(self, response: dict[str, int], request: dict[str, str], quarter: dict[str, int | str]) -> None:
         """
