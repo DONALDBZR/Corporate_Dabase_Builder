@@ -175,7 +175,6 @@ class Crawler:
             (void)
         """
         self.setOptions(Options())
-        self.getOptions().add_argument('--headless')
         self.getOptions().add_argument('--no-sandbox')
         self.getOptions().add_argument('--disable-dev-shm-usage')
         self.getOptions().add_argument('--disable-blink-features=AutomationControlled')
@@ -198,22 +197,22 @@ class Crawler:
         self.getDriver().get(self.getTarget())
         time.sleep(delay)
 
-    def retrieveCorporateMetadata(self, date_from: str, date_to: str) -> dict[str, int]:
+    def retrieveCorporateMetadata(self, date_from: str, date_to: str, coefficient: int) -> dict[str, int]:
         """
         Retrieving corporate metadata about the companies that
         operate in Mauritius.
 
         Parameters:
-            date_from:  (str):  The start date of the search.
-            date_to:    (str):  The end date of the search
+            date_from:  (str):      The start date of the search.
+            date_to:    (str):      The end date of the search.
+            coeffcient: (float):    This coefficient changes depending the handlers.
 
         Return:
             (object)
         """
-        delay: float = (self.ENV.calculateDelay(date_from) + self.ENV.calculateDelay(date_to)) / 2
+        delay: float = ((self.ENV.calculateDelay(date_from) + self.ENV.calculateDelay(date_to)) / 2) * (1.1 ** coefficient)
         amount: int
         response: dict = {}
-        print(f"Delay: {delay}s")
         self.setHtmlTag(
             self.getDriver().find_element(
                 By.XPATH,
@@ -238,22 +237,7 @@ class Crawler:
         )
         self.handleSearch()
         wait_delay = delay * (1.1 ** 0)
-        print(f"Wait Delay: {wait_delay}s")
         time.sleep(wait_delay)
-        self.setWait(
-            WebDriverWait(
-                self.getDriver(),
-                wait_delay
-            )
-        )
-        self.getWait().until(
-            expected_conditions.presence_of_element_located(
-                (
-                    By.XPATH,
-                    f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[2]/mat-paginator/div/div/div[2]/div"
-                )
-            )
-        )
         data_amount = self.getDriver().find_element(
             By.XPATH,
             f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[2]/mat-paginator/div/div/div[2]/div"
@@ -302,7 +286,6 @@ class Crawler:
         amount_page = int(amount / amount_data_per_page)
         table_body = self.getHtmlTag()
         wait_delay = delay * (1.1 ** 0)
-        print(f"Scrape Delay: {wait_delay}s")
         for index in range(0, amount_page, 1):
             self.readCache()
             self.setHtmlTags(
@@ -482,10 +465,6 @@ class Crawler:
         Return:
             (void)
         """
-        element = self.getHtmlTag().find_element(
-            By.XPATH,
-            ".."
-        )
         try:
             self.getHtmlTag().click()
         except ElementClickInterceptedException:
@@ -493,7 +472,7 @@ class Crawler:
                 f"The search button cannot be clicked!  Injecting the component needed!\nStatus: 401\nX-Path: {self.ENV.getTargetApplicationRootXpath()}/cbris-header/div/div/form/div/div[2]/div[3]/div[2]/button"
             )
             self.getDriver().execute_script(
-                "arguments[0].attributes.removeNamedItem('disabled');",
+                "arguments[0].removeAttribute('disabled');",
                 self.getHtmlTag()
             )
             self.handleSearch()
