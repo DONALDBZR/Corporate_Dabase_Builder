@@ -139,7 +139,7 @@ class Builder:
             "%m/%d/%Y"
         )
         date_end_unixtime = datetime.strptime(date_end, "%m/%d/%Y").timestamp()
-        current_time = datetime.now().timestamp()
+        current_time = datetime.now().timestamp() + 86399.999999999
         if date_end_unixtime > current_time:
             date_end = datetime.strftime(
                 datetime.strptime(
