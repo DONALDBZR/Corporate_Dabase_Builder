@@ -125,7 +125,8 @@ class Builder:
         self.setCrawler(Crawler())
         response = self.getCrawler().retrieveCorporateMetadata(
             str(request["start_date"]),
-            str(request["end_date"])
+            str(request["end_date"]),
+            0
         )
         self.validateCorporateMetadata(response, request, quarter) # type: ignore
 
