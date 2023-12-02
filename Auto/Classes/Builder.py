@@ -152,13 +152,14 @@ class Builder:
             "%m/%d/%Y"
         ).timestamp())
         if response["status"] == 200:
-            parameters: tuple[str, str, int, int, int, int] = (
+            parameters: tuple[str, str, int, int, int, int, int] = (
                 method_name,
                 str(quarter["quarter"]),
                 date_start,
                 date_end,
                 int(response["status"]),
-                int(response["amount"])
+                int(response["amount"]),
+                len(self.getCrawler().getCorporateMetadata())
             )
             self.setData(self.getCrawler().getCorporateMetadata())
             self.getCrawler().getDriver().quit()
@@ -166,24 +167,25 @@ class Builder:
             self.storeCorporateMetadata()
             self.getDatabaseHandler().post_data(
                 table="FinCorpLogs",
-                columns="method_name, quarter, date_start, date_to, status, amount",
-                values="%s, %s, %s, %s, %s, %s",
+                columns="method_name, quarter, date_start, date_to, status, amount, amount_found",
+                values="%s, %s, %s, %s, %s, %s, %s",
                 parameters=parameters
             )
         else:
-            parameters: tuple[str, str, int, int, int, int] = (
+            parameters: tuple[str, str, int, int, int, int, int] = (
                 method_name,
                 str(quarter["quarter"]),
                 date_start,
                 date_end,
                 int(response["status"]),
+                0,
                 0
             )
             self.getCrawler().getDriver().quit()
             self.getDatabaseHandler().post_data(
                 table="FinCorpLogs",
-                columns="method_name, quarter, date_start, date_to, status, amount",
-                values="%s, %s, %s, %s, %s, %s",
+                columns="method_name, quarter, date_start, date_to, status, amount, amount_found",
+                values="%s, %s, %s, %s, %s, %s, %s",
                 parameters=parameters
             )
             self.getLogger().error(
