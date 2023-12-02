@@ -348,8 +348,30 @@ class Crawler:
             self.getHtmlTag().click()
         except ElementClickInterceptedException:
             exception_delay = delay * 1.1
-            self.getLogger().error(f"Element is not clickable.  The application will try again in three seconds!\nElement X-Path: {self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[2]/mat-paginator/div/div/div[2]/button[3]\nStatus: 504\nDelay: {exception_delay}s")
-            self.nextPage(exception_delay)
+            self.handleElementClickInterceptedException(exception_delay)
+
+    def handleElementClickInterceptedException(self, delay: float) -> None:
+        """
+        Handling Element Click Intercepted Exceptions from Selenium.
+
+        Parameters:
+            delay:  (float):    The amount of time for the application to wait before execution.
+
+        Return:
+            (void)  
+        """
+        if delay <= 60:
+            self.getLogger().error(
+                f"Element is not clickable.  The application will try again in three seconds!\nElement X-Path: {self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[2]/mat-paginator/div/div/div[2]/button[3]\nStatus: 504\nDelay: {delay}s"
+            )
+            self.nextPage(delay)
+        else:
+            self.getLogger().error(
+                f"Element is not clickable!  Contact the required department to raise the delay!\nElement X-Path: {self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[2]/mat-paginator/div/div/div[2]/button[3]\nStatus: 401"
+            )
+            raise ElementClickInterceptedException(
+                f"Element is not clickable!  Contact the required department to raise the delay!\nElement X-Path: {self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[2]/mat-paginator/div/div/div[2]/button[3]\nStatus: 401"
+            )
 
     def writeCache(self) -> None:
         """
