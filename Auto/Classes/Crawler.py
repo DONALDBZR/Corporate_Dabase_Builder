@@ -490,7 +490,7 @@ class Crawler:
             self.getHtmlTag().click()
         except ElementClickInterceptedException:
             self.getLogger().error(
-                f"The search button cannot be clicked!  Injecting the component needed!\nStatus: 401\nX-Path: {self.ENV.getTargetApplicationRootXpath()}"
+                f"The search button cannot be clicked!  Injecting the component needed!\nStatus: 401\nX-Path: {self.ENV.getTargetApplicationRootXpath()}/cbris-header/div/div/form/div/div[2]/div[3]/div[2]/button"
             )
             self.getDriver().execute_script(
                 "arguments[0].attributes.removeNamedItem('disabled');",
