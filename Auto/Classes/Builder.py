@@ -138,8 +138,12 @@ class Builder:
             ) + timedelta(weeks=1),
             "%m/%d/%Y"
         )
-        date_end_unixtime = datetime.strptime(date_end, "%m/%d/%Y").timestamp()
-        current_time = datetime.now().timestamp() + 86399.999999999
+        date_end_unixtime = datetime.strptime(
+            date_end,
+            "%m/%d/%Y"
+        ).timestamp()
+        current_date = datetime.now() + timedelta(days=1)
+        current_time = current_date.timestamp()
         if date_end_unixtime > current_time:
             date_end = datetime.strftime(
                 datetime.strptime(
