@@ -236,7 +236,7 @@ class Crawler:
                 f"{self.ENV.getTargetApplicationRootXpath()}/cbris-header/div/div/form/div/div[2]/div[3]/div[2]/button"
             )
         )
-        self.getHtmlTag().click()
+        self.handleSearch()
         wait_delay = delay * (1.1 ** 0)
         print(f"Wait Delay: {wait_delay}s")
         time.sleep(wait_delay)
@@ -348,7 +348,6 @@ class Crawler:
             )
             self.getHtmlTag().click()
         except ElementClickInterceptedException:
-            exception_delay = delay * 1.1
             self.setHtmlTag(
                 self.getDriver().find_element(
                     By.TAG_NAME,
@@ -474,3 +473,28 @@ class Crawler:
         else:
             self.getCorporateMetadata().append(data)
             return 1
+
+    def handleSearch(self) -> None:
+        """
+        Verifying the component before injecting the correct
+        component.
+
+        Return:
+            (void)
+        """
+        element = self.getHtmlTag().find_element(
+            By.XPATH,
+            ".."
+        )
+        element_code = element.get_attribute("innerHTML")
+        try:
+            self.getHtmlTag().click()
+        except ElementClickInterceptedException:
+            self.getLogger().error(
+                f"The search button cannot be clicked!  Injecting the component needed!\nStatus: 401\nX-Path: {self.ENV.getTargetApplicationRootXpath()}"
+            )
+            self.getDriver().execute_script(
+                "arguments[0].attributes.removeNamedItem('disabled');",
+                self.getHtmlTag()
+            )
+            self.handleSearch()
