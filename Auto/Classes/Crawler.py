@@ -9,6 +9,7 @@ from Classes.Environment import Environment
 from Classes.Logger import Corporate_Database_Builder_Logger
 from selenium.webdriver.support.ui import WebDriverWait #type: ignore
 from selenium.webdriver.support import expected_conditions
+from selenium.common.exceptions import ElementClickInterceptedException
 import time
 import logging
 import os
@@ -235,7 +236,7 @@ class Crawler:
             )
         )
         self.getHtmlTag().click()
-        wait_delay = delay * (1.1 ** 2)
+        wait_delay = delay * (1.1 ** 3)
         print(f"Wait Delay: {wait_delay}s")
         time.sleep(wait_delay)
         self.setWait(
@@ -299,7 +300,7 @@ class Crawler:
         data_amount = amount
         amount_page = int(amount / amount_data_per_page)
         table_body = self.getHtmlTag()
-        wait_delay = delay * (1.1 ** 7)
+        wait_delay = delay * (1.1 ** 11)
         print(f"Scrape Delay: {wait_delay}s")
         for index in range(0, amount_page, 1):
             self.readCache()
@@ -318,18 +319,7 @@ class Crawler:
                 f"The extraction of corporate metadata is in progress.\nAmount of data found: {amount_data_found}\nIteration: {index}\nDone: {done}%"
             )
             self.writeCache()
-            WebDriverWait(
-                self.getDriver(),
-                wait_delay
-            ).until(
-                expected_conditions.element_to_be_clickable(
-                    (
-                        By.XPATH,
-                        f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[2]/mat-paginator/div/div/div[2]/button[3]"
-                    )
-                ),
-                "Unclickable Element!  Increase the delay!"
-            ).click()
+            self.nextPage()
             self.setHtmlTag(
                 self.getDriver().find_element(
                     By.XPATH,
@@ -337,7 +327,26 @@ class Crawler:
                 )
             )
         return response
-    
+
+    def nextPage(self) -> None:
+        """
+        Going to the next page.
+
+        Return:
+            (void)
+        """
+        try:
+            self.setHtmlTag(
+                self.getDriver().find_element(
+                    By.XPATH,
+                    f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[2]/mat-paginator/div/div/div[2]/button[3]"
+                )
+            )
+            self.getHtmlTag().click()
+        except ElementClickInterceptedException:
+            self.getLogger().error(f"Element is not clickable.  The application will try again in three seconds!\nElement X-Path: {self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[2]/mat-paginator/div/div/div[2]/button[3]\nStatus: 504")
+            self.nextPage()
+
     def writeCache(self) -> None:
         """
         Writing data to the cache directory.
