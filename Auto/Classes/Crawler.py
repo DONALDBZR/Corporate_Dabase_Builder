@@ -300,7 +300,7 @@ class Crawler:
         data_amount = amount
         amount_page = int(amount / amount_data_per_page)
         table_body = self.getHtmlTag()
-        wait_delay = delay * (1.1 ** 11)
+        wait_delay = delay * (1.1 ** 0)
         print(f"Scrape Delay: {wait_delay}s")
         for index in range(0, amount_page, 1):
             self.readCache()
