@@ -401,50 +401,18 @@ class Crawler:
         rows = self.getHtmlTags()
         for index in range(0, len(rows), 1):
             self.setHtmlTags(
-                rows[index].find_elements(By.TAG_NAME, "td")
+                rows[index].find_elements(
+                    By.TAG_NAME,
+                    "td"
+                )
             )
-            self.checkCorporateMetadataType(self.handleCorporateMetadata(), amount_data_found, amount)
-
-    def checkCorporateMetadataType(self, data: dict[str, str | None] | None, amount_data_found: int, amount: int) -> None:
-        """
-        Verifying the data type of the corporate metadata in order
-        to take the correct action.
-
-        Parameters:
-            data:               (object | null):    The corporate metadata that has been retrieved.
-            amount_data_found:  (int):              The amount of data retrieved from the target.
-            amount:             (int):              The amount of data in the result set of the target's application.
-
-        Return:
-            (void)
-        """
-        if type(data).__name__ == "dict":
-            amount_data_found += self.checkCorporateMetadata(data) # type: ignore
-            done = (amount_data_found / amount) * 100
-            self.getLogger().inform(
-                f"Retrieving corporate metadata.\nPercentage Done: {done}%\nBRN: {data['business_registration_number']}\nName: {data['name']}\nFile Number: {data['file_number']}\nCategory: {data['category']}\nDate of Incorporation: {data['date_incorporation']}\nNature: {data['nature']}\nStatus: {data['status']}" # type: ignore
-            )
-        else:
-            amount_data_found += 1
-            done = (amount_data_found / amount) * 100
-            self.getLogger().error(
-                f"Missing data detected!\nPercentage Done: {done}%\nStatus: 404"
-            )
-    def handleCorporateMetadata(self) -> dict[str, str | None] | None:
-        """
-        Handling the data before building the corporate metadata.
-
-        Return:
-            (object | null)
-        """
-        try:
             name = self.getHtmlTags()[1].text
             file_number = self.getHtmlTags()[2].text
             category = self.getHtmlTags()[3].text
             date_incorporation = self.getHtmlTags()[4].text
             nature = self.getHtmlTags()[5].text
             status = self.getHtmlTags()[6].text
-            return {
+            data: dict[str, str | None] = {
                 "business_registration_number": None,
                 "name": name,
                 "file_number": file_number,
@@ -453,11 +421,11 @@ class Crawler:
                 "nature": nature,
                 "status": status,
             }
-        except StaleElementReferenceException:
-            self.getLogger().error(
-                f"The data is not found.  The application will try to retrieve that data back!\nStatus: 404"
+            amount_data_found += self.checkCorporateMetadata(data)
+            done = (amount_data_found / amount) * 100
+            self.getLogger().inform(
+                f"Retrieving corporate metadata.\nPercentage Done: {done}%\nBRN: {data['business_registration_number']}\nName: {data['name']}\nFile Number: {data['file_number']}\nCategory: {data['category']}\nDate of Incorporation: {data['date_incorporation']}\nNature: {data['nature']}\nStatus: {data['status']}"
             )
-            return None
 
     def checkCorporateMetadata(self, data: dict[str, str | None]) -> int:
         """
