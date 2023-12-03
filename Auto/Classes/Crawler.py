@@ -401,10 +401,7 @@ class Crawler:
         rows = self.getHtmlTags()
         for index in range(0, len(rows), 1):
             self.setHtmlTags(
-                rows[index].find_elements(
-                    By.TAG_NAME,
-                    "td"
-                )
+                rows[index].find_elements(By.TAG_NAME, "td")
             )
             self.checkCorporateMetadataType(self.handleCorporateMetadata(), amount_data_found, amount)
 
