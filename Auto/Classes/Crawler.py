@@ -420,7 +420,7 @@ class Crawler:
                 )
             )
             data = self.handleCorporateMetadata()
-            amount_data_found += self.checkCorporateMetadata(name, data)
+            amount_data_found += self.checkCorporateMetadata(data)
             done = (amount_data_found / amount) * 100
             self.getLogger().inform(
                 f"Retrieving corporate metadata.\nPercentage Done: {done}%\nBRN: {data['business_registration_number']}\nName: {data['name']}\nFile Number: {data['file_number']}\nCategory: {data['category']}\nDate of Incorporation: {data['date_incorporation']}\nNature: {data['nature']}\nStatus: {data['status']}"
@@ -455,19 +455,18 @@ class Crawler:
             )
             return self.handleCorporateMetadata()
 
-    def checkCorporateMetadata(self, name: str, data: dict[str, str | None]) -> int:
+    def checkCorporateMetadata(self, data: dict[str, str | None]) -> int:
         """
         Checking the corporate metadata against the corporate
         metadata from the cache.
 
         Parameters:
-            name:   (string):   The name of the company.
             data:   (object):   The corporate metadata of a company.
 
         Return:
             (int)
         """
-        if any(name in data.values() for data in self.getCorporateMetadata()):
+        if any(data["name"] in data.values() for data in self.getCorporateMetadata()):
             return 1
         else:
             self.getCorporateMetadata().append(data)
