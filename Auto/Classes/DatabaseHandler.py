@@ -172,7 +172,7 @@ class Database_Handler:
         self.__getStatement().close()
         return result_set
 
-    def get_data(self, table_name: str, parameters: tuple | None = None, join_condition: str = "", filter_condition: str = "", column_names: str = "*", sort_condition: str = "", limit_condition: int = 0) -> list[tuple[int, str, str, str]] | list[tuple[int, str, int, str, int, int , int, int]] | list[tuple[str, str]]:
+    def getData(self, table_name: str, parameters: tuple | None = None, join_condition: str = "", filter_condition: str = "", column_names: str = "*", sort_condition: str = "", limit_condition: int = 0) -> list[tuple[int, str, str, str]] | list[tuple[int, str, int, str, int, int , int, int]] | list[tuple[str, str]]:
         """
         Retrieving data from the database.
 
@@ -191,10 +191,10 @@ class Database_Handler:
         query = f"SELECT {column_names} FROM {table_name}"
         self.setQuery(query)
         self.setParameters(parameters)
-        self._get_join(join_condition)
-        self._get_filter(filter_condition)
-        self._get_sort(sort_condition)
-        self._get_limit(limit_condition)
+        self._getJoin(join_condition)
+        self._getFilter(filter_condition)
+        self._getSort(sort_condition)
+        self._getLimit(limit_condition)
         self.getLogger().inform(
             f"Query built for retrieving data!\nQuery: {self.getQuery()}\nParameters: {self.getParameters()}"
         )
