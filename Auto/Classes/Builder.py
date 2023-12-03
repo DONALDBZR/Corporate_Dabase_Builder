@@ -249,7 +249,7 @@ class Builder:
                 str(CompanyDetails["nature"]),
                 str(CompanyDetails["status"])
             )
-            self.getDatabaseHandler().post_data(
+            self.getDatabaseHandler().postData(
                 table="CompanyDetails",
                 parameters=parameters,
                 columns="name, file_number, category, date_incorporation, nature, status",
