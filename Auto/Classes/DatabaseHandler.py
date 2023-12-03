@@ -304,7 +304,7 @@ class Database_Handler:
         query = f"UPDATE {table} SET {values}"
         self.setQuery(query)
         self.setParameters(parameters)
-        self._get_filter(condition)
+        self._getFilter(condition)
         self.getLogger().inform(
             f"Query built for updating data!\nQuery: {self.getQuery()}\nParameters: {self.getParameters()}"
         )
