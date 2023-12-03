@@ -421,13 +421,18 @@ class Crawler:
         Return:
             (void)
         """
-        if type(data).__name__ is "dict":
+        if type(data).__name__ == "dict":
             amount_data_found += self.checkCorporateMetadata(data) # type: ignore
             done = (amount_data_found / amount) * 100
             self.getLogger().inform(
                 f"Retrieving corporate metadata.\nPercentage Done: {done}%\nBRN: {data['business_registration_number']}\nName: {data['name']}\nFile Number: {data['file_number']}\nCategory: {data['category']}\nDate of Incorporation: {data['date_incorporation']}\nNature: {data['nature']}\nStatus: {data['status']}" # type: ignore
             )
-
+        else:
+            amount_data_found += 1
+            done = (amount_data_found / amount) * 100
+            self.getLogger().error(
+                f"Missing data detected!\nPercentage Done: {done}%\nStatus: 404"
+            )
     def handleCorporateMetadata(self) -> dict[str, str | None] | None:
         """
         Handling the data before building the corporate metadata.
