@@ -10,6 +10,7 @@ from Classes.Logger import Corporate_Database_Builder_Logger
 from selenium.webdriver.support.ui import WebDriverWait #type: ignore
 from selenium.webdriver.support import expected_conditions
 from selenium.common.exceptions import ElementClickInterceptedException
+from selenium.common.exceptions import StaleElementReferenceException
 import time
 import logging
 import os
@@ -418,13 +419,28 @@ class Crawler:
                     "td"
                 )
             )
+            data = self.handleCorporateMetadata()
+            amount_data_found += self.checkCorporateMetadata(name, data)
+            done = (amount_data_found / amount) * 100
+            self.getLogger().inform(
+                f"Retrieving corporate metadata.\nPercentage Done: {done}%\nBRN: {data['business_registration_number']}\nName: {data['name']}\nFile Number: {data['file_number']}\nCategory: {data['category']}\nDate of Incorporation: {data['date_incorporation']}\nNature: {data['nature']}\nStatus: {data['status']}"
+            )
+
+    def handleCorporateMetadata(self) -> dict[str, str | None]:
+        """
+        Handling the data before building the corporate metadata.
+
+        Return:
+            (object)
+        """
+        try:
             name = self.getHtmlTags()[1].text
             file_number = self.getHtmlTags()[2].text
             category = self.getHtmlTags()[3].text
             date_incorporation = self.getHtmlTags()[4].text
             nature = self.getHtmlTags()[5].text
             status = self.getHtmlTags()[6].text
-            data: dict[str, str | None] = {
+            return {
                 "business_registration_number": None,
                 "name": name,
                 "file_number": file_number,
@@ -433,12 +449,12 @@ class Crawler:
                 "nature": nature,
                 "status": status,
             }
-            amount_data_found += self.checkCorporateMetadata(name, data)
-            done = (amount_data_found / amount) * 100
-            self.getLogger().inform(
-                f"Retrieving corporate metadata.\nPercentage Done: {done}%\nBRN: {data['business_registration_number']}\nName: {data['name']}\nFile Number: {data['file_number']}\nCategory: {data['category']}\nDate of Incorporation: {data['date_incorporation']}\nNature: {data['nature']}\nStatus: {data['status']}"
+        except StaleElementReferenceException:
+            self.getLogger().error(
+                f"The data is not found.  The application will try to retrieve that data back!\nStatus: 404"
             )
-    
+            return self.handleCorporateMetadata()
+
     def checkCorporateMetadata(self, name: str, data: dict[str, str | None]) -> int:
         """
         Checking the corporate metadata against the corporate
