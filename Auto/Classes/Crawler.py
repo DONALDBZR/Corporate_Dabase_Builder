@@ -7,8 +7,6 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from Classes.Environment import Environment
 from Classes.Logger import Corporate_Database_Builder_Logger
-from selenium.webdriver.support.ui import WebDriverWait #type: ignore
-from selenium.webdriver.support import expected_conditions
 from selenium.common.exceptions import ElementClickInterceptedException
 from selenium.common.exceptions import StaleElementReferenceException
 import time
@@ -64,11 +62,6 @@ class Crawler:
     __corporate_metadata: list[dict[str, str | None]]
     """
     The metadata of the companies that are in Mauritius.
-    """
-    __wait: WebDriverWait
-    """
-    The controller which allows the Web Driver to control its
-    interactions with the components.
     """
     
     def __init__(self) -> None:
@@ -147,12 +140,6 @@ class Crawler:
     
     def setCorporateMetadata(self, corporate_metadata: list[dict[str, str | None]]) -> None:
         self.__corporate_metadata = corporate_metadata
-
-    def getWait(self) -> WebDriverWait:
-        return self.__wait
-    
-    def setWait(self, wait: WebDriverWait) -> None:
-        self.__wait = wait
 
     def __setServices(self) -> None:
         """
