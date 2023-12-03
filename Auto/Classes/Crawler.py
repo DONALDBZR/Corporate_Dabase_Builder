@@ -406,11 +406,26 @@ class Crawler:
                     "td"
                 )
             )
-            data = self.handleCorporateMetadata()
-            amount_data_found += self.checkCorporateMetadata(data)
+            self.checkCorporateMetadataType(self.handleCorporateMetadata(), amount_data_found, amount)
+
+    def checkCorporateMetadataType(self, data: dict[str, str | None] | None, amount_data_found: int, amount: int) -> None:
+        """
+        Verifying the data type of the corporate metadata in order
+        to take the correct action.
+
+        Parameters:
+            data:               (object | null):    The corporate metadata that has been retrieved.
+            amount_data_found:  (int):              The amount of data retrieved from the target.
+            amount:             (int):              The amount of data in the result set of the target's application.
+
+        Return:
+            (void)
+        """
+        if type(data).__name__ is "dict":
+            amount_data_found += self.checkCorporateMetadata(data) # type: ignore
             done = (amount_data_found / amount) * 100
             self.getLogger().inform(
-                f"Retrieving corporate metadata.\nPercentage Done: {done}%\nBRN: {data['business_registration_number']}\nName: {data['name']}\nFile Number: {data['file_number']}\nCategory: {data['category']}\nDate of Incorporation: {data['date_incorporation']}\nNature: {data['nature']}\nStatus: {data['status']}"
+                f"Retrieving corporate metadata.\nPercentage Done: {done}%\nBRN: {data['business_registration_number']}\nName: {data['name']}\nFile Number: {data['file_number']}\nCategory: {data['category']}\nDate of Incorporation: {data['date_incorporation']}\nNature: {data['nature']}\nStatus: {data['status']}" # type: ignore
             )
 
     def handleCorporateMetadata(self) -> dict[str, str | None] | None:
