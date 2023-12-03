@@ -5,7 +5,6 @@ from datetime import datetime
 from datetime import timedelta
 import logging
 import inspect
-import sys
 
 
 class Builder:
@@ -75,12 +74,12 @@ class Builder:
         """
         quarter: dict[str, int | str]
         request: dict[str, str] = {}
-        FinancialCalendar: tuple[int, str, str, str] = self.getDatabaseHandler().get_data(
+        FinancialCalendar: tuple[int, str, str, str] = self.getDatabaseHandler().getData(
             table_name="FinancialCalendar",
             filter_condition="CONCAT(YEAR(CURDATE()), '-', start_date) < CURDATE() AND CONCAT(YEAR(CURDATE()), '-', end_date) > CURDATE()",
             column_names="YEAR(CURDATE()) AS year, quarter, FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(YEAR(CURDATE()), '-', start_date)), '%m/%d/%Y') AS start_date, FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(YEAR(CURDATE()), '-', end_date)), '%m/%d/%Y') AS end_date"
         )[0] # type: ignore
-        logs: tuple[str, str] = self.getDatabaseHandler().get_data(
+        logs: tuple[str, str] = self.getDatabaseHandler().getData(
             table_name="FinCorpLogs",
             parameters=None,
             filter_condition="status = 200",
