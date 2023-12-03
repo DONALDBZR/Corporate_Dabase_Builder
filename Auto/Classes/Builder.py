@@ -199,7 +199,7 @@ class Builder:
             self.getCrawler().getDriver().quit()
             self.getLogger().inform("Storing the corporate metadata!")
             self.storeCorporateMetadata()
-            self.getDatabaseHandler().post_data(
+            self.getDatabaseHandler().postData(
                 table="FinCorpLogs",
                 columns="method_name, quarter, date_start, date_to, status, amount, amount_found",
                 values="%s, %s, %s, %s, %s, %s, %s",
@@ -216,7 +216,7 @@ class Builder:
                 0
             )
             self.getCrawler().getDriver().quit()
-            self.getDatabaseHandler().post_data(
+            self.getDatabaseHandler().postData(
                 table="FinCorpLogs",
                 columns="method_name, quarter, date_start, date_to, status, amount, amount_found",
                 values="%s, %s, %s, %s, %s, %s, %s",
