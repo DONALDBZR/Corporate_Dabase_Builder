@@ -311,7 +311,7 @@ class Database_Handler:
         self._query(self.getQuery(), self.getParameters())
         self._execute()
 
-    def delete_data(self, table: str, parameters: tuple | None, condition: str = "") -> None:
+    def deleteData(self, table: str, parameters: tuple | None, condition: str = "") -> None:
         """
         Deleting data from the database.
 
@@ -326,7 +326,7 @@ class Database_Handler:
         query = f"DELETE FROM {table}"
         self.setQuery(query)
         self.setParameters(parameters)
-        self._get_filter(condition)
+        self._getFilter(condition)
         self.getLogger().inform(
             f"Query built for removing data!\nQuery: {self.getQuery()}\nParameters: {self.getParameters()}"
         )
