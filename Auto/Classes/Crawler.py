@@ -406,26 +406,37 @@ class Crawler:
                     "td"
                 )
             )
-            name = self.getHtmlTags()[1].text
-            file_number = self.getHtmlTags()[2].text
-            category = self.getHtmlTags()[3].text
-            date_incorporation = self.getHtmlTags()[4].text
-            nature = self.getHtmlTags()[5].text
-            status = self.getHtmlTags()[6].text
             data: dict[str, str | None] = {
                 "business_registration_number": None,
-                "name": name,
-                "file_number": file_number,
-                "category": category,
-                "date_incorporation": date_incorporation,
-                "nature": nature,
-                "status": status,
+                "name": self.sanitizeMetaData(self.getHtmlTags()[1].text),
+                "file_number": self.sanitizeMetaData(self.getHtmlTags()[2].text),
+                "category": self.sanitizeMetaData(self.getHtmlTags()[3].text),
+                "date_incorporation": self.sanitizeMetaData(self.getHtmlTags()[4].text),
+                "nature": self.sanitizeMetaData(self.getHtmlTags()[5].text),
+                "status": self.sanitizeMetaData(self.getHtmlTags()[6].text),
             }
             amount_data_found += self.checkCorporateMetadata(data)
             done = (amount_data_found / amount) * 100
             self.getLogger().inform(
                 f"Retrieving corporate metadata.\nPercentage Done: {done}%\nBRN: {data['business_registration_number']}\nName: {data['name']}\nFile Number: {data['file_number']}\nCategory: {data['category']}\nDate of Incorporation: {data['date_incorporation']}\nNature: {data['nature']}\nStatus: {data['status']}"
             )
+
+    def sanitizeMetaData(self, data: str) -> str | None:
+        """
+        Sanitizing the metadata retrieved from the target's
+        application.
+
+        Parameters:
+            data:   (string):   Data to be sanitized.
+
+        Return:
+            (string | null)
+        """
+        try:
+            return data
+        except StaleElementReferenceException:
+            self.getLogger().error("Data Not Found!\nStatus: 404")
+            return None
 
     def checkCorporateMetadata(self, data: dict[str, str | None]) -> int:
         """
