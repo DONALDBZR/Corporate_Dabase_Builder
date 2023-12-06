@@ -3,8 +3,9 @@ from Classes.DatabaseHandler import Database_Handler
 from Classes.Logger import Corporate_Database_Builder_Logger
 from datetime import datetime
 from datetime import timedelta
+from Classes.Environment import Environment
 import logging
-import inspect
+import os
 
 
 class Builder:
@@ -29,12 +30,19 @@ class Builder:
     """
     The data that is fed from the Crawler.
     """
+    ENV: Environment
+    """
+    The ENV file of the application which stores the important
+    information which allows the application to operate
+    smoothly.
+    """
 
     def __init__(self) -> None:
         """
         Initializing the builder which will import and initialize
         the dependencies.
         """
+        self.ENV = Environment()
         self.setLogger(Corporate_Database_Builder_Logger())
         self.setDatabaseHandler(Database_Handler())
         self.getLogger().setLogger(logging.getLogger(__name__))
@@ -112,6 +120,35 @@ class Builder:
             0
         )
         self.validateCorporateMetadata(response, request, quarter) # type: ignore
+        self.cleanCache()
+
+    def cleanCache(self) -> None:
+        """
+        Cleaning the cache database after having retrieved the
+        corporate metadata and storing them into the relational
+        database server.
+
+        Return:
+            (void)
+        """
+        files = os.listdir(
+            f"{self.ENV.getDirectory()}/Cache"
+        )
+        if len(files) > 0:
+            self._cleanCache(files)
+
+    def _cleanCache(self, files: list[str]) -> None:
+        """
+        Cleaning the Cache database based on the amount of files in
+        it.
+
+        Return:
+            (void)
+        """
+        for index in range(0, len(files), 1):
+            os.remove(
+                f"{self.ENV.getDirectory()}/Cache/{files[index]}"
+            )
 
     def handleRequest(self, logs: tuple[str, str]) -> dict:
         """
@@ -176,7 +213,7 @@ class Builder:
         Return:
             (void)
         """
-        method_name = inspect.stack()[0].function
+        method_name = "collectCorporateMetadata"
         date_start = int(datetime.strptime(
             str(request["start_date"]),
             "%m/%d/%Y"
