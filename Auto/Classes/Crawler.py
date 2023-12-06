@@ -421,7 +421,7 @@ class Crawler:
                 f"Retrieving corporate metadata.\nPercentage Done: {done}%\nBRN: {data['business_registration_number']}\nName: {data['name']}\nFile Number: {data['file_number']}\nCategory: {data['category']}\nDate of Incorporation: {data['date_incorporation']}\nNature: {data['nature']}\nStatus: {data['status']}"
             )
 
-    def sanitizeMetaData(self, data: str) -> str | None:
+    def sanitizeMetaData(self, data: str) -> str:
         """
         Sanitizing the metadata retrieved from the target's
         application.
@@ -436,7 +436,7 @@ class Crawler:
             return data
         except StaleElementReferenceException:
             self.getLogger().error("Data Not Found!\nStatus: 404")
-            return None
+            return self.sanitizeMetaData(data)
 
     def checkCorporateMetadata(self, data: dict[str, str | None]) -> int:
         """
