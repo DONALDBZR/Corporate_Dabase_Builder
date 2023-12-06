@@ -3,8 +3,8 @@ from Classes.DatabaseHandler import Database_Handler
 from Classes.Logger import Corporate_Database_Builder_Logger
 from datetime import datetime
 from datetime import timedelta
+from Classes.Environment import Environment
 import logging
-import inspect
 
 
 class Builder:
@@ -29,12 +29,19 @@ class Builder:
     """
     The data that is fed from the Crawler.
     """
+    ENV: Environment
+    """
+    The ENV file of the application which stores the important
+    information which allows the application to operate
+    smoothly.
+    """
 
     def __init__(self) -> None:
         """
         Initializing the builder which will import and initialize
         the dependencies.
         """
+        self.ENV = Environment()
         self.setLogger(Corporate_Database_Builder_Logger())
         self.setDatabaseHandler(Database_Handler())
         self.getLogger().setLogger(logging.getLogger(__name__))
