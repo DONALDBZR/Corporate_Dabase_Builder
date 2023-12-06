@@ -5,6 +5,7 @@ from datetime import datetime
 from datetime import timedelta
 from Classes.Environment import Environment
 import logging
+import os
 
 
 class Builder:
@@ -133,6 +134,8 @@ class Builder:
         files = os.listdir(
             f"{self.ENV.getDirectory()}/Cache"
         )
+        if len(files) > 0:
+            self._cleanCache(files)
 
     def handleRequest(self, logs: tuple[str, str]) -> dict:
         """
