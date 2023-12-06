@@ -112,6 +112,20 @@ class Builder:
             0
         )
         self.validateCorporateMetadata(response, request, quarter) # type: ignore
+        self.cleanCache()
+
+    def cleanCache(self) -> None:
+        """
+        Cleaning the cache database after having retrieved the
+        corporate metadata and storing them into the relational
+        database server.
+
+        Return:
+            (void)
+        """
+        files = os.listdir(
+            f"{self.ENV.getDirectory()}/Cache"
+        )
 
     def handleRequest(self, logs: tuple[str, str]) -> dict:
         """
