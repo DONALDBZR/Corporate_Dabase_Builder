@@ -176,7 +176,7 @@ class Builder:
         Return:
             (void)
         """
-        method_name = inspect.stack()[0].function
+        method_name = "collectCorporateMetadata"
         date_start = int(datetime.strptime(
             str(request["start_date"]),
             "%m/%d/%Y"
