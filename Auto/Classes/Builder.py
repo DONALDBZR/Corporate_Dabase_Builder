@@ -137,6 +137,19 @@ class Builder:
         if len(files) > 0:
             self._cleanCache(files)
 
+    def _cleanCache(self, files: list[str]) -> None:
+        """
+        Cleaning the Cache database based on the amount of files in
+        it.
+
+        Return:
+            (void)
+        """
+        for index in range(0, len(files), 1):
+            os.remove(
+                f"{self.ENV.getDirectory()}/Cache/{files[index]}"
+            )
+
     def handleRequest(self, logs: tuple[str, str]) -> dict:
         """
         Handling the request before that it is sent to the Crawler.
