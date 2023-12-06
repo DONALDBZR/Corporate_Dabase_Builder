@@ -74,12 +74,12 @@ class Builder:
         """
         quarter: dict[str, int | str]
         request: dict[str, str] = {}
-        FinancialCalendar: tuple[int, str, str, str] = self.getDatabaseHandler().get_data(
+        FinancialCalendar: tuple[int, str, str, str] = self.getDatabaseHandler().getData(
             table_name="FinancialCalendar",
             filter_condition="CONCAT(YEAR(CURDATE()), '-', start_date) < CURDATE() AND CONCAT(YEAR(CURDATE()), '-', end_date) > CURDATE()",
             column_names="YEAR(CURDATE()) AS year, quarter, FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(YEAR(CURDATE()), '-', start_date)), '%m/%d/%Y') AS start_date, FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(YEAR(CURDATE()), '-', end_date)), '%m/%d/%Y') AS end_date"
         )[0] # type: ignore
-        logs: tuple[str, str] = self.getDatabaseHandler().get_data(
+        logs: tuple[str, str] = self.getDatabaseHandler().getData(
             table_name="FinCorpLogs",
             parameters=None,
             filter_condition="status = 200",
@@ -92,24 +92,7 @@ class Builder:
             "end_date": str(FinancialCalendar[3])
         }
         if len(logs) > 0:
-            date_start = datetime.strftime(
-                datetime.strptime(
-                    max(logs),
-                    "%m/%d/%Y"
-                ) + timedelta(days=1),
-                "%m/%d/%Y"
-            )
-            date_end = datetime.strftime(
-                datetime.strptime(
-                    date_start,
-                    "%m/%d/%Y"
-                ) + timedelta(weeks=1),
-                "%m/%d/%Y"
-            )
-            request = {
-                "start_date": date_start,
-                "end_date": date_end
-            }
+            request = self.handleRequest(logs)
         else:
             date_to = datetime.strftime(
                 datetime.strptime(
@@ -125,9 +108,60 @@ class Builder:
         self.setCrawler(Crawler())
         response = self.getCrawler().retrieveCorporateMetadata(
             str(request["start_date"]),
-            str(request["end_date"])
+            str(request["end_date"]),
+            0
         )
         self.validateCorporateMetadata(response, request, quarter) # type: ignore
+
+    def handleRequest(self, logs: tuple[str, str]) -> dict:
+        """
+        Handling the request before that it is sent to the Crawler.
+
+        Parameters:
+            logs:   (array):    The data from FinCorpLogs
+
+        Return:
+            (object)
+        """
+        date_start = datetime.strftime(
+            datetime.strptime(
+                max(logs),
+                "%m/%d/%Y"
+            ) + timedelta(days=1),
+            "%m/%d/%Y"
+        )
+        date_end = datetime.strftime(
+            datetime.strptime(
+                date_start,
+                "%m/%d/%Y"
+            ) + timedelta(weeks=1),
+            "%m/%d/%Y"
+        )
+        date_end_unixtime = datetime.strptime(
+            date_end,
+            "%m/%d/%Y"
+        ).timestamp()
+        current_date = datetime.now() - timedelta(days=1)
+        current_time = current_date.timestamp()
+        if date_end_unixtime > current_time:
+            date_end = datetime.strftime(
+                datetime.strptime(
+                    min(logs),
+                    "%m/%d/%Y"
+                ) - timedelta(days=1),
+                "%m/%d/%Y"
+            )
+            date_start = datetime.strftime(
+                datetime.strptime(
+                    date_end,
+                    "%m/%d/%Y"
+                ) - timedelta(weeks=1),
+                "%m/%d/%Y"
+            )
+        return {
+            "start_date": date_start,
+            "end_date": date_end
+        }
 
     def validateCorporateMetadata(self, response: dict[str, int], request: dict[str, str], quarter: dict[str, int | str]) -> None:
         """
@@ -165,7 +199,7 @@ class Builder:
             self.getCrawler().getDriver().quit()
             self.getLogger().inform("Storing the corporate metadata!")
             self.storeCorporateMetadata()
-            self.getDatabaseHandler().post_data(
+            self.getDatabaseHandler().postData(
                 table="FinCorpLogs",
                 columns="method_name, quarter, date_start, date_to, status, amount, amount_found",
                 values="%s, %s, %s, %s, %s, %s, %s",
@@ -182,7 +216,7 @@ class Builder:
                 0
             )
             self.getCrawler().getDriver().quit()
-            self.getDatabaseHandler().post_data(
+            self.getDatabaseHandler().postData(
                 table="FinCorpLogs",
                 columns="method_name, quarter, date_start, date_to, status, amount, amount_found",
                 values="%s, %s, %s, %s, %s, %s, %s",
@@ -215,7 +249,7 @@ class Builder:
                 str(CompanyDetails["nature"]),
                 str(CompanyDetails["status"])
             )
-            self.getDatabaseHandler().post_data(
+            self.getDatabaseHandler().postData(
                 table="CompanyDetails",
                 parameters=parameters,
                 columns="name, file_number, category, date_incorporation, nature, status",

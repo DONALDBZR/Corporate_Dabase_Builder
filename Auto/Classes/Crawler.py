@@ -7,9 +7,8 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from Classes.Environment import Environment
 from Classes.Logger import Corporate_Database_Builder_Logger
-from selenium.webdriver.support.ui import WebDriverWait #type: ignore
-from selenium.webdriver.support import expected_conditions
 from selenium.common.exceptions import ElementClickInterceptedException
+from selenium.common.exceptions import StaleElementReferenceException
 import time
 import logging
 import os
@@ -63,11 +62,6 @@ class Crawler:
     __corporate_metadata: list[dict[str, str | None]]
     """
     The metadata of the companies that are in Mauritius.
-    """
-    __wait: WebDriverWait
-    """
-    The controller which allows the Web Driver to control its
-    interactions with the components.
     """
     
     def __init__(self) -> None:
@@ -147,12 +141,6 @@ class Crawler:
     def setCorporateMetadata(self, corporate_metadata: list[dict[str, str | None]]) -> None:
         self.__corporate_metadata = corporate_metadata
 
-    def getWait(self) -> WebDriverWait:
-        return self.__wait
-    
-    def setWait(self, wait: WebDriverWait) -> None:
-        self.__wait = wait
-
     def __setServices(self) -> None:
         """
         Setting the services for the ChromeDriver.
@@ -197,22 +185,22 @@ class Crawler:
         self.getDriver().get(self.getTarget())
         time.sleep(delay)
 
-    def retrieveCorporateMetadata(self, date_from: str, date_to: str) -> dict[str, int]:
+    def retrieveCorporateMetadata(self, date_from: str, date_to: str, coefficient: int) -> dict[str, int]:
         """
         Retrieving corporate metadata about the companies that
         operate in Mauritius.
 
         Parameters:
-            date_from:  (str):  The start date of the search.
-            date_to:    (str):  The end date of the search
+            date_from:  (str):      The start date of the search.
+            date_to:    (str):      The end date of the search.
+            coeffcient: (float):    This coefficient changes depending the handlers.
 
         Return:
             (object)
         """
-        delay: float = (self.ENV.calculateDelay(date_from) + self.ENV.calculateDelay(date_to)) / 2
+        delay: float = ((self.ENV.calculateDelay(date_from) + self.ENV.calculateDelay(date_to)) / 2) * (1.1 ** coefficient)
         amount: int
         response: dict = {}
-        print(f"Delay: {delay}s")
         self.setHtmlTag(
             self.getDriver().find_element(
                 By.XPATH,
@@ -235,24 +223,9 @@ class Crawler:
                 f"{self.ENV.getTargetApplicationRootXpath()}/cbris-header/div/div/form/div/div[2]/div[3]/div[2]/button"
             )
         )
-        self.getHtmlTag().click()
+        self.handleSearch()
         wait_delay = delay * (1.1 ** 0)
-        print(f"Wait Delay: {wait_delay}s")
         time.sleep(wait_delay)
-        self.setWait(
-            WebDriverWait(
-                self.getDriver(),
-                wait_delay
-            )
-        )
-        self.getWait().until(
-            expected_conditions.presence_of_element_located(
-                (
-                    By.XPATH,
-                    f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[2]/mat-paginator/div/div/div[2]/div"
-                )
-            )
-        )
         data_amount = self.getDriver().find_element(
             By.XPATH,
             f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[2]/mat-paginator/div/div/div[2]/div"
@@ -301,7 +274,6 @@ class Crawler:
         amount_page = int(amount / amount_data_per_page)
         table_body = self.getHtmlTag()
         wait_delay = delay * (1.1 ** 0)
-        print(f"Scrape Delay: {wait_delay}s")
         for index in range(0, amount_page, 1):
             self.readCache()
             self.setHtmlTags(
@@ -347,7 +319,6 @@ class Crawler:
             )
             self.getHtmlTag().click()
         except ElementClickInterceptedException:
-            exception_delay = delay * 1.1
             self.setHtmlTag(
                 self.getDriver().find_element(
                     By.TAG_NAME,
@@ -435,41 +406,71 @@ class Crawler:
                     "td"
                 )
             )
-            name = self.getHtmlTags()[1].text
-            file_number = self.getHtmlTags()[2].text
-            category = self.getHtmlTags()[3].text
-            date_incorporation = self.getHtmlTags()[4].text
-            nature = self.getHtmlTags()[5].text
-            status = self.getHtmlTags()[6].text
             data: dict[str, str | None] = {
                 "business_registration_number": None,
-                "name": name,
-                "file_number": file_number,
-                "category": category,
-                "date_incorporation": date_incorporation,
-                "nature": nature,
-                "status": status,
+                "name": self.sanitizeMetaData(self.getHtmlTags()[1].text),
+                "file_number": self.sanitizeMetaData(self.getHtmlTags()[2].text),
+                "category": self.sanitizeMetaData(self.getHtmlTags()[3].text),
+                "date_incorporation": self.sanitizeMetaData(self.getHtmlTags()[4].text),
+                "nature": self.sanitizeMetaData(self.getHtmlTags()[5].text),
+                "status": self.sanitizeMetaData(self.getHtmlTags()[6].text),
             }
-            amount_data_found += self.checkCorporateMetadata(name, data)
+            amount_data_found += self.checkCorporateMetadata(data)
             done = (amount_data_found / amount) * 100
             self.getLogger().inform(
                 f"Retrieving corporate metadata.\nPercentage Done: {done}%\nBRN: {data['business_registration_number']}\nName: {data['name']}\nFile Number: {data['file_number']}\nCategory: {data['category']}\nDate of Incorporation: {data['date_incorporation']}\nNature: {data['nature']}\nStatus: {data['status']}"
             )
-    
-    def checkCorporateMetadata(self, name: str, data: dict[str, str | None]) -> int:
+
+    def sanitizeMetaData(self, data: str) -> str | None:
+        """
+        Sanitizing the metadata retrieved from the target's
+        application.
+
+        Parameters:
+            data:   (string):   Data to be sanitized.
+
+        Return:
+            (string | null)
+        """
+        try:
+            return data
+        except StaleElementReferenceException:
+            self.getLogger().error("Data Not Found!\nStatus: 404")
+            return None
+
+    def checkCorporateMetadata(self, data: dict[str, str | None]) -> int:
         """
         Checking the corporate metadata against the corporate
         metadata from the cache.
 
         Parameters:
-            name:   (string):   The name of the company.
             data:   (object):   The corporate metadata of a company.
 
         Return:
             (int)
         """
-        if any(name in data.values() for data in self.getCorporateMetadata()):
+        if any(data["name"] in data.values() for data in self.getCorporateMetadata()):
             return 1
         else:
             self.getCorporateMetadata().append(data)
             return 1
+
+    def handleSearch(self) -> None:
+        """
+        Verifying the component before injecting the correct
+        component.
+
+        Return:
+            (void)
+        """
+        try:
+            self.getHtmlTag().click()
+        except ElementClickInterceptedException:
+            self.getLogger().error(
+                f"The search button cannot be clicked!  Injecting the component needed!\nStatus: 401\nX-Path: {self.ENV.getTargetApplicationRootXpath()}/cbris-header/div/div/form/div/div[2]/div[3]/div[2]/button"
+            )
+            self.getDriver().execute_script(
+                "arguments[0].removeAttribute('disabled');",
+                self.getHtmlTag()
+            )
+            self.handleSearch()

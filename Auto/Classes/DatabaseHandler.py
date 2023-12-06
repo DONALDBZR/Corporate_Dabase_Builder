@@ -172,7 +172,7 @@ class Database_Handler:
         self.__getStatement().close()
         return result_set
 
-    def get_data(self, table_name: str, parameters: tuple | None = None, join_condition: str = "", filter_condition: str = "", column_names: str = "*", sort_condition: str = "", limit_condition: int = 0) -> list[tuple[int, str, str, str]] | list[tuple[int, str, int, str, int, int , int, int]] | list[tuple[str, str]]:
+    def getData(self, table_name: str, parameters: tuple | None = None, join_condition: str = "", filter_condition: str = "", column_names: str = "*", sort_condition: str = "", limit_condition: int = 0) -> list[tuple[int, str, str, str]] | list[tuple[int, str, int, str, int, int , int, int]] | list[tuple[str, str]]:
         """
         Retrieving data from the database.
 
@@ -191,17 +191,17 @@ class Database_Handler:
         query = f"SELECT {column_names} FROM {table_name}"
         self.setQuery(query)
         self.setParameters(parameters)
-        self._get_join(join_condition)
-        self._get_filter(filter_condition)
-        self._get_sort(sort_condition)
-        self._get_limit(limit_condition)
+        self._getJoin(join_condition)
+        self._getFilter(filter_condition)
+        self._getSort(sort_condition)
+        self._getLimit(limit_condition)
         self.getLogger().inform(
             f"Query built for retrieving data!\nQuery: {self.getQuery()}\nParameters: {self.getParameters()}"
         )
         self._query(self.getQuery(), self.getParameters())
         return self._resultSet()
 
-    def _get_join(self, condition: str) -> None:
+    def _getJoin(self, condition: str) -> None:
         """
         Building the query needed for retrieving data that is in at
         least two tables.
@@ -218,7 +218,7 @@ class Database_Handler:
             query = f"{self.getQuery()} LEFT JOIN {condition}"
         self.setQuery(query)
 
-    def _get_filter(self, condition: str) -> None:
+    def _getFilter(self, condition: str) -> None:
         """
         Building the query needed for retrieving specific data.
 
@@ -234,7 +234,7 @@ class Database_Handler:
             query = f"{self.getQuery()} WHERE {condition}"
         self.setQuery(query)
 
-    def _get_sort(self, condition: str) -> None:
+    def _getSort(self, condition: str) -> None:
         """
         Building the query needed to be used to sort the result set.
 
@@ -250,7 +250,7 @@ class Database_Handler:
             query = f"{self.getQuery()} ORDER BY {condition}"
         self.setQuery(query)
 
-    def _get_limit(self, limit: int) -> None:
+    def _getLimit(self, limit: int) -> None:
         """
         Building the query needed to be used to limit the amount of
         data from the result set.
@@ -267,7 +267,7 @@ class Database_Handler:
             query = self.getQuery()
         self.setQuery(query)
 
-    def post_data(self, table: str, columns: str, values: str, parameters: tuple) -> None:
+    def postData(self, table: str, columns: str, values: str, parameters: tuple) -> None:
         """
         Creating records to store data into the database server.
 
@@ -288,7 +288,7 @@ class Database_Handler:
         self._query(self.getQuery(), self.getParameters())
         self._execute()
 
-    def update_data(self, table: str, values: str, parameters: tuple | None, condition: str = "") -> None:
+    def updateData(self, table: str, values: str, parameters: tuple | None, condition: str = "") -> None:
         """
         Updating a specific table in the database.
 
@@ -304,14 +304,14 @@ class Database_Handler:
         query = f"UPDATE {table} SET {values}"
         self.setQuery(query)
         self.setParameters(parameters)
-        self._get_filter(condition)
+        self._getFilter(condition)
         self.getLogger().inform(
             f"Query built for updating data!\nQuery: {self.getQuery()}\nParameters: {self.getParameters()}"
         )
         self._query(self.getQuery(), self.getParameters())
         self._execute()
 
-    def delete_data(self, table: str, parameters: tuple | None, condition: str = "") -> None:
+    def deleteData(self, table: str, parameters: tuple | None, condition: str = "") -> None:
         """
         Deleting data from the database.
 
@@ -326,7 +326,7 @@ class Database_Handler:
         query = f"DELETE FROM {table}"
         self.setQuery(query)
         self.setParameters(parameters)
-        self._get_filter(condition)
+        self._getFilter(condition)
         self.getLogger().inform(
             f"Query built for removing data!\nQuery: {self.getQuery()}\nParameters: {self.getParameters()}"
         )
