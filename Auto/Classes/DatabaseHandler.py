@@ -3,7 +3,7 @@ from mysql.connector.connection import MySQLConnection
 from mysql.connector.cursor import MySQLCursor
 from Classes.Environment import Environment
 from Classes.Logger import Corporate_Database_Builder_Logger
-from typing import List, Tuple
+from typing import List, Tuple, Union
 from mysql.connector.types import RowType
 from mysql.connector import Error
 import mysql.connector
@@ -32,7 +32,7 @@ class Database_Handler:
     The password that allows the required user to connect to the
     database.
     """
-    __database_handler: "PooledMySQLConnection | MySQLConnection"
+    __database_handler: Union[PooledMySQLConnection, MySQLConnection]
     """
     The database handler needed to execute the queries needed
     """
@@ -109,10 +109,10 @@ class Database_Handler:
     def __setPassword(self, password: str) -> None:
         self.__password = password
 
-    def __getDatabaseHandler(self) -> "PooledMySQLConnection | MySQLConnection":
+    def __getDatabaseHandler(self) -> Union[PooledMySQLConnection, MySQLConnection]:
         return self.__database_handler
 
-    def __setDatabaseHandler(self, database_handler: "PooledMySQLConnection | MySQLConnection") -> None:
+    def __setDatabaseHandler(self, database_handler: Union[PooledMySQLConnection, MySQLConnection]) -> None:
         self.__database_handler = database_handler
 
     def __getStatement(self) -> "MySQLCursor":
