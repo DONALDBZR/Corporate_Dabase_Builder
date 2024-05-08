@@ -3,7 +3,7 @@ from mysql.connector.connection import MySQLConnection
 from mysql.connector.cursor import MySQLCursor
 from Classes.Environment import Environment
 from Classes.Logger import Corporate_Database_Builder_Logger
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Any
 from mysql.connector.types import RowType
 from mysql.connector import Error
 import mysql.connector
@@ -46,7 +46,7 @@ class Database_Handler:
     The query to be used to be sent to the database server to
     either get, post, update or delete data.
     """
-    __parameters: tuple | None
+    __parameters: Union[Tuple[Any], None]
     """
     Parameters that the will be used to sanitize the query which
     is either get, post, update or delete.
@@ -127,10 +127,10 @@ class Database_Handler:
     def setQuery(self, query: str) -> None:
         self.__query = query
 
-    def getParameters(self) -> tuple | None:
+    def getParameters(self) -> Union[Tuple[Any], None]:
         return self.__parameters
 
-    def setParameters(self, parameters: tuple | None) -> None:
+    def setParameters(self, parameters: Union[Tuple[Any], None]) -> None:
         self.__parameters = parameters
 
     def getLogger(self) -> Corporate_Database_Builder_Logger:
