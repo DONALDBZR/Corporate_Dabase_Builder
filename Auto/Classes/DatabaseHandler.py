@@ -3,6 +3,9 @@ from mysql.connector.connection import MySQLConnection
 from mysql.connector.cursor import MySQLCursor
 from Classes.Environment import Environment
 from Classes.Logger import Corporate_Database_Builder_Logger
+from typing import List, Tuple
+from mysql.connector.types import RowType
+from mysql.connector import Error
 import mysql.connector
 import logging
 
@@ -77,7 +80,7 @@ class Database_Handler:
             self.getLogger().inform(
                 "The application has been successfully connected to the database server!"
             )
-        except mysql.connector.Error as error:
+        except Error as error:
             self.getLogger().error(
                 f"Connection Failed!\nError: {error}"
             )
