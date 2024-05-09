@@ -45,7 +45,7 @@ class FinCorpLogs:
         self.date_start = self.handleDateStart(dataset["date_start"]) # type: ignore
         self.date_to = self.handleDateTo(dataset["date_to"]) # type: ignore
         self.status = self.handleStatus(dataset["status"]) # type: ignore
-        self.amount = self.handleAmountFinCorpLogs(dataset["amount"]) # type: ignore
+        self.amount = self.handleAmount(dataset["amount"]) # type: ignore
 
     def handleIdentifier(self, identifier: Union[int, None]) -> int:
         """
