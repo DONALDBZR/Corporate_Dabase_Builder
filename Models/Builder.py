@@ -240,7 +240,9 @@ class Builder:
         Returns:
             {start_date: string, end_date: string}
         """
-        date_start: str = self.getDateStart(logs)
+        date_start: str
+        date_end: str
+        date_start = self.getDateStart(logs)
         date_end = datetime.strftime(
             datetime.strptime(
                 date_start,
@@ -250,16 +252,16 @@ class Builder:
             ),
             "%m/%d/%Y"
         )
-        date_end_unixtime = datetime.strptime(
+        date_end_unixtime: float = datetime.strptime(
             date_end,
             "%m/%d/%Y"
         ).timestamp()
-        current_date = datetime.now() - timedelta(
+        current_date: datetime = datetime.now() - timedelta(
             days=1
         )
-        current_time = current_date.timestamp()
+        current_time: float = current_date.timestamp()
         if date_end_unixtime > current_time:
-            date_end: str = self.getDateEnd(logs)
+            date_end = self.getDateEnd(logs)
             date_start = datetime.strftime(
                 datetime.strptime(
                     date_end,
