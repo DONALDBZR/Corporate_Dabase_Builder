@@ -5,8 +5,8 @@ from selenium.webdriver.remote.webelement import WebElement
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from Classes.Environment import Environment
-from Classes.Logger import Corporate_Database_Builder_Logger
+from Environment import Environment
+from Models.Logger import Corporate_Database_Builder_Logger
 from selenium.common.exceptions import ElementClickInterceptedException
 from selenium.common.exceptions import StaleElementReferenceException
 import time
