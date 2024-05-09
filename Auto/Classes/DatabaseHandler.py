@@ -148,8 +148,8 @@ class Database_Handler:
             query: string
             parameters: array | null
 
-        Return:
-            (Generator[MySQLCursor, None, None] | None)
+        Returns:
+            Generator[MySQLCursor, None, None] | None
         """
         self.__setStatement(self.__getDatabaseHandler().cursor(prepared=True))
         self.getLogger().debug(
@@ -162,18 +162,18 @@ class Database_Handler:
         Executing the SQL query which will send a command to the
         database server
 
-        Return:
-            (void)
+        Returns:
+            void
         """
         self.__getDatabaseHandler().commit()
 
-    def _resultSet(self) -> list:
+    def _resultSet(self) -> List[RowType]:
         """
         Fetching all the data that is requested from the command that
-        was sent to the database server
+        was sent to the database server.
 
-        Return:
-            (array)
+        Returns:
+            arrays
         """
         result_set = self.__getStatement().fetchall()
         self.__getStatement().close()
