@@ -1,3 +1,13 @@
+"""
+The module which will have the object-relational mapper of
+the application.
+
+Authors:
+    Andy Ewen Gaspard
+    Solofonavalona Randriantsilavo
+"""
+
+
 from mysql.connector.pooling import PooledMySQLConnection
 from mysql.connector.connection import MySQLConnection
 from mysql.connector.cursor import MySQLCursor
@@ -179,7 +189,7 @@ class Database_Handler:
         self.__getStatement().close()
         return result_set
 
-    def getData(self, table_name: str, parameters: tuple | None = None, join_condition: str = "", filter_condition: str = "", column_names: str = "*", sort_condition: str = "", limit_condition: int = 0) -> list[tuple[int, str, str, str]] | list[tuple[int, str, int, str, int, int , int, int]] | list[tuple[str, str]]:
+    def getData(self, table_name: str, parameters: Union[Tuple[Any], None] = None, join_condition: str = "", filter_condition: str = "", column_names: str = "*", sort_condition: str = "", limit_condition: int = 0) -> List[RowType]:
         """
         Retrieving data from the database.
 
@@ -274,7 +284,7 @@ class Database_Handler:
             query = self.getQuery()
         self.setQuery(query)
 
-    def postData(self, table: str, columns: str, values: str, parameters: tuple) -> None:
+    def postData(self, table: str, columns: str, values: str, parameters: Tuple[Any]) -> None:
         """
         Creating records to store data into the database server.
 
@@ -295,7 +305,7 @@ class Database_Handler:
         self._query(self.getQuery(), self.getParameters())
         self._execute()
 
-    def updateData(self, table: str, values: str, parameters: tuple | None, condition: str = "") -> None:
+    def updateData(self, table: str, values: str, parameters: Union[Tuple[Any], None], condition: str = "") -> None:
         """
         Updating a specific table in the database.
 
@@ -318,7 +328,7 @@ class Database_Handler:
         self._query(self.getQuery(), self.getParameters())
         self._execute()
 
-    def deleteData(self, table: str, parameters: tuple | None, condition: str = "") -> None:
+    def deleteData(self, table: str, parameters: Union[Tuple[Any], None], condition: str = "") -> None:
         """
         Deleting data from the database.
 
