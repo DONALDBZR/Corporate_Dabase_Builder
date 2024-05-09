@@ -19,6 +19,7 @@ from datetime import timedelta
 from Environment import Environment
 from typing import List, Tuple, Union, Dict
 from mysql.connector.types import RowType
+from time import time
 import logging
 import os
 
@@ -201,6 +202,34 @@ class Builder:
             "%m/%d/%Y"
         )
 
+    def getDateEnd(self, logs: List[FinCorpLogs]) -> str:
+        """
+        Retrieving the next end date for the data collection which
+        will be based on the earliest start date that is in the
+        logs.
+
+        Parameters:
+            logs: array
+
+        Returns:
+            string
+        """
+        date_start: int = int(time())
+        for index in range(0, len(logs), 1):
+            if logs[index].date_start < date_start:
+                date_start = logs[index].date_start
+            else:
+                date_start = date_start
+        return datetime.strftime(
+            datetime.strptime(
+                datetime.fromtimestamp(date_start).strftime("%m/%d/%Y"),
+                "%m/%d/%Y"
+            ) - timedelta(
+                days=1
+            ),
+            "%m/%d/%Y"
+        )
+
     def handleRequest(self, logs: List[FinCorpLogs]) -> Dict[str, str]:
         """
         Handling the request before that it is sent to the Crawler.
@@ -212,34 +241,25 @@ class Builder:
             {start_date: string, end_date: string}
         """
         date_start: str = self.getDateStart(logs)
-        date_start = datetime.strftime(
-            datetime.strptime(
-                max(logs),
-                "%m/%d/%Y"
-            ) + timedelta(days=1),
-            "%m/%d/%Y"
-        )
         date_end = datetime.strftime(
             datetime.strptime(
                 date_start,
                 "%m/%d/%Y"
-            ) + timedelta(weeks=1),
+            ) + timedelta(
+                weeks=1
+            ),
             "%m/%d/%Y"
         )
         date_end_unixtime = datetime.strptime(
             date_end,
             "%m/%d/%Y"
         ).timestamp()
-        current_date = datetime.now() - timedelta(days=1)
+        current_date = datetime.now() - timedelta(
+            days=1
+        )
         current_time = current_date.timestamp()
         if date_end_unixtime > current_time:
-            date_end = datetime.strftime(
-                datetime.strptime(
-                    min(logs),
-                    "%m/%d/%Y"
-                ) - timedelta(days=1),
-                "%m/%d/%Y"
-            )
+            date_end: str = self.getDateEnd(logs)
             date_start = datetime.strftime(
                 datetime.strptime(
                     date_end,
