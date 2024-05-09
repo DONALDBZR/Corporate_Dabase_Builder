@@ -84,7 +84,7 @@ class Crawler:
         self.getDriver().execute_cdp_cmd(
             "Network.setUserAgentOverride",
             {
-                "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36"
+                "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
             }
         )
         self.getDriver().execute_script(
@@ -225,6 +225,7 @@ class Crawler:
         )
         self.handleSearch()
         wait_delay = delay * (1.1 ** 0)
+        print(f"Delay: {delay} s\nWaiting Delay: {wait_delay} s")
         time.sleep(wait_delay)
         data_amount = self.getDriver().find_element(
             By.XPATH,
@@ -356,11 +357,11 @@ class Crawler:
             (void)
         """
         files = os.listdir(
-            f"{self.ENV.getDirectory()}/Cache"
+            f"{self.ENV.getDirectory()}/Cache/CorporateDataCollection"
         )
         if len(files) > 0:
             file = open(
-                f"{self.ENV.getDirectory()}/Cache/{max(files)}",
+                f"{self.ENV.getDirectory()}/Cache/CorporateDataCollection/{max(files)}",
                 "r"
             )
             self.setCorporateMetadata(json.load(file))
