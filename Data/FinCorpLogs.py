@@ -181,3 +181,19 @@ class FinCorpLogs:
             return status
         else:
             return 204
+
+    def handleAmount(self, amount: Union[int, None]) -> int:
+        """
+        Ensuring that the amount is in the correct format for the
+        application.
+
+        Parameters:
+            amount: int | null
+
+        Returns:
+            int
+        """
+        if type(amount) is int:
+            return amount
+        else:
+            return 0
