@@ -30,6 +30,7 @@ class Financial_Calendar(Database_Handler):
         Initializing all of the dependencies which will be used to
         operate the application.
         """
+        super().__init__()
         self.setTableName("FinancialCalendar")
         self.getLogger().inform(
             "The model has been successfully been initiated with its dependencies."
