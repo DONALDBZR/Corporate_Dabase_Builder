@@ -3,7 +3,6 @@ The Data Transfer Object for the Financial Calendar.
 
 Authors:
     Andy Ewen Gaspard
-    Solofonavalona Randriantsilavo
 """
 
 
@@ -14,6 +13,9 @@ from typing import Union, Dict
 
 @dataclass
 class FinancialCalendar:
+    """
+    The Data Transfer Object for the Financial Calendar.
+    """
     year: int
     quarter: str
     start_date: str
