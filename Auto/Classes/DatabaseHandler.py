@@ -161,7 +161,12 @@ class Database_Handler:
         Returns:
             Generator[MySQLCursor, None, None] | None
         """
-        self.__setStatement(self.__getDatabaseHandler().cursor(prepared=True))
+        self.__setStatement(
+            self.__getDatabaseHandler().cursor(
+                prepared=True,
+                dictionary=True
+            )
+        )
         self.getLogger().debug(
             f"Query to be used as a request to the database server!\nQuery: {query}\nParameters: {parameters}"
         )
