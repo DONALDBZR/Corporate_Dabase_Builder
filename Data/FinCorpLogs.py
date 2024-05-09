@@ -154,15 +154,15 @@ class FinCorpLogs:
                             datetime.fromtimestamp(
                                 self.date_start
                             ).strftime(
-                                "%H:%i:%s %m/%d/%Y"
+                                "%H:%m:%s %m/%d/%Y"
                             ),
-                            "%H:%i:%s %m/%d/%Y"
+                            "%H:%m:%s %m/%d/%Y"
                         ) + timedelta(
                             weeks=1
                         ),
-                        "%H:%i:%s %m/%d/%Y"
+                        "%H:%m:%s %m/%d/%Y"
                     ),
-                    "%H:%i:%s %m/%d/%Y"
+                    "%H:%m:%s %m/%d/%Y"
                 ).timestamp()
             )
 
