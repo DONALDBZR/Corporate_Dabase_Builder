@@ -11,8 +11,8 @@ Authors:
 from mysql.connector.pooling import PooledMySQLConnection
 from mysql.connector.connection import MySQLConnection
 from mysql.connector.cursor import MySQLCursor
-from Classes.Environment import Environment
-from Classes.Logger import Corporate_Database_Builder_Logger
+from Environment import Environment
+from Models.Logger import Corporate_Database_Builder_Logger
 from typing import List, Tuple, Union, Any
 from mysql.connector.types import RowType
 from mysql.connector import Error
