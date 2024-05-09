@@ -7,9 +7,10 @@ Authors:
 """
 
 
-from Classes.Crawler import Crawler
+from Models.Crawler import Crawler
 from Models.DatabaseHandler import Database_Handler
 from Models.Logger import Corporate_Database_Builder_Logger
+from Models.FinancialCalendar import Financial_Calendar
 from datetime import datetime
 from datetime import timedelta
 from Environment import Environment
@@ -47,6 +48,11 @@ class Builder:
     information which allows the application to operate
     smoothly.
     """
+    __financial_calendar: Financial_Calendar
+    """
+    The model which will interact exclusively with the Financial
+    Calendar.
+    """
 
     def __init__(self) -> None:
         """
@@ -56,8 +62,8 @@ class Builder:
         self.ENV = Environment()
         self.setLogger(Corporate_Database_Builder_Logger())
         self.setDatabaseHandler(Database_Handler())
-        self.getLogger().setLogger(logging.getLogger(__name__))
-        self.getLogger().inform("The builder has been initialized!")
+        self.setFinancialCalendar(Financial_Calendar())
+        self.getLogger().inform("The builder has been initialized and all of its dependencies are injected!")
 
     def getCrawler(self) -> Crawler:
         return self.__crawler
@@ -82,6 +88,12 @@ class Builder:
     
     def setData(self, data: List[Dict[str, Union[str, None]]]) -> None:
         self.__data = data
+
+    def getFinancialCalendar(self) -> Financial_Calendar:
+        return self.__financial_calendar
+    
+    def setFinancialCalendar(self, financial_calendar: Financial_Calendar) -> None:
+        self.__financial_calendar = financial_calendar
     
     def collectCorporateMetadata(self) -> None:
         """
