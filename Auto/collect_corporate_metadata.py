@@ -1,4 +1,4 @@
-from Classes.Builder import Builder
+from Models.Builder import Builder
 from datetime import datetime
 from datetime import timedelta
 
