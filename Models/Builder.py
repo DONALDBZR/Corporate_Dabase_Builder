@@ -1,9 +1,20 @@
+"""
+The module which will have the main corporate database
+builder.
+
+Authors:
+    Andy Ewen Gaspard
+"""
+
+
 from Classes.Crawler import Crawler
-from Classes.DatabaseHandler import Database_Handler
-from Classes.Logger import Corporate_Database_Builder_Logger
+from Models.DatabaseHandler import Database_Handler
+from Models.Logger import Corporate_Database_Builder_Logger
 from datetime import datetime
 from datetime import timedelta
-from Classes.Environment import Environment
+from Environment import Environment
+from typing import List, Tuple, Union, Dict
+from mysql.connector.types import RowType
 import logging
 import os
 
@@ -26,7 +37,7 @@ class Builder:
     """
     The logger that will all the action of the application.
     """
-    __data: list[dict[str, str | None]]
+    __data: List[Dict[str, Union[str, None]]]
     """
     The data that is fed from the Crawler.
     """
@@ -66,10 +77,10 @@ class Builder:
     def setLogger(self, logger: Corporate_Database_Builder_Logger) -> None:
         self.__logger = logger
 
-    def getData(self) -> list[dict[str, str | None]]:
+    def getData(self) -> List[Dict[str, Union[str, None]]]:
         return self.__data
     
-    def setData(self, data: list[dict[str, str | None]]) -> None:
+    def setData(self, data: List[Dict[str, Union[str, None]]]) -> None:
         self.__data = data
     
     def collectCorporateMetadata(self) -> None:
@@ -80,25 +91,26 @@ class Builder:
         Return:
             (void)
         """
-        quarter: dict[str, int | str]
+        quarter: Dict[str, Union[int, str]]
         request: dict[str, str] = {}
-        FinancialCalendar: tuple[int, str, str, str] = self.getDatabaseHandler().getData(
+        FinancialCalendar: Union[RowType, Dict[str, Union[int, str]]] = self.getDatabaseHandler().getData(
             table_name="FinancialCalendar",
             filter_condition="CONCAT(YEAR(CURDATE()), '-', start_date) < CURDATE() AND CONCAT(YEAR(CURDATE()), '-', end_date) > CURDATE()",
             column_names="YEAR(CURDATE()) AS year, quarter, FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(YEAR(CURDATE()), '-', start_date)), '%m/%d/%Y') AS start_date, FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(YEAR(CURDATE()), '-', end_date)), '%m/%d/%Y') AS end_date"
-        )[0] # type: ignore
-        logs: tuple[str, str] = self.getDatabaseHandler().getData(
+        )[0]
+        FinCorpLogs = self.getDatabaseHandler().getData(
             table_name="FinCorpLogs",
             parameters=None,
             filter_condition="status = 200",
             column_names="MIN(FROM_UNIXTIME(date_start, '%m/%d/%Y')) AS start_date, MAX(FROM_UNIXTIME(date_to, '%m/%d/%Y')) AS end_date"
-        )[0] # type: ignore
+        )[0]
         quarter = {
-            "year": int(FinancialCalendar[0]),
-            "quarter": str(FinancialCalendar[1]),
-            "start_date": str(FinancialCalendar[2]),
-            "end_date": str(FinancialCalendar[3])
+            "year": int(FinancialCalendar["year"]), # type: ignore
+            "quarter": str(FinancialCalendar["quarter"]), # type: ignore
+            "start_date": str(FinancialCalendar["start_date"]), # type: ignore
+            "end_date": str(FinancialCalendar["end_date"]) # type: ignore
         }
+        print(f"Logs: {FinCorpLogs}\nFinancial Calendar: {FinancialCalendar}\nQuarter: {quarter}")
         if len(logs) > 0:
             request = self.handleRequest(logs)
         else:
