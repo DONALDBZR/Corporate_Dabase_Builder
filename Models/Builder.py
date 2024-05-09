@@ -7,10 +7,13 @@ Authors:
 """
 
 
+from Data.FinancialCalendar import FinancialCalendar
+from Data.FinCorpLogs import FinCorpLogs
 from Models.Crawler import Crawler
 from Models.DatabaseHandler import Database_Handler
 from Models.Logger import Corporate_Database_Builder_Logger
 from Models.FinancialCalendar import Financial_Calendar
+from Models.FinCorpLogs import FinCorp_Logs
 from datetime import datetime
 from datetime import timedelta
 from Environment import Environment
@@ -53,6 +56,11 @@ class Builder:
     The model which will interact exclusively with the Financial
     Calendar.
     """
+    __fincorp_logs: FinCorp_Logs
+    """
+    The model which will interact exclusively with the FinCorp
+    Logs.
+    """
 
     def __init__(self) -> None:
         """
@@ -63,6 +71,7 @@ class Builder:
         self.setLogger(Corporate_Database_Builder_Logger())
         self.setDatabaseHandler(Database_Handler())
         self.setFinancialCalendar(Financial_Calendar())
+        self.setFinCorpLogs(FinCorp_Logs())
         self.getLogger().inform("The builder has been initialized and all of its dependencies are injected!")
 
     def getCrawler(self) -> Crawler:
@@ -94,57 +103,48 @@ class Builder:
     
     def setFinancialCalendar(self, financial_calendar: Financial_Calendar) -> None:
         self.__financial_calendar = financial_calendar
+
+    def getFinCorpLogs(self) -> FinCorp_Logs:
+        return self.__fincorp_logs
+    
+    def setFinCorpLogs(self, fincorp_logs: FinCorp_Logs) -> None:
+        self.__fincorp_logs = fincorp_logs
     
     def collectCorporateMetadata(self) -> None:
         """
         The first run consists of retrieving the metadata needed of
         any existing company in Mauritius.
 
-        Return:
-            (void)
+        Returns:
+            void
         """
-        quarter: Dict[str, Union[int, str]]
         request: dict[str, str] = {}
-        FinancialCalendar: Union[RowType, Dict[str, Union[int, str]]] = self.getDatabaseHandler().getData(
-            table_name="FinancialCalendar",
-            filter_condition="CONCAT(YEAR(CURDATE()), '-', start_date) < CURDATE() AND CONCAT(YEAR(CURDATE()), '-', end_date) > CURDATE()",
-            column_names="YEAR(CURDATE()) AS year, quarter, FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(YEAR(CURDATE()), '-', start_date)), '%m/%d/%Y') AS start_date, FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(YEAR(CURDATE()), '-', end_date)), '%m/%d/%Y') AS end_date"
-        )[0]
-        FinCorpLogs = self.getDatabaseHandler().getData(
-            table_name="FinCorpLogs",
-            parameters=None,
-            filter_condition="status = 200",
-            column_names="MIN(FROM_UNIXTIME(date_start, '%m/%d/%Y')) AS start_date, MAX(FROM_UNIXTIME(date_to, '%m/%d/%Y')) AS end_date"
-        )[0]
-        quarter = {
-            "year": int(FinancialCalendar["year"]), # type: ignore
-            "quarter": str(FinancialCalendar["quarter"]), # type: ignore
-            "start_date": str(FinancialCalendar["start_date"]), # type: ignore
-            "end_date": str(FinancialCalendar["end_date"]) # type: ignore
-        }
-        print(f"Logs: {FinCorpLogs}\nFinancial Calendar: {FinancialCalendar}\nQuarter: {quarter}")
-        if len(logs) > 0:
-            request = self.handleRequest(logs)
-        else:
+        quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter() # type: ignore
+        successful_logs: List[FinCorpLogs] = self.getFinCorpLogs().getSuccessfulRunsLogs()
+        if len(successful_logs) == 1 and successful_logs[0].status == 204:
             date_to = datetime.strftime(
                 datetime.strptime(
-                    str(quarter["start_date"]),
+                    quarter.start_date,
                     "%m/%d/%Y"
                 ) + timedelta(weeks=1),
                 "%m/%d/%Y"
             )
             request = {
-                "start_date": str(quarter["start_date"]),
+                "start_date": quarter.start_date,
                 "end_date": date_to
             }
-        self.setCrawler(Crawler())
-        response = self.getCrawler().retrieveCorporateMetadata(
-            str(request["start_date"]),
-            str(request["end_date"]),
-            0
-        )
-        self.validateCorporateMetadata(response, request, quarter) # type: ignore
-        self.cleanCache()
+        else:
+            request = self.handleRequest(successful_logs)
+        print(f"Quarter: {quarter}\nLogs: {successful_logs}\nRequest: {request}")
+        exit()
+        # self.setCrawler(Crawler())
+        # response = self.getCrawler().retrieveCorporateMetadata(
+        #     str(request["start_date"]),
+        #     str(request["end_date"]),
+        #     0
+        # )
+        # self.validateCorporateMetadata(response, request, quarter) # type: ignore
+        # self.cleanCache()
 
     def cleanCache(self) -> None:
         """
@@ -174,16 +174,44 @@ class Builder:
                 f"{self.ENV.getDirectory()}/Cache/{files[index]}"
             )
 
-    def handleRequest(self, logs: tuple[str, str]) -> dict:
+    def getDateStart(self, logs: List[FinCorpLogs]) -> str:
+        """
+        Retrieving the next start date for the data collection which
+        will be based on the latest end date that is in the logs.
+
+        Parameters:
+            logs: array
+
+        Returns:
+            string
+        """
+        date_end: int = 0
+        for index in range(0, len(logs), 1):
+            if logs[index].date_to > date_end:
+                date_end = logs[index].date_to
+            else:
+                date_end = date_end
+        return datetime.strftime(
+            datetime.strptime(
+                datetime.fromtimestamp(date_end).strftime("%m/%d/%Y"),
+                "%m/%d/%Y"
+            ) + timedelta(
+                days=1
+            ),
+            "%m/%d/%Y"
+        )
+
+    def handleRequest(self, logs: List[FinCorpLogs]) -> Dict[str, str]:
         """
         Handling the request before that it is sent to the Crawler.
 
         Parameters:
-            logs:   (array):    The data from FinCorpLogs
+            logs: array: The data from FinCorpLogs
 
-        Return:
-            (object)
+        Returns:
+            {start_date: string, end_date: string}
         """
+        date_start: str = self.getDateStart(logs)
         date_start = datetime.strftime(
             datetime.strptime(
                 max(logs),
