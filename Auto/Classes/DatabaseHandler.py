@@ -139,10 +139,14 @@ class Database_Handler:
     def setLogger(self, logger: Corporate_Database_Builder_Logger) -> None:
         self.__Logger = logger
 
-    def _query(self, query: str, parameters: None | tuple):
+    def _query(self, query: str, parameters: Union[Tuple[Any], None]):
         """
         Preparing the SQL query that is going to be handled by the
         database handler.
+
+        Parameters:
+            query: string
+            parameters: array | null
 
         Return:
             (Generator[MySQLCursor, None, None] | None)
