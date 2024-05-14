@@ -347,7 +347,7 @@ class Builder:
         """
         for index in range(0, len(self.getData()), 1):
             CompanyDetails = self.getData()[index]
-            parameters: tuple[str, str, str, int, str, str] = (
+            parameters: Tuple[str, str, str, int, str, str] = (
                 str(CompanyDetails["name"]),
                 str(CompanyDetails["file_number"]),
                 str(CompanyDetails["category"]),
@@ -360,7 +360,7 @@ class Builder:
             )
             self.getDatabaseHandler().postData(
                 table="CompanyDetails",
-                parameters=parameters,
+                parameters=parameters, # type: ignore
                 columns="name, file_number, category, date_incorporation, nature, status",
                 values="%s, %s, %s, %s, %s, %s"
             )
