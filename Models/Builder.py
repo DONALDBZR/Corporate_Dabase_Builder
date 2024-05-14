@@ -392,10 +392,4 @@ class Builder:
                 str(CompanyDetails["nature"]),
                 str(CompanyDetails["status"])
             )
-
-            self.getDatabaseHandler().postData(
-                table="CompanyDetails",
-                parameters=parameters,  # type: ignore
-                columns="name, file_number, category, date_incorporation, nature, status",
-                values="%s, %s, %s, %s, %s, %s"
-            )
+            self.getCompanyDetails().addCompany(parameters)  # type: ignore
