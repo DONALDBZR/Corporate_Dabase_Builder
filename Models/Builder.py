@@ -315,7 +315,7 @@ class Builder:
             "end_date": date_end
         }
 
-    def validateCorporateMetadata(self, response: Dict[str, int], request: Dict[str, str], quarter: Dict[str, Union[int, str]]) -> None:
+    def validateCorporateMetadata(self, response: Dict[str, int], request: Dict[str, str], quarter: FinancialCalendar) -> None:
         """
         Validating the response from the Crawler to save the data
         into the database server.
@@ -323,7 +323,7 @@ class Builder:
         Parameters:
             response: object
             request: object
-            quarter: object
+            quarter: FinancialCalendar
 
         Returns:
             void
@@ -340,7 +340,7 @@ class Builder:
         if response["status"] == 200:
             parameters: Tuple[str, str, int, int, int, int, int] = (
                 method_name,
-                str(quarter["quarter"]),
+                quarter.quarter,
                 date_start,
                 date_end,
                 int(response["status"]),
@@ -356,7 +356,7 @@ class Builder:
         else:
             parameters: Tuple[str, str, int, int, int, int, int] = (
                 method_name,
-                str(quarter["quarter"]),
+                quarter.quarter,
                 date_start,
                 date_end,
                 int(response["status"]),
