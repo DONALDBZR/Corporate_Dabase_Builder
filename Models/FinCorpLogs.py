@@ -10,7 +10,7 @@ Authors:
 
 from Models.DatabaseHandler import Database_Handler
 from Data.FinCorpLogs import FinCorpLogs
-from typing import Union, Dict, List
+from typing import Union, Dict, List, Tuple, Any
 from mysql.connector.types import RowType
 from mysql.connector.errors import Error
 
@@ -55,11 +55,12 @@ class FinCorp_Logs(Database_Handler):
                 parameters=None,
                 filter_condition="status = 200"
             )
-            response: Dict[str, Union[int, List[FinCorpLogs]]] = self._getSuccessfulLogs(data)
+            response: Dict[str, Union[int, List[FinCorpLogs]]
+                           ] = self._getSuccessfulLogs(data)
             self.getLogger().inform(
                 f"The data from {self.getTableName()} has been retrieved!\nStatus: {response['status']}\nData: {data}"
             )
-            return response["data"] # type: ignore
+            return response["data"]  # type: ignore
         except Error as error:
             self.getLogger().error(
                 f"An error occurred in {self.getTableName()}\nStatus: 503\nError: {error}"
@@ -115,8 +116,26 @@ class FinCorp_Logs(Database_Handler):
         status: int = 200
         data: List[FinCorpLogs] = []
         for index in range(0, len(dataset), 1):
-            data.append(FinCorpLogs(dataset[index])) # type: ignore
+            data.append(FinCorpLogs(dataset[index]))  # type: ignore
         return {
             "status": status,
             "data": data
         }
+
+    def postSuccessfulCorporateDataCollectionRun(self, data: Tuple[Any]) -> None:
+        """
+        Inserting the successful run for the corporate data
+        collection.
+
+        Parameters:
+            data: array
+
+        Returns:
+            void
+        """
+        return self.postData(
+            table=self.getTableName(),
+            columns="method_name, quarter, date_start, date_to, status, amount, amount_found",
+            values="%s, %s, %s, %s, %s, %s, %s",
+            parameters=data
+        )
