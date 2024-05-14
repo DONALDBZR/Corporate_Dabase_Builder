@@ -142,9 +142,7 @@ class Builder:
             str(request["end_date"]),
             0
         )
-        print(f"Quarter: {quarter}\nLogs: {successful_logs}\nRequest: {request}")
-        exit()
-        # self.validateCorporateMetadata(response, request, quarter) # type: ignore
+        self.validateCorporateMetadata(response, request, quarter) # type: ignore
         # self.cleanCache()
 
     def cleanCache(self) -> None:
@@ -297,7 +295,7 @@ class Builder:
             "%m/%d/%Y"
         ).timestamp())
         if response["status"] == 200:
-            parameters: tuple[str, str, int, int, int, int, int] = (
+            parameters: Tuple[str, str, int, int, int, int, int] = (
                 method_name,
                 str(quarter["quarter"]),
                 date_start,
@@ -314,10 +312,10 @@ class Builder:
                 table="FinCorpLogs",
                 columns="method_name, quarter, date_start, date_to, status, amount, amount_found",
                 values="%s, %s, %s, %s, %s, %s, %s",
-                parameters=parameters
+                parameters=parameters # type: ignore
             )
         else:
-            parameters: tuple[str, str, int, int, int, int, int] = (
+            parameters: Tuple[str, str, int, int, int, int, int] = (
                 method_name,
                 str(quarter["quarter"]),
                 date_start,
@@ -331,7 +329,7 @@ class Builder:
                 table="FinCorpLogs",
                 columns="method_name, quarter, date_start, date_to, status, amount, amount_found",
                 values="%s, %s, %s, %s, %s, %s, %s",
-                parameters=parameters
+                parameters=parameters # type: ignore
             )
             self.getLogger().error(
                 f"The application has failed to collect the data!  Please check the logs!\nStatus: {response['status']}"
