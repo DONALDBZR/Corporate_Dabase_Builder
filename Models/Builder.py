@@ -61,6 +61,11 @@ class Builder:
     The model which will interact exclusively with the FinCorp
     Logs.
     """
+    __company_details: Company_Details
+    """
+    The model which will interact exclusively with the Company
+    Details.
+    """
 
     def __init__(self) -> None:
         """
@@ -72,6 +77,7 @@ class Builder:
         self.setDatabaseHandler(Database_Handler())
         self.setFinancialCalendar(Financial_Calendar())
         self.setFinCorpLogs(FinCorp_Logs())
+        self.setCompanyDetails(Company_Details())
         self.getLogger().inform(
             "The builder has been initialized and all of its dependencies are injected!")
 
@@ -110,6 +116,12 @@ class Builder:
 
     def setFinCorpLogs(self, fincorp_logs: FinCorp_Logs) -> None:
         self.__fincorp_logs = fincorp_logs
+
+    def getCompanyDetails(self) -> Company_Details:
+        return self.__company_details
+
+    def setCompanyDetails(self, company_details: Company_Details) -> None:
+        self.__company_details = company_details
 
     def collectCorporateMetadata(self) -> None:
         """
