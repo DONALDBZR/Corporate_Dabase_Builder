@@ -189,6 +189,7 @@ class Builder:
         """
         date_end: int = 0
         for index in range(0, len(logs), 1):
+            date_end = self.__getDateEndFinCorpLogs(logs[index], date_end)
             if logs[index].date_to > date_end:
                 date_end = logs[index].date_to
             else:
