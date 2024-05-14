@@ -150,8 +150,8 @@ class Builder:
         corporate metadata and storing them into the relational
         database server.
 
-        Return:
-            (void)
+        Returns:
+            void
         """
         files = os.listdir(
             f"{self.ENV.getDirectory()}/Cache/CorporateDataCollection"
