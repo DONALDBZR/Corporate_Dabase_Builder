@@ -143,7 +143,7 @@ class Builder:
             0
         )
         self.validateCorporateMetadata(response, request, quarter) # type: ignore
-        # self.cleanCache()
+        self.cleanCache()
 
     def cleanCache(self) -> None:
         """
@@ -155,7 +155,7 @@ class Builder:
             (void)
         """
         files = os.listdir(
-            f"{self.ENV.getDirectory()}/Cache"
+            f"{self.ENV.getDirectory()}/Cache/CorporateDataCollection"
         )
         if len(files) > 0:
             self._cleanCache(files)
