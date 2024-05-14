@@ -72,44 +72,45 @@ class Builder:
         self.setDatabaseHandler(Database_Handler())
         self.setFinancialCalendar(Financial_Calendar())
         self.setFinCorpLogs(FinCorp_Logs())
-        self.getLogger().inform("The builder has been initialized and all of its dependencies are injected!")
+        self.getLogger().inform(
+            "The builder has been initialized and all of its dependencies are injected!")
 
     def getCrawler(self) -> Crawler:
         return self.__crawler
-    
+
     def setCrawler(self, crawler: Crawler) -> None:
         self.__crawler = crawler
 
     def getDatabaseHandler(self) -> Database_Handler:
         return self.__Database_Handler
-    
+
     def setDatabaseHandler(self, database_handler: Database_Handler) -> None:
         self.__Database_Handler = database_handler
 
     def getLogger(self) -> Corporate_Database_Builder_Logger:
         return self.__logger
-    
+
     def setLogger(self, logger: Corporate_Database_Builder_Logger) -> None:
         self.__logger = logger
 
     def getData(self) -> List[Dict[str, Union[str, None]]]:
         return self.__data
-    
+
     def setData(self, data: List[Dict[str, Union[str, None]]]) -> None:
         self.__data = data
 
     def getFinancialCalendar(self) -> Financial_Calendar:
         return self.__financial_calendar
-    
+
     def setFinancialCalendar(self, financial_calendar: Financial_Calendar) -> None:
         self.__financial_calendar = financial_calendar
 
     def getFinCorpLogs(self) -> FinCorp_Logs:
         return self.__fincorp_logs
-    
+
     def setFinCorpLogs(self, fincorp_logs: FinCorp_Logs) -> None:
         self.__fincorp_logs = fincorp_logs
-    
+
     def collectCorporateMetadata(self) -> None:
         """
         The first run consists of retrieving the metadata needed of
@@ -119,8 +120,10 @@ class Builder:
             void
         """
         request: Dict[str, str] = {}
-        quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter() # type: ignore
-        successful_logs: List[FinCorpLogs] = self.getFinCorpLogs().getSuccessfulRunsLogs()
+        quarter: FinancialCalendar = self.getFinancialCalendar(
+        ).getCurrentQuarter()  # type: ignore
+        successful_logs: List[FinCorpLogs] = self.getFinCorpLogs(
+        ).getSuccessfulRunsLogs()
         if len(successful_logs) == 1 and successful_logs[0].status == 204:
             date_to = datetime.strftime(
                 datetime.strptime(
@@ -141,7 +144,8 @@ class Builder:
             str(request["end_date"]),
             0
         )
-        self.validateCorporateMetadata(response, request, quarter) # type: ignore
+        self.validateCorporateMetadata(
+            response, request, quarter)  # type: ignore
         self.cleanCache()
 
     def cleanCache(self) -> None:
@@ -159,7 +163,7 @@ class Builder:
         if len(files) > 0:
             self._cleanCache(files)
 
-    def _cleanCache(self, files: list[str]) -> None:
+    def _cleanCache(self, files: List[str]) -> None:
         """
         Cleaning the Cache database based on the amount of files in
         it.
@@ -311,7 +315,7 @@ class Builder:
                 table="FinCorpLogs",
                 columns="method_name, quarter, date_start, date_to, status, amount, amount_found",
                 values="%s, %s, %s, %s, %s, %s, %s",
-                parameters=parameters # type: ignore
+                parameters=parameters  # type: ignore
             )
         else:
             parameters: Tuple[str, str, int, int, int, int, int] = (
@@ -328,7 +332,7 @@ class Builder:
                 table="FinCorpLogs",
                 columns="method_name, quarter, date_start, date_to, status, amount, amount_found",
                 values="%s, %s, %s, %s, %s, %s, %s",
-                parameters=parameters # type: ignore
+                parameters=parameters  # type: ignore
             )
             self.getLogger().error(
                 f"The application has failed to collect the data!  Please check the logs!\nStatus: {response['status']}"
@@ -359,7 +363,7 @@ class Builder:
             )
             self.getDatabaseHandler().postData(
                 table="CompanyDetails",
-                parameters=parameters, # type: ignore
+                parameters=parameters,  # type: ignore
                 columns="name, file_number, category, date_incorporation, nature, status",
                 values="%s, %s, %s, %s, %s, %s"
             )
