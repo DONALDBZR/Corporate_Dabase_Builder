@@ -118,7 +118,7 @@ class Builder:
         Returns:
             void
         """
-        request: dict[str, str] = {}
+        request: Dict[str, str] = {}
         quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter() # type: ignore
         successful_logs: List[FinCorpLogs] = self.getFinCorpLogs().getSuccessfulRunsLogs()
         if len(successful_logs) == 1 and successful_logs[0].status == 204:
