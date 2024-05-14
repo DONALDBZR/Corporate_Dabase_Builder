@@ -18,8 +18,8 @@ from datetime import datetime
 from datetime import timedelta
 from Environment import Environment
 from typing import List, Tuple, Union, Dict
-from mysql.connector.types import RowType
 from time import time
+from Models.CompanyDetails import Company_Details
 import os
 
 
@@ -380,6 +380,7 @@ class Builder:
                 str(CompanyDetails["nature"]),
                 str(CompanyDetails["status"])
             )
+
             self.getDatabaseHandler().postData(
                 table="CompanyDetails",
                 parameters=parameters,  # type: ignore
