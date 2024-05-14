@@ -63,7 +63,7 @@ class Crawler:
     """
     The metadata of the companies that are in Mauritius.
     """
-    
+
     def __init__(self) -> None:
         """
         Initializing the application which will go on the target to
@@ -125,19 +125,19 @@ class Crawler:
 
     def getTarget(self) -> str:
         return self.__target
-    
+
     def setTarget(self, target: str) -> None:
         self.__target = target
 
     def getLogger(self) -> Corporate_Database_Builder_Logger:
         return self.__logger
-    
+
     def setLogger(self, logger: Corporate_Database_Builder_Logger) -> None:
         self.__logger = logger
 
     def getCorporateMetadata(self) -> list[dict[str, str | None]]:
         return self.__corporate_metadata
-    
+
     def setCorporateMetadata(self, corporate_metadata: list[dict[str, str | None]]) -> None:
         self.__corporate_metadata = corporate_metadata
 
@@ -166,7 +166,8 @@ class Crawler:
         self.getOptions().add_argument('--no-sandbox')
         self.getOptions().add_argument('--disable-dev-shm-usage')
         self.getOptions().add_argument('--disable-blink-features=AutomationControlled')
-        self.getOptions().add_experimental_option("excludeSwitches", ["enable-automation"])
+        self.getOptions().add_experimental_option(
+            "excludeSwitches", ["enable-automation"])
         self.getOptions().add_experimental_option('useAutomationExtension', False)
         self.getOptions().add_argument("start-maximized")
         self.getLogger().inform("The Crawler has been correctly configured!")
@@ -198,7 +199,8 @@ class Crawler:
         Return:
             (object)
         """
-        delay: float = ((self.ENV.calculateDelay(date_from) + self.ENV.calculateDelay(date_to)) / 2) * (1.1 ** coefficient)
+        delay: float = ((self.ENV.calculateDelay(
+            date_from) + self.ENV.calculateDelay(date_to)) / 2) * (1.1 ** coefficient)
         amount: int
         response: dict = {}
         self.setHtmlTag(
@@ -225,7 +227,6 @@ class Crawler:
         )
         self.handleSearch()
         wait_delay = delay * (1.1 ** 0)
-        print(f"Delay: {delay} s\nWaiting Delay: {wait_delay} s")
         time.sleep(wait_delay)
         data_amount = self.getDriver().find_element(
             By.XPATH,
@@ -348,7 +349,6 @@ class Crawler:
         file.close()
         self.getLogger().inform("The data has been written to the cache.")
 
-    
     def readCache(self) -> None:
         """
         Reading data from the cache directory.
@@ -369,7 +369,7 @@ class Crawler:
         else:
             self.setCorporateMetadata([])
         self.getLogger().inform("The data has been read from the cache!")
-    
+
     def interceptCookie(self) -> None:
         """
         Intercepting the cookie in order not to be recognize as a
@@ -386,7 +386,7 @@ class Crawler:
         )
         self.getHtmlTag().click()
         self.getLogger().inform("The cookie has been intercepted!")
-    
+
     def getPageTableData(self, amount_data_found: int, amount: int) -> None:
         """
         Retrieving the corporate metadata that is in the table which
@@ -435,7 +435,8 @@ class Crawler:
         """
         company_names: list[str] = []
         for index in range(0, len(self.getCorporateMetadata()), 1):
-            company_names.append(str(self.getCorporateMetadata()[index]["name"]))
+            company_names.append(
+                str(self.getCorporateMetadata()[index]["name"]))
         if data["name"] in company_names:
             return 1
         else:
