@@ -264,7 +264,7 @@ class Builder:
         Handling the request before that it is sent to the Crawler.
 
         Parameters:
-            logs: array: The data from FinCorpLogs
+            logs: array
 
         Returns:
             {start_date: string, end_date: string}
