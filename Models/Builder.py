@@ -339,12 +339,8 @@ class Builder:
             self.getCrawler().getDriver().quit()
             self.getLogger().inform("Storing the corporate metadata!")
             self.storeCorporateMetadata()
-            self.getDatabaseHandler().postData(
-                table="FinCorpLogs",
-                columns="method_name, quarter, date_start, date_to, status, amount, amount_found",
-                values="%s, %s, %s, %s, %s, %s, %s",
-                parameters=parameters  # type: ignore
-            )
+            self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(
+                parameters)  # type: ignore
         else:
             parameters: Tuple[str, str, int, int, int, int, int] = (
                 method_name,
@@ -356,12 +352,7 @@ class Builder:
                 0
             )
             self.getCrawler().getDriver().quit()
-            self.getDatabaseHandler().postData(
-                table="FinCorpLogs",
-                columns="method_name, quarter, date_start, date_to, status, amount, amount_found",
-                values="%s, %s, %s, %s, %s, %s, %s",
-                parameters=parameters  # type: ignore
-            )
+            self.getFinCorpLogs().postFailedCorporateDataCollectionRun(parameters)  # type: ignore
             self.getLogger().error(
                 f"The application has failed to collect the data!  Please check the logs!\nStatus: {response['status']}"
             )
