@@ -373,8 +373,8 @@ class Builder:
         """
         Storing the metadata into the database server.
 
-        Return:
-            (void)
+        Returns:
+            void
         """
         for index in range(0, len(self.getData()), 1):
             CompanyDetails = self.getData()[index]
