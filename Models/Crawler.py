@@ -341,7 +341,7 @@ class Crawler:
         """
         file_name = f"{time.time()}.json"
         file = open(
-            f"{self.ENV.getDirectory()}/Cache/{file_name}",
+            f"{self.ENV.getDirectory()}/Cache/CorporateDataCollection/{file_name}",
             "w"
         )
         file.write(json.dumps(self.getCorporateMetadata(), indent=4))
