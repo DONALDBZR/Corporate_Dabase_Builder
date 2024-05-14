@@ -3,7 +3,7 @@ from datetime import timedelta
 from sys import path
 
 
-path.insert(0, "/home/admin/Documents/Darkness4869/fincorp")
+path.insert(0, "/home/darkness4869/Documents/Corporate_Database_Builder")
 
 
 from Models.Builder import Builder
