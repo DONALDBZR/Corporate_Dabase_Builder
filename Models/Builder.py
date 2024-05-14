@@ -231,6 +231,7 @@ class Builder:
         """
         date_start: int = int(time())
         for index in range(0, len(logs), 1):
+            date_start = self._getDateEndFinCorpLogs(logs[index], date_start)
             if logs[index].date_start < date_start:
                 date_start = logs[index].date_start
             else:
