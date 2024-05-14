@@ -139,3 +139,20 @@ class FinCorp_Logs(Database_Handler):
             values="%s, %s, %s, %s, %s, %s, %s",
             parameters=data
         )
+
+    def postFailedCorporateDataCollectionRun(self, data: Tuple[Any]) -> None:
+        """
+        Inserting the failure run for the corporate data collection.
+
+        Parameters:
+            data: array
+
+        Returns:
+            void
+        """
+        return self.postData(
+            table=self.getTableName(),
+            columns="method_name, quarter, date_start, date_to, status, amount, amount_found",
+            values="%s, %s, %s, %s, %s, %s, %s",
+            parameters=data
+        )
