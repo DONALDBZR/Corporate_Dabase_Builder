@@ -136,14 +136,14 @@ class Builder:
             }
         else:
             request = self.handleRequest(successful_logs)
+        self.setCrawler(Crawler())
+        response = self.getCrawler().retrieveCorporateMetadata(
+            str(request["start_date"]),
+            str(request["end_date"]),
+            0
+        )
         print(f"Quarter: {quarter}\nLogs: {successful_logs}\nRequest: {request}")
         exit()
-        # self.setCrawler(Crawler())
-        # response = self.getCrawler().retrieveCorporateMetadata(
-        #     str(request["start_date"]),
-        #     str(request["end_date"]),
-        #     0
-        # )
         # self.validateCorporateMetadata(response, request, quarter) # type: ignore
         # self.cleanCache()
 
