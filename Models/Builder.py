@@ -170,7 +170,7 @@ class Builder:
         """
         for index in range(0, len(files), 1):
             os.remove(
-                f"{self.ENV.getDirectory()}/Cache/{files[index]}"
+                f"{self.ENV.getDirectory()}/Cache/CorporateDataCollection/{files[index]}"
             )
 
     def getDateStart(self, logs: List[FinCorpLogs]) -> str:
