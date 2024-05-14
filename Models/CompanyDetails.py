@@ -30,7 +30,7 @@ class Company_Details(Database_Handler):
         operate the application.
         """
         super().__init__()
-        self.setTableName("FinCorpLogs")
+        self.setTableName("CompanyDetails")
         self.getLogger().inform(
             "The model has been successfully been initiated with its dependencies."
         )
