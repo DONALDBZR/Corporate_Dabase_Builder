@@ -303,20 +303,20 @@ class Builder:
             "end_date": date_end
         }
 
-    def validateCorporateMetadata(self, response: dict[str, int], request: dict[str, str], quarter: dict[str, int | str]) -> None:
+    def validateCorporateMetadata(self, response: Dict[str, int], request: Dict[str, str], quarter: Dict[str, Union[int, str]]) -> None:
         """
         Validating the response from the Crawler to save the data
         into the database server.
 
         Parameters:
-            response:   (object):   The response after retrieving the data.
-            request:    (object):   The request used to retrieve the data.
-            quarter:    (object):   The data of the quarter.
+            response: object
+            request: object
+            quarter: object
 
-        Return:
-            (void)
+        Returns:
+            void
         """
-        method_name = "collectCorporateMetadata"
+        method_name: str = "collectCorporateMetadata"
         date_start = int(datetime.strptime(
             str(request["start_date"]),
             "%m/%d/%Y"
