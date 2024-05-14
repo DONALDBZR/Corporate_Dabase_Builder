@@ -20,7 +20,6 @@ from Environment import Environment
 from typing import List, Tuple, Union, Dict
 from mysql.connector.types import RowType
 from time import time
-import logging
 import os
 
 
