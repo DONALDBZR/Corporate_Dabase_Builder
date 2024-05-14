@@ -9,16 +9,15 @@ Authors:
 
 
 from Models.DatabaseHandler import Database_Handler
-from Data.FinCorpLogs import FinCorpLogs
 from typing import Union, Dict, List, Tuple, Any
 from mysql.connector.types import RowType
 from mysql.connector.errors import Error
 
 
-class FinCorp_Logs(Database_Handler):
+class Company_Details(Database_Handler):
     """
-    The model which will interact exclusively with the FinCorp
-    Logs.
+    The model which will interact exclusively with the Company
+    Details.
     """
     __table_name: str
     """
