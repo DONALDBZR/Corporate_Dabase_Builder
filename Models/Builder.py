@@ -179,7 +179,7 @@ class Builder:
     def _getDateEndFinCorpLogs(self, log: FinCorpLogs, date_end: int) -> int:
         """
         Retrieving the date end from the log data and comparing to
-        retrieving the latest one.
+        retrieve the latest one.
 
         Parameters:
             log: FinCorpLogs
@@ -217,6 +217,23 @@ class Builder:
             "%m/%d/%Y"
         )
 
+    def _getDateStartFinCorpLogs(self, log: FinCorpLogs, date_start: int) -> int:
+        """
+        Retrieving the date start from the log data and comparing to
+        retrieve the earliest one.
+
+        Parameters:
+            log: FinCorpLogs
+            date_start: int
+
+        Returns:
+            int
+        """
+        if log.date_start < date_start:
+            return log.date_start
+        else:
+            return date_start
+
     def getDateEnd(self, logs: List[FinCorpLogs]) -> str:
         """
         Retrieving the next end date for the data collection which
@@ -232,10 +249,6 @@ class Builder:
         date_start: int = int(time())
         for index in range(0, len(logs), 1):
             date_start = self._getDateStartFinCorpLogs(logs[index], date_start)
-            if logs[index].date_start < date_start:
-                date_start = logs[index].date_start
-            else:
-                date_start = date_start
         return datetime.strftime(
             datetime.strptime(
                 datetime.fromtimestamp(date_start).strftime("%m/%d/%Y"),
