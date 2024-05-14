@@ -164,8 +164,8 @@ class Builder:
         Cleaning the Cache database based on the amount of files in
         it.
 
-        Return:
-            (void)
+        Returns:
+            void
         """
         for index in range(0, len(files), 1):
             os.remove(
