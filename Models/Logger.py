@@ -1,5 +1,15 @@
+"""
+The module of the Corporate Database Builder Logger which
+will help the application to log all of the actions done by
+the application.
+
+Authors:
+    Andy Ewen Gaspard
+"""
+
+
 from logging.__init__ import Logger
-from Classes.Environment import Environment
+from Environment import Environment
 import logging
 
 

@@ -1,8 +1,21 @@
+"""
+The module which will have the object-relational mapper of
+the application.
+
+Authors:
+    Andy Ewen Gaspard
+    Solofonavalona Randriantsilavo
+"""
+
+
 from mysql.connector.pooling import PooledMySQLConnection
 from mysql.connector.connection import MySQLConnection
 from mysql.connector.cursor import MySQLCursor
-from Classes.Environment import Environment
-from Classes.Logger import Corporate_Database_Builder_Logger
+from Environment import Environment
+from Models.Logger import Corporate_Database_Builder_Logger
+from typing import List, Tuple, Union, Any
+from mysql.connector.types import RowType
+from mysql.connector import Error
 import mysql.connector
 import logging
 
@@ -29,7 +42,7 @@ class Database_Handler:
     The password that allows the required user to connect to the
     database.
     """
-    __database_handler: "PooledMySQLConnection | MySQLConnection"
+    __database_handler: Union[PooledMySQLConnection, MySQLConnection]
     """
     The database handler needed to execute the queries needed
     """
@@ -43,7 +56,7 @@ class Database_Handler:
     The query to be used to be sent to the database server to
     either get, post, update or delete data.
     """
-    __parameters: tuple | None
+    __parameters: Union[Tuple[Any], None]
     """
     Parameters that the will be used to sanitize the query which
     is either get, post, update or delete.
@@ -77,7 +90,7 @@ class Database_Handler:
             self.getLogger().inform(
                 "The application has been successfully connected to the database server!"
             )
-        except mysql.connector.Error as error:
+        except Error as error:
             self.getLogger().error(
                 f"Connection Failed!\nError: {error}"
             )
@@ -106,10 +119,10 @@ class Database_Handler:
     def __setPassword(self, password: str) -> None:
         self.__password = password
 
-    def __getDatabaseHandler(self) -> "PooledMySQLConnection | MySQLConnection":
+    def __getDatabaseHandler(self) -> Union[PooledMySQLConnection, MySQLConnection]:
         return self.__database_handler
 
-    def __setDatabaseHandler(self, database_handler: "PooledMySQLConnection | MySQLConnection") -> None:
+    def __setDatabaseHandler(self, database_handler: Union[PooledMySQLConnection, MySQLConnection]) -> None:
         self.__database_handler = database_handler
 
     def __getStatement(self) -> "MySQLCursor":
@@ -124,10 +137,10 @@ class Database_Handler:
     def setQuery(self, query: str) -> None:
         self.__query = query
 
-    def getParameters(self) -> tuple | None:
+    def getParameters(self) -> Union[Tuple[Any], None]:
         return self.__parameters
 
-    def setParameters(self, parameters: tuple | None) -> None:
+    def setParameters(self, parameters: Union[Tuple[Any], None]) -> None:
         self.__parameters = parameters
 
     def getLogger(self) -> Corporate_Database_Builder_Logger:
@@ -136,15 +149,24 @@ class Database_Handler:
     def setLogger(self, logger: Corporate_Database_Builder_Logger) -> None:
         self.__Logger = logger
 
-    def _query(self, query: str, parameters: None | tuple):
+    def _query(self, query: str, parameters: Union[Tuple[Any], None]):
         """
         Preparing the SQL query that is going to be handled by the
         database handler.
 
-        Return:
-            (Generator[MySQLCursor, None, None] | None)
+        Parameters:
+            query: string
+            parameters: array | null
+
+        Returns:
+            Generator[MySQLCursor, None, None] | None
         """
-        self.__setStatement(self.__getDatabaseHandler().cursor(prepared=True))
+        self.__setStatement(
+            self.__getDatabaseHandler().cursor(
+                prepared=True,
+                dictionary=True
+            )
+        )
         self.getLogger().debug(
             f"Query to be used as a request to the database server!\nQuery: {query}\nParameters: {parameters}"
         )
@@ -155,24 +177,24 @@ class Database_Handler:
         Executing the SQL query which will send a command to the
         database server
 
-        Return:
-            (void)
+        Returns:
+            void
         """
         self.__getDatabaseHandler().commit()
 
-    def _resultSet(self) -> list:
+    def _resultSet(self) -> List[RowType]:
         """
         Fetching all the data that is requested from the command that
-        was sent to the database server
+        was sent to the database server.
 
-        Return:
-            (array)
+        Returns:
+            arrays
         """
         result_set = self.__getStatement().fetchall()
         self.__getStatement().close()
         return result_set
 
-    def getData(self, table_name: str, parameters: tuple | None = None, join_condition: str = "", filter_condition: str = "", column_names: str = "*", sort_condition: str = "", limit_condition: int = 0) -> list[tuple[int, str, str, str]] | list[tuple[int, str, int, str, int, int , int, int]] | list[tuple[str, str]]:
+    def getData(self, table_name: str, parameters: Union[Tuple[Any], None] = None, join_condition: str = "", filter_condition: str = "", column_names: str = "*", sort_condition: str = "", limit_condition: int = 0) -> List[RowType]:
         """
         Retrieving data from the database.
 
@@ -267,7 +289,7 @@ class Database_Handler:
             query = self.getQuery()
         self.setQuery(query)
 
-    def postData(self, table: str, columns: str, values: str, parameters: tuple) -> None:
+    def postData(self, table: str, columns: str, values: str, parameters: Tuple[Any]) -> None:
         """
         Creating records to store data into the database server.
 
@@ -288,7 +310,7 @@ class Database_Handler:
         self._query(self.getQuery(), self.getParameters())
         self._execute()
 
-    def updateData(self, table: str, values: str, parameters: tuple | None, condition: str = "") -> None:
+    def updateData(self, table: str, values: str, parameters: Union[Tuple[Any], None], condition: str = "") -> None:
         """
         Updating a specific table in the database.
 
@@ -311,7 +333,7 @@ class Database_Handler:
         self._query(self.getQuery(), self.getParameters())
         self._execute()
 
-    def deleteData(self, table: str, parameters: tuple | None, condition: str = "") -> None:
+    def deleteData(self, table: str, parameters: Union[Tuple[Any], None], condition: str = "") -> None:
         """
         Deleting data from the database.
 

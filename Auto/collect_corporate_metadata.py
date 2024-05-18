@@ -1,6 +1,12 @@
-from Classes.Builder import Builder
 from datetime import datetime
 from datetime import timedelta
+from sys import path
+
+
+path.insert(0, "/home/darkness4869/Documents/Corporate_Database_Builder")
+
+
+from Models.Builder import Builder
 
 
 module_limit_execution = datetime.now() + timedelta(minutes=15)
