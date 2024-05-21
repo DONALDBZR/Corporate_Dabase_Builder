@@ -421,13 +421,13 @@ class Crawler:
         is generally displayed in a way order.
 
         Parameters:
-            amount_data_found:      (int):      The amount of data that the crawler has found.
-            amount:                 (int):      The total amount of data.
+            amount_data_found: int: The amount of data that the crawler has found.
+            amount: int: The total amount of data.
 
-        Return:
-            (void)
+        Returns:
+            void
         """
-        rows = self.getHtmlTags()
+        rows: List[WebElement] = self.getHtmlTags()
         for index in range(0, len(rows), 1):
             self.setHtmlTags(
                 rows[index].find_elements(
@@ -435,7 +435,7 @@ class Crawler:
                     "td"
                 )
             )
-            data: dict[str, str | None] = {
+            data: Dict[str, Union[str, None]] = {
                 "business_registration_number": None,
                 "name": self.getHtmlTags()[1].text,
                 "file_number": self.getHtmlTags()[2].text,
@@ -445,7 +445,7 @@ class Crawler:
                 "status": self.getHtmlTags()[6].text,
             }
             amount_data_found += self.checkCorporateMetadata(data)
-            done = (amount_data_found / amount) * 100
+            done: float = (amount_data_found / amount) * 100
             self.getLogger().inform(
                 f"Retrieving corporate metadata.\nPercentage Done: {done}%\nBRN: {data['business_registration_number']}\nName: {data['name']}\nFile Number: {data['file_number']}\nCategory: {data['category']}\nDate of Incorporation: {data['date_incorporation']}\nNature: {data['nature']}\nStatus: {data['status']}"
             )
