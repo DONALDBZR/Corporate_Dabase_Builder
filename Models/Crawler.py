@@ -334,10 +334,10 @@ class Crawler:
         Going to the next page.
 
         Parameters:
-            delay:  (float):    The amount of time for the application to wait before execution.
+            delay: float: The amount of time for the application to wait before execution.
 
-        Return:
-            (void)
+        Returns:
+            void
         """
         try:
             time.sleep(delay)
