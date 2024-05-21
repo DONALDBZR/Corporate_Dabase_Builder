@@ -9,6 +9,7 @@ from Environment import Environment
 from Models.Logger import Corporate_Database_Builder_Logger
 from selenium.common.exceptions import ElementClickInterceptedException
 from selenium.common.exceptions import StaleElementReferenceException
+from typing import List, Dict, Union
 import time
 import logging
 import os
@@ -26,7 +27,7 @@ class Crawler:
     Controls the ChromeDriver and allows you to drive the
     browser.
     """
-    __html_tags: list[WebElement]
+    __html_tags: List[WebElement]
     """
     A list of HTML tags which are pieces of markup language
     used to indicate the beginning and end of an HTML element in
@@ -100,10 +101,10 @@ class Crawler:
     def setDriver(self, driver: WebDriver) -> None:
         self.__driver = driver
 
-    def getHtmlTags(self) -> list[WebElement]:
+    def getHtmlTags(self) -> List[WebElement]:
         return self.__html_tags
 
-    def setHtmlTags(self, html_tags: list[WebElement]) -> None:
+    def setHtmlTags(self, html_tags: List[WebElement]) -> None:
         self.__html_tags = html_tags
 
     def getHtmlTag(self) -> WebElement:
