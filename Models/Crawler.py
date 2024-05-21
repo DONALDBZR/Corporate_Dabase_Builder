@@ -409,10 +409,6 @@ class Crawler:
                 "arguments[0].style.display = 'none';",
                 self.getHtmlTag()
             )
-            self.__moveMouse(
-                self.getHtmlTag()
-            )
-            self.getHtmlTag().click()
             self.interceptCookie()
             self.setHtmlTag(search_button)
             self.handleSearch()
