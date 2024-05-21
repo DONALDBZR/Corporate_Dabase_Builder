@@ -21,6 +21,7 @@ from Models.Logger import Corporate_Database_Builder_Logger
 from selenium.common.exceptions import ElementClickInterceptedException
 from selenium.common.exceptions import StaleElementReferenceException
 from typing import List, Dict, Union
+from selenium.webdriver.common.action_chains import ActionChains
 import time
 import logging
 import os
@@ -75,6 +76,13 @@ class Crawler:
     __corporate_metadata: List[Dict[str, Union[str, None]]]
     """
     The metadata of the companies that are in Mauritius.
+    """
+    __action_chains: ActionChains
+    """
+    ActionChains are a way to automate low level interactions
+    such as mouse movements, mouse button actions, key press,
+    and context menu interactions.  This is useful for doing
+    more complex actions like hover over and drag and drop.
     """
 
     def __init__(self) -> None:
@@ -153,6 +161,12 @@ class Crawler:
 
     def setCorporateMetadata(self, corporate_metadata: List[Dict[str, Union[str, None]]]) -> None:
         self.__corporate_metadata = corporate_metadata
+
+    def getActionChains(self) -> ActionChains:
+        return self.__action_chains
+
+    def setActionChains(self, action_chains: ActionChains) -> None:
+        self.__action_chains = action_chains
 
     def __setServices(self) -> None:
         """
