@@ -328,7 +328,7 @@ class Crawler:
         self.getHtmlTag().send_keys(date_to)
         time.sleep(delay)
         self.getLogger().inform(
-            f"The start date has been injected.\nDate To: {date_to}\nDelay: {delay} s"
+            f"The end date has been injected.\nDate To: {date_to}\nDelay: {delay} s"
         )
         self.setHtmlTag(
             self.getDriver().find_element(
