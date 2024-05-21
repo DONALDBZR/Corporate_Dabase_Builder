@@ -48,12 +48,14 @@ class Corporate_Database_Builder_Logger:
         Logging the data for debugging
 
         Parameters:
-            message:    string: The action done.
+            message: string: The action done.
 
-        Returns: void
+        Returns:
+            void
         """
         self.getLogger().setLevel(logging.DEBUG)
         self.getLogger().debug(message)
+        print(message)
 
     def inform(self, message: str) -> None:
         """
