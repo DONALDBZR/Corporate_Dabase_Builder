@@ -311,7 +311,7 @@ class Crawler:
         self.__moveMouse(
             self.getHtmlTag()
         )
-        self.getHtmlTag().send_keys(date_from)
+        self.__typeCharacters(self.getHtmlTag(), date_from)
         time.sleep(delay)
         self.setHtmlTag(
             self.getDriver().find_element(
@@ -322,7 +322,7 @@ class Crawler:
         self.__moveMouse(
             self.getHtmlTag()
         )
-        self.getHtmlTag().send_keys(date_to)
+        self.__typeCharacters(self.getHtmlTag(), date_to)
         time.sleep(delay)
         self.setHtmlTag(
             self.getDriver().find_element(
