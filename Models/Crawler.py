@@ -406,8 +406,8 @@ class Crawler:
         Intercepting the cookie in order not to be recognize as a
         bot.
 
-        Return:
-            (void)
+        Returns:
+            void
         """
         self.setHtmlTag(
             self.getDriver().find_element(
