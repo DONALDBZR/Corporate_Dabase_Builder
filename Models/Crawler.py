@@ -61,7 +61,7 @@ class Crawler:
     information which allows the application to operate
     smoothly.
     """
-    __corporate_metadata: list[dict[str, str | None]]
+    __corporate_metadata: List[Dict[str, Union[str, None]]]
     """
     The metadata of the companies that are in Mauritius.
     """
@@ -137,10 +137,10 @@ class Crawler:
     def setLogger(self, logger: Corporate_Database_Builder_Logger) -> None:
         self.__logger = logger
 
-    def getCorporateMetadata(self) -> list[dict[str, str | None]]:
+    def getCorporateMetadata(self) -> List[Dict[str, Union[str, None]]]:
         return self.__corporate_metadata
 
-    def setCorporateMetadata(self, corporate_metadata: list[dict[str, str | None]]) -> None:
+    def setCorporateMetadata(self, corporate_metadata: List[Dict[str, Union[str, None]]]) -> None:
         self.__corporate_metadata = corporate_metadata
 
     def __setServices(self) -> None:
