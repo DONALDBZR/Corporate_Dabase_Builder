@@ -290,6 +290,9 @@ class Crawler:
                 f"{self.ENV.getTargetApplicationRootXpath()}/cbris-header/div/div/form/div/div[2]/div[2]/div[1]/input"
             )
         )
+        self.__moveMouse(
+            self.getHtmlTag()
+        )
         self.getHtmlTag().send_keys(date_from)
         time.sleep(delay)
         self.setHtmlTag(
@@ -298,6 +301,9 @@ class Crawler:
                 f"{self.ENV.getTargetApplicationRootXpath()}/cbris-header/div/div/form/div/div[2]/div[2]/div[2]/input"
             )
         )
+        self.__moveMouse(
+            self.getHtmlTag()
+        )
         self.getHtmlTag().send_keys(date_to)
         time.sleep(delay)
         self.setHtmlTag(
@@ -305,6 +311,9 @@ class Crawler:
                 By.XPATH,
                 f"{self.ENV.getTargetApplicationRootXpath()}/cbris-header/div/div/form/div/div[2]/div[3]/div[2]/button"
             )
+        )
+        self.__moveMouse(
+            self.getHtmlTag()
         )
         self.handleSearch()
         time.sleep(delay)
