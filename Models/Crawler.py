@@ -147,8 +147,8 @@ class Crawler:
         """
         Setting the services for the ChromeDriver.
 
-        Return:
-            (void)
+        Returns:
+            void
         """
         self.setServices(
             Service(
@@ -161,15 +161,17 @@ class Crawler:
         """
         Setting the options for the ChromeDriver.
 
-        Return:
-            (void)
+        Returns:
+            void
         """
         self.setOptions(Options())
         self.getOptions().add_argument('--no-sandbox')
         self.getOptions().add_argument('--disable-dev-shm-usage')
         self.getOptions().add_argument('--disable-blink-features=AutomationControlled')
         self.getOptions().add_experimental_option(
-            "excludeSwitches", ["enable-automation"])
+            "excludeSwitches",
+            ["enable-automation"]
+        )
         self.getOptions().add_experimental_option('useAutomationExtension', False)
         self.getOptions().add_argument("start-maximized")
         self.getLogger().inform("The Crawler has been correctly configured!")
