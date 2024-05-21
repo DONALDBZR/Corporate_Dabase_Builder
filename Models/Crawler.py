@@ -209,23 +209,32 @@ class Crawler:
         self.getDriver().get(self.getTarget())
         time.sleep(delay)
 
-    def retrieveCorporateMetadata(self, date_from: str, date_to: str, coefficient: int) -> dict[str, int]:
+    def retrieveCorporateMetadata(self, date_from: str, date_to: str, coefficient: int) -> Dict[str, int]:
         """
         Retrieving corporate metadata about the companies that
         operate in Mauritius.
 
         Parameters:
-            date_from:  (str):      The start date of the search.
-            date_to:    (str):      The end date of the search.
-            coeffcient: (float):    This coefficient changes depending the handlers.
+            date_from: str: The start date of the search.
+            date_to: str: The end date of the search.
+            coeffcient: float: This coefficient changes depending the handlers.
 
-        Return:
-            (object)
+        Returns:
+            {status: int, amount: int}
         """
-        delay: float = ((self.ENV.calculateDelay(
-            date_from) + self.ENV.calculateDelay(date_to)) / 2) * (1.1 ** coefficient)
+        delay: float = (
+            (
+                self.ENV.calculateDelay(date_from) +
+                self.ENV.calculateDelay(date_to)
+            ) / 2
+        ) * (
+            1.1 ** coefficient
+        )
+        delay = self.__randomDelay(
+            delay
+        )
         amount: int
-        response: dict = {}
+        response: Dict[str, int] = {}
         self.setHtmlTag(
             self.getDriver().find_element(
                 By.XPATH,
@@ -249,8 +258,7 @@ class Crawler:
             )
         )
         self.handleSearch()
-        wait_delay = delay * (1.1 ** 0)
-        time.sleep(wait_delay)
+        time.sleep(delay)
         data_amount = self.getDriver().find_element(
             By.XPATH,
             f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[2]/mat-paginator/div/div/div[2]/div"
