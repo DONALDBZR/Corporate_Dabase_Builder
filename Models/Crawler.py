@@ -216,6 +216,30 @@ class Crawler:
         maximum_delay: float = delay * 4
         return random.uniform(minimum_delay, maximum_delay)
 
+    def __moveMouse(self, element: WebElement):
+        """
+        Replicating the way the a human being will navigate by using
+        a mouse.
+
+        Parameters:
+            element: WebElement: The DOM Element
+
+        Returns:
+            void
+        """
+        range_limit: int = random.randint(8, 16)
+        delay: float = self.__randomDelay(
+            random.random() * 2
+        )
+        self.setActionChains(ActionChains(self.getDriver()))
+        self.getActionChains().move_to_element(element)
+        for index in range(range_limit):
+            horizontal_offset: int = random.randint(-5, 5)
+            vertical_offset: int = random.randint(-5, 5)
+            self.getActionChains().move_by_offset(horizontal_offset, vertical_offset)
+        self.getActionChains().move_to_element(element).perform()
+        time.sleep(delay)
+
     def enterTarget(self) -> None:
         """
         Entering the target.
