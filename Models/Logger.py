@@ -90,9 +90,11 @@ class Corporate_Database_Builder_Logger:
         Logging the data for an error.
 
         Parameters:
-            message:    string: The action done.
+            message: string: The action done.
 
-        Returns: void
+        Returns:
+            void
         """
         self.getLogger().setLevel(logging.ERROR)
         self.getLogger().error(message)
+        print(message)
