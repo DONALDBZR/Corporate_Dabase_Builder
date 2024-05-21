@@ -405,6 +405,9 @@ class Crawler:
                     f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[2]/mat-paginator/div/div/div[2]/button[3]"
                 )
             )
+            self.__moveMouse(
+                self.getHtmlTag()
+            )
             self.getHtmlTag().click()
         except ElementClickInterceptedException:
             self.setHtmlTag(
