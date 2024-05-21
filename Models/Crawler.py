@@ -479,8 +479,8 @@ class Crawler:
         Verifying the component before injecting the correct
         component.
 
-        Return:
-            (void)
+        Returns:
+            void
         """
         try:
             self.getHtmlTag().click()
