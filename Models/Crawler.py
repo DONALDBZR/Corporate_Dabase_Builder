@@ -195,10 +195,14 @@ class Crawler:
         """
         Entering the target.
 
-        Return:
-            (void)
+        Returns:
+            void
         """
-        delay = self.ENV.calculateDelay(self.getTarget())
+        delay: float = self.__randomDelay(
+            self.ENV.calculateDelay(
+                self.getTarget()
+            )
+        )
         self.getLogger().inform(
             f"Entering the target.\nDelay: {delay}s\nTarget: {self.getTarget()}"
         )
