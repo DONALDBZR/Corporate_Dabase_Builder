@@ -472,6 +472,9 @@ class Crawler:
                 f"{self.ENV.getTargetApplicationRootXpath()}/cbris-policy/div/div/button[1]"
             )
         )
+        self.__moveMouse(
+            self.getHtmlTag()
+        )
         self.getHtmlTag().click()
         self.getLogger().inform("The cookie has been intercepted!")
 
