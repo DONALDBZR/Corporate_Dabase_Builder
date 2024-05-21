@@ -288,25 +288,23 @@ class Crawler:
         )
         return response
 
-    def scrapeMetadata(self, amount_data_found: int, amount_data_per_page: int, amount: int, delay: float) -> dict:
+    def scrapeMetadata(self, amount_data_found: int, amount_data_per_page: int, amount: int, delay: float) -> None:
         """
         Scraping the metadata from the target's application.
 
         Parameters:
-            amount_data_found:      (int):      The amount of data that the crawler has found.
-            amount_data_per_page:   (int):      The amount of data per page.
-            amount:                 (int):      The total amount of data.
-            delay:                  (float):    The amount of time in seconds that the crawler will wait to not get caught by the bot detection.
+            amount_data_found: int: The amount of data that the crawler has found.
+            amount_data_per_page: int: The amount of data per page.
+            amount: int: The total amount of data.
+            delay: float: The amount of time in seconds that the crawler will wait to not get caught by the bot detection.
 
-        Return:
-            (object)
+        Returns:
+            void
         """
-        response = {}
         self.setCorporateMetadata([])
-        data_amount = amount
-        amount_page = int(amount / amount_data_per_page)
+        data_amount: int = amount
+        amount_page: int = int(amount / amount_data_per_page)
         table_body = self.getHtmlTag()
-        wait_delay = delay * (1.1 ** 0)
         for index in range(0, amount_page, 1):
             self.readCache()
             self.setHtmlTags(
@@ -318,19 +316,18 @@ class Crawler:
             amount = data_amount
             self.getPageTableData(amount_data_found, amount)
             amount_data_found += amount_data_per_page
-            done = (amount_data_found / amount) * 100
+            done: float = (amount_data_found / amount) * 100
             self.getLogger().debug(
                 f"The extraction of corporate metadata is in progress.\nAmount of data found: {amount_data_found}\nIteration: {index}\nDone: {done}%"
             )
             self.writeCache()
-            self.nextPage(wait_delay)
+            self.nextPage(delay)
             self.setHtmlTag(
                 self.getDriver().find_element(
                     By.XPATH,
                     self.ENV.getTargetApplicationRootXpath()
                 )
             )
-        return response
 
     def nextPage(self, delay: float) -> None:
         """
