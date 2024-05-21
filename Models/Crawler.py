@@ -365,15 +365,17 @@ class Crawler:
         """
         Writing data to the cache directory.
 
-        Return:
-            (void)
+        Returns:
+            void
         """
-        file_name = f"{time.time()}.json"
+        file_name: str = f"{time.time()}.json"
         file = open(
             f"{self.ENV.getDirectory()}/Cache/CorporateDataCollection/{file_name}",
             "w"
         )
-        file.write(json.dumps(self.getCorporateMetadata(), indent=4))
+        file.write(
+            json.dumps(self.getCorporateMetadata(), indent=4)
+        )
         file.close()
         self.getLogger().inform("The data has been written to the cache.")
 
