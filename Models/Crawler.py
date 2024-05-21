@@ -13,6 +13,7 @@ import time
 import logging
 import os
 import json
+import random
 
 
 class Crawler:
@@ -171,6 +172,21 @@ class Crawler:
         self.getOptions().add_experimental_option('useAutomationExtension', False)
         self.getOptions().add_argument("start-maximized")
         self.getLogger().inform("The Crawler has been correctly configured!")
+
+    def __randomDelay(self, delay: float) -> float:
+        """
+        Generating a random delay based on the delay that has been
+        calculated by the application.
+
+        Parameters:
+            delay: float: The delay that has been calculated by the application.
+
+        Returns:
+            float
+        """
+        minimum_delay: float = delay
+        maximum_delay: float = delay * 4
+        return random.uniform(minimum_delay, maximum_delay)
 
     def enterTarget(self) -> None:
         """
