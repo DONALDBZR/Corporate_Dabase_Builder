@@ -384,8 +384,8 @@ class Crawler:
         """
         Reading data from the cache directory.
 
-        Return:
-            (void)
+        Returns:
+            void
         """
         files = os.listdir(
             f"{self.ENV.getDirectory()}/Cache/CorporateDataCollection"
