@@ -450,21 +450,22 @@ class Crawler:
                 f"Retrieving corporate metadata.\nPercentage Done: {done}%\nBRN: {data['business_registration_number']}\nName: {data['name']}\nFile Number: {data['file_number']}\nCategory: {data['category']}\nDate of Incorporation: {data['date_incorporation']}\nNature: {data['nature']}\nStatus: {data['status']}"
             )
 
-    def checkCorporateMetadata(self, data: dict[str, str | None]) -> int:
+    def checkCorporateMetadata(self, data: Dict[str, Union[str, None]]) -> int:
         """
         Checking the corporate metadata against the corporate
         metadata from the cache.
 
         Parameters:
-            data:   (object):   The corporate metadata of a company.
+            data: {business_registration_number: null, name: string, file_number: string, category: string, date_incorporation: string, nature: string, status: string}: The corporate metadata of a company.
 
-        Return:
-            (int)
+        Returns:
+            int
         """
-        company_names: list[str] = []
+        company_names: List[str] = []
         for index in range(0, len(self.getCorporateMetadata()), 1):
             company_names.append(
-                str(self.getCorporateMetadata()[index]["name"]))
+                str(self.getCorporateMetadata()[index]["name"])
+            )
         if data["name"] in company_names:
             return 1
         else:
