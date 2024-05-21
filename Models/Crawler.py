@@ -18,8 +18,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from Environment import Environment
 from Models.Logger import Corporate_Database_Builder_Logger
-from selenium.common.exceptions import ElementClickInterceptedException
-from selenium.common.exceptions import StaleElementReferenceException
+from selenium.common.exceptions import ElementClickInterceptedException, NoSuchElementException, StaleElementReferenceException
 from typing import List, Dict, Union
 from selenium.webdriver.common.action_chains import ActionChains
 import time
@@ -538,17 +537,20 @@ class Crawler:
         Returns:
             void
         """
-        self.setHtmlTag(
-            self.getDriver().find_element(
-                By.XPATH,
-                f"{self.ENV.getTargetApplicationRootXpath()}/cbris-policy/div/div/button[1]"
+        try:
+            self.setHtmlTag(
+                self.getDriver().find_element(
+                    By.XPATH,
+                    f"{self.ENV.getTargetApplicationRootXpath()}/cbris-policy/div/div/button[1]"
+                )
             )
-        )
-        self.__moveMouse(
-            self.getHtmlTag()
-        )
-        self.getHtmlTag().click()
-        self.getLogger().inform("The cookie has been intercepted!")
+            self.__moveMouse(
+                self.getHtmlTag()
+            )
+            self.getHtmlTag().click()
+            self.getLogger().inform("The cookie has been intercepted!")
+        except NoSuchElementException:
+            self.getLogger().error("The cookie has already been intercepted!")
 
     def getPageTableData(self, amount_data_found: int, amount: int) -> None:
         """
