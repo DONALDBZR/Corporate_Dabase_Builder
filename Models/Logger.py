@@ -62,12 +62,14 @@ class Corporate_Database_Builder_Logger:
         Logging informational data.
 
         Parameters:
-            message:    string: The action done.
+            message: string: The action done.
 
-        Returns: void
+        Returns:
+            void
         """
         self.getLogger().setLevel(logging.INFO)
         self.getLogger().info(message)
+        print(message)
 
     def warn(self, message: str) -> None:
         """
