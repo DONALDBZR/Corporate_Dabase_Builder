@@ -216,7 +216,7 @@ class Crawler:
         maximum_delay: float = delay * 4
         return random.uniform(minimum_delay, maximum_delay)
 
-    def __moveMouse(self, element: WebElement):
+    def __moveMouse(self, element: WebElement) -> None:
         """
         Replicating the way the a human being will navigate by using
         a mouse.
@@ -239,6 +239,24 @@ class Crawler:
             self.getActionChains().move_by_offset(horizontal_offset, vertical_offset)
         self.getActionChains().move_to_element(element).perform()
         time.sleep(delay)
+
+    def __typeCharacters(self, element: WebElement, payload: str) -> None:
+        """
+        Typing the characters from the payload given the same as a
+        human being would have done it.
+
+        Parameters:
+            element: WebElement: The DOM element
+            payload: string: The payload to be injected
+
+        Returns:
+            void
+        """
+        for index in range(0, len(payload), 1):
+            delay: float = 60 / 200
+            delay = self.__randomDelay(delay)
+            element.send_keys(payload[index])
+            time.sleep(delay)
 
     def enterTarget(self) -> None:
         """
