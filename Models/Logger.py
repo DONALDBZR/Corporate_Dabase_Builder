@@ -76,12 +76,14 @@ class Corporate_Database_Builder_Logger:
         Logging the data for a warning.
 
         Parameters:
-            message:    string: The action done.
+            message: string: The action done.
 
-        Returns: void
+        Returns:
+            void
         """
         self.getLogger().setLevel(logging.WARNING)
         self.getLogger().warning(message)
+        print(message)
 
     def error(self, message: str) -> None:
         """
