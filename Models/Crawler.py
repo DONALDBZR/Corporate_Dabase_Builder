@@ -1,3 +1,14 @@
+"""
+The crawler of the application which will scrape the
+Corporate and Business Registration Department application
+of Mauritius Network Services to retrieve all of the data
+that it has on the corporate that exists in Mauritius.
+
+Authors:
+    Andy Ewen Gaspard
+"""
+
+
 from selenium import webdriver
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
