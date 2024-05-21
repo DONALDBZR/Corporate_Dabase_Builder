@@ -388,6 +388,7 @@ class Crawler:
             f"{self.ENV.getTargetApplicationRootXpath()}/cbris-header/div/div/form/div/div[2]/div[3]/div[2]/button"
         )
         dataset: str = data_amount_element.text
+        loading_icon: WebElement
         if "1 – 10 of " in dataset:
             self.getLogger().inform(
                 f"Search in progress!\nDataset Amount: {dataset.replace('1 – 10 of ', '')}\nDelay: {delay} s\nCo-efficient: {coefficient}"
@@ -396,10 +397,24 @@ class Crawler:
         else:
             coefficient += 1
             delay = delay * (1.1 ** coefficient)
-            self.setHtmlTag(search_button)
             self.getLogger().error(
                 f"The search has failed and the dataset amount cannot be recovered!  The application will try again.\nDelay: {delay} s\nCo-efficient: {coefficient}"
             )
+            loading_icon = self.getDriver().find_element(
+                By.TAG_NAME,
+                "cbris-spinner"
+            )
+            self.setHtmlTag(loading_icon)
+            self.getDriver().execute_script(
+                "arguments[0].style.display = 'none';",
+                self.getHtmlTag()
+            )
+            self.__moveMouse(
+                self.getHtmlTag()
+            )
+            self.getHtmlTag().click()
+            self.interceptCookie()
+            self.setHtmlTag(search_button)
             self.handleSearch()
             time.sleep(delay)
             return self.getDataAmount(delay, coefficient)
