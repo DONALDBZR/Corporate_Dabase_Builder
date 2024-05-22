@@ -479,6 +479,21 @@ class Crawler:
         )
         return (0 <= element_top <= viewport_height) and (0 <= element_bottom <= viewport_height)
 
+    def scrollIntoViewport(self) -> None:
+        """
+        Scrolling into viewport.
+
+        Returns:
+            void
+        """
+        if not self.elementInViewport():
+            self.getDriver().execute_script(
+                "arguments[0].scrollIntoView(true);",
+                self.getHtmlTag()
+            )
+        else:
+            return None
+
     def nextPage(self, delay: float) -> None:
         """
         Going to the next page.
