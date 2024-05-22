@@ -512,6 +512,7 @@ class Crawler:
                     f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[2]/mat-paginator/div/div/div[2]/button[3]"
                 )
             )
+            self.scrollIntoViewport()
             self.__moveMouse(
                 self.getHtmlTag()
             )
