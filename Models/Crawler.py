@@ -455,6 +455,30 @@ class Crawler:
                 )
             )
 
+    def elementInViewport(self) -> bool:
+        """
+        Verifying that the element is in the viewport.
+
+        Returns:
+            boolean
+        """
+        viewport_height: int = int(
+            self.getDriver().execute_script("return window.innerHeight;")
+        )
+        element_top: int = int(
+            self.getDriver().execute_script(
+                "return arguments[0].getBoundingClientRect().top;",
+                self.getHtmlTag()
+            )
+        )
+        element_bottom: int = int(
+            self.getDriver().execute_script(
+                "return arguments[0].getBoundingClientRect().bottom;",
+                self.getHtmlTag()
+            )
+        )
+        return (0 <= element_top <= viewport_height) and (0 <= element_bottom <= viewport_height)
+
     def nextPage(self, delay: float) -> None:
         """
         Going to the next page.
