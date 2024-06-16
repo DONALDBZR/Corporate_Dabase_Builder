@@ -274,12 +274,13 @@ class Builder:
             "%m/%d/%Y"
         )
 
-    def handleRequest(self, logs: List[FinCorpLogs]) -> Dict[str, str]:
+    def handleRequestCollectCorporateMetadata(self, logs: List[FinCorpLogs]) -> Dict[str, str]:
         """
-        Handling the request before that it is sent to the Crawler.
+        Handling the request for the collection of corporate
+        metadata before that it is sent to the Crawler.
 
         Parameters:
-            logs: array
+            logs: [{identifier: int, method_name: string, year: int, quarter: string, date_start: int, date_to: int, status: int, amount: int}]: The log's data from the relational database server.
 
         Returns:
             {start_date: string, end_date: string}
