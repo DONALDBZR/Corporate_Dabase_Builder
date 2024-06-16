@@ -107,7 +107,7 @@ class FinCorp_Logs(Database_Handler):
             "data": succesful_logs["data"]
         }
 
-    def __getSuccessfulLogsCollectCorporateMetadata(self, dataset: Union[List[RowType], List[Dict[str, Union[int, str]]]]) -> Dict[str, Union[int, List[FinCorpLogs]]]:
+    def __getSuccessfulLogs(self, dataset: Union[List[RowType], List[Dict[str, Union[int, str]]]]) -> Dict[str, Union[int, List[FinCorpLogs]]]:
         """
         Formating the data into the correct datatype when the result
         set is not empty.
