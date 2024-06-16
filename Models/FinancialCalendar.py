@@ -47,7 +47,7 @@ class Financial_Calendar(Database_Handler):
         Retrieving the current financial quarter.
 
         Returns:
-            FinancialCalendar | null
+            {year: int, quarter: string, start_date: string, end_date: string} | null
         """
         try:
             data: Union[RowType, Dict[str, Union[int, str]]] = self.getData(
