@@ -42,21 +42,20 @@ class FinCorp_Logs(Database_Handler):
     def setTableName(self, table_name: str) -> None:
         self.__table_name = table_name
 
-    def getSuccessfulRunsLogs(self) -> List[FinCorpLogs]:
+    def getSuccessfulRunsLogsCollectCorporateMetadata(self) -> List[FinCorpLogs]:
         """
         Retrieving the list of all successful runs.
 
         Returns:
-            array
+            [{identifier: int, method_name: string, year: int, quarter: string, date_start: int, date_to: int, status: int, amount: int}]
         """
         try:
             data: Union[List[RowType], List[Dict[str, Union[int, str]]]] = self.getData(
                 table_name=self.getTableName(),
                 parameters=None,
-                filter_condition="status = 200"
+                filter_condition="status = 200 AND method_name = 'collectCorporateMetadata'"
             )
-            response: Dict[str, Union[int, List[FinCorpLogs]]
-                           ] = self._getSuccessfulLogs(data)
+            response: Dict[str, Union[int, List[FinCorpLogs]]] = self._getSuccessfulLogsCollectCorporateMetadata(data)
             self.getLogger().inform(
                 f"The data from {self.getTableName()} has been retrieved!\nStatus: {response['status']}\nData: {data}"
             )
