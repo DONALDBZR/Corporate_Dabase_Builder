@@ -12,6 +12,7 @@ from Models.DatabaseHandler import Database_Handler
 from typing import Union, Dict, List, Tuple, Any
 from mysql.connector.types import RowType
 from mysql.connector.errors import Error
+from Data.CompanyDetails import CompanyDetails
 
 
 class Company_Details(Database_Handler):
