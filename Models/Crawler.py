@@ -326,8 +326,18 @@ class Crawler:
                     f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[1]/table/tbody"
                 )
             )
+            table_body = self.getHtmlTag()
+            self.interceptCookie()
             self.setHtmlTag(table_body)
-            self.readCache()
+            self.scrapeDocumentFile(delay)
+        response = {
+            "status": 200,
+            "amount": amount
+        }
+        self.getLogger().inform(
+            f"The documents have been retrieved and stored in the relational database server.\nStatus: {response['status']}\nAmount: {response['amount']}"
+        )
+        return response
 
     def retrieveCorporateMetadata(self, date_from: str, date_to: str, coefficient: int) -> Dict[str, int]:
         """
