@@ -16,6 +16,7 @@ from selenium.webdriver.remote.webelement import WebElement
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
+from Data.CompanyDetails import CompanyDetails
 from Environment import Environment
 from Models.Logger import Corporate_Database_Builder_Logger
 from selenium.common.exceptions import ElementClickInterceptedException, NoSuchElementException, StaleElementReferenceException
@@ -274,6 +275,59 @@ class Crawler:
         )
         self.getDriver().get(self.getTarget())
         time.sleep(delay)
+
+    def retrieveCorporateDocumentFile(self, company_details: List[CompanyDetails], coefficient: int) -> Dict[str, int]:
+        """
+        Retrieving the corporate document files based on the
+        corporate metadata that are filled as parameters.
+
+        Parameters:
+            company_details: [{identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}]: The list of corporate metadata to be used for retrieving the corporate document files.
+            coeffcient: float: This coefficient changes depending the handlers.
+
+        Returns:
+            {status: int, amount: int}
+        """
+        delay: float
+        amount: int = len(company_details)
+        response: Dict[str, int] = {}
+        for index in range(0, len(company_details), 1):
+            delay = self.ENV.calculateDelay(company_details[index].name) * (1.1 ** coefficient)
+            delay = self.__randomDelay(delay)
+            self.setHtmlTag(
+                self.getDriver().find_element(
+                    By.XPATH,
+                    f"{self.ENV.getTargetApplicationRootXpath()}/cbris-header/div/div/form/div/div[1]/div[2]/div/input"
+                )
+            )
+            self.__moveMouse(self.getHtmlTag())
+            self.getHtmlTag().send_keys(company_details[index].name)
+            time.sleep(delay)
+            self.getLogger().inform(
+                f"The payload has been injected.\nCompany Name: {company_details[index].name}\nDelay: {delay} s"
+            )
+            self.setHtmlTag(
+                self.getDriver().find_element(
+                    By.XPATH,
+                    f"{self.ENV.getTargetApplicationRootXpath()}/cbris-header/div/div/form/div/div[2]/div[3]/div[2]/button"
+                )
+            )
+            self.__moveMouse(self.getHtmlTag())
+            self.handleSearch()
+            time.sleep(delay)
+            data_amount: str = self.getDataAmount(delay, coefficient)
+            payload_amount = int(data_amount)
+            self.getLogger().inform(
+                f"Search completed for the payload.\nCompany Name: {company_details[index].name}\nAmount: {payload_amount}"
+            )
+            self.setHtmlTag(
+                self.getDriver().find_element(
+                    By.XPATH,
+                    f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[1]/table/tbody"
+                )
+            )
+            self.setHtmlTag(table_body)
+            self.readCache()
 
     def retrieveCorporateMetadata(self, date_from: str, date_to: str, coefficient: int) -> Dict[str, int]:
         """
@@ -548,7 +602,7 @@ class Crawler:
         file.close()
         self.getLogger().inform("The data has been written to the cache.")
 
-    def readCache(self) -> None:
+    def readCacheCorporateDataCollection(self) -> None:
         """
         Reading data from the cache directory.
 
