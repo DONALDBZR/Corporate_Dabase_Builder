@@ -58,3 +58,33 @@ class Company_Details(Database_Handler):
             columns="name, file_number, category, date_incorporation, nature, status",
             values="%s, %s, %s, %s, %s, %s"
         )
+
+    def getCompanyDetailsForDownloadCorporateDocumentFile(self, date_incorporation: str) -> List[CompanyDetails]:
+        """
+        Retrieving the company details which will be used as
+        parameters for the crawler to retrieve the corporate
+        document file.
+
+        Parameters:
+            date_incorporation: string: The date at which the company was legally formed.
+
+        Returns:
+            [{identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}]
+        """
+        try:
+            parameters: Tuple[str] = (date_incorporation,)
+            data: Union[List[RowType], List[Dict[str, Union[int, str]]]] = self.getData(
+                table_name=self.getTableName(),
+                parameters=parameters,
+                filter_condition="DATE(FROM_UNIXTIME(date_incorporation)) = %s"
+            )
+            response: Dict[str, Union[int, List[CompanyDetails]]] = self._getSuccessfulLogs(data)
+            self.getLogger().inform(
+                f"The data from {self.getTableName()} has been retrieved!\nStatus: {response['status']}\nData: {data}"
+            )
+            return response["data"]  # type: ignore
+        except Error as error:
+            self.getLogger().error(
+                f"An error occurred in {self.getTableName()}\nStatus: 503\nError: {error}"
+            )
+            return []
