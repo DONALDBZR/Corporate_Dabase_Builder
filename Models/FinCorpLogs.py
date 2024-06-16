@@ -1,6 +1,6 @@
 """
-The Model which will interact exclusively with the FinCorp
-Logs table.
+The Model which will interact exclusively with the
+FinCorpLogs table.
 
 Authors:
     Solofonavalona Randirantsilavo
@@ -14,13 +14,11 @@ from typing import Union, Dict, List, Tuple, Any
 from mysql.connector.types import RowType
 from mysql.connector.errors import Error
 
-from symbol import parameters
-
 
 class FinCorp_Logs(Database_Handler):
     """
-    The model which will interact exclusively with the FinCorp
-    Logs.
+    The model which will interact exclusively with the
+    FinCorpLogs.
     """
     __table_name: str
     """
