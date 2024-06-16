@@ -78,7 +78,7 @@ class Company_Details(Database_Handler):
                 parameters=parameters,
                 filter_condition="DATE(FROM_UNIXTIME(date_incorporation)) = %s"
             )
-            response: Dict[str, Union[int, List[CompanyDetails]]] = self._getSuccessfulLogs(data)
+            response: Dict[str, Union[int, List[CompanyDetails]]] = self._getCompanyDetailsForDownloadCorporateDocumentFile(data)
             self.getLogger().inform(
                 f"The data from {self.getTableName()} has been retrieved!\nStatus: {response['status']}\nData: {data}"
             )
@@ -88,3 +88,27 @@ class Company_Details(Database_Handler):
                 f"An error occurred in {self.getTableName()}\nStatus: 503\nError: {error}"
             )
             return []
+
+    def _getCompanyDetailsForDownloadCorporateDocumentFile(self, dataset: Union[List[RowType], List[Dict[str, Union[int, str]]]]) -> Dict[str, Union[int, List[CompanyDetails]]]:
+        """
+        Retrieving the data into the correct data type for the
+        application.
+
+        Parameters:
+            data: [{identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}]: The data from the relational database server.
+
+        Returns:
+            {status: int, data: [{identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}]}
+        """
+        company_details: Dict[str, Union[int, List[CompanyDetails]]]
+        if len(dataset) > 0:
+            succesful_logs = self.__getCompanyDetailsForDownloadCorporateDocumentFile(dataset)
+        else:
+            succesful_logs = {
+                "status": 204,
+                "data": []
+            }
+        return {
+            "status": succesful_logs["status"],
+            "data": succesful_logs["data"]
+        }
