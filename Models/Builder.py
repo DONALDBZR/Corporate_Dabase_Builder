@@ -123,6 +123,17 @@ class Builder:
     def setCompanyDetails(self, company_details: Company_Details) -> None:
         self.__company_details = company_details
 
+    # def downloadCorporateFile(self) -> None:
+    #     """
+    #     The second run consists of retrieving the corporate document
+    #     file of the corporate metadata that is in the corporate
+    #     database.
+
+    #     Returns:
+    #         void
+    #     """
+    #     request: Dict[str, str] = {}
+
     def collectCorporateMetadata(self) -> None:
         """
         The first run consists of retrieving the metadata needed of
@@ -132,16 +143,11 @@ class Builder:
             void
         """
         request: Dict[str, str] = {}
-        quarter: FinancialCalendar = self.getFinancialCalendar(
-        ).getCurrentQuarter()  # type: ignore
-        successful_logs: List[FinCorpLogs] = self.getFinCorpLogs(
-        ).getSuccessfulRunsLogs()
+        quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
+        successful_logs: List[FinCorpLogs] = self.getFinCorpLogs().getSuccessfulRunsLogsCollectCorporateMetadata()
         if len(successful_logs) == 1 and successful_logs[0].status == 204:
             date_to = datetime.strftime(
-                datetime.strptime(
-                    quarter.start_date,
-                    "%m/%d/%Y"
-                ) + timedelta(weeks=1),
+                datetime.strptime(quarter.start_date, "%m/%d/%Y") + timedelta(weeks=1),
                 "%m/%d/%Y"
             )
             request = {
@@ -151,13 +157,8 @@ class Builder:
         else:
             request = self.handleRequest(successful_logs)
         self.setCrawler(Crawler())
-        response = self.getCrawler().retrieveCorporateMetadata(
-            str(request["start_date"]),
-            str(request["end_date"]),
-            0
-        )
-        self.validateCorporateMetadata(
-            response, request, quarter)  # type: ignore
+        response = self.getCrawler().retrieveCorporateMetadata(str(request["start_date"]), str(request["end_date"]), 0)
+        self.validateCorporateMetadata(response, request, quarter)  # type: ignore
         self.cleanCache()
 
     def cleanCache(self) -> None:
