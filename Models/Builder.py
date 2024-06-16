@@ -132,7 +132,9 @@ class Builder:
     #     Returns:
     #         void
     #     """
-    #     request: Dict[str, str] = {}
+    #     request: List[str] = []
+    #     quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
+    #     successful_logs: List[FinCorp_Logs] = self.getFinCorpLogs().getSuccessfulRunsLogsDownloadCorporateFile()
 
     def collectCorporateMetadata(self) -> None:
         """
@@ -144,7 +146,7 @@ class Builder:
         """
         request: Dict[str, str] = {}
         quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
-        successful_logs: List[FinCorpLogs] = self.getFinCorpLogs().getSuccessfulRunsLogsCollectCorporateMetadata()
+        successful_logs: List[FinCorpLogs] = self.getFinCorpLogs().getSuccessfulRunsLogs("collectCorporateMetadata")
         if len(successful_logs) == 1 and successful_logs[0].status == 204:
             date_to = datetime.strftime(
                 datetime.strptime(quarter.start_date, "%m/%d/%Y") + timedelta(weeks=1),
