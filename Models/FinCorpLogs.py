@@ -61,7 +61,7 @@ class FinCorp_Logs(Database_Handler):
                 parameters=parameters,
                 filter_condition="status = 200 AND method_name = %s"
             )
-            response: Dict[str, Union[int, List[FinCorpLogs]]] = self._getSuccessfulLogsCollectCorporateMetadata(data)
+            response: Dict[str, Union[int, List[FinCorpLogs]]] = self._getSuccessfulLogs(data)
             self.getLogger().inform(
                 f"The data from {self.getTableName()} has been retrieved!\nStatus: {response['status']}\nData: {data}"
             )
