@@ -72,7 +72,7 @@ class FinCorp_Logs(Database_Handler):
         application.
 
         Parameters:
-            data: array
+            data: [{identifier: int, method_name: string, year: int, quarter: string, date_start: int, date_to: int, status: int, amount: int}]: The data from the relational database server.
 
         Returns:
             {status: int, data: [{identifier: int, method_name: string, year: int, quarter: string, date_start: int, date_to: int, status: int, amount: int}]}
@@ -101,16 +101,16 @@ class FinCorp_Logs(Database_Handler):
             "data": succesful_logs["data"]
         }
 
-    def __getSuccessfulLogs(self, dataset: Union[List[RowType], List[Dict[str, Union[int, str]]]]) -> Dict[str, Union[int, List[FinCorpLogs]]]:
+    def __getSuccessfulLogsCollectCorporateMetadata(self, dataset: Union[List[RowType], List[Dict[str, Union[int, str]]]]) -> Dict[str, Union[int, List[FinCorpLogs]]]:
         """
         Formating the data into the correct datatype when the result
         set is not empty.
 
         Parameters:
-            dataset: array
+            dataset: [{identifier: int, method_name: string, year: int, quarter: string, date_start: int, date_to: int, status: int, amount: int}]: The data from the relational database server.
 
         Returns:
-            {status: int, data: array}
+            {status: int, data: [{identifier: int, method_name: string, year: int, quarter: string, date_start: int, date_to: int, status: int, amount: int}]}
         """
         status: int = 200
         data: List[FinCorpLogs] = []
