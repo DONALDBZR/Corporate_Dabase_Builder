@@ -486,7 +486,7 @@ class Crawler:
         amount_page: int = int(amount / amount_data_per_page)
         table_body = self.getHtmlTag()
         for index in range(0, amount_page, 1):
-            self.readCache()
+            self.readCacheCorporateDataCollection()
             self.setHtmlTags(
                 table_body.find_elements(
                     By.TAG_NAME,
