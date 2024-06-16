@@ -102,13 +102,33 @@ class Company_Details(Database_Handler):
         """
         company_details: Dict[str, Union[int, List[CompanyDetails]]]
         if len(dataset) > 0:
-            succesful_logs = self.__getCompanyDetailsForDownloadCorporateDocumentFile(dataset)
+            company_details = self.__getCompanyDetailsForDownloadCorporateDocumentFile(dataset)
         else:
-            succesful_logs = {
+            company_details = {
                 "status": 204,
                 "data": []
             }
         return {
-            "status": succesful_logs["status"],
-            "data": succesful_logs["data"]
+            "status": company_details["status"],
+            "data": company_details["data"]
+        }
+
+    def __getCompanyDetailsForDownloadCorporateDocumentFile(self, dataset: Union[List[RowType], List[Dict[str, Union[int, str]]]]) -> Dict[str, Union[int, List[CompanyDetails]]]:
+        """
+        Formating the data into the correct datatype when the result
+        set is not empty.
+
+        Parameters:
+            dataset: [{identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}]: The data from the relational database server.
+
+        Returns:
+            {status: int, data: [{identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}]}
+        """
+        status: int = 200
+        data: List[CompanyDetails] = []
+        for index in range(0, len(dataset), 1):
+            data.append(CompanyDetails(dataset[index]))  # type: ignore
+        return {
+            "status": status,
+            "data": data
         }
