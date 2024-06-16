@@ -14,6 +14,8 @@ from typing import Union, Dict, List, Tuple, Any
 from mysql.connector.types import RowType
 from mysql.connector.errors import Error
 
+from symbol import parameters
+
 
 class FinCorp_Logs(Database_Handler):
     """
@@ -42,18 +44,22 @@ class FinCorp_Logs(Database_Handler):
     def setTableName(self, table_name: str) -> None:
         self.__table_name = table_name
 
-    def getSuccessfulRunsLogsCollectCorporateMetadata(self) -> List[FinCorpLogs]:
+    def getSuccessfulRunsLogs(self, method_name: str) -> List[FinCorpLogs]:
         """
         Retrieving the list of all successful runs.
+
+        Parameters:
+            method_name: string: The name of the method.
 
         Returns:
             [{identifier: int, method_name: string, year: int, quarter: string, date_start: int, date_to: int, status: int, amount: int}]
         """
         try:
+            parameters: Tuple[str] = (method_name,)
             data: Union[List[RowType], List[Dict[str, Union[int, str]]]] = self.getData(
                 table_name=self.getTableName(),
-                parameters=None,
-                filter_condition="status = 200 AND method_name = 'collectCorporateMetadata'"
+                parameters=parameters,
+                filter_condition="status = 200 AND method_name = %s"
             )
             response: Dict[str, Union[int, List[FinCorpLogs]]] = self._getSuccessfulLogsCollectCorporateMetadata(data)
             self.getLogger().inform(
