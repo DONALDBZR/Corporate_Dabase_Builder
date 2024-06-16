@@ -123,18 +123,18 @@ class Builder:
     def setCompanyDetails(self, company_details: Company_Details) -> None:
         self.__company_details = company_details
 
-    # def downloadCorporateFile(self) -> None:
-    #     """
-    #     The second run consists of retrieving the corporate document
-    #     file of the corporate metadata that is in the corporate
-    #     database.
+    def downloadCorporateFile(self) -> None:
+        """
+        The second run consists of retrieving the corporate document
+        file of the corporate metadata that is in the corporate
+        database.
 
-    #     Returns:
-    #         void
-    #     """
-    #     request: List[str] = []
-    #     quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
-    #     successful_logs: List[FinCorp_Logs] = self.getFinCorpLogs().getSuccessfulRunsLogsDownloadCorporateFile()
+        Returns:
+            void
+        """
+        request: List[str] = []
+        quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
+        successful_logs: List[FinCorpLogs] = self.getFinCorpLogs().getSuccessfulRunsLogs("downloadCorporateFile")
 
     def collectCorporateMetadata(self) -> None:
         """
@@ -157,7 +157,7 @@ class Builder:
                 "end_date": date_to
             }
         else:
-            request = self.handleRequest(successful_logs)
+            request = self.handleRequestCollectCorporateMetadata(successful_logs)
         self.setCrawler(Crawler())
         response = self.getCrawler().retrieveCorporateMetadata(str(request["start_date"]), str(request["end_date"]), 0)
         self.validateCorporateMetadata(response, request, quarter)  # type: ignore
