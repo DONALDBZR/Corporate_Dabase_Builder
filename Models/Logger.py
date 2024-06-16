@@ -48,45 +48,53 @@ class Corporate_Database_Builder_Logger:
         Logging the data for debugging
 
         Parameters:
-            message:    string: The action done.
+            message: string: The action done.
 
-        Returns: void
+        Returns:
+            void
         """
         self.getLogger().setLevel(logging.DEBUG)
         self.getLogger().debug(message)
+        print(message)
 
     def inform(self, message: str) -> None:
         """
         Logging informational data.
 
         Parameters:
-            message:    string: The action done.
+            message: string: The action done.
 
-        Returns: void
+        Returns:
+            void
         """
         self.getLogger().setLevel(logging.INFO)
         self.getLogger().info(message)
+        print(message)
 
     def warn(self, message: str) -> None:
         """
         Logging the data for a warning.
 
         Parameters:
-            message:    string: The action done.
+            message: string: The action done.
 
-        Returns: void
+        Returns:
+            void
         """
         self.getLogger().setLevel(logging.WARNING)
         self.getLogger().warning(message)
+        print(message)
 
     def error(self, message: str) -> None:
         """
         Logging the data for an error.
 
         Parameters:
-            message:    string: The action done.
+            message: string: The action done.
 
-        Returns: void
+        Returns:
+            void
         """
         self.getLogger().setLevel(logging.ERROR)
         self.getLogger().error(message)
+        print(message)
