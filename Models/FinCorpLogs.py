@@ -66,7 +66,7 @@ class FinCorp_Logs(Database_Handler):
             )
             return []
 
-    def _getSuccessfulLogs(self, dataset: Union[List[RowType], List[Dict[str, Union[int, str]]]]) -> Dict[str, Union[int, List[FinCorpLogs]]]:
+    def _getSuccessfulLogsCollectCorporateMetadata(self, dataset: Union[List[RowType], List[Dict[str, Union[int, str]]]]) -> Dict[str, Union[int, List[FinCorpLogs]]]:
         """
         Retrieving the data into the correct data type for the
         application.
@@ -75,11 +75,11 @@ class FinCorp_Logs(Database_Handler):
             data: array
 
         Returns:
-            {status: int, data: array}
+            {status: int, data: [{identifier: int, method_name: string, year: int, quarter: string, date_start: int, date_to: int, status: int, amount: int}]}
         """
         succesful_logs: Dict[str, Union[int, List[FinCorpLogs]]]
         if len(dataset) > 0:
-            succesful_logs = self.__getSuccessfulLogs(dataset)
+            succesful_logs = self.__getSuccessfulLogsCollectCorporateMetadata(dataset)
         else:
             succesful_logs = {
                 "status": 204,
