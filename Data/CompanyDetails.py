@@ -24,7 +24,7 @@ class CompanyDetails:
     date_incorporation: int
     nature: str
     status: str
-    date_verified: int
+    date_verified: Union[int, None]
 
     def __init__(self, dataset: Union[RowType, Dict[str, Union[int, str, None]]]) -> None:
         """
@@ -44,4 +44,4 @@ class CompanyDetails:
         self.date_incorporation = int(dataset["date_incorporation"]) # type: ignore
         self.nature = str(dataset["nature"]) # type: ignore
         self.status = str(dataset["status"]) # type: ignore
-        self.date_verified = int(dataset["date_verified"]) # type: ignore
+        self.date_verified = dataset["date_verified"] # type: ignore
