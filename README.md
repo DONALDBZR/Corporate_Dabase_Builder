@@ -16,13 +16,8 @@ source ./venv/bin/activate
 pip install -r requirements.txt
 ```
 
-# Installing the scripts to be automated
+# The scripts cannot be run headless as there is Google Analytics on the host which will detect the crawler if it is headless.  Besides, the first script which will execute for a total duration of fifteen minutes which can be executed as follows.
 
 ```bash
-crontab -e
-```
-
-# The first module has to be configured to be run each 15 minutes
-```bash
-*/15 * * * * ./venv/bin/python3 ./Auto/collect_corporate_metadata.py
+sh /home/admin/Documents/Darkness4869/fincorp/Auto/collect_corporate_metadata.py
 ```
