@@ -408,7 +408,7 @@ class Crawler:
         table_body = self.getHtmlTag()
         self.interceptCookie()
         self.setHtmlTag(table_body)
-        self.readCache()
+        self.readCacheCorporateDataCollection()
         amount_data_found = len(self.getCorporateMetadata())
         self.scrapeMetadata(amount_data_found, 10, amount, delay)
         response = {
