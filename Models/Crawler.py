@@ -760,6 +760,12 @@ class Crawler:
             self.getLogger().inform("The cookie has been intercepted!")
         except NoSuchElementException:
             self.getLogger().error("The cookie has already been intercepted!")
+        except ElementClickInterceptedException:
+            self.getLogger().error("The cookie cannot be intercepted yet but the application will retry to intercept it!")
+            delay: float = self.__randomDelay(10.00)
+            time.sleep(delay)
+            self.interceptCookie()
+
 
     def getPageTableData(self, amount_data_found: int, amount: int) -> None:
         """
