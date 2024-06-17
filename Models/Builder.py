@@ -7,6 +7,7 @@ Authors:
 """
 
 
+from Data.CompanyDetails import CompanyDetails
 from Data.FinancialCalendar import FinancialCalendar
 from Data.FinCorpLogs import FinCorpLogs
 from Models.Crawler import Crawler
@@ -14,11 +15,10 @@ from Models.DatabaseHandler import Database_Handler
 from Models.Logger import Corporate_Database_Builder_Logger
 from Models.FinancialCalendar import Financial_Calendar
 from Models.FinCorpLogs import FinCorp_Logs
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 from Environment import Environment
 from typing import List, Tuple, Union, Dict
-from time import time
+from time import time, mktime
 from Models.CompanyDetails import Company_Details
 import os
 
@@ -133,8 +133,32 @@ class Builder:
             void
         """
         request: List[str] = []
+        date: str
         quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
         successful_logs: List[FinCorpLogs] = self.getFinCorpLogs().getSuccessfulRunsLogs("downloadCorporateFile")
+        company_details: List[CompanyDetails]
+        if len(successful_logs) == 1 and successful_logs[0].status == 204:
+            date = datetime.strftime(
+                datetime.strptime(quarter.start_date, "%m/%d/%Y"),
+                "%Y-%m-%d"
+            )
+            company_details = self.getCompanyDetails().getCompanyDetailsForDownloadCorporateDocumentFile(date)
+            print(f"Date of Incorporation: {date}\nCompany Details Amount: {len(company_details)}")
+            # exit()
+            # date_to = datetime.strftime(
+            #     datetime.strptime(quarter.start_date, "%m/%d/%Y") + timedelta(weeks=1),
+            #     "%m/%d/%Y"
+            # )
+            # request = {
+            #     "start_date": quarter.start_date,
+            #     "end_date": date_to
+            # }
+        else:
+            print("Models: Builder\nFunction: downloadCorporateFile\nStatus: 503")
+            exit()
+            # request = self.handleRequestCollectCorporateMetadata(successful_logs)
+        self.setCrawler(Crawler())
+        response: Dict[str, int] = self.getCrawler().retrieveCorporateDocumentFile(company_details, 0)
 
     def collectCorporateMetadata(self) -> None:
         """
@@ -159,7 +183,7 @@ class Builder:
         else:
             request = self.handleRequestCollectCorporateMetadata(successful_logs)
         self.setCrawler(Crawler())
-        response = self.getCrawler().retrieveCorporateMetadata(str(request["start_date"]), str(request["end_date"]), 0)
+        response: Dict[str, int] = self.getCrawler().retrieveCorporateMetadata(str(request["start_date"]), str(request["end_date"]), 0)
         self.validateCorporateMetadata(response, request, quarter)  # type: ignore
         self.cleanCache()
 

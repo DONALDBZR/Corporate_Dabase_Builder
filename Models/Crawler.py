@@ -339,6 +339,55 @@ class Crawler:
         )
         return response
 
+    def scrapeDocumentFile(self, delay: float) -> None:
+        """
+        Scraping the corporate document file from the target's
+        application.
+
+        Parameters:
+            delay: float: The amount of time in seconds that the crawler will wait to not get caught by the bot detection.
+
+        Returns:
+            void
+        """
+        table_body = self.getHtmlTag()
+        self.setHtmlTags(
+            table_body.find_elements(
+                By.TAG_NAME,
+                "tr"
+            )
+        )
+        table_rows = self.getHtmlTags()
+        print(f"Amount of Rows: {table_rows}")
+        exit()
+        if len(table_rows) >= 1:
+            if len(table_rows) > 1:
+                print(f"Model: Crawler\nFunction: scrapeDocumentFile\nStatus: 503\nAmount of Rows: {len(table_rows)}")
+                exit()
+            else:
+                self.setHtmlTags(
+                    table_rows[0].find_elements(
+                        By.TAG_NAME,
+                        "td"
+                    )
+                )
+                data: Dict[str, Union[str, None, int]] = {
+                    "business_registration_number": None,
+                    "name": self.getHtmlTags()[1].text,
+                    "file_number": self.getHtmlTags()[2].text,
+                    "category": self.getHtmlTags()[3].text,
+                    "date_incorporation": self.getHtmlTags()[4].text,
+                    "nature": self.getHtmlTags()[5].text,
+                    "status": self.getHtmlTags()[6].text,
+                    "date_verified": int(time.time())
+                }
+                buttons_cell: WebElement = self.getHtmlTags()[7]
+                print(f"Button Cell: {buttons_cell.text}")
+                exit()
+        else:
+            print(f"Model: Crawler\nFunction: scrapeDocumentFile\nStatus: 503\nAmount of Rows: {len(table_rows)}")
+            exit()
+
     def retrieveCorporateMetadata(self, date_from: str, date_to: str, coefficient: int) -> Dict[str, int]:
         """
         Retrieving corporate metadata about the companies that
