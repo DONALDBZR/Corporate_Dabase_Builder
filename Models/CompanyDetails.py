@@ -77,7 +77,7 @@ class Company_Details(Database_Handler):
             data: Union[List[RowType], List[Dict[str, Union[int, str]]]] = self.getData(
                 table_name=self.getTableName(),
                 parameters=parameters,
-                filter_condition="DATE(FROM_UNIXTIME(date_incorporation)) = %s"
+                filter_condition="DATE(FROM_UNIXTIME(date_incorporation)) = %s AND date_verified IS NULL"
             )
             response: Dict[str, Union[int, List[CompanyDetails]]] = self._getCompanyDetailsForDownloadCorporateDocumentFile(data)
             self.getLogger().inform(
