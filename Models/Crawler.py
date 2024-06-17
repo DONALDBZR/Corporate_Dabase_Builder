@@ -277,7 +277,7 @@ class Crawler:
         self.getDriver().get(self.getTarget())
         time.sleep(delay)
 
-    def retrieveCorporateDocumentFile(self, company_details: CompanyDetails, coefficient: int) -> Union[Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes]], None]:
+    def retrieveCorporateDocumentFile(self, company_details: CompanyDetails, coefficient: int) -> Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes, None]]:
         """
         Retrieving the corporate document files based on the
         corporate metadata that are filled as parameters.
@@ -287,10 +287,9 @@ class Crawler:
             coeffcient: float: This coefficient changes depending the handlers.
 
         Returns:
-            {status: int, amount: int}
+            {status: int, CompanyDetails: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}, DocumentFiles: bytes|null}
         """
         delay: float = self.ENV.calculateDelay(company_details.name) * (1.1 ** coefficient)
-        response: Union[Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes]], None]
         delay = self.__randomDelay(delay)
         self.setHtmlTag(
             self.getDriver().find_element(
@@ -326,13 +325,14 @@ class Crawler:
         table_body = self.getHtmlTag()
         self.interceptCookie()
         self.setHtmlTag(table_body)
-        response = self.scrapeDocumentFile(delay, company_details)
-        self.getLogger().inform(
-            f"The document has been retrieved and stored in the application's cache.\nStatus: {response['status']}\nName: {company_details.name}" # type: ignore
+        crawler_response: Union[Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes]], None] = self.scrapeDocumentFile(delay, company_details)
+        return self.handleCrawlerResponseRetrieveCorporateDocumentFile(
+            self.scrapeDocumentFile(delay, company_details),
+            company_details
         )
-        return response
 
-    def handleCrawlerResponseRetrieveCorporateDocumentFile(self, crawler: Union[Dict[str, Union[int, Dict[str, Union[str, int, None]], bytes]], None], company_detail: CompanyDetails) -> None:
+    def handleCrawlerResponseRetrieveCorporateDocumentFile(self, crawler: Union[Dict[str, Union[int, Dict[str, Union[str, int, None]], bytes]], None], company_detail: CompanyDetails) -> 
+        response: Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes, None]]:
         """
         Handling the response returned by the crawler and doing any
         data manipulation required on the data.
@@ -342,40 +342,35 @@ class Crawler:
             company_detail: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}: The metadata of the company that is used as payload.
 
         Returns:
-            void
+            {status: int, CompanyDetails: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}, DocumentFiles: bytes|null}
         """
+        response: Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes, None]]
         if crawler != None and crawler["status"] == 200:
-            self.writeCacheCorporateDocumentFile(crawler)
+            response = {
+                "status": crawler["status"],
+                "CompanyDetails": crawler["CompanyDetails"],
+                "DocumentFiles": crawler["DocumentFiles"]
+            }
         else:
-            self.getLogger().error(f"The corporate data file cannot be retrieved!\nStatus: 503\nName: {company_detail.name}")
-
-    def writeCacheCorporateDocumentFile(self, request: Dict[str, Union[int, Dict[str, Union[str, int, None]], bytes]]) -> None:
-        """
-        Writing data to the cache directory.
-
-        Parameters:
-            request: {status: int, CompanyDetails: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}, DocumentFiles: bytes}: The response from the crawler.
-
-        Returns:
-            void
-        """
-        metadata_file_name: str = f"{request['CompanyDetails']['identifier']}.json" # type: ignore
-        document_file_name: str = f"{request['CompanyDetails']['identifier']}.pdf" # type: ignore
-        metadata_file = open(
-            f"{self.ENV.getDirectory()}/Cache/CorporateDocumentFile/Metadata/{metadata_file_name}",
-            "w"
+            response = {
+                "status": 404, 
+                "CompanyDetails": {
+                    "identifier": company_detail.identifier,
+                    "business_registration_number": company_detail.business_registration_number,
+                    "name": company_detail.name,
+                    "file_number": company_detail.file_number,
+                    "category": company_detail.category,
+                    "date_incorporation": company_detail.date_incorporation,
+                    "nature": company_detail.nature,
+                    "status": company_detail.status,
+                    "date_verified": int(time.time())
+                },
+                "DocumentFiles": None
+            }
+        self.getLogger().inform(
+            f"The crawler has tried to retrieve the corporate document file!\nStatus: {response['status']}\nName: {company_detail.name}" # type: ignore
         )
-        document_file = open(
-            f"{self.ENV.getDirectory()}/Cache/CorporateDocumentFile/Documents/{document_file_name}",
-            "wb"
-        )
-        metadata_file.write(
-            json.dumps(request["CompanyDetails"], indent=4)
-        )
-        document_file.write(bytes(request["DocumentFiles"])) # type: ignore
-        metadata_file.close()
-        document_file.close()
-        self.getLogger().inform("The data has been written to the cache.")
+        return response
 
     def getDataAmountRetrieveCorporateDocumentFile(self, delay: float, coefficient: int) -> int:
         """
