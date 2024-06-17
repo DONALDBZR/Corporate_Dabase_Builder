@@ -315,8 +315,7 @@ class Crawler:
             self.__moveMouse(self.getHtmlTag())
             self.handleSearch()
             time.sleep(delay)
-            data_amount: str = self.getDataAmountRetrieveCorporateDocumentFile(delay, coefficient)
-            payload_amount = int(data_amount)
+            payload_amount = self.getDataAmountRetrieveCorporateDocumentFile(delay, coefficient)
             self.getLogger().inform(
                 f"Search completed for the payload.\nCompany Name: {company_details[index].name}\nAmount: {payload_amount}"
             )
