@@ -328,7 +328,7 @@ class Crawler:
             table_body = self.getHtmlTag()
             self.interceptCookie()
             self.setHtmlTag(table_body)
-            self.scrapeDocumentFile(delay)
+            self.scrapeDocumentFile(delay, company_details[index])
         response = {
             "status": 200,
             "amount": amount
@@ -389,25 +389,27 @@ class Crawler:
             time.sleep(delay)
             return self.getDataAmountRetrieveCorporateDocumentFile(delay, coefficient)
 
-    def scrapeDocumentFile(self, delay: float) -> None:
+    def scrapeDocumentFile(self, delay: float, company_detail: CompanyDetails) -> None:
         """
         Scraping the corporate document file from the target's
         application.
 
         Parameters:
             delay: float: The amount of time in seconds that the crawler will wait to not get caught by the bot detection.
+            company_detail: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}: The metadata of the company that is used as payload.
 
         Returns:
             void
         """
-        table_body = self.getHtmlTag()
+        previous_company_data: CompanyDetails = company_detail
+        table_body: WebElement = self.getHtmlTag()
         self.setHtmlTags(
             table_body.find_elements(
                 By.TAG_NAME,
                 "tr"
             )
         )
-        table_rows = self.getHtmlTags()
+        table_rows: List[WebElement] = self.getHtmlTags()
         if len(self.getHtmlTags()) >= 1:
             if len(self.getHtmlTags()) > 1:
                 print(f"Model: Crawler\nFunction: scrapeDocumentFile\nStatus: 503\nAmount of Rows: {len(table_rows)}")
@@ -421,12 +423,12 @@ class Crawler:
                 )
                 data: Dict[str, Union[str, None, int]] = {
                     "business_registration_number": None,
-                    "name": self.getHtmlTags()[1].text,
-                    "file_number": self.getHtmlTags()[2].text,
-                    "category": self.getHtmlTags()[3].text,
-                    "date_incorporation": self.getHtmlTags()[4].text,
-                    "nature": self.getHtmlTags()[5].text,
-                    "status": self.getHtmlTags()[6].text,
+                    "name": previous_company_data.name,
+                    "file_number": previous_company_data.file_number,
+                    "category": previous_company_data.category,
+                    "date_incorporation": previous_company_data.date_incorporation,
+                    "nature": previous_company_data.nature,
+                    "status": previous_company_data.status,
                     "date_verified": int(time.time())
                 }
                 buttons_cell: WebElement = self.getHtmlTags()[7].find_element(
@@ -437,7 +439,15 @@ class Crawler:
                     By.TAG_NAME,
                     "fa-icon"
                 )[1]
-                
+                self.__moveMouse(print_button)
+                time.sleep(delay)
+                print_button.click()
+                time.sleep(delay)
+                self.getDriver().switch_to.window(
+                    self.getDriver().window_handles[-1]
+                )
+                time.sleep(delay)
+                file = self.downloadFile()
                 print(f"Data: {data}")
                 exit()
         else:
