@@ -453,7 +453,7 @@ class Crawler:
         )
         self.handleSearch()
         time.sleep(delay)
-        data_amount: str = self.getDataAmount(delay, coefficient)
+        data_amount: str = self.getDataAmountRetrieveCorporateMetadata(delay, coefficient)
         amount = int(data_amount)
         self.getLogger().inform(
             f"Search completed for corporate metadata between {date_from} and {date_to}\nDate From: {date_from}\nDate To: {date_to}\nAmount: {amount}"
@@ -479,7 +479,7 @@ class Crawler:
         )
         return response
 
-    def getDataAmount(self, delay: float, coefficient: int) -> str:
+    def getDataAmountRetrieveCorporateMetadata(self, delay: float, coefficient: int) -> str:
         """
         Retrieving the amount of data that the targeted application
         currently has.
@@ -525,7 +525,7 @@ class Crawler:
             self.setHtmlTag(search_button)
             self.handleSearch()
             time.sleep(delay)
-            return self.getDataAmount(delay, coefficient)
+            return self.getDataAmountRetrieveCorporateMetadata(delay, coefficient)
 
     def scrapeMetadata(self, amount_data_found: int, amount_data_per_page: int, amount: int, delay: float) -> None:
         """
