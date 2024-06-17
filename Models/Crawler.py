@@ -389,6 +389,60 @@ class Crawler:
             time.sleep(delay)
             return self.getDataAmountRetrieveCorporateDocumentFile(delay, coefficient)
 
+    def _scrapeDocumentFileFoundResultSets(self, delay: float, company_detail: CompanyDetails) -> None:
+        """
+        Scraping the corporate document file from the target's
+        application specifically when there are result sets that are
+        returned by the target's application.
+
+        Parameters:
+            delay: float: The delay that the application will take to halt the operations of the application before resuming to the same way as a human being would to.
+            company_detail: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}: The metadata of the company that is used as payload.
+
+        Returns:
+            void
+        """
+        table_rows: List[WebElement] = self.getHtmlTags()
+        if len(self.getHtmlTags()) > 1:
+            print(f"Model: Crawler\nFunction: scrapeDocumentFile\nStatus: 503\nAmount of Rows: {len(table_rows)}")
+            exit()
+        else:
+            self.setHtmlTags(
+                table_rows[0].find_elements(
+                    By.TAG_NAME,
+                    "td"
+                )
+            )
+            data: Dict[str, Union[str, None, int]] = {
+                "business_registration_number": None,
+                "name": company_detail.name,
+                "file_number": company_detail.file_number,
+                "category": company_detail.category,
+                "date_incorporation": company_detail.date_incorporation,
+                "nature": company_detail.nature,
+                "status": company_detail.status,
+                "date_verified": int(time.time())
+            }
+            buttons_cell: WebElement = self.getHtmlTags()[7].find_element(
+                By.TAG_NAME,
+                "div"
+            )
+            print_button: WebElement = buttons_cell.find_elements(
+                By.TAG_NAME,
+                "fa-icon"
+            )[1]
+            self.__moveMouse(print_button)
+            time.sleep(delay)
+            print_button.click()
+            time.sleep(delay)
+            self.getDriver().switch_to.window(
+                self.getDriver().window_handles[-1]
+            )
+            time.sleep(delay)
+            file = self.downloadFile()
+            print(f"Data: {data}")
+            exit()
+
     def scrapeDocumentFile(self, delay: float, company_detail: CompanyDetails) -> None:
         """
         Scraping the corporate document file from the target's
@@ -401,57 +455,16 @@ class Crawler:
         Returns:
             void
         """
-        table_body: WebElement = self.getHtmlTag()
         self.setHtmlTags(
-            table_body.find_elements(
+            self.getHtmlTag().find_elements(
                 By.TAG_NAME,
                 "tr"
             )
         )
-        table_rows: List[WebElement] = self.getHtmlTags()
         if len(self.getHtmlTags()) >= 1:
             self._scrapeDocumentFileFoundResultSets(delay, company_detail)
-            if len(self.getHtmlTags()) > 1:
-                print(f"Model: Crawler\nFunction: scrapeDocumentFile\nStatus: 503\nAmount of Rows: {len(table_rows)}")
-                exit()
-            else:
-                self.setHtmlTags(
-                    table_rows[0].find_elements(
-                        By.TAG_NAME,
-                        "td"
-                    )
-                )
-                data: Dict[str, Union[str, None, int]] = {
-                    "business_registration_number": None,
-                    "name": company_detail.name,
-                    "file_number": company_detail.file_number,
-                    "category": company_detail.category,
-                    "date_incorporation": company_detail.date_incorporation,
-                    "nature": company_detail.nature,
-                    "status": company_detail.status,
-                    "date_verified": int(time.time())
-                }
-                buttons_cell: WebElement = self.getHtmlTags()[7].find_element(
-                    By.TAG_NAME,
-                    "div"
-                )
-                print_button: WebElement = buttons_cell.find_elements(
-                    By.TAG_NAME,
-                    "fa-icon"
-                )[1]
-                self.__moveMouse(print_button)
-                time.sleep(delay)
-                print_button.click()
-                time.sleep(delay)
-                self.getDriver().switch_to.window(
-                    self.getDriver().window_handles[-1]
-                )
-                time.sleep(delay)
-                file = self.downloadFile()
-                print(f"Data: {data}")
-                exit()
         else:
-            print(f"Model: Crawler\nFunction: scrapeDocumentFile\nStatus: 503\nAmount of Rows: {len(table_rows)}")
+            print(f"Model: Crawler\nFunction: scrapeDocumentFile\nStatus: 503\nAmount of Rows: {len(self.getHtmlTags())}")
             exit()
 
     def retrieveCorporateMetadata(self, date_from: str, date_to: str, coefficient: int) -> Dict[str, int]:
