@@ -429,8 +429,9 @@ class Crawler:
                     "status": self.getHtmlTags()[6].text,
                     "date_verified": int(time.time())
                 }
-                buttons_cell: WebElement = self.getHtmlTags()[7]
-                print(f"Button Cell: {buttons_cell.text}")
+                # buttons_cell: WebElement = self.getHtmlTags()[7]
+                for index in range(0, len(self.getHtmlTags()), 1):
+                    print(f"Cell[{index}]: {self.getHtmlTags()[index].text}")
                 exit()
         else:
             print(f"Model: Crawler\nFunction: scrapeDocumentFile\nStatus: 503\nAmount of Rows: {len(table_rows)}")
