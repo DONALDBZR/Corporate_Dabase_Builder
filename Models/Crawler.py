@@ -401,7 +401,6 @@ class Crawler:
         Returns:
             void
         """
-        previous_company_data: CompanyDetails = company_detail
         table_body: WebElement = self.getHtmlTag()
         self.setHtmlTags(
             table_body.find_elements(
@@ -411,6 +410,7 @@ class Crawler:
         )
         table_rows: List[WebElement] = self.getHtmlTags()
         if len(self.getHtmlTags()) >= 1:
+            self._scrapeDocumentFileFoundResultSets(delay, company_detail)
             if len(self.getHtmlTags()) > 1:
                 print(f"Model: Crawler\nFunction: scrapeDocumentFile\nStatus: 503\nAmount of Rows: {len(table_rows)}")
                 exit()
@@ -423,12 +423,12 @@ class Crawler:
                 )
                 data: Dict[str, Union[str, None, int]] = {
                     "business_registration_number": None,
-                    "name": previous_company_data.name,
-                    "file_number": previous_company_data.file_number,
-                    "category": previous_company_data.category,
-                    "date_incorporation": previous_company_data.date_incorporation,
-                    "nature": previous_company_data.nature,
-                    "status": previous_company_data.status,
+                    "name": company_detail.name,
+                    "file_number": company_detail.file_number,
+                    "category": company_detail.category,
+                    "date_incorporation": company_detail.date_incorporation,
+                    "nature": company_detail.nature,
+                    "status": company_detail.status,
                     "date_verified": int(time.time())
                 }
                 buttons_cell: WebElement = self.getHtmlTags()[7].find_element(
