@@ -18,7 +18,8 @@ from Models.FinCorpLogs import FinCorp_Logs
 from datetime import datetime, timedelta
 from Environment import Environment
 from typing import List, Tuple, Union, Dict
-from time import time, mktime
+from time import time
+from Models.DocumentFiles import Document_Files
 from Models.CompanyDetails import Company_Details
 import os
 
@@ -66,6 +67,11 @@ class Builder:
     The model which will interact exclusively with the Company
     Details.
     """
+    __document_files: Document_Files
+    """
+    The model which will interact exclusively with the Document
+    Files table.
+    """
 
     def __init__(self) -> None:
         """
@@ -78,6 +84,7 @@ class Builder:
         self.setFinancialCalendar(Financial_Calendar())
         self.setFinCorpLogs(FinCorp_Logs())
         self.setCompanyDetails(Company_Details())
+        self.setDocumentFiles(Document_Files())
         self.getLogger().inform(
             "The builder has been initialized and all of its dependencies are injected!")
 
@@ -123,6 +130,12 @@ class Builder:
     def setCompanyDetails(self, company_details: Company_Details) -> None:
         self.__company_details = company_details
 
+    def getDocumentFiles(self) -> Document_Files:
+        return self.__document_files
+
+    def setDocumentFiles(self, document_files: Document_Files) -> None:
+        self.__document_files = document_files
+
     def downloadCorporateFile(self) -> None:
         """
         The second run consists of retrieving the corporate document
@@ -153,7 +166,7 @@ class Builder:
             self.getCrawler().getDriver().quit()
             self.getLogger().inform(f"The portable document file has been downloaded as well as the company details has been verified!\nIdentifier: {company_details[index].identifier}\nName: {company_details[index].name}")
             self.getCompanyDetails().updateCompany(crawler_response["CompanyDetails"]) # type: ignore
-            self.getDocumentFiles().addDocumentFile(crawler_response["DocumentFiles"])
+            self.getDocumentFiles().addDocumentFile(crawler_response)
             amount_found += 1
         logs: Tuple[str, str, int, int, int, int, int] = (
             "downloadCorporateFile",
