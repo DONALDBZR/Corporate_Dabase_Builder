@@ -414,16 +414,6 @@ class Crawler:
                     "td"
                 )
             )
-            data: Dict[str, Union[str, None, int]] = {
-                "business_registration_number": None,
-                "name": company_detail.name,
-                "file_number": company_detail.file_number,
-                "category": company_detail.category,
-                "date_incorporation": company_detail.date_incorporation,
-                "nature": company_detail.nature,
-                "status": company_detail.status,
-                "date_verified": int(time.time())
-            }
             buttons_cell: WebElement = self.getHtmlTags()[7].find_element(
                 By.TAG_NAME,
                 "div"
