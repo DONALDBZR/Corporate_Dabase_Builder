@@ -329,7 +329,8 @@ class Crawler:
             table_body = self.getHtmlTag()
             self.interceptCookie()
             self.setHtmlTag(table_body)
-            self.scrapeDocumentFile(delay, company_details[index])
+            crawler_response: Union[Dict[str, Union[int, Dict[str, Union[str, int, None]], bytes]], None] = self.scrapeDocumentFile(delay, company_details[index])
+            self.handleCrawlerResponseRetrieveCorporateDocumentFile(crawler_response)
         response = {
             "status": 200,
             "amount": amount
