@@ -330,7 +330,7 @@ class Crawler:
             self.interceptCookie()
             self.setHtmlTag(table_body)
             crawler_response: Union[Dict[str, Union[int, Dict[str, Union[str, int, None]], bytes]], None] = self.scrapeDocumentFile(delay, company_details[index])
-            self.handleCrawlerResponseRetrieveCorporateDocumentFile(crawler_response)
+            self.handleCrawlerResponseRetrieveCorporateDocumentFile(crawler_response, company_details[index])
         response = {
             "status": 200,
             "amount": amount
@@ -339,6 +339,51 @@ class Crawler:
             f"The documents have been retrieved and stored in the relational database server.\nStatus: {response['status']}\nAmount: {response['amount']}"
         )
         return response
+
+    def handleCrawlerResponseRetrieveCorporateDocumentFile(self, crawler: Union[Dict[str, Union[int, Dict[str, Union[str, int, None]], bytes]], None], company_detail: CompanyDetails) -> None:
+        """
+        Handling the response returned by the crawler and doing any
+        data manipulation required on the data.
+
+        Parameters:
+            crawler: {status: int, CompanyDetails: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}, DocumentFiles: bytes} | null: The response from the crawler.
+            company_detail: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}: The metadata of the company that is used as payload.
+
+        Returns:
+            void
+        """
+        if crawler != None and crawler["status"] == 200:
+            self.writeCacheCorporateDocumentFile(crawler)
+        else:
+            self.getLogger().error(f"The corporate data file cannot be retrieved!\nStatus: 503\nName: {company_detail.name}")
+
+    def writeCacheCorporateDocumentFile(self, request: Dict[str, Union[int, Dict[str, Union[str, int, None]], bytes]]) -> None:
+        """
+        Writing data to the cache directory.
+
+        Parameters:
+            request: {status: int, CompanyDetails: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}, DocumentFiles: bytes}: The response from the crawler.
+
+        Returns:
+            void
+        """
+        metadata_file_name: str = f"{request['CompanyDetails']['identifier']}.json" # type: ignore
+        document_file_name: str = f"{request['CompanyDetails']['identifier']}.pdf" # type: ignore
+        metadata_file = open(
+            f"{self.ENV.getDirectory()}/Cache/CorporateDocumentFile/Metadata/{metadata_file_name}",
+            "w"
+        )
+        document_file = open(
+            f"{self.ENV.getDirectory()}/Cache/CorporateDocumentFile/Documents/{document_file_name}",
+            "wb"
+        )
+        metadata_file.write(
+            json.dumps(request["CompanyDetails"], indent=4)
+        )
+        document_file.write(bytes(request["DocumentFiles"])) # type: ignore
+        metadata_file.close()
+        document_file.close()
+        self.getLogger().inform("The data has been written to the cache.")
 
     def getDataAmountRetrieveCorporateDocumentFile(self, delay: float, coefficient: int) -> int:
         """
@@ -688,7 +733,7 @@ class Crawler:
             self.getLogger().debug(
                 f"The extraction of corporate metadata is in progress.\nAmount of data found: {amount_data_found}\nIteration: {index}\nDone: {done}%"
             )
-            self.writeCache()
+            self.writeCacheCorporateDataCollection()
             self.nextPage(delay)
             self.setHtmlTag(
                 self.getDriver().find_element(
@@ -772,7 +817,7 @@ class Crawler:
             )
             self.nextPage(delay)
 
-    def writeCache(self) -> None:
+    def writeCacheCorporateDataCollection(self) -> None:
         """
         Writing data to the cache directory.
 
