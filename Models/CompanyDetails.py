@@ -133,3 +133,30 @@ class Company_Details(Database_Handler):
             "status": status,
             "data": data
         }
+
+    def updateCompany(self, data: Dict[str, Union[int, str]]) -> None:
+        """
+        Updating the data inside of the company details table.
+
+        Parameters:
+            data: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}: The data of the company to be updated.
+
+        Returns:
+            void
+        """
+        parameters: Tuple[str, str, str, int, str, str, int, int] = (
+            str(data["name"]),
+            str(data["file_number"]),
+            str(data["category"]),
+            int(data["date_incorporation"]),
+            str(data["nature"]),
+            str(data["status"]),
+            int(data["date_verified"]),
+            int(data["identifier"])
+        )
+        return self.updateData(
+            table=self.getTableName(),
+            values="name = %s, file_number = %s, category = %s, date_incorporation = %s, nature = %s, status = %s, date_verification = %s",
+            parameters=parameters, # type: ignore
+            condition="identifier = %s"
+        )
