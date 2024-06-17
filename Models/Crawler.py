@@ -277,7 +277,7 @@ class Crawler:
         self.getDriver().get(self.getTarget())
         time.sleep(delay)
 
-    def retrieveCorporateDocumentFile(self, company_details: List[CompanyDetails], coefficient: int) -> Dict[str, int]:
+    def retrieveCorporateDocumentFile(self, company_details: CompanyDetails, coefficient: int) -> Union[Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes]], None]:
         """
         Retrieving the corporate document files based on the
         corporate metadata that are filled as parameters.
@@ -289,54 +289,46 @@ class Crawler:
         Returns:
             {status: int, amount: int}
         """
-        delay: float
-        amount: int = len(company_details)
-        response: Dict[str, int] = {}
-        for index in range(0, len(company_details), 1):
-            delay = self.ENV.calculateDelay(company_details[index].name) * (1.1 ** coefficient)
-            delay = self.__randomDelay(delay)
-            self.setHtmlTag(
-                self.getDriver().find_element(
-                    By.XPATH,
-                    f"{self.ENV.getTargetApplicationRootXpath()}/cbris-header/div/div/form/div/div[1]/div[2]/div/input"
-                )
+        delay: float = self.ENV.calculateDelay(company_details.name) * (1.1 ** coefficient)
+        response: Union[Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes]], None]
+        delay = self.__randomDelay(delay)
+        self.setHtmlTag(
+            self.getDriver().find_element(
+                By.XPATH,
+                f"{self.ENV.getTargetApplicationRootXpath()}/cbris-header/div/div/form/div/div[1]/div[2]/div/input"
             )
-            self.__moveMouse(self.getHtmlTag())
-            self.getHtmlTag().send_keys(company_details[index].name)
-            time.sleep(delay)
-            self.getLogger().inform(
-                f"The payload has been injected.\nCompany Name: {company_details[index].name}\nDelay: {delay} s"
-            )
-            self.setHtmlTag(
-                self.getDriver().find_element(
-                    By.XPATH,
-                    f"{self.ENV.getTargetApplicationRootXpath()}/cbris-header/div/div/form/div/div[2]/div[3]/div[2]/button"
-                )
-            )
-            self.__moveMouse(self.getHtmlTag())
-            self.handleSearch()
-            time.sleep(delay)
-            payload_amount = self.getDataAmountRetrieveCorporateDocumentFile(delay, coefficient)
-            self.getLogger().inform(
-                f"Search completed for the payload.\nCompany Name: {company_details[index].name}\nAmount: {payload_amount}"
-            )
-            self.setHtmlTag(
-                self.getDriver().find_element(
-                    By.XPATH,
-                    f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[1]/table/tbody"
-                )
-            )
-            table_body = self.getHtmlTag()
-            self.interceptCookie()
-            self.setHtmlTag(table_body)
-            crawler_response: Union[Dict[str, Union[int, Dict[str, Union[str, int, None]], bytes]], None] = self.scrapeDocumentFile(delay, company_details[index])
-            self.handleCrawlerResponseRetrieveCorporateDocumentFile(crawler_response, company_details[index])
-        response = {
-            "status": 200,
-            "amount": amount
-        }
+        )
+        self.__moveMouse(self.getHtmlTag())
+        self.getHtmlTag().send_keys(company_details.name)
+        time.sleep(delay)
         self.getLogger().inform(
-            f"The documents have been retrieved and stored in the relational database server.\nStatus: {response['status']}\nAmount: {response['amount']}"
+            f"The payload has been injected.\nCompany Name: {company_details.name}\nDelay: {delay} s"
+        )
+        self.setHtmlTag(
+            self.getDriver().find_element(
+                By.XPATH,
+                f"{self.ENV.getTargetApplicationRootXpath()}/cbris-header/div/div/form/div/div[2]/div[3]/div[2]/button"
+            )
+        )
+        self.__moveMouse(self.getHtmlTag())
+        self.handleSearch()
+        time.sleep(delay)
+        payload_amount = self.getDataAmountRetrieveCorporateDocumentFile(delay, coefficient)
+        self.getLogger().inform(
+            f"Search completed for the payload.\nCompany Name: {company_details.name}\nAmount: {payload_amount}"
+        )
+        self.setHtmlTag(
+            self.getDriver().find_element(
+                By.XPATH,
+                f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[1]/table/tbody"
+            )
+        )
+        table_body = self.getHtmlTag()
+        self.interceptCookie()
+        self.setHtmlTag(table_body)
+        response = self.scrapeDocumentFile(delay, company_details)
+        self.getLogger().inform(
+            f"The document has been retrieved and stored in the application's cache.\nStatus: {response['status']}\nName: {company_details.name}" # type: ignore
         )
         return response
 
