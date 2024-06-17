@@ -408,7 +408,7 @@ class Crawler:
             )
         )
         table_rows = self.getHtmlTags()
-        print(f"Amount of Rows: {table_rows}")
+        print(f"Amount of Rows: {len(self.getHtmlTags())}")
         exit()
         if len(table_rows) >= 1:
             if len(table_rows) > 1:
