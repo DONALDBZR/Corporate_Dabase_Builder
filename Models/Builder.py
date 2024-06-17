@@ -132,33 +132,39 @@ class Builder:
         Returns:
             void
         """
-        request: List[str] = []
         date: str
         quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
         successful_logs: List[FinCorpLogs] = self.getFinCorpLogs().getSuccessfulRunsLogs("downloadCorporateFile")
         company_details: List[CompanyDetails]
+        amount_found: int = 0
         if len(successful_logs) == 1 and successful_logs[0].status == 204:
             date = datetime.strftime(
                 datetime.strptime(quarter.start_date, "%m/%d/%Y"),
                 "%Y-%m-%d"
             )
             company_details = self.getCompanyDetails().getCompanyDetailsForDownloadCorporateDocumentFile(date)
-            print(f"Date of Incorporation: {date}\nCompany Details Amount: {len(company_details)}")
-            # exit()
-            # date_to = datetime.strftime(
-            #     datetime.strptime(quarter.start_date, "%m/%d/%Y") + timedelta(weeks=1),
-            #     "%m/%d/%Y"
-            # )
-            # request = {
-            #     "start_date": quarter.start_date,
-            #     "end_date": date_to
-            # }
+            self.getLogger().inform(f"The data that will be used as payloads for retrieving the corporate document files from the Mauritius Network Services Online Search platform.Date of Incorporation: {date}\nCompany Details Amount: {len(company_details)}")
         else:
             print("Models: Builder\nFunction: downloadCorporateFile\nStatus: 503")
             exit()
-            # request = self.handleRequestCollectCorporateMetadata(successful_logs)
-        self.setCrawler(Crawler())
-        response: Dict[str, int] = self.getCrawler().retrieveCorporateDocumentFile(company_details, 0)
+        for index in range(0, len(company_details), 1):
+            self.setCrawler(Crawler())
+            crawler_response: Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes, None]] = self.getCrawler().retrieveCorporateDocumentFile(company_details[index], 0)
+            self.getCrawler().getDriver().quit()
+            self.getLogger().inform(f"The portable document file has been downloaded as well as the company details has been verified!\nIdentifier: {company_details[index].identifier}\nName: {company_details[index].name}")
+            self.getCompanyDetails().updateCompany(crawler_response["CompanyDetails"])
+            self.getDocumentFiles().addDocumentFile(crawler_response["DocumentFiles"])
+            amount_found += 1
+        logs: Tuple[str, str, int, int, int, int, int] = (
+            "downloadCorporateFile",
+            quarter.quarter,
+            int(datetime.strptime(date, "%Y-%m-%d").timestamp()),
+            int(datetime.strptime(date, "%Y-%m-%d").timestamp()),
+            200,
+            len(company_details),
+            amount_found
+        )
+        self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(logs) # type: ignore
 
     def collectCorporateMetadata(self) -> None:
         """
