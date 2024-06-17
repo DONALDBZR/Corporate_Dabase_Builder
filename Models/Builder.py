@@ -85,8 +85,7 @@ class Builder:
         self.setFinCorpLogs(FinCorp_Logs())
         self.setCompanyDetails(Company_Details())
         self.setDocumentFiles(Document_Files())
-        self.getLogger().inform(
-            "The builder has been initialized and all of its dependencies are injected!")
+        self.getLogger().inform("The builder has been initialized and all of its dependencies are injected!")
 
     def getCrawler(self) -> Crawler:
         return self.__crawler
