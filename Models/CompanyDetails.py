@@ -156,7 +156,7 @@ class Company_Details(Database_Handler):
         )
         return self.updateData(
             table=self.getTableName(),
-            values="name = %s, file_number = %s, category = %s, date_incorporation = %s, nature = %s, status = %s, date_verification = %s",
+            values="name = %s, file_number = %s, category = %s, date_incorporation = %s, nature = %s, status = %s, date_verified = %s",
             parameters=parameters, # type: ignore
             condition="identifier = %s"
         )
