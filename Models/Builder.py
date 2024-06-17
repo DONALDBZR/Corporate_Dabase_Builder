@@ -152,7 +152,7 @@ class Builder:
             crawler_response: Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes, None]] = self.getCrawler().retrieveCorporateDocumentFile(company_details[index], 0)
             self.getCrawler().getDriver().quit()
             self.getLogger().inform(f"The portable document file has been downloaded as well as the company details has been verified!\nIdentifier: {company_details[index].identifier}\nName: {company_details[index].name}")
-            self.getCompanyDetails().updateCompany(crawler_response["CompanyDetails"])
+            self.getCompanyDetails().updateCompany(crawler_response["CompanyDetails"]) # type: ignore
             self.getDocumentFiles().addDocumentFile(crawler_response["DocumentFiles"])
             amount_found += 1
         logs: Tuple[str, str, int, int, int, int, int] = (
