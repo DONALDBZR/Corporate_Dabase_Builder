@@ -283,14 +283,13 @@ class Crawler:
         corporate metadata that are filled as parameters.
 
         Parameters:
-            company_details: [{identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}]: The list of corporate metadata to be used for retrieving the corporate document files.
+            company_details: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}: The list of corporate metadata to be used for retrieving the corporate document files.
             coeffcient: float: This coefficient changes depending the handlers.
 
         Returns:
             {status: int, CompanyDetails: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}, DocumentFiles: bytes|null}
         """
-        delay: float = self.ENV.calculateDelay(company_details.name) * (1.1 ** coefficient)
-        delay = self.__randomDelay(delay)
+        delay: float = self.__randomDelay(self.ENV.calculateDelay(company_details.name) * (1.1 ** coefficient))
         self.setHtmlTag(
             self.getDriver().find_element(
                 By.XPATH,
@@ -325,14 +324,12 @@ class Crawler:
         table_body = self.getHtmlTag()
         self.interceptCookie()
         self.setHtmlTag(table_body)
-        crawler_response: Union[Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes]], None] = self.scrapeDocumentFile(delay, company_details)
         return self.handleCrawlerResponseRetrieveCorporateDocumentFile(
             self.scrapeDocumentFile(delay, company_details),
             company_details
         )
 
-    def handleCrawlerResponseRetrieveCorporateDocumentFile(self, crawler: Union[Dict[str, Union[int, Dict[str, Union[str, int, None]], bytes]], None], company_detail: CompanyDetails) -> 
-        response: Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes, None]]:
+    def handleCrawlerResponseRetrieveCorporateDocumentFile(self, crawler: Union[Dict[str, Union[int, Dict[str, Union[str, int, None]], bytes]], None], company_detail: CompanyDetails) -> Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes, None]]:
         """
         Handling the response returned by the crawler and doing any
         data manipulation required on the data.
