@@ -429,9 +429,16 @@ class Crawler:
                     "status": self.getHtmlTags()[6].text,
                     "date_verified": int(time.time())
                 }
-                # buttons_cell: WebElement = self.getHtmlTags()[7]
-                for index in range(0, len(self.getHtmlTags()), 1):
-                    print(f"Cell[{index}]: {self.getHtmlTags()[index].text}")
+                buttons_cell: WebElement = self.getHtmlTags()[7].find_element(
+                    By.TAG_NAME,
+                    "div"
+                )
+                print_button: WebElement = buttons_cell.find_elements(
+                    By.TAG_NAME,
+                    "fa-icon"
+                )[1]
+                
+                print(f"Data: {data}")
                 exit()
         else:
             print(f"Model: Crawler\nFunction: scrapeDocumentFile\nStatus: 503\nAmount of Rows: {len(table_rows)}")
