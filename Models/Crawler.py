@@ -403,7 +403,6 @@ class Crawler:
         Returns:
             {status: int, CompanyDetails: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}, DocumentFiles: bytes} | void
         """
-        response: Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes]]
         table_rows: List[WebElement] = self.getHtmlTags()
         if len(self.getHtmlTags()) > 1:
             print(f"Model: Crawler\nFunction: scrapeDocumentFile\nStatus: 503\nAmount of Rows: {len(table_rows)}")
