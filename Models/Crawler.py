@@ -431,25 +431,39 @@ class Crawler:
             )
             time.sleep(delay)
             file_downloader_response = self.downloadFile()
-            if int(file_downloader_response["status"]) == 200: # type: ignore
-                return {
-                    "status": int(file_downloader_response["status"]), # type: ignore
-                    "CompanyDetails": {
-                        "identifier": company_detail.identifier,
-                        "business_registration_number": company_detail.business_registration_number,
-                        "name": company_detail.name,
-                        "file_number": company_detail.file_number,
-                        "category": company_detail.category,
-                        "date_incorporation": company_detail.date_incorporation,
-                        "nature": company_detail.nature,
-                        "status": company_detail.status,
-                        "date_verified": int(time.time())
-                    },
-                    "DocumentFiles": bytes(file_downloader_response["file"]) # type: ignore
-                }
-            else:
-                print(f"Model: Crawler\nFunction: _scrapeDocumentFileFoundResultSets\nStatus: 503\nAmount of Rows: {len(table_rows)}\nFile Downloader Status: {file_downloader_response['status']}")
-                exit()
+            return self.handleDocumentFileFoundIndividualRecord(file_downloader_response, company_detail)
+
+    def handleDocumentFileFoundIndividualRecord(self, file_downloader: Dict[str, Union[int, bytes, None]], company_detail: CompanyDetails) -> Union[Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes]], None]:
+        """
+        Handling the response given by the File downlaoder of the
+        application.
+
+        Parameters:
+            file_downloader: {status: int, file: bytes|null}: The response from the file downloader.
+            company_detail: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}: The metadata of the company that is used as payload.
+
+        Returns:
+            {status: int, CompanyDetails: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}, DocumentFiles: bytes} | void
+        """
+        if int(file_downloader["status"]) == 200: # type: ignore
+            return {
+                "status": int(file_downloader["status"]), # type: ignore
+                "CompanyDetails": {
+                    "identifier": company_detail.identifier,
+                    "business_registration_number": company_detail.business_registration_number,
+                    "name": company_detail.name,
+                    "file_number": company_detail.file_number,
+                    "category": company_detail.category,
+                    "date_incorporation": company_detail.date_incorporation,
+                    "nature": company_detail.nature,
+                    "status": company_detail.status,
+                    "date_verified": int(time.time())
+                },
+                "DocumentFiles": bytes(file_downloader["file"]) # type: ignore
+            }
+        else:
+            print(f"Model: Crawler\nFunction: _scrapeDocumentFileFoundResultSets\nStatus: 503\nAmount of Rows: {len(self.getHtmlTags())}\nFile Downloader Status: {file_downloader['status']}")
+            exit()
 
     def downloadFile(self) -> Dict[str, Union[int, bytes, None]]:
         """
