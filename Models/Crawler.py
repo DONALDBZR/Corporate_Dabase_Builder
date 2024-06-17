@@ -339,6 +339,57 @@ class Crawler:
         )
         return response
 
+    def getDataAmountRetrieveCorporateDocumentFile(self, delay: float, coefficient: int) -> int:
+        """
+        Retrieving the amount of data that the targeted application
+        currently has.
+
+        Parameters:
+            delay: float: The amount of time that the application has to wait in seconds.
+            coeffcient: int: This coefficient changes depending the handlers.
+
+        Returns:
+            int
+        """
+        search_button: WebElement = self.getDriver().find_element(
+            By.XPATH,
+            f"{self.ENV.getTargetApplicationRootXpath()}/cbris-header/div/div/form/div/div[2]/div[3]/div[2]/button"
+        )
+        loading_icon: WebElement
+        table_body: WebElement = self.getDriver().find_element(
+            By.XPATH,
+            f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[1]/table/tbody"
+        )
+        table_rows: List[WebElement] = table_body.find_elements(
+            By.TAG_NAME,
+            "tr"
+        )
+        if len(table_rows) > 0:
+            self.getLogger().inform(
+                f"Search in progress!\nDataset Amount: {len(table_rows)}\nDelay: {delay} s\nCo-efficient: {coefficient}"
+            )
+            return len(table_rows)
+        else:
+            coefficient += 1
+            delay = delay * (1.1 ** coefficient)
+            self.getLogger().error(
+                f"The search has failed and the dataset amount cannot be recovered!  The application will try again.\nDelay: {delay} s\nCo-efficient: {coefficient}"
+            )
+            loading_icon = self.getDriver().find_element(
+                By.TAG_NAME,
+                "cbris-spinner"
+            )
+            self.setHtmlTag(loading_icon)
+            self.getDriver().execute_script(
+                "arguments[0].style.display = 'none';",
+                self.getHtmlTag()
+            )
+            self.interceptCookie()
+            self.setHtmlTag(search_button)
+            self.handleSearch()
+            time.sleep(delay)
+            return self.getDataAmountRetrieveCorporateDocumentFile(delay, coefficient)
+
     def scrapeDocumentFile(self, delay: float) -> None:
         """
         Scraping the corporate document file from the target's
