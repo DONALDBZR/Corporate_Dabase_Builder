@@ -492,7 +492,7 @@ class Crawler:
             }
         return response
 
-    def scrapeDocumentFile(self, delay: float, company_detail: CompanyDetails) -> None:
+    def scrapeDocumentFile(self, delay: float, company_detail: CompanyDetails) -> Union[Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes]], None]:
         """
         Scraping the corporate document file from the target's
         application.
@@ -502,7 +502,7 @@ class Crawler:
             company_detail: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}: The metadata of the company that is used as payload.
 
         Returns:
-            void
+            {status: int, CompanyDetails: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}, DocumentFiles: bytes} | void
         """
         self.setHtmlTags(
             self.getHtmlTag().find_elements(
@@ -511,7 +511,7 @@ class Crawler:
             )
         )
         if len(self.getHtmlTags()) >= 1:
-            self._scrapeDocumentFileFoundResultSets(delay, company_detail)
+            return self._scrapeDocumentFileFoundResultSets(delay, company_detail)
         else:
             print(f"Model: Crawler\nFunction: scrapeDocumentFile\nStatus: 503\nAmount of Rows: {len(self.getHtmlTags())}")
             exit()
