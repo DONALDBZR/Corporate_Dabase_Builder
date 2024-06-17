@@ -763,6 +763,15 @@ class Crawler:
         except ElementClickInterceptedException:
             self.getLogger().error("The cookie cannot be intercepted yet but the application will retry to intercept it!")
             delay: float = self.__randomDelay(10.00)
+            loading_icon = self.getDriver().find_element(
+                By.TAG_NAME,
+                "cbris-spinner"
+            )
+            self.setHtmlTag(loading_icon)
+            self.getDriver().execute_script(
+                "arguments[0].style.display = 'none';",
+                self.getHtmlTag()
+            )
             time.sleep(delay)
             self.interceptCookie()
 
