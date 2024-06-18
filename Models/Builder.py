@@ -163,10 +163,8 @@ class Builder:
                 datetime.strptime(
                     self.getDateStart(successful_logs),
                     "%m/%d/%Y"
-                ) + timedelta(
-                    days=1
                 ),
-                "%m/%d/%Y"
+                "%Y-%m-%d"
             )
             print(f"Models: Builder\nFunction: downloadCorporateFile\nDate Start: {start_date}")
             exit()
