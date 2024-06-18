@@ -96,14 +96,10 @@ class Company_Details(Database_Handler):
                 column_names=f"COUNT({self.getTableName()}.identifier) AS amount_found"
             )
             status: int = self.getAmountDownloadedCorporateDocumentsStatus(data)
-            response: Dict[str, int] = {
-                "status": status,
-                "data": int(data[0]["amount_found"]) # type: ignore
-            }
             self.getLogger().inform(
-                f"The data from {self.getTableName()} has been retrieved!\nStatus: {response['status']}\nData: {data}"
+                f"The data from {self.getTableName()} has been retrieved!\nStatus: {status}\nData: {data}"
             )
-            return response["data"]
+            return int(data[0]["amount_found"]) # type: ignore
         except Error as error:
             self.getLogger().error(
                 f"An error occurred in {self.getTableName()}\nStatus: 503\nError: {error}"
