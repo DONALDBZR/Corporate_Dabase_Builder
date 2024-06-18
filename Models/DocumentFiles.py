@@ -47,7 +47,7 @@ class Document_Files(Database_Handler):
         Returns:
             void
         """
-        if type(data["DocumentFiles"]) != None:
+        if data["DocumentFiles"] != None:
             parameters: Tuple[int, bytes] = (
                 int(data["CompanyDetails"]["identifier"]), # type: ignore
                 bytes(data["DocumentFiles"]) # type: ignore
