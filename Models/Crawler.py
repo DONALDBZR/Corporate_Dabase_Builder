@@ -20,8 +20,10 @@ from Data.CompanyDetails import CompanyDetails
 from Environment import Environment
 from Models.Logger import Corporate_Database_Builder_Logger
 from selenium.common.exceptions import ElementClickInterceptedException, NoSuchElementException, StaleElementReferenceException
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Tuple
 from selenium.webdriver.common.action_chains import ActionChains
+from Models.CompanyDetails import Company_Details
+from datetime import datetime
 import time
 import logging
 import os
@@ -85,6 +87,11 @@ class Crawler:
     and context menu interactions.  This is useful for doing
     more complex actions like hover over and drag and drop.
     """
+    __company_details: Company_Details
+    """
+    The model which will interact exclusively with the Company
+    Details.
+    """
 
     def __init__(self) -> None:
         """
@@ -92,6 +99,7 @@ class Crawler:
         scrape the data needed.
         """
         self.ENV = Environment()
+        self.setCompanyDetails(Company_Details())
         self.setLogger(Corporate_Database_Builder_Logger())
         self.getLogger().setLogger(logging.getLogger(__name__))
         self.setTarget(self.ENV.getTarget())
@@ -168,6 +176,12 @@ class Crawler:
 
     def setActionChains(self, action_chains: ActionChains) -> None:
         self.__action_chains = action_chains
+
+    def getCompanyDetails(self) -> Company_Details:
+        return self.__company_details
+
+    def setCompanyDetails(self, company_details: Company_Details) -> None:
+        self.__company_details = company_details
 
     def __setServices(self) -> None:
         """
@@ -440,7 +454,7 @@ class Crawler:
             file_numbers.append(file_number)
         return file_numbers
 
-    def _scrapeDocumentFileFoundResultSetsByFileNumber(self, delay: float, company_detail: CompanyDetails, file_number_amount: int) -> Union[Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes, None]], None]:
+    def _scrapeDocumentFileFoundResultSetsByFileNumber(self, delay: float, company_detail: CompanyDetails, file_number_amount: int, file_numbers: List[str]) -> Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes, None]]:
         """
         Scraping the corporate document file from the target's
         application specifically when there are results that are
@@ -451,9 +465,10 @@ class Crawler:
             delay: float: The delay that the application will take to halt the operations of the application before resuming to the same way as a human being would to.
             company_detail: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}: The metadata of the company that is used as payload.
             file_number_amount: int: The amount of file numbers.
+            file_numbers: [string]: The list of the file numbers.
 
         Returns:
-            {status: int, CompanyDetails: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}, DocumentFiles: bytes | null} | void
+            {status: int, CompanyDetails: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}, DocumentFiles: bytes | null}
         """
         if file_number_amount == 1:
             self.setHtmlTags(
@@ -464,8 +479,47 @@ class Crawler:
             )
             return self.__scrapeDocumentFileFoundResultSets(delay, company_detail)
         else:
-            print(f"Model: Crawler\nFunction: _scrapeDocumentFileFoundResultSetsByFileNumber\nStatus: 503\nAmount of File Number: {file_number_amount}")
-            exit()
+            file_number_identifier: int
+            for index in range(0, len(file_numbers), 1):
+                if file_numbers[index] == company_detail.file_number:
+                    file_number_identifier = index
+                    break
+            for index in range(0, len(self.getHtmlTags()), 1):
+                if index != file_number_identifier:
+                    cells: List[WebElement] = self.getHtmlTags()[index].find_elements(
+                        By.TAG_NAME,
+                        "td"
+                    )
+                    data: Dict[str, Union[str, None]] = {
+                        "business_registration_number": None,
+                        "name": str(cells[1].text),
+                        "file_number": str(cells[2].text),
+                        "category": str(cells[3].text),
+                        "date_incorporation": str(cells[4].text),
+                        "nature": str(cells[5].text),
+                        "status": str(cells[6].text)
+                    }
+                    corporate_metadata: Tuple[str, str, str, int, str, str] = (
+                        str(data["name"]),
+                        str(data["file_number"]),
+                        str(data["category"]),
+                        int(
+                            datetime.strptime(
+                                str(data["date_incorporation"]),
+                                "%d/%m/%Y"
+                            ).timestamp()
+                        ),
+                        str(data["nature"]),
+                        str(data["status"])
+                    )
+                    self.getCompanyDetails().addCompany(corporate_metadata) # type: ignore
+            self.setHtmlTags(
+                self.getHtmlTags()[file_number_identifier].find_elements(
+                    By.TAG_NAME,
+                    "td"
+                )
+            )
+            return self.__scrapeDocumentFileFoundResultSets(delay, company_detail)
 
     def _scrapeDocumentFileFoundResultSets(self, delay: float, company_detail: CompanyDetails) -> Union[Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes, None]], None]:
         """
@@ -484,7 +538,7 @@ class Crawler:
         if len(self.getHtmlTags()) > 1:
             table_data: List[str] = self.getFileNumbers()
             refined_table_data_length: int = len(list(set(table_data)))
-            return self._scrapeDocumentFileFoundResultSetsByFileNumber(delay, company_detail, refined_table_data_length)
+            return self._scrapeDocumentFileFoundResultSetsByFileNumber(delay, company_detail, refined_table_data_length, table_data)
         else:
             self.setHtmlTags(
                 table_rows[0].find_elements(
