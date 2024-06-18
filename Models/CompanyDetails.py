@@ -60,6 +60,21 @@ class Company_Details(Database_Handler):
             values="%s, %s, %s, %s, %s, %s"
         )
 
+    def getAmountDownloadedCorporateDocumentsStatus(self, dataset: Union[List[RowType], List[Dict[str, int]]]) -> int:
+        """
+        Retrieving the status code based on the dataset given.
+
+        Parameters:
+            dataset: [{amount_found: int}]: The result set from the relational database server.
+
+        Returns:
+            int
+        """
+        if int(dataset[0]["amount_found"]) == 0: # type: ignore
+            return 204
+        else:
+            return 200
+
     def getAmountDownloadedCorporateDocuments(self, date_incorporation: str) -> int:
         """
         Retrieving the amount of the downloaded of corporate
@@ -80,11 +95,7 @@ class Company_Details(Database_Handler):
                 filter_condition="DATE(FROM_UNIXTIME(CompanyDetails.date_incorporation)) = %s AND DocumentFiles.identifier IS NOT NULL",
                 column_names=f"COUNT({self.getTableName()}.identifier) AS amount_found"
             )
-            status: int
-            if int(data[0]["amount_found"]) == 0: # type: ignore
-                status = 204
-            else:
-                status = 200
+            status: int = self.getAmountDownloadedCorporateDocumentsStatus(data)
             response: Dict[str, int] = {
                 "status": status,
                 "data": int(data[0]["amount_found"]) # type: ignore
