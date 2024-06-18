@@ -553,7 +553,7 @@ class Crawler:
             }
         return response
 
-    def scrapeDocumentFile(self, delay: float, company_detail: CompanyDetails) -> Union[Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes]], None]:
+    def scrapeDocumentFile(self, delay: float, company_detail: CompanyDetails) -> Union[Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes, None]], None]:
         """
         Scraping the corporate document file from the target's
         application.
@@ -563,7 +563,7 @@ class Crawler:
             company_detail: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}: The metadata of the company that is used as payload.
 
         Returns:
-            {status: int, CompanyDetails: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}, DocumentFiles: bytes} | void
+            {status: int, CompanyDetails: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}, DocumentFiles: bytes | null} | void
         """
         self.setHtmlTags(
             self.getHtmlTag().find_elements(
