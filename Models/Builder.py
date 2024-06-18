@@ -155,6 +155,7 @@ class Builder:
                 "%Y-%m-%d"
             )
             company_details = self.getCompanyDetails().getCompanyDetailsForDownloadCorporateDocumentFile(date)
+            amount_found = self.getCompanyDetails().getAmountDownloadedCorporateDocuments(date)
             self.getLogger().inform(f"The data that will be used as payloads for retrieving the corporate document files from the Mauritius Network Services Online Search platform.\nDate of Incorporation: {date}\nCompany Details Amount: {len(company_details)}")
         else:
             print("Models: Builder\nFunction: downloadCorporateFile\nStatus: 503")
