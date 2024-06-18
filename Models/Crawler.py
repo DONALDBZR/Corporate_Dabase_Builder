@@ -454,6 +454,48 @@ class Crawler:
             file_numbers.append(file_number)
         return file_numbers
 
+    def _addDifferentCorporateMetadata(self, identifier: int, file_number_identifier: int) -> None:
+        """
+        Verifying that the index of the corporate metadata is not
+        equal to the index of the company needed for inserting the
+        data correctly into the relational database server.
+
+        Parameters:
+            identifier: int: The index of the corporate metadata.
+            file_number_identfier: int: The index of the file number.
+
+        Returns:
+            void
+        """
+        if identifier != file_number_identifier:
+            cells: List[WebElement] = self.getHtmlTags()[identifier].find_elements(
+                By.TAG_NAME,
+                "td"
+            )
+            data: Dict[str, Union[str, None]] = {
+                "business_registration_number": None,
+                "name": str(cells[1].text),
+                "file_number": str(cells[2].text),
+                "category": str(cells[3].text),
+                "date_incorporation": str(cells[4].text),
+                "nature": str(cells[5].text),
+                "status": str(cells[6].text)
+            }
+            corporate_metadata: Tuple[str, str, str, int, str, str] = (
+                str(data["name"]),
+                str(data["file_number"]),
+                str(data["category"]),
+                int(
+                    datetime.strptime(
+                        str(data["date_incorporation"]),
+                        "%d/%m/%Y"
+                    ).timestamp()
+                ),
+                str(data["nature"]),
+                str(data["status"])
+            )
+            self.getCompanyDetails().addCompany(corporate_metadata) # type: ignore
+
     def addDifferentCorporateMetadata(self, file_number_identifier: int) -> None:
         """
         Adding the different corporate metadata into the relational
@@ -466,34 +508,7 @@ class Crawler:
             void
         """
         for index in range(0, len(self.getHtmlTags()), 1):
-            if index != file_number_identifier:
-                cells: List[WebElement] = self.getHtmlTags()[index].find_elements(
-                    By.TAG_NAME,
-                    "td"
-                )
-                data: Dict[str, Union[str, None]] = {
-                    "business_registration_number": None,
-                    "name": str(cells[1].text),
-                    "file_number": str(cells[2].text),
-                    "category": str(cells[3].text),
-                    "date_incorporation": str(cells[4].text),
-                    "nature": str(cells[5].text),
-                    "status": str(cells[6].text)
-                }
-                corporate_metadata: Tuple[str, str, str, int, str, str] = (
-                    str(data["name"]),
-                    str(data["file_number"]),
-                    str(data["category"]),
-                    int(
-                        datetime.strptime(
-                            str(data["date_incorporation"]),
-                            "%d/%m/%Y"
-                        ).timestamp()
-                    ),
-                    str(data["nature"]),
-                    str(data["status"])
-                )
-                self.getCompanyDetails().addCompany(corporate_metadata) # type: ignore
+            self._addDifferentCorporateMetadata(index, file_number_identifier)
 
     def _scrapeDocumentFileFoundResultSetsByFileNumber(self, delay: float, company_detail: CompanyDetails, file_number_amount: int, file_numbers: List[str]) -> Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes, None]]:
         """
