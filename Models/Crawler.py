@@ -483,7 +483,7 @@ class Crawler:
         table_rows: List[WebElement] = self.getHtmlTags()
         if len(self.getHtmlTags()) > 1:
             table_data: List[str] = self.getFileNumbers()
-            refined_table_data_length: int = len(set(table_data))
+            refined_table_data_length: int = len(list(set(table_data)))
             return self._scrapeDocumentFileFoundResultSetsByFileNumber(delay, company_detail, refined_table_data_length)
         else:
             self.setHtmlTags(
