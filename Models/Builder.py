@@ -157,7 +157,7 @@ class Builder:
             )
             company_details = self.getCompanyDetails().getCompanyDetailsForDownloadCorporateDocumentFile(date)
             amount_found = self.getCompanyDetails().getAmountDownloadedCorporateDocuments(date)
-            self.getLogger().inform(f"The data that will be used as payloads for retrieving the corporate document files from the Mauritius Network Services Online Search platform.\nDate of Incorporation: {date}\nCompany Details Amount: {len(company_details)}")
+            self.getLogger().inform(f"The data that will be used as payloads for retrieving the corporate document files from the Mauritius Network Services Online Search platform.\nDate of Incorporation: {date}\nCompany Details Amount: {len(company_details)}\nAmount Downloaded: {amount_found}")
         else:
             start_date: str = datetime.strftime(
                 datetime.strptime(
@@ -176,9 +176,7 @@ class Builder:
                 date = start_date
                 company_details = self.getCompanyDetails().getCompanyDetailsForDownloadCorporateDocumentFile(date)
                 amount_found = self.getCompanyDetails().getAmountDownloadedCorporateDocuments(date)
-                self.getLogger().inform(f"The data that will be used as payloads for retrieving the corporate document files from the Mauritius Network Services Online Search platform.\nDate of Incorporation: {date}\nCompany Details Amount: {len(company_details)}")
-                print(f"Models: Builder\nFunction: downloadCorporateFile\nDate: {date}\nAmount Downloaded: {amount_found}")
-                exit()
+                self.getLogger().inform(f"The data that will be used as payloads for retrieving the corporate document files from the Mauritius Network Services Online Search platform.\nDate of Incorporation: {date}\nCompany Details Amount: {len(company_details)}\nAmount Downloaded: {amount_found}")
             else:
                 print(f"Models: Builder\nFunction: downloadCorporateFile\nDate Start: {start_date}\nStatus: 503")
                 exit()
