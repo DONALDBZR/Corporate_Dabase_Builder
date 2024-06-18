@@ -435,7 +435,7 @@ class Crawler:
         """
         table_rows: List[WebElement] = self.getHtmlTags()
         if len(self.getHtmlTags()) > 1:
-            print(f"Model: Crawler\nFunction: scrapeDocumentFile\nStatus: 503\nAmount of Rows: {len(table_rows)}")
+            print(f"Model: Crawler\nFunction: _scrapeDocumentFileFoundResultSets\nStatus: 503\nAmount of Rows: {len(table_rows)}")
             exit()
         else:
             self.setHtmlTags(
@@ -574,6 +574,17 @@ class Crawler:
         if len(self.getHtmlTags()) >= 1:
             return self._scrapeDocumentFileFoundResultSets(delay, company_detail)
         else:
+            # table_data: List[str] = []
+            # # table_data: List[Dict[str, Union[None, str]]] = []
+            # for index in range(0, len(self.getHtmlTags()), 1):
+            #     cells: List[WebElement] = self.getHtmlTags()[index].find_elements(
+            #         By.TAG_NAME,
+            #         "td"
+            #     )
+            #     file_number: str = cells[2].text
+            #     table_data.append(file_number)
+            # refined_table_data_length: int = len(set(table_data))
+            # if refined_table_data_length == 1:
             print(f"Model: Crawler\nFunction: scrapeDocumentFile\nStatus: 503\nAmount of Rows: {len(self.getHtmlTags())}")
             exit()
 
