@@ -166,8 +166,22 @@ class Builder:
                 ),
                 "%Y-%m-%d"
             )
-            print(f"Models: Builder\nFunction: downloadCorporateFile\nDate Start: {start_date}")
-            exit()
+            start_date_timestamp: int = int(
+                datetime.strptime(
+                    start_date,
+                    "Y-%m-%d"
+                ).timestamp()
+            )
+            if start_date_timestamp <= current_time:
+                date = start_date
+                company_details = self.getCompanyDetails().getCompanyDetailsForDownloadCorporateDocumentFile(date)
+                amount_found = self.getCompanyDetails().getAmountDownloadedCorporateDocuments(date)
+                self.getLogger().inform(f"The data that will be used as payloads for retrieving the corporate document files from the Mauritius Network Services Online Search platform.\nDate of Incorporation: {date}\nCompany Details Amount: {len(company_details)}")
+                print(f"Models: Builder\nFunction: downloadCorporateFile\nDate: {date}\nAmount Downloaded: {amount_found}")
+                exit()
+            else:
+                print(f"Models: Builder\nFunction: downloadCorporateFile\nDate Start: {start_date}\nStatus: 503")
+                exit()
         for index in range(0, len(company_details), 1):
             self.setCrawler(Crawler())
             crawler_response: Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes, None]] = self.getCrawler().retrieveCorporateDocumentFile(company_details[index], 0)
