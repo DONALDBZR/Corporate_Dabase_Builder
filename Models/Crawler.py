@@ -521,7 +521,7 @@ class Crawler:
             )
             return self.__scrapeDocumentFileFoundResultSets(delay, company_detail)
 
-    def _scrapeDocumentFileFoundResultSets(self, delay: float, company_detail: CompanyDetails) -> Union[Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes, None]], None]:
+    def _scrapeDocumentFileFoundResultSets(self, delay: float, company_detail: CompanyDetails) -> Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes, None]]:
         """
         Scraping the corporate document file from the target's
         application specifically when there are result sets that are
@@ -532,7 +532,7 @@ class Crawler:
             company_detail: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}: The metadata of the company that is used as payload.
 
         Returns:
-            {status: int, CompanyDetails: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}, DocumentFiles: bytes | null} | void
+            {status: int, CompanyDetails: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}, DocumentFiles: bytes | null}
         """
         table_rows: List[WebElement] = self.getHtmlTags()
         if len(self.getHtmlTags()) > 1:
