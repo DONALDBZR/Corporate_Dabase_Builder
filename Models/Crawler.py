@@ -420,7 +420,7 @@ class Crawler:
             time.sleep(delay)
             return self.getDataAmountRetrieveCorporateDocumentFile(delay, coefficient)
 
-    def _scrapeDocumentFileFoundResultSets(self, delay: float, company_detail: CompanyDetails) -> Union[Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes]], None]:
+    def _scrapeDocumentFileFoundResultSets(self, delay: float, company_detail: CompanyDetails) -> Union[Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes, None]], None]:
         """
         Scraping the corporate document file from the target's
         application specifically when there are result sets that are
@@ -444,24 +444,41 @@ class Crawler:
                     "td"
                 )
             )
-            buttons_cell: WebElement = self.getHtmlTags()[7].find_element(
-                By.TAG_NAME,
-                "div"
-            )
-            print_button: WebElement = buttons_cell.find_elements(
-                By.TAG_NAME,
-                "fa-icon"
-            )[1]
-            self.__moveMouse(print_button)
-            time.sleep(delay)
-            print_button.click()
-            time.sleep(delay)
-            self.getDriver().switch_to.window(
-                self.getDriver().window_handles[-1]
-            )
-            time.sleep(delay)
-            file_downloader_response = self.downloadFile()
-            return self.handleDocumentFileFoundIndividualRecord(file_downloader_response, company_detail)
+            if len(self.getHtmlTags()) > 1:
+                buttons_cell: WebElement = self.getHtmlTags()[7].find_element(
+                    By.TAG_NAME,
+                    "div"
+                )
+                print_button: WebElement = buttons_cell.find_elements(
+                    By.TAG_NAME,
+                    "fa-icon"
+                )[1]
+                self.__moveMouse(print_button)
+                time.sleep(delay)
+                print_button.click()
+                time.sleep(delay)
+                self.getDriver().switch_to.window(
+                    self.getDriver().window_handles[-1]
+                )
+                time.sleep(delay)
+                file_downloader_response = self.downloadFile()
+                return self.handleDocumentFileFoundIndividualRecord(file_downloader_response, company_detail) # type: ignore
+            else:
+                return {
+                    "status": 404,
+                    "CompanyDetails": {
+                        "identifier": company_detail.identifier,
+                        "business_registration_number": company_detail.business_registration_number,
+                        "name": company_detail.name,
+                        "file_number": company_detail.file_number,
+                        "category": company_detail.category,
+                        "date_incorporation": company_detail.date_incorporation,
+                        "nature": company_detail.nature,
+                        "status": company_detail.status,
+                        "date_verified": company_detail.date_verified
+                    },
+                    "DocumentFiles": None
+                }
 
     def handleDocumentFileFoundIndividualRecord(self, file_downloader: Dict[str, Union[int, bytes, None]], company_detail: CompanyDetails) -> Union[Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes]], None]:
         """
