@@ -75,6 +75,36 @@ class Company_Details(Database_Handler):
         else:
             return 200
 
+    def getAmount(self, date_incorporation: str) -> int:
+        """
+        Retrieving the amount of the downloaded of corporate
+        documents for a specific date of incorporation.
+
+        Parameters:
+            date_incorporation: string: The date at which the company was legally formed.
+
+        Returns:
+            int
+        """
+        try:
+            parameters: Tuple[str] = (date_incorporation,)
+            data: Union[List[RowType], List[Dict[str, int]]] = self.getData(
+                table_name=self.getTableName(),
+                parameters=parameters,
+                filter_condition="DATE(FROM_UNIXTIME(date_incorporation)) = %s",
+                column_names=f"COUNT({self.getTableName()}.identifier) AS amount_found"
+            )
+            status: int = self.getAmountDownloadedCorporateDocumentsStatus(data)
+            self.getLogger().inform(
+                f"The data from {self.getTableName()} has been retrieved!\nStatus: {status}\nData: {data}"
+            )
+            return int(data[0]["amount_found"]) # type: ignore
+        except Error as error:
+            self.getLogger().error(
+                f"An error occurred in {self.getTableName()}\nStatus: 503\nError: {error}"
+            )
+            return 0
+
     def getAmountDownloadedCorporateDocuments(self, date_incorporation: str) -> int:
         """
         Retrieving the amount of the downloaded of corporate
