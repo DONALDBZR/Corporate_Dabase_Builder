@@ -420,6 +420,26 @@ class Crawler:
             time.sleep(delay)
             return self.getDataAmountRetrieveCorporateDocumentFile(delay, coefficient)
 
+    def getFileNumbers(self, file_numbers: List[str] = []) -> List[str]:
+        """
+        Retrieving the list of the file numbers from the result set
+        of the corporate metadata.
+
+        Parameters:
+            file_numbers: [string]: The list of the file numbers to be used as initializer.
+
+        Returns:
+            [string]
+        """
+        for index in range(0, len(self.getHtmlTags()), 1):
+            cells: List[WebElement] = self.getHtmlTags()[index].find_elements(
+                By.TAG_NAME,
+                "td"
+            )
+            file_number: str = cells[2].text
+            file_numbers.append(file_number)
+        return file_numbers
+
     def _scrapeDocumentFileFoundResultSets(self, delay: float, company_detail: CompanyDetails) -> Union[Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes, None]], None]:
         """
         Scraping the corporate document file from the target's
@@ -435,14 +455,7 @@ class Crawler:
         """
         table_rows: List[WebElement] = self.getHtmlTags()
         if len(self.getHtmlTags()) > 1:
-            table_data: List[str] = []
-            for index in range(0, len(self.getHtmlTags()), 1):
-                cells: List[WebElement] = self.getHtmlTags()[index].find_elements(
-                    By.TAG_NAME,
-                    "td"
-                )
-                file_number: str = cells[2].text
-                table_data.append(file_number)
+            table_data: List[str] = self.getFileNumbers()
             refined_table_data_length: int = len(set(table_data))
             if refined_table_data_length == 1:
                 self.setHtmlTags(
