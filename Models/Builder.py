@@ -171,6 +171,26 @@ class Builder:
         else:
             return end_date
 
+    def _getDateDownloadCorporateFile(self, fin_corp_logs: List[FinCorpLogs], quarter: FinancialCalendar) -> str:
+        """
+        Retrieving the date to be used as a parameter for the date
+        of incorporation.
+
+        Parameters:
+            fin_corp_logs: [{identifier: int, method_name: string, year: int, quarter: string, date_start: int, date_to: int, status: int, amount: int}]: The list of the logs.
+            quarter: {year: int, quarter: string, start_date: string, end_date: string}: The current quarter
+
+        Returns:
+            string
+        """
+        if len(fin_corp_logs) == 1 and fin_corp_logs[0].status == 204:
+            return datetime.strftime(
+                datetime.strptime(quarter.start_date, "%m/%d/%Y"),
+                "%Y-%m-%d"
+            )
+        else:
+            return self.getDateDownloadCorporateFile(fin_corp_logs)
+
     def downloadCorporateFile(self) -> None:
         """
         The second run consists of retrieving the corporate document
@@ -180,16 +200,9 @@ class Builder:
         Returns:
             void
         """
-        date: str
         quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
         successful_logs: List[FinCorpLogs] = self.getFinCorpLogs().getSuccessfulRunsLogs("downloadCorporateFile")
-        if len(successful_logs) == 1 and successful_logs[0].status == 204:
-            date = datetime.strftime(
-                datetime.strptime(quarter.start_date, "%m/%d/%Y"),
-                "%Y-%m-%d"
-            )
-        else:
-            date = self.getDateDownloadCorporateFile(successful_logs)
+        date: str = self._getDateDownloadCorporateFile(successful_logs, quarter)
         company_details: List[CompanyDetails] = self.getCompanyDetails().getCompanyDetailsForDownloadCorporateDocumentFile(date)
         amount_found: int = self.getCompanyDetails().getAmountDownloadedCorporateDocuments(date)
         self.getLogger().inform(f"The data that will be used as payloads for retrieving the corporate document files from the Mauritius Network Services Online Search platform.\nDate of Incorporation: {date}\nCompany Details Amount: {len(company_details)}\nAmount Downloaded: {amount_found}")
