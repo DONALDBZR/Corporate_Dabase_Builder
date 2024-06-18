@@ -444,41 +444,55 @@ class Crawler:
                     "td"
                 )
             )
-            if len(self.getHtmlTags()) > 1:
-                buttons_cell: WebElement = self.getHtmlTags()[7].find_element(
-                    By.TAG_NAME,
-                    "div"
-                )
-                print_button: WebElement = buttons_cell.find_elements(
-                    By.TAG_NAME,
-                    "fa-icon"
-                )[1]
-                self.__moveMouse(print_button)
-                time.sleep(delay)
-                print_button.click()
-                time.sleep(delay)
-                self.getDriver().switch_to.window(
-                    self.getDriver().window_handles[-1]
-                )
-                time.sleep(delay)
-                file_downloader_response = self.downloadFile()
-                return self.handleDocumentFileFoundIndividualRecord(file_downloader_response, company_detail) # type: ignore
-            else:
-                return {
-                    "status": 404,
-                    "CompanyDetails": {
-                        "identifier": company_detail.identifier,
-                        "business_registration_number": company_detail.business_registration_number,
-                        "name": company_detail.name,
-                        "file_number": company_detail.file_number,
-                        "category": company_detail.category,
-                        "date_incorporation": company_detail.date_incorporation,
-                        "nature": company_detail.nature,
-                        "status": company_detail.status,
-                        "date_verified": company_detail.date_verified
-                    },
-                    "DocumentFiles": None
-                }
+            return self.__scrapeDocumentFileFoundResultSets(delay, company_detail)
+
+    def __scrapeDocumentFileFoundResultSets(self, delay: float, company_detail: CompanyDetails) -> Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes, None]]:
+        """
+        Verifying the amount the cells that are in the row to ensure
+        that the crawler scrape the data correctly.
+
+        Parameters:
+            delay: float: The delay that the application will take to halt the operations of the application before resuming to the same way as a human being would to.
+            company_detail: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}: The metadata of the company that is used as payload.
+
+        Returns:
+            {status: int, CompanyDetails: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}, DocumentFiles: bytes | null}
+        """
+        if len(self.getHtmlTags()) > 1:
+            buttons_cell: WebElement = self.getHtmlTags()[7].find_element(
+                By.TAG_NAME,
+                "div"
+            )
+            print_button: WebElement = buttons_cell.find_elements(
+                By.TAG_NAME,
+                "fa-icon"
+            )[1]
+            self.__moveMouse(print_button)
+            time.sleep(delay)
+            print_button.click()
+            time.sleep(delay)
+            self.getDriver().switch_to.window(
+                self.getDriver().window_handles[-1]
+            )
+            time.sleep(delay)
+            file_downloader_response = self.downloadFile()
+            return self.handleDocumentFileFoundIndividualRecord(file_downloader_response, company_detail) # type: ignore
+        else:
+            return {
+                "status": 404,
+                "CompanyDetails": {
+                    "identifier": company_detail.identifier,
+                    "business_registration_number": company_detail.business_registration_number,
+                    "name": company_detail.name,
+                    "file_number": company_detail.file_number,
+                    "category": company_detail.category,
+                    "date_incorporation": company_detail.date_incorporation,
+                    "nature": company_detail.nature,
+                    "status": company_detail.status,
+                    "date_verified": company_detail.date_verified
+                },
+                "DocumentFiles": None
+            }
 
     def handleDocumentFileFoundIndividualRecord(self, file_downloader: Dict[str, Union[int, bytes, None]], company_detail: CompanyDetails) -> Union[Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes]], None]:
         """
