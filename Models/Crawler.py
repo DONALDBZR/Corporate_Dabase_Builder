@@ -649,7 +649,7 @@ class Crawler:
                 "DocumentFiles": bytes(file_downloader["file"]) # type: ignore
             }
         else:
-            print(f"Model: Crawler\nFunction: _scrapeDocumentFileFoundResultSets\nStatus: 503\nAmount of Rows: {len(self.getHtmlTags())}\nFile Downloader Status: {file_downloader['status']}")
+            print(f"Model: Crawler\nFunction: handleDocumentFileFoundIndividualRecord\nStatus: 503\nAmount of Rows: {len(self.getHtmlTags())}\nFile Downloader Status: {file_downloader['status']}")
             exit()
 
     def downloadFile(self) -> Dict[str, Union[int, bytes, None]]:
