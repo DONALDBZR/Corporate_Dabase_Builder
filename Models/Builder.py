@@ -135,6 +135,42 @@ class Builder:
     def setDocumentFiles(self, document_files: Document_Files) -> None:
         self.__document_files = document_files
 
+    def getDateDownloadCorporateFile(self, fin_corp_logs: List[FinCorpLogs]) -> str:
+        """
+        Retrieving the date to be used as a parameter for the date
+        of incorporation.
+
+        Parameters:
+            fin_corp_logs: [{identifier: int, method_name: string, year: int, quarter: string, date_start: int, date_to: int, status: int, amount: int}]: The list of the logs.
+
+        Returns:
+            string
+        """
+        start_date: str = datetime.strftime(
+            datetime.strptime(
+                self.getDateStart(fin_corp_logs),
+                "%m/%d/%Y"
+            ),
+            "%Y-%m-%d"
+        )
+        end_date: str = datetime.strftime(
+            datetime.strptime(
+                self.getDateEnd(fin_corp_logs),
+                "%m/%d/%Y"
+            ),
+            "%Y-%m-%d"
+        )
+        start_date_timestamp: int = int(
+            datetime.strptime(
+                start_date,
+                "%Y-%m-%d"
+            ).timestamp()
+        )
+        if start_date_timestamp <= int(time()):
+            return start_date
+        else:
+            return end_date
+
     def downloadCorporateFile(self) -> None:
         """
         The second run consists of retrieving the corporate document
@@ -149,7 +185,6 @@ class Builder:
         successful_logs: List[FinCorpLogs] = self.getFinCorpLogs().getSuccessfulRunsLogs("downloadCorporateFile")
         company_details: List[CompanyDetails]
         amount_found: int = 0
-        current_time: int = int(time())
         if len(successful_logs) == 1 and successful_logs[0].status == 204:
             date = datetime.strftime(
                 datetime.strptime(quarter.start_date, "%m/%d/%Y"),
@@ -159,34 +194,10 @@ class Builder:
             amount_found = self.getCompanyDetails().getAmountDownloadedCorporateDocuments(date)
             self.getLogger().inform(f"The data that will be used as payloads for retrieving the corporate document files from the Mauritius Network Services Online Search platform.\nDate of Incorporation: {date}\nCompany Details Amount: {len(company_details)}\nAmount Downloaded: {amount_found}")
         else:
-            start_date: str = datetime.strftime(
-                datetime.strptime(
-                    self.getDateStart(successful_logs),
-                    "%m/%d/%Y"
-                ),
-                "%Y-%m-%d"
-            )
-            end_date: str = datetime.strftime(
-                datetime.strptime(
-                    self.getDateEnd(successful_logs),
-                    "%m/%d/%Y"
-                ),
-                "%Y-%m-%d"
-            )
-            start_date_timestamp: int = int(
-                datetime.strptime(
-                    start_date,
-                    "%Y-%m-%d"
-                ).timestamp()
-            )
-            if start_date_timestamp <= current_time:
-                date = start_date
-            else:
-                date = end_date
+            date = self.getDateDownloadCorporateFile(successful_logs)
             company_details = self.getCompanyDetails().getCompanyDetailsForDownloadCorporateDocumentFile(date)
             amount_found = self.getCompanyDetails().getAmountDownloadedCorporateDocuments(date)
             self.getLogger().inform(f"The data that will be used as payloads for retrieving the corporate document files from the Mauritius Network Services Online Search platform.\nDate of Incorporation: {date}\nCompany Details Amount: {len(company_details)}\nAmount Downloaded: {amount_found}")
-            print(f"Models: Builder\nFunction: downloadCorporateFile\nDate Start: {start_date}\nStatus: 503")
             exit()
         for index in range(0, len(company_details), 1):
             self.setCrawler(Crawler())
