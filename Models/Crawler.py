@@ -464,6 +464,7 @@ class Crawler:
                         "td"
                     )
                 )
+                return self.__scrapeDocumentFileFoundResultSets(delay, company_detail)
             else:
                 print(f"Model: Crawler\nFunction: _scrapeDocumentFileFoundResultSets\nStatus: 503\nAmount of Rows: {len(table_rows)}")
                 exit()
