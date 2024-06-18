@@ -454,6 +454,47 @@ class Crawler:
             file_numbers.append(file_number)
         return file_numbers
 
+    def addDifferentCorporateMetadata(self, file_number_identifier: int) -> None:
+        """
+        Adding the different corporate metadata into the relational
+        database server.
+
+        Parameters:
+            file_number_identifier: int: The identifier of the file number.
+
+        Returns:
+            void
+        """
+        for index in range(0, len(self.getHtmlTags()), 1):
+            if index != file_number_identifier:
+                cells: List[WebElement] = self.getHtmlTags()[index].find_elements(
+                    By.TAG_NAME,
+                    "td"
+                )
+                data: Dict[str, Union[str, None]] = {
+                    "business_registration_number": None,
+                    "name": str(cells[1].text),
+                    "file_number": str(cells[2].text),
+                    "category": str(cells[3].text),
+                    "date_incorporation": str(cells[4].text),
+                    "nature": str(cells[5].text),
+                    "status": str(cells[6].text)
+                }
+                corporate_metadata: Tuple[str, str, str, int, str, str] = (
+                    str(data["name"]),
+                    str(data["file_number"]),
+                    str(data["category"]),
+                    int(
+                        datetime.strptime(
+                            str(data["date_incorporation"]),
+                            "%d/%m/%Y"
+                        ).timestamp()
+                    ),
+                    str(data["nature"]),
+                    str(data["status"])
+                )
+                self.getCompanyDetails().addCompany(corporate_metadata) # type: ignore
+
     def _scrapeDocumentFileFoundResultSetsByFileNumber(self, delay: float, company_detail: CompanyDetails, file_number_amount: int, file_numbers: List[str]) -> Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes, None]]:
         """
         Scraping the corporate document file from the target's
@@ -479,40 +520,8 @@ class Crawler:
             )
             return self.__scrapeDocumentFileFoundResultSets(delay, company_detail)
         else:
-            file_number_identifier: int
-            for index in range(0, len(file_numbers), 1):
-                if file_numbers[index] == company_detail.file_number:
-                    file_number_identifier = index
-                    break
-            for index in range(0, len(self.getHtmlTags()), 1):
-                if index != file_number_identifier:
-                    cells: List[WebElement] = self.getHtmlTags()[index].find_elements(
-                        By.TAG_NAME,
-                        "td"
-                    )
-                    data: Dict[str, Union[str, None]] = {
-                        "business_registration_number": None,
-                        "name": str(cells[1].text),
-                        "file_number": str(cells[2].text),
-                        "category": str(cells[3].text),
-                        "date_incorporation": str(cells[4].text),
-                        "nature": str(cells[5].text),
-                        "status": str(cells[6].text)
-                    }
-                    corporate_metadata: Tuple[str, str, str, int, str, str] = (
-                        str(data["name"]),
-                        str(data["file_number"]),
-                        str(data["category"]),
-                        int(
-                            datetime.strptime(
-                                str(data["date_incorporation"]),
-                                "%d/%m/%Y"
-                            ).timestamp()
-                        ),
-                        str(data["nature"]),
-                        str(data["status"])
-                    )
-                    self.getCompanyDetails().addCompany(corporate_metadata) # type: ignore
+            file_number_identifier: int = file_numbers.index(company_detail.file_number)
+            self.addDifferentCorporateMetadata(file_number_identifier)
             self.setHtmlTags(
                 self.getHtmlTags()[file_number_identifier].find_elements(
                     By.TAG_NAME,
