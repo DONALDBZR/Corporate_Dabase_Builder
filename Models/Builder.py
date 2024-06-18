@@ -179,12 +179,6 @@ class Builder:
                     "%Y-%m-%d"
                 ).timestamp()
             )
-            end_date_timestamp: int = int(
-                datetime.strptime(
-                    start_date,
-                    "%Y-%m-%d"
-                ).timestamp()
-            )
             if start_date_timestamp <= current_time:
                 date = start_date
             else:
