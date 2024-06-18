@@ -149,6 +149,7 @@ class Builder:
         successful_logs: List[FinCorpLogs] = self.getFinCorpLogs().getSuccessfulRunsLogs("downloadCorporateFile")
         company_details: List[CompanyDetails]
         amount_found: int = 0
+        current_time: int = int(time())
         if len(successful_logs) == 1 and successful_logs[0].status == 204:
             date = datetime.strftime(
                 datetime.strptime(quarter.start_date, "%m/%d/%Y"),
@@ -158,7 +159,8 @@ class Builder:
             amount_found = self.getCompanyDetails().getAmountDownloadedCorporateDocuments(date)
             self.getLogger().inform(f"The data that will be used as payloads for retrieving the corporate document files from the Mauritius Network Services Online Search platform.\nDate of Incorporation: {date}\nCompany Details Amount: {len(company_details)}")
         else:
-            print("Models: Builder\nFunction: downloadCorporateFile\nStatus: 503")
+            start_date: str = self.getDateStart(successful_logs)
+            print(f"Models: Builder\nFunction: downloadCorporateFile\nDate Start: {start_date}")
             exit()
         for index in range(0, len(company_details), 1):
             self.setCrawler(Crawler())
