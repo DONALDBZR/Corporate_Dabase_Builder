@@ -343,20 +343,20 @@ class Crawler:
             company_details
         )
 
-    def handleCrawlerResponseRetrieveCorporateDocumentFile(self, crawler: Union[Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes, None]], None], company_detail: CompanyDetails) -> Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes, None]]:
+    def handleCrawlerResponseRetrieveCorporateDocumentFile(self, crawler: Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes, None]], company_detail: CompanyDetails) -> Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes, None]]:
         """
         Handling the response returned by the crawler and doing any
         data manipulation required on the data.
 
         Parameters:
-            crawler: {status: int, CompanyDetails: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}, DocumentFiles: bytes | null} | null: The response from the crawler.
+            crawler: {status: int, CompanyDetails: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}, DocumentFiles: bytes | null}: The response from the crawler.
             company_detail: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}: The metadata of the company that is used as payload.
 
         Returns:
             {status: int, CompanyDetails: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}, DocumentFiles: bytes|null}
         """
         response: Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes, None]]
-        if crawler != None and crawler["status"] == 200:
+        if crawler["status"] == 200:
             response = {
                 "status": crawler["status"],
                 "CompanyDetails": crawler["CompanyDetails"],
