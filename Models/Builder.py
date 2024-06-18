@@ -204,6 +204,7 @@ class Builder:
         successful_logs: List[FinCorpLogs] = self.getFinCorpLogs().getSuccessfulRunsLogs("downloadCorporateFile")
         date: str = self._getDateDownloadCorporateFile(successful_logs, quarter)
         company_details: List[CompanyDetails] = self.getCompanyDetails().getCompanyDetailsForDownloadCorporateDocumentFile(date)
+        amount: int = self.getCompanyDetails().getAmount(date)
         amount_found: int = self.getCompanyDetails().getAmountDownloadedCorporateDocuments(date)
         self.getLogger().inform(f"The data that will be used as payloads for retrieving the corporate document files from the Mauritius Network Services Online Search platform.\nDate of Incorporation: {date}\nCompany Details Amount: {len(company_details)}\nAmount Downloaded: {amount_found}")
         for index in range(0, len(company_details), 1):
@@ -219,7 +220,7 @@ class Builder:
             int(datetime.strptime(date, "%Y-%m-%d").timestamp()),
             int(datetime.strptime(date, "%Y-%m-%d").timestamp()),
             200,
-            len(company_details),
+            amount,
             amount_found
         )
         self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(logs) # type: ignore
