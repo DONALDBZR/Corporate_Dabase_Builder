@@ -622,7 +622,7 @@ class Crawler:
 
     def handleDocumentFileFoundIndividualRecord(self, file_downloader: Dict[str, Union[int, bytes, None]], company_detail: CompanyDetails) -> Union[Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes]], None]:
         """
-        Handling the response given by the File downlaoder of the
+        Handling the response given by the File downloader of the
         application.
 
         Parameters:
@@ -649,8 +649,21 @@ class Crawler:
                 "DocumentFiles": bytes(file_downloader["file"]) # type: ignore
             }
         else:
-            print(f"Model: Crawler\nFunction: handleDocumentFileFoundIndividualRecord\nStatus: 503\nAmount of Rows: {len(self.getHtmlTags())}\nFile Downloader Status: {file_downloader['status']}")
-            exit()
+            return {
+                "status": int(file_downloader["status"]), # type: ignore
+                "CompanyDetails": {
+                    "identifier": company_detail.identifier,
+                    "business_registration_number": company_detail.business_registration_number,
+                    "name": company_detail.name,
+                    "file_number": company_detail.file_number,
+                    "category": company_detail.category,
+                    "date_incorporation": company_detail.date_incorporation,
+                    "nature": company_detail.nature,
+                    "status": company_detail.status,
+                    "date_verified": int(time.time())
+                },
+                "DocumentFiles": None
+            }
 
     def downloadFile(self) -> Dict[str, Union[int, bytes, None]]:
         """
