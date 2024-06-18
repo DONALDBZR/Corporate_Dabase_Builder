@@ -536,8 +536,6 @@ class Crawler:
             return self.__scrapeDocumentFileFoundResultSets(delay, company_detail)
         else:
             file_number_identifier: int = file_numbers.index(company_detail.file_number)
-            print(f"File Number Index: {file_number_identifier}")
-            exit()
             self.addDifferentCorporateMetadata(file_number_identifier)
             self.setHtmlTags(
                 self.getHtmlTags()[file_number_identifier].find_elements(
