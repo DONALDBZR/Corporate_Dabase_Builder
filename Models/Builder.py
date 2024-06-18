@@ -183,22 +183,16 @@ class Builder:
         date: str
         quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
         successful_logs: List[FinCorpLogs] = self.getFinCorpLogs().getSuccessfulRunsLogs("downloadCorporateFile")
-        company_details: List[CompanyDetails]
-        amount_found: int = 0
         if len(successful_logs) == 1 and successful_logs[0].status == 204:
             date = datetime.strftime(
                 datetime.strptime(quarter.start_date, "%m/%d/%Y"),
                 "%Y-%m-%d"
             )
-            company_details = self.getCompanyDetails().getCompanyDetailsForDownloadCorporateDocumentFile(date)
-            amount_found = self.getCompanyDetails().getAmountDownloadedCorporateDocuments(date)
-            self.getLogger().inform(f"The data that will be used as payloads for retrieving the corporate document files from the Mauritius Network Services Online Search platform.\nDate of Incorporation: {date}\nCompany Details Amount: {len(company_details)}\nAmount Downloaded: {amount_found}")
         else:
             date = self.getDateDownloadCorporateFile(successful_logs)
-            company_details = self.getCompanyDetails().getCompanyDetailsForDownloadCorporateDocumentFile(date)
-            amount_found = self.getCompanyDetails().getAmountDownloadedCorporateDocuments(date)
-            self.getLogger().inform(f"The data that will be used as payloads for retrieving the corporate document files from the Mauritius Network Services Online Search platform.\nDate of Incorporation: {date}\nCompany Details Amount: {len(company_details)}\nAmount Downloaded: {amount_found}")
-            exit()
+        company_details: List[CompanyDetails] = self.getCompanyDetails().getCompanyDetailsForDownloadCorporateDocumentFile(date)
+        amount_found: int = self.getCompanyDetails().getAmountDownloadedCorporateDocuments(date)
+        self.getLogger().inform(f"The data that will be used as payloads for retrieving the corporate document files from the Mauritius Network Services Online Search platform.\nDate of Incorporation: {date}\nCompany Details Amount: {len(company_details)}\nAmount Downloaded: {amount_found}")
         for index in range(0, len(company_details), 1):
             self.setCrawler(Crawler())
             crawler_response: Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes, None]] = self.getCrawler().retrieveCorporateDocumentFile(company_details[index], 0)
