@@ -440,6 +440,33 @@ class Crawler:
             file_numbers.append(file_number)
         return file_numbers
 
+    def _scrapeDocumentFileFoundResultSetsByFileNumber(self, delay: float, company_detail: CompanyDetails, file_number_amount: int) -> Union[Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes, None]], None]:
+        """
+        Scraping the corporate document file from the target's
+        application specifically when there are results that are
+        returned by the target's application by comparing the file
+        numbers of the returned result set.
+
+        Parameters:
+            delay: float: The delay that the application will take to halt the operations of the application before resuming to the same way as a human being would to.
+            company_detail: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}: The metadata of the company that is used as payload.
+            file_number_amount: int: The amount of file numbers.
+
+        Returns:
+            {status: int, CompanyDetails: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}, DocumentFiles: bytes | null} | void
+        """
+        if file_number_amount == 1:
+            self.setHtmlTags(
+                self.getHtmlTags()[0].find_elements(
+                    By.TAG_NAME,
+                    "td"
+                )
+            )
+            return self.__scrapeDocumentFileFoundResultSets(delay, company_detail)
+        else:
+            print(f"Model: Crawler\nFunction: _scrapeDocumentFileFoundResultSetsByFileNumber\nStatus: 503\nAmount of File Number: {file_number_amount}")
+            exit()
+
     def _scrapeDocumentFileFoundResultSets(self, delay: float, company_detail: CompanyDetails) -> Union[Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes, None]], None]:
         """
         Scraping the corporate document file from the target's
@@ -451,23 +478,13 @@ class Crawler:
             company_detail: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}: The metadata of the company that is used as payload.
 
         Returns:
-            {status: int, CompanyDetails: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}, DocumentFiles: bytes} | void
+            {status: int, CompanyDetails: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}, DocumentFiles: bytes | null} | void
         """
         table_rows: List[WebElement] = self.getHtmlTags()
         if len(self.getHtmlTags()) > 1:
             table_data: List[str] = self.getFileNumbers()
             refined_table_data_length: int = len(set(table_data))
-            if refined_table_data_length == 1:
-                self.setHtmlTags(
-                    self.getHtmlTags()[0].find_elements(
-                        By.TAG_NAME,
-                        "td"
-                    )
-                )
-                return self.__scrapeDocumentFileFoundResultSets(delay, company_detail)
-            else:
-                print(f"Model: Crawler\nFunction: _scrapeDocumentFileFoundResultSets\nStatus: 503\nAmount of Rows: {len(table_rows)}")
-                exit()
+            return self._scrapeDocumentFileFoundResultSetsByFileNumber(delay, company_detail, refined_table_data_length)
         else:
             self.setHtmlTags(
                 table_rows[0].find_elements(
