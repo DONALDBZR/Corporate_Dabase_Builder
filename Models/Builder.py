@@ -159,7 +159,15 @@ class Builder:
             amount_found = self.getCompanyDetails().getAmountDownloadedCorporateDocuments(date)
             self.getLogger().inform(f"The data that will be used as payloads for retrieving the corporate document files from the Mauritius Network Services Online Search platform.\nDate of Incorporation: {date}\nCompany Details Amount: {len(company_details)}")
         else:
-            start_date: str = self.getDateStart(successful_logs)
+            start_date: str = datetime.strftime(
+                datetime.strptime(
+                    self.getDateStart(successful_logs),
+                    "%m/%d/%Y"
+                ) + timedelta(
+                    days=1
+                ),
+                "%m/%d/%Y"
+            )
             print(f"Models: Builder\nFunction: downloadCorporateFile\nDate Start: {start_date}")
             exit()
         for index in range(0, len(company_details), 1):
