@@ -36,27 +36,31 @@ class Document_Files(Database_Handler):
     def setTableName(self, table_name: str) -> None:
         self.__table_name = table_name
 
-    def addDocumentFile(self, data: Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes, None]]) -> None:
+    def addDocumentFile(self, data: Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes, None]], amount_found: int) -> int:
         """
         Storing the corporate document file into the relational
         database server.
 
         Parameters:
             data: {status: int, CompanyDetails: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}, DocumentFiles: bytes|null}: The dataset to be used for the data manipulation.
+            amount_found: int: The amount of corporate documents that are downloaded.
 
         Returns:
-            void
+            int
         """
+        amount_downloaded: int
         if data["DocumentFiles"] != None:
             parameters: Tuple[int, bytes] = (
                 int(data["CompanyDetails"]["identifier"]), # type: ignore
                 bytes(data["DocumentFiles"]) # type: ignore
             )
-            return self.postData(
+            self.postData(
                 table=self.getTableName(),
                 columns="CompanyDetail, file_data",
                 values="%s, %s",
                 parameters=parameters # type: ignore
             )
+            amount_downloaded = amount_found + 1
         else:
-            return None
+            amount_downloaded = amount_found
+        return amount_downloaded
