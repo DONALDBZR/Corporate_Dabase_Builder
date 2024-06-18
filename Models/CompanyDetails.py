@@ -60,6 +60,45 @@ class Company_Details(Database_Handler):
             values="%s, %s, %s, %s, %s, %s"
         )
 
+    def getAmountDownloadedCorporateDocuments(self, date_incorporation: str) -> int:
+        """
+        Retrieving the amount of the downloaded of corporate
+        documents for a specific date of incorporation.
+
+        Parameters:
+            date_incorporation: string: The date at which the company was legally formed.
+
+        Returns:
+            int
+        """
+        try:
+            parameters: Tuple[str] = (date_incorporation,)
+            data: Union[List[RowType], List[Dict[str, int]]] = self.getData(
+                table_name=self.getTableName(),
+                parameters=parameters,
+                join_condition=f"DocumentFiles ON DocumentFiles.CompanyDetail = {self.getTableName()}.identifier",
+                filter_condition="DATE(FROM_UNIXTIME(CompanyDetails.date_incorporation)) = %s AND DocumentFiles.identifier IS NOT NULL",
+                column_names=f"COUNT({self.getTableName()}.identifier) AS amount_found"
+            )
+            status: int
+            if int(data[0]["amount_found"]) == 0: # type: ignore
+                status = 204
+            else:
+                status = 200
+            response: Dict[str, int] = {
+                "status": status,
+                "data": int(data[0]["amount_found"]) # type: ignore
+            }
+            self.getLogger().inform(
+                f"The data from {self.getTableName()} has been retrieved!\nStatus: {response['status']}\nData: {data}"
+            )
+            return response["data"]
+        except Error as error:
+            self.getLogger().error(
+                f"An error occurred in {self.getTableName()}\nStatus: 503\nError: {error}"
+            )
+            return 0
+
     def getCompanyDetailsForDownloadCorporateDocumentFile(self, date_incorporation: str) -> List[CompanyDetails]:
         """
         Retrieving the company details which will be used as
