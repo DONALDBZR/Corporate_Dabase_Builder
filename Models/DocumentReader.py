@@ -156,10 +156,10 @@ class Document_Reader:
         Returns:
             {registered_address: string, name: string, nature: string, operational: string}
         """
-        registered_address: str = result_set[[index for index, value in enumerate(result_set) if "Registered Office Address:" in value][0]].split(": ")[-1]
+        registered_address: str = result_set[[index for index, value in enumerate(result_set) if "Registered Office Address:" in value][0]].split(": ")[-1].capitalize()
         name: str = result_set[result_set.index("Business Name") + 3]
         nature: str = ' '.join([result_set[result_set.index("Nature of Business") + 3], result_set[result_set.index("Nature of Business") + 4], result_set[result_set.index("Nature of Business") + 5]])
-        operational_address: str = result_set[result_set.index("Principal Place of Business") + 5]
+        operational_address: str = result_set[result_set.index("Principal Place of Business") + 5].capitalize()
         return {
             "registered_address": registered_address,
             "name": name,
