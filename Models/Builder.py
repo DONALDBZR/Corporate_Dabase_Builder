@@ -209,7 +209,7 @@ class Builder:
                 "%Y-%m-%d"
             )
         else:
-            return self.getDateDownloadCorporateFile(fin_corp_logs)
+            return self.getDateExtractCorporateData(fin_corp_logs)
 
     def extractCorporateData(self) -> None:
         """
