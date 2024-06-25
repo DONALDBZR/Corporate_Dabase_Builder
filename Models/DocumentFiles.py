@@ -93,7 +93,7 @@ class Document_Files(Database_Handler):
             self.getLogger().inform(
                 f"The data from {self.getTableName()} has been retrieved!\nStatus: {response['status']}\nData: {data}"
             )
-            return response["data"]
+            return response["data"] # type: ignore
         except Error as error:
             self.getLogger().error(
                 f"An error occurred in {self.getTableName()}\nStatus: 503\nError: {error}"
