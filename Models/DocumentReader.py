@@ -130,7 +130,7 @@ class Document_Reader:
         Returns:
             {type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}
         """
-        type: str = " ".join([result_set[result_set.index("Type of Shares") + 4], result_set[result_set.index("Type of Shares") + 5]])
+        type: str = " ".join([result_set[result_set.index("Type of Shares") + 4], result_set[result_set.index("Type of Shares") + 5]]).capitalize()
         amount: int = int(result_set[[index for index, value in enumerate(result_set) if "No. of Shares" in value][0] + 5].split(" ")[0])
         currency: str = " ".join([result_set[[index for index, value in enumerate(result_set) if "No. of Shares" in value][0] + 5].split(" ")[1], result_set[[index for index, value in enumerate(result_set) if "No. of Shares" in value][0] + 5].split(" ")[2]])
         stated_capital: int = int(result_set[result_set.index("Stated Capital") + 5].replace(",", ""))
