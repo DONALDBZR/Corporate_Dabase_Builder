@@ -10,6 +10,7 @@ Authors:
 
 
 from Models.Logger import Corporate_Database_Builder_Logger
+from Data.DocumentFiles import DocumentFiles
 from Environment import Environment
 
 
@@ -45,3 +46,22 @@ class Document_Reader:
 
     def setLogger(self, logger: Corporate_Database_Builder_Logger) -> None:
         self.__logger = logger
+
+    def generatePortableDocumentFile(self, dataset: DocumentFiles) -> int:
+        """
+        Generating the portable document file based on the dataset
+        passed as parameter.
+
+        Parameters:
+            dataset: {identifier: int, file_data: bytes, company_detail: int}: The dataset of the corporate registry retrieved from the relational database server.
+
+        Returns:
+            int
+        """
+        file_name: str = f"{self.ENV.getDirectory()}/Cache/CorporateDocumentFile/Documents/{dataset.company_detail}.pdf"
+        file = open(file_name, "wb")
+        file.write(dataset.file_data)
+        file.close()
+        status: int = 201
+        self.getLogger().inform(f"The portable document file of the corporate registry has been generated!\nLocation: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
+        return status
