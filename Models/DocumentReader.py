@@ -89,12 +89,35 @@ class Document_Reader:
             company_details: Dict[str, Union[str, int]] = self.extractCompanyDetails(portable_document_file_data_result_set)
             business_details: Dict[str, str] = self.extractBusinessDetails(portable_document_file_data_result_set)
             share_capital: Dict[str, Union[str, int]] = self.extractShareCapital(portable_document_file_data_result_set)
-            print(f"Dataset: {portable_document_file_data_result_set}\n----------\nCompany Details: {company_details}\nBusiness Details: {business_details}\nShare Capital: {share_capital}")
+            office_bearers: Dict[str, Union[str, int]] = self.extractOfficeBearers(portable_document_file_data_result_set)
+            print(f"Dataset: {portable_document_file_data_result_set}\n----------\nCompany Details: {company_details}\nBusiness Details: {business_details}\nShare Capital: {share_capital}\nOffice Bearers: {office_bearers}")
             exit()
             # Extracting the data from the portable document file.
         else:
             self.getLogger().error(f"The portable document file has not been generated correctly!  The application will abort the extraction.\nStatus: {status}\nFile Location: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
             exit()
+
+    def extractOfficeBearers(self, result_set: List[str]) -> Dict[str, Union[str, int]]:
+        """
+        Extracting the data for the office bearers from the result
+        set.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            {position: string, name: string, address: string, date_appointment: int}
+        """
+        position: str = result_set[result_set.index("Position") + 1]
+        name: str = result_set[result_set.index("Name") + 4]
+        address: str = result_set[result_set.index("Service Address") + 3]
+        date_appointment: int = int(datetime.strptime(result_set[result_set.index("Appointed Date") + 3], "%d/%m/%Y").timestamp())
+        return {
+            "position": position,
+            "name": name,
+            "address": address,
+            "date_appointment": date_appointment
+        }
 
     def extractShareCapital(self, result_set: List[str]) -> Dict[str, Union[str, int]]:
         """
@@ -119,7 +142,7 @@ class Document_Reader:
             "currency": currency,
             "stated_capital": stated_capital,
             "amount_unpaid": amount_unpaid,
-            "par_value": par_value,
+            "par_value": par_value
         }
 
     def extractBusinessDetails(self, result_set: List[str]) -> Dict[str, str]:
