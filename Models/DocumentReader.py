@@ -69,7 +69,7 @@ class Document_Reader:
         self.getLogger().inform(f"The portable document file of the corporate registry has been generated!\nLocation: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}\nStatus: {status}")
         return status
 
-    def extractData(self, status: int, dataset: DocumentFiles) -> Dict:
+    def extractData(self, status: int, dataset: DocumentFiles) -> Dict[str, Union[int, Dict[str, Union[str, int]]]]:
         """
         Extracting the data from the portable document file version
         of the corporate registry based on the status of the file
@@ -80,8 +80,9 @@ class Document_Reader:
             dataset: {identifier: int, file_data: bytes, company_detail: int}: The dataset of the corporate registry retrieved from the relational database server.
 
         Returns:
-            {status: int}
+            {status: int, company_details: {business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}, business_details: {registered_address: string, name: string, nature: string, operational: string}, share_capital: {type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}, office_bearers: {position: string, name: string, address: string, date_appointment: int}, shareholders: {name: string, amount: int, type: string, currency: string}}
         """
+        response: Dict[str, Union[int, Dict[str, Union[str, int]]]]
         file_name: str = f"{self.ENV.getDirectory()}Cache/CorporateDocumentFile/Documents/{dataset.company_detail}.pdf"
         if status == 201:
             portable_document_file_data: str = extract_text(file_name)
@@ -91,12 +92,21 @@ class Document_Reader:
             share_capital: Dict[str, Union[str, int]] = self.extractShareCapital(portable_document_file_data_result_set)
             office_bearers: Dict[str, Union[str, int]] = self.extractOfficeBearers(portable_document_file_data_result_set)
             shareholders: Dict[str, Union[str, int]] = self.extractShareholders(portable_document_file_data_result_set)
-            print(f"Dataset: {portable_document_file_data_result_set}\n----------\nCompany Details: {company_details}\nBusiness Details: {business_details}\nShare Capital: {share_capital}\nOffice Bearers: {office_bearers}\nShareholders: {shareholders}")
-            exit()
-            # Extracting the data from the portable document file.
+            response = {
+                "status": 200,
+                "company_details": company_details,
+                "business_details": business_details, # type: ignore
+                "share_capital": share_capital,
+                "office_bearers": office_bearers,
+                "shareholders": shareholders
+            }
+            self.getLogger().inform(f"Data has been extracted from the portable document file version of the corporate registry.\nStatus: {response['status']}\nDocument File Identifier: {dataset.identifier}\nFile Location: {file_name}\nCompany Details Identifier: {dataset.company_detail}")
         else:
-            self.getLogger().error(f"The portable document file has not been generated correctly!  The application will abort the extraction.\nStatus: {status}\nFile Location: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
-            exit()
+            response = {
+                "status": 404
+            }
+            self.getLogger().error(f"The portable document file has not been generated correctly!  The application will abort the extraction.\nStatus: {response['status']}\nFile Location: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
+        return response
 
     def extractShareholders(self, result_set: List[str]) -> Dict[str, Union[str, int]]:
         """
