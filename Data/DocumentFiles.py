@@ -15,18 +15,13 @@ from datetime import timedelta
 
 
 @dataclass
-class FinCorpLogs:
+class DocumentFiles:
     """
-    The Data Transfer Object for the Financial Calendar.
+    The Data Transfer Object for the corporate registries.
     """
     identifier: int
-    method_name: str
-    year: int
-    quarter: str
-    date_start: int
-    date_to: int
-    status: int
-    amount: int
+    file_data: bytes
+    company_detail: int
 
     def __init__(self, dataset: Union[RowType, Dict[str, Union[int, str, None]]]) -> None:
         """
