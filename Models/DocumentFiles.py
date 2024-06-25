@@ -163,7 +163,7 @@ class Document_Files(Database_Handler):
                 filter_condition="DATE(FROM_UNIXTIME(CompanyDetails.date_incorporation)) = %s",
                 column_names=f"COUNT({self.getTableName()}.identifier) AS amount_found"
             )
-            status: int = self.getAmountDownloadedCorporateDocumentsStatus(data)
+            status: int = self.getAmountStatus(data)
             self.getLogger().inform(
                 f"The data from {self.getTableName()} has been retrieved!\nStatus: {status}\nData: {data}"
             )
