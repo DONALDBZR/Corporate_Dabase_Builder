@@ -10,17 +10,19 @@ Authors:
 from Data.CompanyDetails import CompanyDetails
 from Data.FinancialCalendar import FinancialCalendar
 from Data.FinCorpLogs import FinCorpLogs
+from Data.DocumentFiles import DocumentFiles
 from Models.Crawler import Crawler
 from Models.DatabaseHandler import Database_Handler
 from Models.Logger import Corporate_Database_Builder_Logger
 from Models.FinancialCalendar import Financial_Calendar
 from Models.FinCorpLogs import FinCorp_Logs
+from Models.DocumentFiles import Document_Files
+from Models.CompanyDetails import Company_Details
+from Models.DocumentReader import Document_Reader
 from datetime import datetime, timedelta
 from Environment import Environment
 from typing import List, Tuple, Union, Dict
 from time import time
-from Models.DocumentFiles import Document_Files
-from Models.CompanyDetails import Company_Details
 import os
 
 
@@ -72,6 +74,13 @@ class Builder:
     The model which will interact exclusively with the Document
     Files table.
     """
+    __document_reader: Document_Reader
+    """
+    The model needed to generate the portable document file
+    version of the corporate registry, as well as extracting the
+    data from it before deleting it from the cache of the server
+    of the application.
+    """
 
     def __init__(self) -> None:
         """
@@ -85,6 +94,7 @@ class Builder:
         self.setFinCorpLogs(FinCorp_Logs())
         self.setCompanyDetails(Company_Details())
         self.setDocumentFiles(Document_Files())
+        self.setDocumentReader(Document_Reader())
         self.getLogger().inform("The builder has been initialized and all of its dependencies are injected!")
 
     def getCrawler(self) -> Crawler:
@@ -134,6 +144,12 @@ class Builder:
 
     def setDocumentFiles(self, document_files: Document_Files) -> None:
         self.__document_files = document_files
+
+    def getDocumentReader(self) -> Document_Reader:
+        return self.__document_reader
+
+    def setDocumentReader(self, document_reader: Document_Reader) -> None:
+        self.__document_reader = document_reader
 
     def getDateDownloadCorporateFile(self, fin_corp_logs: List[FinCorpLogs]) -> str:
         """
@@ -260,6 +276,14 @@ class Builder:
         successful_logs: List[FinCorpLogs] = self.getFinCorpLogs().getSuccessfulRunsLogs("extractCorporateData")
         date: str = self._getDateExtractCorporateData(successful_logs, quarter)
         document_files: List[DocumentFiles] = self.getDocumentFiles().getCorporateRegistries(date)
+        amount: int = self.getDocumentFiles().getAmount(date)
+        amount_found: int = self.getDocumentFiles().getAmountFound(date)
+        self.getLogger().inform(f"The corporate registries have been retrieved from the relational database server and they will be used for the extracttion of the data about the companies.\nDate of Incorporation: {date}\nCorporate Registries Amount: {amount}\nAmount Downloaded: {amount_found}")
+        for index in range(0, len(document_files), 1):
+            # Generating the portable document file.
+            # Extracting the data from the portable document file.
+            # Storing the data extracted into the relational database server.
+            # Deleting the generated portable document file.
 
     def downloadCorporateFile(self) -> None:
         """
