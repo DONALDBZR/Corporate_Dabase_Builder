@@ -88,12 +88,39 @@ class Document_Reader:
             portable_document_file_data_result_set: List[str] = list(filter(None, portable_document_file_data.split("\n")))
             company_details: Dict[str, Union[str, int]] = self.extractCompanyDetails(portable_document_file_data_result_set)
             business_details: Dict[str, str] = self.extractBusinessDetails(portable_document_file_data_result_set)
-            print(f"Dataset: {portable_document_file_data_result_set}\n----------\nCompany Details: {company_details}\nBusiness Details: {business_details}")
+            share_capital: Dict[str, Union[str, int]] = self.extractShareCapital(portable_document_file_data_result_set)
+            print(f"Dataset: {portable_document_file_data_result_set}\n----------\nCompany Details: {company_details}\nBusiness Details: {business_details}\nShare Capital: {share_capital}")
             exit()
             # Extracting the data from the portable document file.
         else:
             self.getLogger().error(f"The portable document file has not been generated correctly!  The application will abort the extraction.\nStatus: {status}\nFile Location: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
             exit()
+
+    def extractShareCapital(self, result_set: List[str]) -> Dict[str, Union[str, int]]:
+        """
+        Extracting the data for the share capital from the result
+        set.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            {type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}
+        """
+        type: str = " ".join([result_set[result_set.index("Type of Shares") + 4], result_set[result_set.index("Type of Shares") + 5]])
+        amount: int = int(result_set[[index for index, value in enumerate(result_set) if "No. of Shares" in value][0] + 5].split(" ")[0])
+        currency: str = " ".join([result_set[[index for index, value in enumerate(result_set) if "No. of Shares" in value][0] + 5].split(" ")[1], result_set[[index for index, value in enumerate(result_set) if "No. of Shares" in value][0] + 5].split(" ")[2]])
+        stated_capital: int = int(result_set[result_set.index("Stated Capital") + 5].replace(",", ""))
+        amount_unpaid: int = int(result_set[[index for index, value in enumerate(result_set) if "Amount Unpaid" in value][0] + 5].split(" ")[0])
+        par_value: int = int(result_set[[index for index, value in enumerate(result_set) if "Par Value" in value][0] + 5].split(" ")[1])
+        return {
+            "type": type,
+            "amount": amount,
+            "currency": currency,
+            "stated_capital": stated_capital,
+            "amount_unpaid": amount_unpaid,
+            "par_value": par_value,
+        }
 
     def extractBusinessDetails(self, result_set: List[str]) -> Dict[str, str]:
         """
