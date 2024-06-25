@@ -90,6 +90,9 @@ class Document_Files(Database_Handler):
                 sort_condition=f"{self.getTableName()}.identifier ASC"
             )
             response: Dict[str, Union[int, List[DocumentFiles]]] = self._getCorporateRegistries(data)
+            self.getLogger().inform(
+                f"The data from {self.getTableName()} has been retrieved!\nStatus: {response['status']}\nData: {data}"
+            )
             return response["data"]
         except Error as error:
             self.getLogger().error(
