@@ -10,6 +10,7 @@ Authors:
 
 
 from Models.Logger import Corporate_Database_Builder_Logger
+from Environment import Environment
 
 
 class Document_Reader:
@@ -23,6 +24,21 @@ class Document_Reader:
     """
     The logger that will all the action of the application.
     """
+    ENV: Environment
+    """
+    The ENV file of the application which stores the important
+    information which allows the application to operate
+    smoothly.
+    """
+
+    def __init__(self) -> None:
+        """
+        Initializing the document reader which will import and
+        initialize the dependencies.
+        """
+        self.ENV = Environment()
+        self.setLogger(Corporate_Database_Builder_Logger())
+        self.getLogger().inform("The builder has been initialized and all of its dependencies are injected!")
 
     def getLogger(self) -> Corporate_Database_Builder_Logger:
         return self.__logger
