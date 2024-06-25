@@ -9,9 +9,6 @@ Authors:
 from dataclasses import dataclass
 from mysql.connector.types import RowType
 from typing import Union, Dict
-from time import time
-from datetime import datetime
-from datetime import timedelta
 
 
 @dataclass
