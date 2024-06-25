@@ -87,12 +87,35 @@ class Document_Reader:
             portable_document_file_data: str = extract_text(file_name)
             portable_document_file_data_result_set: List[str] = list(filter(None, portable_document_file_data.split("\n")))
             company_details: Dict[str, Union[str, int]] = self.extractCompanyDetails(portable_document_file_data_result_set)
-            print(f"Dataset: {portable_document_file_data_result_set}\n----------\nCompany Details: {company_details}")
+            business_details: Dict[str, str] = self.extractBusinessDetails(portable_document_file_data_result_set)
+            print(f"Dataset: {portable_document_file_data_result_set}\n----------\nCompany Details: {company_details}\nBusiness Details: {business_details}")
             exit()
             # Extracting the data from the portable document file.
         else:
             self.getLogger().error(f"The portable document file has not been generated correctly!  The application will abort the extraction.\nStatus: {status}\nFile Location: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
             exit()
+
+    def extractBusinessDetails(self, result_set: List[str]) -> Dict[str, str]:
+        """
+        Extracting the data for the business details from the result
+        set.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            {registered_address: string, name: string, nature: string, operational: string}
+        """
+        registered_address: str = result_set[[index for index, value in enumerate(result_set) if "Registered Office Address:" in value][0]].split(": ")[-1]
+        name: str = result_set[result_set.index("Business Name") + 3]
+        nature: str = ' '.join([result_set[result_set.index("Nature of Business") + 3], result_set[result_set.index("Nature of Business") + 4], result_set[result_set.index("Nature of Business") + 5]])
+        operational_address: str = result_set[result_set.index("Principal Place of Business") + 5]
+        return {
+            "registered_address": registered_address,
+            "name": name,
+            "nature": nature,
+            "operational_address": operational_address
+        }
 
     def extractCompanyDetails(self, result_set: List[str]) -> Dict[str, Union[str, int]]:
         """
