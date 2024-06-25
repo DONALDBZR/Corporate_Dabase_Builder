@@ -191,6 +191,39 @@ class Builder:
         else:
             return self.getDateDownloadCorporateFile(fin_corp_logs)
 
+    def _getDateExtractCorporateData(self, fin_corp_logs: List[FinCorpLogs], quarter: FinancialCalendar) -> str:
+        """
+        Retrieving the date to be used as a parameter for the date
+        of incorporation.
+
+        Parameters:
+            fin_corp_logs: [{identifier: int, method_name: string, year: int, quarter: string, date_start: int, date_to: int, status: int, amount: int}]: The list of the logs.
+            quarter: {year: int, quarter: string, start_date: string, end_date: string}: The current quarter
+
+        Returns:
+            string
+        """
+        if len(fin_corp_logs) == 1 and fin_corp_logs[0].status == 204:
+            return datetime.strftime(
+                datetime.strptime(quarter.start_date, "%m/%d/%Y"),
+                "%Y-%m-%d"
+            )
+        else:
+            return self.getDateDownloadCorporateFile(fin_corp_logs)
+
+    def extractCorporateData(self) -> None:
+        """
+        The third run consists of extracting the data from the
+        corporate document files that are stored in the corporate
+        database.
+
+        Returns:
+            void
+        """
+        quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
+        successful_logs: List[FinCorpLogs] = self.getFinCorpLogs().getSuccessfulRunsLogs("extractCorporateData")
+        date: str = self._getDateExtractCorporateData(successful_logs, quarter)
+
     def downloadCorporateFile(self) -> None:
         """
         The second run consists of retrieving the corporate document
