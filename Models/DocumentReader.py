@@ -58,10 +58,10 @@ class Document_Reader:
         Returns:
             int
         """
-        file_name: str = f"{self.ENV.getDirectory()}/Cache/CorporateDocumentFile/Documents/{dataset.company_detail}.pdf"
+        file_name: str = f"{self.ENV.getDirectory()}Cache/CorporateDocumentFile/Documents/{dataset.company_detail}.pdf"
         file = open(file_name, "wb")
         file.write(dataset.file_data)
         file.close()
         status: int = 201
-        self.getLogger().inform(f"The portable document file of the corporate registry has been generated!\nLocation: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
+        self.getLogger().inform(f"The portable document file of the corporate registry has been generated!\nLocation: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}\nStatus: {status}")
         return status
