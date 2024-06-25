@@ -25,11 +25,11 @@ class DocumentFiles:
         Initializing the data class object.
 
         Parameters:
-            dataset: {identifier: int, file_data: bytes, company_detail: int}
+            dataset: {identifier: int, file_data: bytes, CompanyDetail: int}
 
         Returns:
             void
         """
         self.identifier = int(dataset["identifier"]) # type: ignore
         self.file_data = bytes(dataset["file_data"]) # type: ignore
-        self.company_detail = int(dataset["company_detail"]) # type: ignore
+        self.company_detail = int(dataset["CompanyDetail"]) # type: ignore
