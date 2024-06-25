@@ -122,3 +122,23 @@ class Document_Files(Database_Handler):
             "status": document_files["status"],
             "data": document_files["data"]
         }
+
+    def __getCorporateRegistries(self, dataset: Union[List[RowType], List[Dict[str, Union[int, bytes]]]]) -> Dict[str, Union[int, List[DocumentFiles]]]:
+        """
+        Formating the data into the correct datatype when the result
+        set is not empty.
+
+        Parameters:
+            dataset: [{identifier: int, file_data: bytes, CompanyDetail: int}]: The data from the relational database server.
+
+        Returns:
+            {status: int, data: [{identifier: int, file_data: bytes, company_detail: int}]}
+        """
+        status: int = 200
+        data: List[DocumentFiles] = []
+        for index in range(0, len(dataset), 1):
+            data.append(DocumentFiles(dataset[index]))
+        return {
+            "status": status,
+            "data": data
+        }
