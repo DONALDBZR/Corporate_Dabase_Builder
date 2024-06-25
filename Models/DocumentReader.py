@@ -108,9 +108,9 @@ class Document_Reader:
         Returns:
             {position: string, name: string, address: string, date_appointment: int}
         """
-        position: str = result_set[result_set.index("Position") + 1]
-        name: str = result_set[result_set.index("Name") + 4]
-        address: str = result_set[result_set.index("Service Address") + 3]
+        position: str = result_set[result_set.index("Position") + 1].capitalize()
+        name: str = result_set[result_set.index("Name") + 4].capitalize()
+        address: str = result_set[result_set.index("Service Address") + 3].capitalize()
         date_appointment: int = int(datetime.strptime(result_set[result_set.index("Appointed Date") + 3], "%d/%m/%Y").timestamp())
         return {
             "position": position,
