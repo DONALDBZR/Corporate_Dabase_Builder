@@ -108,9 +108,9 @@ class Document_Reader:
         Returns:
             {position: string, name: string, address: string, date_appointment: int}
         """
-        position: str = result_set[result_set.index("Position") + 1].capitalize()
-        name: str = result_set[result_set.index("Name") + 4].capitalize()
-        address: str = result_set[result_set.index("Service Address") + 3].capitalize()
+        position: str = result_set[result_set.index("Position") + 1].title()
+        name: str = result_set[result_set.index("Name") + 4].title()
+        address: str = result_set[result_set.index("Service Address") + 3].title()
         date_appointment: int = int(datetime.strptime(result_set[result_set.index("Appointed Date") + 3], "%d/%m/%Y").timestamp())
         return {
             "position": position,
@@ -130,7 +130,7 @@ class Document_Reader:
         Returns:
             {type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}
         """
-        type: str = " ".join([result_set[result_set.index("Type of Shares") + 4], result_set[result_set.index("Type of Shares") + 5]]).capitalize()
+        type: str = " ".join([result_set[result_set.index("Type of Shares") + 4], result_set[result_set.index("Type of Shares") + 5]]).title()
         amount: int = int(result_set[[index for index, value in enumerate(result_set) if "No. of Shares" in value][0] + 5].split(" ")[0])
         currency: str = " ".join([result_set[[index for index, value in enumerate(result_set) if "No. of Shares" in value][0] + 5].split(" ")[1], result_set[[index for index, value in enumerate(result_set) if "No. of Shares" in value][0] + 5].split(" ")[2]])
         stated_capital: int = int(result_set[result_set.index("Stated Capital") + 5].replace(",", ""))
@@ -156,10 +156,10 @@ class Document_Reader:
         Returns:
             {registered_address: string, name: string, nature: string, operational: string}
         """
-        registered_address: str = result_set[[index for index, value in enumerate(result_set) if "Registered Office Address:" in value][0]].split(": ")[-1].capitalize()
+        registered_address: str = result_set[[index for index, value in enumerate(result_set) if "Registered Office Address:" in value][0]].split(": ")[-1].title()
         name: str = result_set[result_set.index("Business Name") + 3]
         nature: str = ' '.join([result_set[result_set.index("Nature of Business") + 3], result_set[result_set.index("Nature of Business") + 4], result_set[result_set.index("Nature of Business") + 5]])
-        operational_address: str = result_set[result_set.index("Principal Place of Business") + 5].capitalize()
+        operational_address: str = result_set[result_set.index("Principal Place of Business") + 5].title()
         return {
             "registered_address": registered_address,
             "name": name,
@@ -181,7 +181,7 @@ class Document_Reader:
         business_registration_number: str = result_set[[index for index, value in enumerate(result_set) if "Business Registration No.:" in value][0]].split(" ")[-1]
         name: str = result_set[result_set.index("Name:") + 2]
         file_number: str = result_set[result_set.index("File No.:") + 1]
-        category: str = result_set[result_set.index("Category:") + 1].capitalize()
+        category: str = result_set[result_set.index("Category:") + 1].title()
         date_incorporation: int = int(datetime.strptime(result_set[result_set.index("Date Incorporated:") + 1], "%d/%m/%Y").timestamp())
         nature: str = result_set[result_set.index("Nature:") + 3]
         status: str = result_set[result_set.index("Status:") + 3]
