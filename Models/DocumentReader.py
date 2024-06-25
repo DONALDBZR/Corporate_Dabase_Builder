@@ -90,12 +90,35 @@ class Document_Reader:
             business_details: Dict[str, str] = self.extractBusinessDetails(portable_document_file_data_result_set)
             share_capital: Dict[str, Union[str, int]] = self.extractShareCapital(portable_document_file_data_result_set)
             office_bearers: Dict[str, Union[str, int]] = self.extractOfficeBearers(portable_document_file_data_result_set)
-            print(f"Dataset: {portable_document_file_data_result_set}\n----------\nCompany Details: {company_details}\nBusiness Details: {business_details}\nShare Capital: {share_capital}\nOffice Bearers: {office_bearers}")
+            shareholders: Dict[str, Union[str, int]] = self.extractShareholders(portable_document_file_data_result_set)
+            print(f"Dataset: {portable_document_file_data_result_set}\n----------\nCompany Details: {company_details}\nBusiness Details: {business_details}\nShare Capital: {share_capital}\nOffice Bearers: {office_bearers}\nShareholders: {shareholders}")
             exit()
             # Extracting the data from the portable document file.
         else:
             self.getLogger().error(f"The portable document file has not been generated correctly!  The application will abort the extraction.\nStatus: {status}\nFile Location: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
             exit()
+
+    def extractShareholders(self, result_set: List[str]) -> Dict[str, Union[str, int]]:
+        """
+        Extracting the data for the shareholders from the result
+        set.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            {name: string, amount: int, type: string, currency: string}
+        """
+        name: str = result_set[result_set.index("Name") + 9].title()
+        amount_shares: int = int(result_set[[index for index, value in enumerate(result_set) if "No. of Shares" in value][1] + 3].split(" ")[0])
+        type_shares: str = result_set[[index for index, value in enumerate(result_set) if "Type of Shares" in value][1] + 3].split(" ")[1].title()
+        currency: str = result_set[result_set.index("Currency") + 3].title()
+        return {
+            "name": name,
+            "amount_shares": amount_shares,
+            "type_shares": type_shares,
+            "currency": currency
+        }
 
     def extractOfficeBearers(self, result_set: List[str]) -> Dict[str, Union[str, int]]:
         """
