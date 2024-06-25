@@ -173,3 +173,18 @@ class Document_Files(Database_Handler):
                 f"An error occurred in {self.getTableName()}\nStatus: 503\nError: {error}"
             )
             return 0
+
+    def getAmountStatus(self, dataset: Union[List[RowType], List[Dict[str, int]]]) -> int:
+        """
+        Retrieving the status code based on the dataset given.
+
+        Parameters:
+            dataset: [{amount_found: int}]: The result set from the relational database server.
+
+        Returns:
+            int
+        """
+        if int(dataset[0]["amount_found"]) == 0: # type: ignore
+            return 204
+        else:
+            return 200
