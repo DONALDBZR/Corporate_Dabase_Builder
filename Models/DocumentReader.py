@@ -181,7 +181,7 @@ class Document_Reader:
         business_registration_number: str = result_set[[index for index, value in enumerate(result_set) if "Business Registration No.:" in value][0]].split(" ")[-1]
         name: str = result_set[result_set.index("Name:") + 2]
         file_number: str = result_set[result_set.index("File No.:") + 1]
-        category: str = result_set[result_set.index("Category:") + 1]
+        category: str = result_set[result_set.index("Category:") + 1].capitalize()
         date_incorporation: int = int(datetime.strptime(result_set[result_set.index("Date Incorporated:") + 1], "%d/%m/%Y").timestamp())
         nature: str = result_set[result_set.index("Nature:") + 3]
         status: str = result_set[result_set.index("Status:") + 3]
