@@ -86,6 +86,7 @@ class Document_Reader:
         if status == 201:
             portable_document_file_data: str = extract_text(file_name)
             portable_document_file_data_result_set: List[str] = list(filter(None, portable_document_file_data.split("\n")))
+            company_details: Dict[str, Union[str, int]] = self.extractCompanyDetails(portable_document_file_data_result_set)
             business_registration_number: str = portable_document_file_data_result_set[[index for index, value in enumerate(portable_document_file_data_result_set) if "Business Registration No.:" in value][0]].split(" ")[-1]
             name: str = portable_document_file_data_result_set[portable_document_file_data_result_set.index("Name:") + 2]
             file_number: str = portable_document_file_data_result_set[portable_document_file_data_result_set.index("File No.:") + 1]
@@ -93,7 +94,7 @@ class Document_Reader:
             date_incorporation: int = int(datetime.strptime(portable_document_file_data_result_set[portable_document_file_data_result_set.index("Date Incorporated:") + 1], "%d/%m/%Y").timestamp())
             nature: str = portable_document_file_data_result_set[portable_document_file_data_result_set.index("Nature:") + 3]
             company_status: str = portable_document_file_data_result_set[portable_document_file_data_result_set.index("Status:") + 3]
-            print(f"Dataset: {portable_document_file_data_result_set}\n----------\nBusiness Registration Number: {business_registration_number}\nName: {name}\nFile Number: {file_number}\nCategory: {category}\nDate of Incorporation (Timestamp): {date_incorporation}\nNature: {nature}\nStatus: {company_status}")
+            print(f"Dataset: {portable_document_file_data_result_set}\n----------\nCompany Details: {company_details}")
             exit()
             # Extracting the data from the portable document file.
         else:
