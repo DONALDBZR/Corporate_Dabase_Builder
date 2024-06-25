@@ -8,7 +8,10 @@ Authors:
 
 
 from Models.DatabaseHandler import Database_Handler
-from typing import Dict, Union, Tuple
+from Data.DocumentFiles import DocumentFiles
+from typing import Dict, Union, Tuple, List, Any
+from mysql.connector.types import RowType
+from mysql.connector.errors import Error
 
 
 class Document_Files(Database_Handler):
@@ -64,3 +67,32 @@ class Document_Files(Database_Handler):
         else:
             amount_downloaded = amount_found
         return amount_downloaded
+
+    def getCorporateRegistries(self, date_incorporation: str) -> List[DocumentFiles]:
+        """
+        Retrieving the corporate registries based on the date of
+        incorporation of the company.
+
+        Parameters:
+            date_incorporation: string: The date of incorporation of the company.
+
+        Returns:
+            [{identifier: int, file_data: bytes, company_detail: int}]
+        """
+        try:
+            parameters: Tuple[str] = (date_incorporation,)
+            data: Union[List[RowType], List[Dict[str, Union[int, bytes]]]] = self.getData(
+                table_name=self.getTableName(),
+                parameters=parameters,
+                join_condition=f"CompanyDetails ON {self.getTableName()}.CompanyDetail = CompanyDetails.identifier",
+                filter_condition="CompanyDetails.is_extracted = 0 AND DATE(FROM_UNIXTIME(CompanyDetails.date_incorporation)) = %s",
+                column_names=f"{self.getTableName()}.identifier, {self.getTableName()}.file_data, {self.getTableName()}.CompanyDetail",
+                sort_condition=f"{self.getTableName()}.identifier ASC"
+            )
+            response: Dict[str, Union[int, List[DocumentFiles]]] = self._getCorporateRegistries(data)
+            return response["data"]
+        except Error as error:
+            self.getLogger().error(
+                f"An error occurred in {self.getTableName()}\nStatus: 503\nError: {error}"
+            )
+            return []
