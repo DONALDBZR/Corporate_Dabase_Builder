@@ -99,3 +99,26 @@ class Document_Files(Database_Handler):
                 f"An error occurred in {self.getTableName()}\nStatus: 503\nError: {error}"
             )
             return []
+
+    def _getCorporateRegistries(self, dataset: Union[List[RowType], List[Dict[str, Union[int, bytes]]]]) -> Dict[str, Union[int, List[DocumentFiles]]]:
+        """
+        Retrieving the correct data type for the application.
+
+        Parameters:
+            dataset: [{identifier: int, file_data: bytes, CompanyDetail: int}]: The data from the relational database server.
+
+        Returns:
+            {status: int, data: [{identifier: int, file_data: bytes, company_detail: int}]}
+        """
+        document_files: Dict[str, Union[int, List[DocumentFiles]]]
+        if len(dataset) > 0:
+            document_files = self.__getCorporateRegistries(dataset)
+        else:
+            document_files = {
+                "status": 204,
+                "data": []
+            }
+        return {
+            "status": document_files["status"],
+            "data": document_files["data"]
+        }
