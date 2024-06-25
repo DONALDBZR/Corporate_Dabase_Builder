@@ -171,6 +171,42 @@ class Builder:
         else:
             return end_date
 
+    def getDateExtractCorporateData(self, fin_corp_logs: List[FinCorpLogs]) -> str:
+        """
+        Retrieving the date to be used as a parameter for the date
+        of incorporation.
+
+        Parameters:
+            fin_corp_logs: [{identifier: int, method_name: string, year: int, quarter: string, date_start: int, date_to: int, status: int, amount: int}]: The list of the logs.
+
+        Returns:
+            string
+        """
+        start_date: str = datetime.strftime(
+            datetime.strptime(
+                self.getDateStart(fin_corp_logs),
+                "%m/%d/%Y"
+            ),
+            "%Y-%m-%d"
+        )
+        end_date: str = datetime.strftime(
+            datetime.strptime(
+                self.getDateEnd(fin_corp_logs),
+                "%m/%d/%Y"
+            ),
+            "%Y-%m-%d"
+        )
+        start_date_timestamp: int = int(
+            datetime.strptime(
+                start_date,
+                "%Y-%m-%d"
+            ).timestamp()
+        )
+        if start_date_timestamp <= int(time()):
+            return start_date
+        else:
+            return end_date
+
     def _getDateDownloadCorporateFile(self, fin_corp_logs: List[FinCorpLogs], quarter: FinancialCalendar) -> str:
         """
         Retrieving the date to be used as a parameter for the date
