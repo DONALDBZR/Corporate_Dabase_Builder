@@ -87,16 +87,37 @@ class Document_Reader:
             portable_document_file_data: str = extract_text(file_name)
             portable_document_file_data_result_set: List[str] = list(filter(None, portable_document_file_data.split("\n")))
             company_details: Dict[str, Union[str, int]] = self.extractCompanyDetails(portable_document_file_data_result_set)
-            business_registration_number: str = portable_document_file_data_result_set[[index for index, value in enumerate(portable_document_file_data_result_set) if "Business Registration No.:" in value][0]].split(" ")[-1]
-            name: str = portable_document_file_data_result_set[portable_document_file_data_result_set.index("Name:") + 2]
-            file_number: str = portable_document_file_data_result_set[portable_document_file_data_result_set.index("File No.:") + 1]
-            category: str = portable_document_file_data_result_set[portable_document_file_data_result_set.index("Category:") + 1]
-            date_incorporation: int = int(datetime.strptime(portable_document_file_data_result_set[portable_document_file_data_result_set.index("Date Incorporated:") + 1], "%d/%m/%Y").timestamp())
-            nature: str = portable_document_file_data_result_set[portable_document_file_data_result_set.index("Nature:") + 3]
-            company_status: str = portable_document_file_data_result_set[portable_document_file_data_result_set.index("Status:") + 3]
             print(f"Dataset: {portable_document_file_data_result_set}\n----------\nCompany Details: {company_details}")
             exit()
             # Extracting the data from the portable document file.
         else:
             self.getLogger().error(f"The portable document file has not been generated correctly!  The application will abort the extraction.\nStatus: {status}\nFile Location: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
             exit()
+
+    def extractCompanyDetails(self, result_set: List[str]) -> Dict[str, Union[str, int]]:
+        """
+        Extracting the data for the company details from the result
+        set.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            {business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}
+        """
+        business_registration_number: str = result_set[[index for index, value in enumerate(result_set) if "Business Registration No.:" in value][0]].split(" ")[-1]
+        name: str = result_set[result_set.index("Name:") + 2]
+        file_number: str = result_set[result_set.index("File No.:") + 1]
+        category: str = result_set[result_set.index("Category:") + 1]
+        date_incorporation: int = int(datetime.strptime(result_set[result_set.index("Date Incorporated:") + 1], "%d/%m/%Y").timestamp())
+        nature: str = result_set[result_set.index("Nature:") + 3]
+        status: str = result_set[result_set.index("Status:") + 3]
+        return {
+            "business_registration_number": business_registration_number,
+            "name": name,
+            "file_number": file_number,
+            "category": category,
+            "date_incorporation": date_incorporation,
+            "nature": nature,
+            "status": status
+        }
