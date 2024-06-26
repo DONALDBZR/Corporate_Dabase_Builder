@@ -89,6 +89,11 @@ class Builder:
     The model which will interact exclusively with the Business
     Details.
     """
+    __state_capital: State_Capital
+    """
+    The model which will interact exclusively with the State
+    Capital.
+    """
 
     def __init__(self) -> None:
         """
@@ -165,6 +170,12 @@ class Builder:
 
     def setBusinessDetails(self, business_details: Business_Details) -> None:
         self.__business_details = business_details
+
+    def getStateCapital(self) -> State_Capital:
+        return self.__state_capital
+
+    def setStateCapital(self, state_capital: State_Capital) -> None:
+        self.__state_capital = state_capital
 
     def getDateDownloadCorporateFile(self, fin_corp_logs: List[FinCorpLogs]) -> str:
         """
