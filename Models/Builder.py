@@ -332,7 +332,8 @@ class Builder:
             company_detail_response: int = self.storeCorporateDataCompanyDetail(data_extraction_status, dataset["company_details"], document_file) # type: ignore
             business_detail_response: int = self.storeCorporateDataBusinessDetail(company_detail_response, dataset["business_details"], document_file) # type: ignore
             state_capital_response: int = self.storeCorporateDataStateCapital(business_detail_response, dataset["share_capital"], document_file) # type: ignore
-            # Doing the data manipulation on the data related to the corporate registry.
+            office_bearers_response: int = self.storeCorporateDataOfficeBearers(state_capital_response, dataset["office_bearers"], document_file) # type: ignore
+            response = self.storeCorporateDataShareholders(office_bearers_response, dataset["shareholders"], document_file) # type: ignore
         else:
             response = 500
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {data_extraction_status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
