@@ -318,7 +318,7 @@ class Builder:
 
         Parameters:
             company_detail: int: The status of the data manipulation.
-            business_details: {registered_address: string, name: string, nature: string, operational: string}: The data that has been extracted for the business details table.
+            business_details: {registered_address: string, name: string, nature: string, operational_address: string}: The data that has been extracted for the business details table.
             document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
 
         Returns:
