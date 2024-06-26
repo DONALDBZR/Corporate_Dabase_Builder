@@ -318,6 +318,7 @@ class Builder:
         if data_extraction_status == 200:
             company_detail_response: int = self.storeCorporateDataCompanyDetail(data_extraction_status, dataset["company_details"], document_file) # type: ignore
             business_detail_response: int = self.storeCorporateDataBusinessDetail(company_detail_response, dataset["business_details"], document_file) # type: ignore
+            share_capital_response: int = self.storeCorporateDataShareCapital(business_detail_response, dataset["share_capital"], document_file) # type: ignore
             # Doing the data manipulation on the data related to the corporate registry.
         else:
             response = 500
