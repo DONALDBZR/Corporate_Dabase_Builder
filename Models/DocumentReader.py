@@ -9,6 +9,7 @@ Authors:
 """
 
 
+import json
 from Models.Logger import Corporate_Database_Builder_Logger
 from Data.DocumentFiles import DocumentFiles
 from Environment import Environment
@@ -84,8 +85,10 @@ class Document_Reader:
         """
         response: Dict[str, Union[int, Dict[str, Union[str, int]]]]
         file_name: str = f"{self.ENV.getDirectory()}Cache/CorporateDocumentFile/Documents/{dataset.company_detail}.pdf"
+        cache_data_file_name: str = f"{self.ENV.getDirectory()}Cache/CorporateDocumentFile/Metadata/{dataset.company_detail}.json"
         if status == 201:
             portable_document_file_data: str = extract_text(file_name)
+            cache_file = open(cache_data_file_name, "w")
             portable_document_file_data_result_set: List[str] = list(filter(None, portable_document_file_data.split("\n")))
             company_details: Dict[str, Union[str, int]] = self.extractCompanyDetails(portable_document_file_data_result_set)
             business_details: Dict[str, str] = self.extractBusinessDetails(portable_document_file_data_result_set)
@@ -100,6 +103,8 @@ class Document_Reader:
                 "office_bearers": office_bearers,
                 "shareholders": shareholders
             }
+            cache_file.write(json.dumps(response, indent=4))
+            cache_file.close()
             self.getLogger().inform(f"Data has been extracted from the portable document file version of the corporate registry.\nStatus: {response['status']}\nDocument File Identifier: {dataset.identifier}\nFile Location: {file_name}\nCompany Details Identifier: {dataset.company_detail}\nCompany Details: {company_details}\nBusiness Details: {business_details}\nShare Capital: {share_capital}\nOffice Bearers: {office_bearers}\nShareholders: {shareholders}")
         else:
             response = {
