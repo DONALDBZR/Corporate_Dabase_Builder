@@ -172,10 +172,10 @@ class Company_Details(Database_Handler):
         application.
 
         Parameters:
-            dataset: [{identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}]: The data from the relational database server.
+            dataset: [{identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int, is_extracted: int, company_identifier: int, company_type: string}]: The data from the relational database server.
 
         Returns:
-            {status: int, data: [{identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}]}
+            {status: int, data: [{identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int, is_extracted: int, company_identifier: int, company_type: string}]}
         """
         company_details: Dict[str, Union[int, List[CompanyDetails]]]
         if len(dataset) > 0:
