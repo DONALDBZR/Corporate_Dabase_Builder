@@ -19,6 +19,7 @@ from Models.FinCorpLogs import FinCorp_Logs
 from Models.DocumentFiles import Document_Files
 from Models.CompanyDetails import Company_Details
 from Models.DocumentReader import Document_Reader
+from Models.BusinessDetails import Business_Details
 from datetime import datetime, timedelta
 from Environment import Environment
 from typing import List, Tuple, Union, Dict
@@ -81,6 +82,11 @@ class Builder:
     version of the corporate registry, as well as extracting the
     data from it before deleting it from the cache of the server
     of the application.
+    """
+    __business_details: Business_Details
+    """
+    The model which will interact exclusively with the Business
+    Details.
     """
 
     def __init__(self) -> None:
@@ -151,6 +157,12 @@ class Builder:
 
     def setDocumentReader(self, document_reader: Document_Reader) -> None:
         self.__document_reader = document_reader
+
+    def getBusinessDetails(self) -> Business_Details:
+        return self.__business_details
+
+    def setBusinessDetails(self, business_details: Business_Details) -> None:
+        self.__business_details = business_details
 
     def getDateDownloadCorporateFile(self, fin_corp_logs: List[FinCorpLogs]) -> str:
         """
