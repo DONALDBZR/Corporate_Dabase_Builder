@@ -192,6 +192,18 @@ class Builder:
     def setStateCapital(self, state_capital: State_Capital) -> None:
         self.__state_capital = state_capital
 
+    def getOfficeBearers(self) -> Office_Bearers:
+        return self.__office_bearers
+
+    def setOfficeBearers(self, office_bearers: Office_Bearers) -> None:
+        self.__office_bearers = office_bearers
+
+    def getShareholders(self) -> Shareholders:
+        return self.__shareholders
+
+    def setShareholders(self, shareholders: Shareholders) -> None:
+        self.__shareholders = shareholders
+
     def getDateDownloadCorporateFile(self, fin_corp_logs: List[FinCorpLogs]) -> str:
         """
         Retrieving the date to be used as a parameter for the date
