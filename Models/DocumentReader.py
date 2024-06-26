@@ -92,9 +92,9 @@ class Document_Reader:
             portable_document_file_data_result_set: List[str] = list(filter(None, portable_document_file_data.split("\n")))
             company_details: Dict[str, Union[str, int]] = self.extractCompanyDetails(portable_document_file_data_result_set)
             business_details: Dict[str, str] = self.extractBusinessDetails(portable_document_file_data_result_set)
+            state_capital: Dict[str, Union[str, int]] = self.extractStateCapital(portable_document_file_data_result_set)
             print(f"Result Set: {portable_document_file_data_result_set}\nCompany Details: {company_details}\nBusiness Details: {business_details}\n----------")
             exit()
-            share_capital: Dict[str, Union[str, int]] = self.extractShareCapital(portable_document_file_data_result_set)
             office_bearers: Dict[str, Union[str, int]] = self.extractOfficeBearers(portable_document_file_data_result_set)
             shareholders: Dict[str, Union[str, int]] = self.extractShareholders(portable_document_file_data_result_set)
             response = {
@@ -159,17 +159,20 @@ class Document_Reader:
             "date_appointment": date_appointment
         }
 
-    def extractShareCapital(self, result_set: List[str]) -> Dict[str, Union[str, int]]:
+    def extractStateCapital(self, portable_document_file_result_set: List[str]) -> Dict[str, Union[str, int]]:
         """
         Extracting the data for the share capital from the result
         set.
 
         Parameters:
-            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+            portable_document_file_result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
 
         Returns:
             {type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}
         """
+        start_index: int = portable_document_file_result_set.index("Particulars of Stated Capital") + 1
+        end_index: int = portable_document_file_result_set.index("Certificate (Issued by Other Institutions)")
+        result_set: List[str] = portable_document_file_result_set[start_index:end_index]
         type: str = " ".join([result_set[result_set.index("Type of Shares") + 4], result_set[result_set.index("Type of Shares") + 5]]).title()
         amount: int = int(result_set[[index for index, value in enumerate(result_set) if "No. of Shares" in value][0] + 5].split(" ")[0])
         currency: str = " ".join([result_set[[index for index, value in enumerate(result_set) if "No. of Shares" in value][0] + 5].split(" ")[1], result_set[[index for index, value in enumerate(result_set) if "No. of Shares" in value][0] + 5].split(" ")[2]])
