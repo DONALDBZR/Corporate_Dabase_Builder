@@ -12,10 +12,10 @@ from typing import Union, Dict, Tuple
 from mysql.connector.errors import Error
 
 
-class Office_Bearers(Database_Handler):
+class Shareholders(Database_Handler):
     """
-    The model which will interact exclusively with the Office
-    Bearers.
+    The model which will interact exclusively with the
+    Shareholders.
     """
     __table_name: str
     """
