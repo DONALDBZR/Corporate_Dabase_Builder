@@ -146,7 +146,7 @@ class Company_Details(Database_Handler):
             date_incorporation: string: The date at which the company was legally formed.
 
         Returns:
-            [{identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}]
+            [{identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int, is_extracted: int, company_identifier: int, company_type: string}]
         """
         try:
             parameters: Tuple[str] = (date_incorporation,)
