@@ -12,10 +12,10 @@ from typing import Union, Dict, Tuple
 from mysql.connector.errors import Error
 
 
-class Business_Details(Database_Handler):
+class State_Capital(Database_Handler):
     """
-    The model which will interact exclusively with the Business
-    Details.
+    The model which will interact exclusively with the State
+    Capital.
     """
     __table_name: str
     """
