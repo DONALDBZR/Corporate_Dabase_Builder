@@ -91,9 +91,9 @@ class Document_Reader:
             cache_file = open(cache_data_file_name, "w")
             portable_document_file_data_result_set: List[str] = list(filter(None, portable_document_file_data.split("\n")))
             company_details: Dict[str, Union[str, int]] = self.extractCompanyDetails(portable_document_file_data_result_set)
-            print(f"Result Set: {portable_document_file_data_result_set}\nCompany Details: {company_details}\n----------")
-            # exit()
             business_details: Dict[str, str] = self.extractBusinessDetails(portable_document_file_data_result_set)
+            print(f"Result Set: {portable_document_file_data_result_set}\nCompany Details: {company_details}\nBusiness Details: {business_details}\n----------")
+            exit()
             share_capital: Dict[str, Union[str, int]] = self.extractShareCapital(portable_document_file_data_result_set)
             office_bearers: Dict[str, Union[str, int]] = self.extractOfficeBearers(portable_document_file_data_result_set)
             shareholders: Dict[str, Union[str, int]] = self.extractShareholders(portable_document_file_data_result_set)
@@ -196,7 +196,7 @@ class Document_Reader:
         Returns:
             {registered_address: string, name: string, nature: string, operational: string}
         """
-        start_index: int = portable_document_file_result_set.index("Business Details") + 1
+        start_index: int = [index for index, value in enumerate(portable_document_file_result_set) if "Registered Office Address:" in value][0]
         end_index: int = portable_document_file_result_set.index("Particulars of Stated Capital")
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
         registered_address: str = result_set[[index for index, value in enumerate(result_set) if "Registered Office Address:" in value][0]].split(": ")[-1].title()
