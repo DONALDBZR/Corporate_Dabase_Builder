@@ -36,3 +36,38 @@ class State_Capital(Database_Handler):
 
     def setTableName(self, table_name: str) -> None:
         self.__table_name = table_name
+
+    def addStateCapital(self, data: Dict[str, Union[str, int]], company_detail: int) -> int:
+        """
+        Adding the state capital data of the company into the
+        relational database server.
+
+        Parameters:
+            data: {type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}: The data that has been extracted for the shareholder table.
+            company_detail: int: The identifier of the company.
+
+        Returns:
+            int
+        """
+        response: int
+        try:
+            parameters: Tuple[str, int, int, int, int, str, int] = (
+                str(data["type"]),
+                int(data["amount"]),
+                int(data["state_capital"]),
+                int(data["amount_unpaid"]),
+                int(data["par_value"]),
+                str(data["currency"]),
+                company_detail
+            )
+            self.postData(
+                table=self.getTableName(),
+                columns="type, amount, stated_capital, amount_unpaid, par_value, currency, CompanyDetail",
+                values="%s, %s, %s, %s, %s",
+                parameters=parameters # type: ignore
+            )
+            response = 201
+        except Error as error:
+            response = 503
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {response}\nError: {error}")
+        return response
