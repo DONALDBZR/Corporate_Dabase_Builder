@@ -9,7 +9,6 @@ Authors:
 
 from Models.DatabaseHandler import Database_Handler
 from typing import Union, Dict, Tuple
-from mysql.connector.types import RowType
 from mysql.connector.errors import Error
 
 
