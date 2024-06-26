@@ -109,6 +109,7 @@ class Builder:
         self.setDocumentFiles(Document_Files())
         self.setDocumentReader(Document_Reader())
         self.setBusinessDetails(Business_Details())
+        self.setStateCapital(State_Capital())
         self.getLogger().inform("The builder has been initialized and all of its dependencies are injected!")
 
     def getCrawler(self) -> Crawler:
