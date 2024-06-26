@@ -39,8 +39,8 @@ class Office_Bearers(Database_Handler):
 
     def addDirectors(self, data: Dict[str, Union[str, int]], company_detail: int) -> int:
         """
-        Adding the state capital data of the company into the
-        relational database server.
+        Adding the directors data of the company into the relational
+        database server.
 
         Parameters:
             data: {position: string, name: string, address: string, date_appointment: int}: The data that has been extracted for the office bearers table.
