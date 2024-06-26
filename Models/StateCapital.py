@@ -28,7 +28,7 @@ class State_Capital(Database_Handler):
         operate the application.
         """
         super().__init__()
-        self.setTableName("BusinessDetails")
+        self.setTableName("StateCapital")
         self.getLogger().inform("The model has been successfully been initiated with its dependencies.")
 
     def getTableName(self) -> str:
