@@ -20,6 +20,7 @@ from Models.DocumentFiles import Document_Files
 from Models.CompanyDetails import Company_Details
 from Models.DocumentReader import Document_Reader
 from Models.BusinessDetails import Business_Details
+from Models.StateCapital import State_Capital
 from datetime import datetime, timedelta
 from Environment import Environment
 from typing import List, Tuple, Union, Dict
