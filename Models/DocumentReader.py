@@ -90,6 +90,8 @@ class Document_Reader:
             portable_document_file_data: str = extract_text(file_name)
             cache_file = open(cache_data_file_name, "w")
             portable_document_file_data_result_set: List[str] = list(filter(None, portable_document_file_data.split("\n")))
+            print(f"Result Set: {portable_document_file_data_result_set}\n----------")
+            # exit()
             company_details: Dict[str, Union[str, int]] = self.extractCompanyDetails(portable_document_file_data_result_set)
             business_details: Dict[str, str] = self.extractBusinessDetails(portable_document_file_data_result_set)
             share_capital: Dict[str, Union[str, int]] = self.extractShareCapital(portable_document_file_data_result_set)
@@ -205,17 +207,20 @@ class Document_Reader:
             "operational_address": operational_address
         }
 
-    def extractCompanyDetails(self, result_set: List[str]) -> Dict[str, Union[str, int]]:
+    def extractCompanyDetails(self, portable_document_file_result_set: List[str]) -> Dict[str, Union[str, int]]:
         """
         Extracting the data for the company details from the result
         set.
 
         Parameters:
-            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+            portable_document_file_result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
 
         Returns:
             {business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}
         """
+        start_index: int = portable_document_file_result_set.index("Company Details") + 1
+        end_index: int = [index for index, value in enumerate(portable_document_file_result_set) if "Business Registration No.:" in value][0] + 1
+        result_set: List[str] = portable_document_file_result_set[start_index:end_index]
         business_registration_number: str = result_set[[index for index, value in enumerate(result_set) if "Business Registration No.:" in value][0]].split(" ")[-1]
         name: str = result_set[result_set.index("Name:") + 2]
         file_number: str = result_set[result_set.index("File No.:") + 1]
