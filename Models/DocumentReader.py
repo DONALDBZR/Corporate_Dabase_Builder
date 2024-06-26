@@ -90,9 +90,9 @@ class Document_Reader:
             portable_document_file_data: str = extract_text(file_name)
             cache_file = open(cache_data_file_name, "w")
             portable_document_file_data_result_set: List[str] = list(filter(None, portable_document_file_data.split("\n")))
-            print(f"Result Set: {portable_document_file_data_result_set}\n----------")
-            # exit()
             company_details: Dict[str, Union[str, int]] = self.extractCompanyDetails(portable_document_file_data_result_set)
+            print(f"Result Set: {portable_document_file_data_result_set}\nCompany Details: {company_details}\n----------")
+            # exit()
             business_details: Dict[str, str] = self.extractBusinessDetails(portable_document_file_data_result_set)
             share_capital: Dict[str, Union[str, int]] = self.extractShareCapital(portable_document_file_data_result_set)
             office_bearers: Dict[str, Union[str, int]] = self.extractOfficeBearers(portable_document_file_data_result_set)
@@ -185,17 +185,20 @@ class Document_Reader:
             "par_value": par_value
         }
 
-    def extractBusinessDetails(self, result_set: List[str]) -> Dict[str, str]:
+    def extractBusinessDetails(self, portable_document_file_result_set: List[str]) -> Dict[str, str]:
         """
         Extracting the data for the business details from the result
         set.
 
         Parameters:
-            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+            portable_document_file_result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
 
         Returns:
             {registered_address: string, name: string, nature: string, operational: string}
         """
+        start_index: int = portable_document_file_result_set.index("Business Details") + 1
+        end_index: int = portable_document_file_result_set.index("Particulars of Stated Capital")
+        result_set: List[str] = portable_document_file_result_set[start_index:end_index]
         registered_address: str = result_set[[index for index, value in enumerate(result_set) if "Registered Office Address:" in value][0]].split(": ")[-1].title()
         name: str = result_set[result_set.index("Business Name") + 3]
         nature: str = ' '.join([result_set[result_set.index("Nature of Business") + 3], result_set[result_set.index("Nature of Business") + 4], result_set[result_set.index("Nature of Business") + 5]])
