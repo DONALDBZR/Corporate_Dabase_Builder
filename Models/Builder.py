@@ -21,6 +21,8 @@ from Models.CompanyDetails import Company_Details
 from Models.DocumentReader import Document_Reader
 from Models.BusinessDetails import Business_Details
 from Models.StateCapital import State_Capital
+from Models.OfficeBearers import Office_Bearers
+from Models.Shareholders import Shareholders
 from datetime import datetime, timedelta
 from Environment import Environment
 from typing import List, Tuple, Union, Dict
@@ -94,6 +96,16 @@ class Builder:
     The model which will interact exclusively with the State
     Capital.
     """
+    __office_bearers: Office_Bearers
+    """
+    The model which will interact exclusively with the Office
+    Bearers.
+    """
+    __shareholders: Shareholders
+    """
+    The model which will interact exclusively with the
+    Shareholders.
+    """
 
     def __init__(self) -> None:
         """
@@ -110,6 +122,8 @@ class Builder:
         self.setDocumentReader(Document_Reader())
         self.setBusinessDetails(Business_Details())
         self.setStateCapital(State_Capital())
+        self.setOfficeBearers(Office_Bearers())
+        self.setShareholders(Shareholders())
         self.getLogger().inform("The builder has been initialized and all of its dependencies are injected!")
 
     def getCrawler(self) -> Crawler:
