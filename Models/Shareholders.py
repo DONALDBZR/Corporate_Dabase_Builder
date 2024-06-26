@@ -28,7 +28,7 @@ class Shareholders(Database_Handler):
         operate the application.
         """
         super().__init__()
-        self.setTableName("Shareholdes")
+        self.setTableName("Shareholders")
         self.getLogger().inform("The model has been successfully been initiated with its dependencies.")
 
     def getTableName(self) -> str:
