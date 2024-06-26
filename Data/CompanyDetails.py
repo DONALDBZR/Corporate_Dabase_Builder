@@ -25,13 +25,16 @@ class CompanyDetails:
     nature: str
     status: str
     date_verified: Union[int, None]
+    is_extracted: int
+    company_identifier: int
+    company_type: str
 
     def __init__(self, dataset: Union[RowType, Dict[str, Union[int, str, None]]]) -> None:
         """
         Initializing the data class object.
 
         Parameters:
-            dataset: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}{year: int, quarter: string, start_date: string, end_date: string}
+            dataset: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int, is_extracted: int, company_identifier: int, company_type: string}: The result set from the relational database server.
 
         Returns:
             void
@@ -45,3 +48,6 @@ class CompanyDetails:
         self.nature = str(dataset["nature"]) # type: ignore
         self.status = str(dataset["status"]) # type: ignore
         self.date_verified = dataset["date_verified"] # type: ignore
+        self.is_extracted = dataset["is_extracted"] # type: ignore
+        self.company_identifier = dataset["company_identifier"] # type: ignore
+        self.company_type = dataset["company_type"] # type: ignore
