@@ -282,10 +282,31 @@ class Builder:
         for index in range(0, len(document_files), 1):
             file_generation_status: int = self.getDocumentReader().generatePortableDocumentFile(document_files[index])
             data_extraction: Dict[str, Union[int, Dict[str, Union[str, int]]]] = self.getDocumentReader().extractData(file_generation_status, document_files[index])
-            data_manipulation: int = self.storeCorporateData(data_extraction)
+            data_manipulation: int = self.storeCorporateData(data_extraction, document_files[index])
             exit()
             # Storing the data extracted into the relational database server.
             # Deleting the generated portable document file.
+
+    def storeCorporateData(self, dataset: Dict[str, Union[int, Dict[str, Union[str, int]]]], document_file: DocumentFiles) -> int:
+        """
+        Storing the corporate data that is extracted from the
+        corporate registry.
+
+        Parameters:
+            dataset: {status: int, company_details: {business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}, business_details: {registered_address: string, name: string, nature: string, operational: string}, share_capital: {type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}, office_bearers: {position: string, name: string, address: string, date_appointment: int}, shareholders: {name: string, amount: int, type: string, currency: string}}: The data that has been extracted from the corporate registry.
+
+        Returns:
+            int
+        """
+        response: int
+        data_extraction_status: int = dataset["status"] # type: ignore
+        if data_extraction_status == 200:
+            company_detail_response: int = self.storeCorporateDataCompanyDetail(data_extraction_status, dataset["company_details"], document_file)
+            # Doing the data manipulation on the data related to the corporate registry.
+        else:
+            response = 500
+            self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {data_extraction_status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
+        return response
 
     def downloadCorporateFile(self) -> None:
         """
