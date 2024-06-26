@@ -331,7 +331,7 @@ class Builder:
 
         Parameters:
             business_detail: int: The status of the data manipulation.
-            share_capital: {type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}: The data that has been extracted for the shareholder table.
+            state_capital: {type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}: The data that has been extracted for the shareholder table.
             document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
 
         Returns:
