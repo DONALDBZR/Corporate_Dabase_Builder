@@ -29,10 +29,8 @@ class Business_Details(Database_Handler):
         operate the application.
         """
         super().__init__()
-        self.setTableName("CompanyDetails")
-        self.getLogger().inform(
-            "The model has been successfully been initiated with its dependencies."
-        )
+        self.setTableName("BusinessDetails")
+        self.getLogger().inform("The model has been successfully been initiated with its dependencies.")
 
     def getTableName(self) -> str:
         return self.__table_name
