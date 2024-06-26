@@ -43,7 +43,7 @@ class State_Capital(Database_Handler):
         relational database server.
 
         Parameters:
-            data: {type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}: The data that has been extracted for the shareholder table.
+            data: {type: string, amount: int, currency: string, stated_capital: int, amount_unpaid: int, par_value: int}: The data that has been extracted for the shareholder table.
             company_detail: int: The identifier of the company.
 
         Returns:
@@ -54,7 +54,7 @@ class State_Capital(Database_Handler):
             parameters: Tuple[str, int, int, int, int, str, int] = (
                 str(data["type"]),
                 int(data["amount"]),
-                int(data["state_capital"]),
+                int(data["stated_capital"]),
                 int(data["amount_unpaid"]),
                 int(data["par_value"]),
                 str(data["currency"]),
