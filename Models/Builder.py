@@ -318,16 +318,37 @@ class Builder:
         if data_extraction_status == 200:
             company_detail_response: int = self.storeCorporateDataCompanyDetail(data_extraction_status, dataset["company_details"], document_file) # type: ignore
             business_detail_response: int = self.storeCorporateDataBusinessDetail(company_detail_response, dataset["business_details"], document_file) # type: ignore
-            share_capital_response: int = self.storeCorporateDataShareCapital(business_detail_response, dataset["share_capital"], document_file) # type: ignore
+            state_capital_response: int = self.storeCorporateDataStateCapital(business_detail_response, dataset["share_capital"], document_file) # type: ignore
             # Doing the data manipulation on the data related to the corporate registry.
         else:
             response = 500
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {data_extraction_status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
+    def storeCorporateDataStateCapital(self, business_detail: int, state_capital: Dict[str, Union[str, int]], document_file: DocumentFiles) -> int:
+        """
+        Doing the data manipulation State Capital result set.
+
+        Parameters:
+            business_detail: int: The status of the data manipulation.
+            share_capital: {type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}: The data that has been extracted for the shareholder table.
+            document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
+
+        Returns:
+            int
+        """
+        response: int
+        if business_detail == 201:
+            response = self.getStateCapital().addStateCapital(state_capital, document_file.company_detail)
+            self.getLogger().inform(f"The data has been successfully updated into the State Capital table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {state_capital}")
+        else:
+            response = business_detail
+            self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {business_detail}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
+        return response
+
     def storeCorporateDataBusinessDetail(self, company_detail: int, business_details: Dict[str, str], document_file: DocumentFiles) -> int:
         """
-        Doing the data manipulation on the Company Details result
+        Doing the data manipulation on the Business Details result
         set.
 
         Parameters:
@@ -339,9 +360,9 @@ class Builder:
             int
         """
         response: int
-        if company_detail == 200:
+        if company_detail == 202:
             response = self.getBusinessDetails().addBusinessDetails(business_details, document_file.company_detail)
-            self.getLogger().inform(f"The data has been successfully updated into the Company Details table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {business_details}")
+            self.getLogger().inform(f"The data has been successfully updated into the Business Details table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {business_details}")
         else:
             response = company_detail
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {company_detail}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
