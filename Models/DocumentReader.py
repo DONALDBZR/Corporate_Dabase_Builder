@@ -100,7 +100,7 @@ class Document_Reader:
                 "office_bearers": office_bearers,
                 "shareholders": shareholders
             }
-            self.getLogger().inform(f"Data has been extracted from the portable document file version of the corporate registry.\nStatus: {response['status']}\nDocument File Identifier: {dataset.identifier}\nFile Location: {file_name}\nCompany Details Identifier: {dataset.company_detail}")
+            self.getLogger().inform(f"Data has been extracted from the portable document file version of the corporate registry.\nStatus: {response['status']}\nDocument File Identifier: {dataset.identifier}\nFile Location: {file_name}\nCompany Details Identifier: {dataset.company_detail}\nCompany Details: {company_details}\nBusiness Details: {business_details}\nShare Capital: {share_capital}\nOffice Bearers: {office_bearers}\nShareholders: {shareholders}")
         else:
             response = {
                 "status": 404
