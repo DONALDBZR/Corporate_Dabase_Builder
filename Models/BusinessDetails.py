@@ -60,7 +60,7 @@ class Business_Details(Database_Handler):
             )
             self.postData(
                 table=self.getTableName(),
-                columns="registered_address, name, nature, operational_address, CompanyAddress",
+                columns="registered_address, name, nature, operational_address, CompanyDetail",
                 values="%s, %s, %s, %s, %s",
                 parameters=parameters # type: ignore
             )
