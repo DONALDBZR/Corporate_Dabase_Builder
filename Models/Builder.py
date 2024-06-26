@@ -311,6 +311,28 @@ class Builder:
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {data_extraction_status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
+    def storeCorporateDataBusinessDetail(self, company_detail: int, business_details: Dict[str, Union[str, int]], document_file: DocumentFiles) -> int:
+        """
+        Doing the data manipulation on the Company Details result
+        set.
+
+        Parameters:
+            company_detail: int: The status of the data manipulation.
+            business_details: {registered_address: string, name: string, nature: string, operational: string}: The data that has been extracted for the business details table.
+            document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
+
+        Returns:
+            int
+        """
+        response: int
+        if company_detail == 200:
+            response = self.getBusinessDetails().addBusinessDetails(business_details, document_file.company_detail)
+            self.getLogger().inform(f"The data has been successfully updated into the Company Details table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {business_details}")
+        else:
+            response = company_detail
+            self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {company_detail}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
+        return response
+
     def storeCorporateDataCompanyDetail(self, data_extraction: int, company_details: Dict[str, Union[str, int]], document_file: DocumentFiles) -> int:
         """
         Doing the data manipulation on the Company Details result
