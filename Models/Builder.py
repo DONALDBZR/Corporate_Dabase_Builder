@@ -379,7 +379,7 @@ class Builder:
         """
         response: int
         if status == 201:
-            response = self.getShareholders().addDirectors(shareholders, document_file.company_detail)
+            response = self.getShareholders().addShareholders(shareholders, document_file.company_detail)
             self.getLogger().inform(f"The data has been successfully updated into the State Capital table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {shareholders}")
         else:
             response = status
