@@ -339,6 +339,27 @@ class Builder:
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {data_extraction_status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
+    def storeCorporateDataShareholders(self, status: int, shareholders: Dict[str, Union[str, int]], document_file: DocumentFiles) -> int:
+        """
+        Doing the data manipulation on the Shareholders result set.
+
+        Parameters:
+            status: int: The status of the data manipulation.
+            shareholders: {name: string, amount: int, type: string, currency: string}: The data that has been extracted for the shareholders table.
+            document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
+
+        Returns:
+            int
+        """
+        response: int
+        if status == 201:
+            response = self.getShareholders().addDirectors(shareholders, document_file.company_detail)
+            self.getLogger().inform(f"The data has been successfully updated into the State Capital table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {shareholders}")
+        else:
+            response = status
+            self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
+        return response
+
     def storeCorporateDataOfficeBearers(self, status: int, office_bearers: Dict[str, Union[str, int]], document_file: DocumentFiles) -> int:
         """
         Doing the data manipulation on the Office Bearers result
