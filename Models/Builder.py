@@ -23,6 +23,7 @@ from datetime import datetime, timedelta
 from Environment import Environment
 from typing import List, Tuple, Union, Dict
 from time import time
+from re import findall
 import os
 
 
@@ -325,9 +326,13 @@ class Builder:
         response: int
         date_verified: int = int(time())
         is_extracted: int = 1
+        company_identifier: int = int("".join(findall(r"\d+", str(company_details["file_number"]))))
+        company_type: str = "".join(findall(r"[A-Z]+", str(company_details["file_number"])))
         if data_extraction == 200:
             company_details["date_verified"] = date_verified
             company_details["is_extracted"] = is_extracted
+            company_details["company_identifier"] = company_identifier
+            company_details["company_type"] = company_type
             response = self.getCompanyDetails().updateCorporateMetadata(company_details, document_file.company_detail)
             self.getLogger().inform(f"The data has been successfully updated into the Company Details table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {company_details}")
         else:
