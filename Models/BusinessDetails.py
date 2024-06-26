@@ -13,9 +13,9 @@ from mysql.connector.types import RowType
 from mysql.connector.errors import Error
 
 
-class Company_Details(Database_Handler):
+class Business_Details(Database_Handler):
     """
-    The model which will interact exclusively with the Company
+    The model which will interact exclusively with the Business
     Details.
     """
     __table_name: str
