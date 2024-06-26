@@ -12,10 +12,10 @@ from typing import Union, Dict, Tuple
 from mysql.connector.errors import Error
 
 
-class State_Capital(Database_Handler):
+class Office_Bearers(Database_Handler):
     """
-    The model which will interact exclusively with the State
-    Capital.
+    The model which will interact exclusively with the Office
+    Bearers.
     """
     __table_name: str
     """
@@ -28,7 +28,7 @@ class State_Capital(Database_Handler):
         operate the application.
         """
         super().__init__()
-        self.setTableName("StateCapital")
+        self.setTableName("OfficeBearers")
         self.getLogger().inform("The model has been successfully been initiated with its dependencies.")
 
     def getTableName(self) -> str:
