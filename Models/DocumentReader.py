@@ -236,6 +236,22 @@ class Document_Reader:
         else:
             return "NaAS"
 
+    def __extractShareholdersAmountShares(self, amount_shares: List[int], amount_share: Union[int, str]) -> List[int]:
+        """
+        Building the response of the extraction of the amount of
+        shares of the shareholders.
+
+        Parameters:
+            amount_shares: [int]: The response to be returned.
+            amount_share: int|string: The amount of the shares.
+
+        Returns:
+            [int]
+        """
+        if type(amount_share) is int:
+            amount_shares.append(amount_share)
+        return amount_shares
+
     def extractShareholdersAmountShares(self, result_set: List[str]) -> List[int]:
         """
         Extracting the amount of shares from the result set.
