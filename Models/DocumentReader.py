@@ -295,19 +295,16 @@ class Document_Reader:
         names: List[str] = self.extractShareholdersNames(result_set)
         result_set = [value for value in result_set if value not in names]
         type_of_shares: List[str] = self.extractShareholdersTypeShares(result_set)
-        amount_shares: List[int] = self.extractShareholdersAmountShares(result_set)
-        print(f"Dataset: {result_set}\nNames: {names}\nType Of Shares: {type_of_shares}\nAmount: {amount_shares}\n----------")
-        exit()
-        name: str = result_set[result_set.index("Name") + 9].title()
-        amount_shares: int = int(result_set[[index for index, value in enumerate(result_set) if "No. of Shares" in value][1] + 3].split(" ")[0])
-        type_shares: str = result_set[[index for index, value in enumerate(result_set) if "Type of Shares" in value][1] + 3].split(" ")[1].title()
-        currency: str = result_set[result_set.index("Currency") + 3].title()
-        return {
-            "name": name,
-            "amount_shares": amount_shares,
-            "type_shares": type_shares,
-            "currency": currency
-        }
+        amount_of_shares: List[int] = self.extractShareholdersAmountShares(result_set)
+        currencies: List[str] = [value for value in result_set if type_of_shares[0] not in value]
+        for index in range(0, len(names), 1):
+            data: Dict[str, Union[str, int]] = {
+                "name": names[index].title(),
+                "amount_shares": amount_of_shares[index],
+                "type_shares": type_of_shares[index].title(),
+                "currency": currencies[index].title()
+            }
+            response.append(data)
         return response
 
     def _extractOfficeBearersDateAppointments(self, dataset: List[Tuple[str, str, str]]) -> str:
