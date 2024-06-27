@@ -258,6 +258,21 @@ class Document_Reader:
             response = self.__extractOfficeBearersPositions(response, position)
         return response
 
+    def _extractOfficeBearersNames(self, dataset: List[str]) -> str:
+        """
+        Building the name of an office bearer.
+
+        Parameters:
+            dataset: [string]: The dataset containing the name.
+
+        Returns:
+            string
+        """
+        if len(dataset) > 1 and "MAURITIUS" not in dataset:
+            return " ".join(dataset).title()
+        else:
+            return "NaN"
+
     def extractOfficeBearersNames(self, result_set: List[str]) -> List[str]:
         """
         Retrieving the names of the office bearers.
@@ -298,7 +313,7 @@ class Document_Reader:
         positions: List[str] = self.extractOfficeBearersPositions(result_set)
         result_set = [value for value in result_set if value not in positions]
         names: List[str] = self.extractOfficeBearersNames(result_set)
-        print(f"Result Set: {result_set}\nDate of Appointments: {date_appointments}\nPositions: {positions}")
+        print(f"Result Set: {result_set}\nDate of Appointments: {date_appointments}\nPositions: {positions}\nNames: {names}")
         exit()
         position: str = result_set[result_set.index("Position") + 1].title()
         name: str = result_set[result_set.index("Name") + 4].title()
