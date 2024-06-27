@@ -174,6 +174,22 @@ class Document_Reader:
             response = self.__extractNames(response, name)
         return response
 
+    def extractShareholdersTypeShares(self, result_set: List[str]) -> List[str]:
+        """
+        Extracting the type of shares from the result set.
+
+        Parameters:
+            result_set: [string]: The result set to be used as a dataset.
+
+        Returns:
+            [string]
+        """
+        response: List[str] = []
+        for index in range(0, len(result_set), 1):
+            type_shares: List[str] = findall(r"\b[A-Z]+\b", result_set[index])
+            print(f"Type Of Shares[{index}]: {type_shares}")
+        return response
+
     def extractShareholders(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
         """
         Extracting the data for the shareholders from the result
