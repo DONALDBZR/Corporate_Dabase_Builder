@@ -226,6 +226,21 @@ class Document_Reader:
         else:
             return "NaP"
 
+    def __extractOfficeBearersPositions(self, positions: List[str], position: str) -> List[str]:
+        """
+        Setting all of the positions into the response.
+
+        Parameters:
+            positions: [string]: The response to be returned
+            position: string: The position of the office bearer.
+
+        Returns:
+            [string]
+        """
+        if position != "NaP":
+            positions.append(position)
+        return positions
+
     def extractOfficeBearersPositions(self, result_set: List[str]) -> List[str]:
         """
         Retrieving the positions of the office bearers.
@@ -240,8 +255,7 @@ class Document_Reader:
         for index in range(0, len(result_set), 1):
             positions: List[str] = findall(r"\b[A-Z]+\b", result_set[index])
             position: str = self._extractOfficeBearersPositions(positions)
-            if position != "NaP":
-                response.append(position)
+            response = self.__extractOfficeBearersPositions(response, position)
         return response
 
     def extractOfficeBearers(self, portable_document_file_result_set: List[str]) -> Dict[str, Union[str, int]]:
