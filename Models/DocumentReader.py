@@ -189,6 +189,21 @@ class Document_Reader:
         else:
             return "NaTS"
 
+    def __extractShareholdersTypeShares(self, type_shares: List[str], type_share: str) -> List[str]:
+        """
+        Setting all of the type of shares into the response.
+
+        Parameters:
+            type_shares: [string]: The response to be returned
+            type_share: string: The type of share of the shareholder
+
+        Returns:
+            [string]
+        """
+        if type_share != "NaTS":
+            type_shares.append(type_share)
+        return type_shares
+
     def extractShareholdersTypeShares(self, result_set: List[str]) -> List[str]:
         """
         Extracting the type of shares from the result set.
