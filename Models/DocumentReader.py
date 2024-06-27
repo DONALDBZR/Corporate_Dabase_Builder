@@ -12,10 +12,11 @@ Authors:
 from Models.Logger import Corporate_Database_Builder_Logger
 from Data.DocumentFiles import DocumentFiles
 from Environment import Environment
-from typing import Dict, Union, List
+from typing import Dict, Tuple, Union, List
 from pdfminer.high_level import extract_text
 from datetime import datetime
 from json import dumps
+from re import findall
 
 
 class Document_Reader:
@@ -93,7 +94,7 @@ class Document_Reader:
             company_details: Dict[str, Union[str, int]] = self.extractCompanyDetails(portable_document_file_data_result_set)
             business_details: Dict[str, str] = self.extractBusinessDetails(portable_document_file_data_result_set)
             certificate: Union[Dict[str, Union[str, int]], None] = self.extractCertificates(portable_document_file_data_result_set)
-            # office_bearers: Dict[str, Union[str, int]] = self.extractOfficeBearers(portable_document_file_data_result_set)
+            office_bearers: Dict[str, Union[str, int]] = self.extractOfficeBearers(portable_document_file_data_result_set)
             print(f"Result Set: {portable_document_file_data_result_set}\nCompany Details: {company_details}\nBusiness Details: {business_details}\nCertificates: {certificate}\nOffice Bearers: {office_bearers}\n----------")
             exit()
             state_capital: Dict[str, Union[str, int]] = self.extractStateCapital(portable_document_file_data_result_set)
@@ -163,6 +164,27 @@ class Document_Reader:
             "currency": currency
         }
 
+    def extractOfficeBearersDateAppointments(self, result_set: List[str]) -> List[str]:
+        """
+        Retrieving the date of appointments of the office bearers.
+
+        Parameters:
+            result_set: [string]: The result set of the office bearers.
+
+        Returns:
+            [string]
+        """
+        response: List[str] = []
+        date_appointment: str
+        for index in range(0, len(result_set), 1):
+            date_appointments: List[Tuple[str, str, str]] = findall(r"\b([0-2][0-9]|3[01])/(0[1-9]|1[0-2])/(\d{4})\b", result_set[index])
+            if len(date_appointments) > 0:
+                date_appointment = "/".join(list(date_appointments[0]))
+            else:
+                date_appointment = "NaDA"
+            response.append(date_appointment)
+        return response
+
     def extractOfficeBearers(self, portable_document_file_result_set: List[str]) -> Dict[str, Union[str, int]]:
         """
         Extracting the data for the office bearers from the result
@@ -174,10 +196,15 @@ class Document_Reader:
         Returns:
             {position: string, name: string, address: string, date_appointment: int}
         """
-        start_index: int = portable_document_file_result_set.index("Particulars of Stated Capital") + 1
-        end_index: int = portable_document_file_result_set.index("Certificate (Issued by Other Institutions)")
+        start_index: int = portable_document_file_result_set.index("Office Bearers") + 1
+        end_index: int = portable_document_file_result_set.index("Shareholders")
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
-        print(result_set)
+        result_set.remove("Position")
+        result_set.remove("Name")
+        result_set.remove("Service Address")
+        result_set.remove("Appointed Date")
+        date_appointments: List[str] = self.extractOfficeBearersDateAppointments(result_set)
+        print(f"Result Set: {result_set}\nDate of Appointments: {date_appointments}")
         exit()
         position: str = result_set[result_set.index("Position") + 1].title()
         name: str = result_set[result_set.index("Name") + 4].title()
