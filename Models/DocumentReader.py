@@ -305,6 +305,28 @@ class Document_Reader:
             response = self.__extractOfficeBearersNames(response, name)
         return response
 
+    def extractOfficeBearersAddresses(self, result_set: List[str]) -> List[str]:
+        """
+        Extracting the addresses of the office bearers.
+
+        Parameters:
+            result_set: [string]: The result set of the office bearers.
+
+        Returns:
+            [string]
+        """
+        response: List[str] = []
+        address_result_set = " ".join(result_set)
+        result_set = address_result_set.split("MAURITIUS ")
+        for index in range(0, len(result_set), 1):
+            if "MAURITIUS" in result_set[index]:
+                address = result_set[index]
+            else:
+                address = result_set[index] + "MAURITIUS"
+            address = address.title()
+            response.append(address)
+        return response
+
     def extractOfficeBearers(self, portable_document_file_result_set: List[str]) -> Dict[str, Union[str, int]]:
         """
         Extracting the data for the office bearers from the result
@@ -329,8 +351,9 @@ class Document_Reader:
         result_set = [value for value in result_set if value not in positions]
         names: List[str] = self.extractOfficeBearersNames(result_set)
         result_set = [value for value in result_set if value not in names]
-        address: List[str] = self.extractOfficeBearersAddresses(result_set)
-        print(f"Result Set: {result_set}\nDate of Appointments: {date_appointments}\nPositions: {positions}\nNames: {names}")
+        addresses: List[str] = self.extractOfficeBearersAddresses(result_set)
+        result_set = [value for value in result_set if value not in addresses]
+        print(f"Result Set: {result_set}\nDate of Appointments: {date_appointments}\nPositions: {positions}\nNames: {names}\nAddresses: {addresses}")
         exit()
         position: str = result_set[result_set.index("Position") + 1].title()
         name: str = result_set[result_set.index("Name") + 4].title()
