@@ -284,7 +284,7 @@ class Document_Reader:
             string
         """
         if len(dataset) > 1 and "MAURITIUS" not in dataset:
-            return " ".join(dataset).title()
+            return " ".join(dataset)
         else:
             return "NaN"
 
@@ -328,6 +328,7 @@ class Document_Reader:
         positions: List[str] = self.extractOfficeBearersPositions(result_set)
         result_set = [value for value in result_set if value not in positions]
         names: List[str] = self.extractOfficeBearersNames(result_set)
+        result_set = [value for value in result_set if value not in names]
         print(f"Result Set: {result_set}\nDate of Appointments: {date_appointments}\nPositions: {positions}\nNames: {names}")
         exit()
         position: str = result_set[result_set.index("Position") + 1].title()
