@@ -211,6 +211,27 @@ class Document_Reader:
             response = self.__extractOfficeBearersDateAppointments(response, date_appointment)
         return response
 
+    def extractOfficeBearersPositions(self, result_set: List[str]) -> List[str]:
+        """
+        Retrieving the positions of the office bearers.
+
+        Parameters:
+            result_set: [string]: The result set of the office bearers.
+
+        Returns:
+            [string]
+        """
+        response: List[str] = []
+        for index in range(0, len(result_set), 1):
+            positions: List[str] = findall(r"\b[A-Z]+\b", result_set[index])
+            if len(positions) == 1 and positions[0] != "MAURITIUS" and len(positions[0]) > 1:
+                position = positions[0]
+            else:
+                position = "NaD"
+            if position != "NaD":
+                response.append(position)
+        return response
+
     def extractOfficeBearers(self, portable_document_file_result_set: List[str]) -> Dict[str, Union[str, int]]:
         """
         Extracting the data for the office bearers from the result
@@ -230,7 +251,10 @@ class Document_Reader:
         result_set.remove("Service Address")
         result_set.remove("Appointed Date")
         date_appointments: List[str] = self.extractOfficeBearersDateAppointments(result_set)
-        print(f"Result Set: {result_set}\nDate of Appointments: {date_appointments}")
+        result_set = [value for value in result_set if value not in date_appointments]
+        positions: List[str] = self.extractOfficeBearersPositions(result_set)
+        result_set = [value for value in result_set if value not in positions]
+        print(f"Result Set: {result_set}\nDate of Appointments: {date_appointments}\nPositions: {positions}")
         exit()
         position: str = result_set[result_set.index("Position") + 1].title()
         name: str = result_set[result_set.index("Name") + 4].title()
