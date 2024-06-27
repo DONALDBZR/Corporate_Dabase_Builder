@@ -171,7 +171,7 @@ class Document_Reader:
         for index in range(0, len(result_set), 1):
             names: List[str] = findall(r"\b[A-Z]+\b", result_set[index])
             name: str = self._extractShareholdersNames(names)
-            print(f"Names[{index}]: {name}")
+            response = self.__extractNames(response, name)
         return response
 
     def extractShareholders(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
@@ -350,7 +350,7 @@ class Document_Reader:
         for index in range(0, len(result_set), 1):
             names: List[str] = findall(r"\b[A-Z]+\b", result_set[index])
             name: str = self._extractOfficeBearersNames(names)
-            response = self.__extractOfficeBearersNames(response, name)
+            response = self.__extractNames(response, name)
         return response
 
     def _extractOfficeBearersAddresses(self, address: str) -> str:
