@@ -91,11 +91,11 @@ class Document_Reader:
             cache_file = open(cache_data_file_name, "w")
             portable_document_file_data_result_set: List[str] = list(filter(None, portable_document_file_data.split("\n")))
             company_details: Dict[str, Union[str, int]] = self.extractCompanyDetails(portable_document_file_data_result_set)
+            print(f"Result Set: {portable_document_file_data_result_set}\nCompany Details: {company_details}\n----------")
             exit()
             business_details: Dict[str, str] = self.extractBusinessDetails(portable_document_file_data_result_set)
             state_capital: Dict[str, Union[str, int]] = self.extractStateCapital(portable_document_file_data_result_set)
             certificate: Dict[str, Union[str, int]] = self.extractCertificates(portable_document_file_data_result_set)
-            print(f"Result Set: {portable_document_file_data_result_set}\nCompany Details: {company_details}\nBusiness Details: {business_details}\nStated Capital: {state_capital}\nCertificates: {certificate}\n----------")
             office_bearers: Dict[str, Union[str, int]] = self.extractOfficeBearers(portable_document_file_data_result_set)
             shareholders: Dict[str, Union[str, int]] = self.extractShareholders(portable_document_file_data_result_set)
             response = {
@@ -257,7 +257,7 @@ class Document_Reader:
         result_set.remove("Sub Category:")
         result_set.remove("Business Details")
         business_registration_number: str = result_set[[index for index, value in enumerate(result_set) if "Business Registration No.:" in value][0]].split(" ")[-1]
-        name: str = result_set[1].title()
+        name: str = result_set[1]
         file_number: str = result_set[0]
         category: str = result_set[3].title()
         date_incorporation: int = int(datetime.strptime(result_set[4], "%d/%m/%Y").timestamp())
