@@ -91,9 +91,9 @@ class Document_Reader:
             cache_file = open(cache_data_file_name, "w")
             portable_document_file_data_result_set: List[str] = list(filter(None, portable_document_file_data.split("\n")))
             company_details: Dict[str, Union[str, int]] = self.extractCompanyDetails(portable_document_file_data_result_set)
-            print(f"Result Set: {portable_document_file_data_result_set}\nCompany Details: {company_details}\n----------")
-            exit()
             business_details: Dict[str, str] = self.extractBusinessDetails(portable_document_file_data_result_set)
+            print(f"Result Set: {portable_document_file_data_result_set}\nCompany Details: {company_details}\nBusiness Details: {business_details}\n----------")
+            exit()
             state_capital: Dict[str, Union[str, int]] = self.extractStateCapital(portable_document_file_data_result_set)
             certificate: Dict[str, Union[str, int]] = self.extractCertificates(portable_document_file_data_result_set)
             office_bearers: Dict[str, Union[str, int]] = self.extractOfficeBearers(portable_document_file_data_result_set)
@@ -221,10 +221,14 @@ class Document_Reader:
         start_index: int = [index for index, value in enumerate(portable_document_file_result_set) if "Registered Office Address:" in value][0]
         end_index: int = portable_document_file_result_set.index("Particulars of Stated Capital")
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
+        result_set.remove("Business Details")
+        result_set.remove("Business Name")
+        result_set.remove("Nature of Business")
+        result_set.remove("Principal Place of Business")
         registered_address: str = result_set[[index for index, value in enumerate(result_set) if "Registered Office Address:" in value][0]].split(": ")[-1].title()
-        name: str = result_set[result_set.index("Business Name") + 3]
-        nature: str = ' '.join([result_set[result_set.index("Nature of Business") + 3], result_set[result_set.index("Nature of Business") + 4], result_set[result_set.index("Nature of Business") + 5]])
-        operational_address: str = result_set[result_set.index("Principal Place of Business") + 5].title()
+        name: str = result_set[3]
+        nature: str = ' '.join([result_set[3], result_set[4]])
+        operational_address: str = ' '.join([result_set[5], result_set[6]]).title()
         return {
             "registered_address": registered_address,
             "name": name,
