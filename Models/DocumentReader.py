@@ -179,6 +179,21 @@ class Document_Reader:
         else:
             return "NaDA"
 
+    def __extractOfficeBearersDateAppointments(self, date_appointments: List[str], date_appointment: str) -> List[str]:
+        """
+        Setting all of the dates of appointments into the response.
+
+        Parameters:
+            date_appointments: [string]: The response to be returned
+            date_appointment: string: The date of appointment of the office bearer.
+
+        Returns:
+            [string]
+        """
+        if date_appointment != "NaDA":
+            date_appointments.append(date_appointment)
+        return date_appointments
+
     def extractOfficeBearersDateAppointments(self, result_set: List[str]) -> List[str]:
         """
         Retrieving the date of appointments of the office bearers.
@@ -190,11 +205,10 @@ class Document_Reader:
             [string]
         """
         response: List[str] = []
-        date_appointments_result_set: List[str] = []
         for index in range(0, len(result_set), 1):
             date_appointments: List[Tuple[str, str, str]] = findall(r"\b([0-2][0-9]|3[01])/(0[1-9]|1[0-2])/(\d{4})\b", result_set[index])
             date_appointment: str = self._extractOfficeBearersDateAppointments(date_appointments)
-            response.append(date_appointment)
+            response = self.__extractOfficeBearersDateAppointments(response, date_appointment)
         return response
 
     def extractOfficeBearers(self, portable_document_file_result_set: List[str]) -> Dict[str, Union[str, int]]:
