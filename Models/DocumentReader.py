@@ -269,7 +269,7 @@ class Document_Reader:
         Returns:
             [string]
         """
-        if name != "NaP":
+        if name != "NaN":
             names.append(name)
         return names
 
