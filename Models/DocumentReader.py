@@ -164,6 +164,21 @@ class Document_Reader:
             "currency": currency
         }
 
+    def _extractOfficeBearersDateAppointments(self, dataset: List[Tuple[str, str, str]]) -> str:
+        """
+        Building the date of appointment of an office bearer.
+
+        Parameters:
+            dataset: [(string, string, string)]: The dataset containing the date of appointment.
+
+        Returns:
+            string
+        """
+        if len(dataset) > 0:
+            return "/".join(list(dataset[0]))
+        else:
+            return "NaDA"
+
     def extractOfficeBearersDateAppointments(self, result_set: List[str]) -> List[str]:
         """
         Retrieving the date of appointments of the office bearers.
@@ -175,13 +190,10 @@ class Document_Reader:
             [string]
         """
         response: List[str] = []
-        date_appointment: str
+        date_appointments_result_set: List[str] = []
         for index in range(0, len(result_set), 1):
             date_appointments: List[Tuple[str, str, str]] = findall(r"\b([0-2][0-9]|3[01])/(0[1-9]|1[0-2])/(\d{4})\b", result_set[index])
-            if len(date_appointments) > 0:
-                date_appointment = "/".join(list(date_appointments[0]))
-            else:
-                date_appointment = "NaDA"
+            date_appointment: str = self._extractOfficeBearersDateAppointments(date_appointments)
             response.append(date_appointment)
         return response
 
