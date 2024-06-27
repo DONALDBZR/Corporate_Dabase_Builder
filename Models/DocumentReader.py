@@ -174,6 +174,21 @@ class Document_Reader:
             response = self.__extractNames(response, name)
         return response
 
+    def _extractShareholdersTypeShares(self, type_shares: List[str]) -> str:
+        """
+        Building the type of the shares of the shareholders.
+
+        Parameters:
+            type_shares: [string]: The list of the types of the shares of the shareholders.
+
+        Returns:
+            string
+        """
+        if len(type_shares) > 0:
+            return " ".join(type_shares)
+        else:
+            return "NaTS"
+
     def extractShareholdersTypeShares(self, result_set: List[str]) -> List[str]:
         """
         Extracting the type of shares from the result set.
@@ -187,7 +202,8 @@ class Document_Reader:
         response: List[str] = []
         for index in range(0, len(result_set), 1):
             type_shares: List[str] = findall(r"\b[A-Z]+\b", result_set[index])
-            print(f"Type Of Shares[{index}]: {type_shares}")
+            type_share: str = self._extractShareholdersTypeShares(type_shares)
+            print(f"Type Of Shares[{index}]: {type_share}")
         return response
 
     def extractShareholders(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
