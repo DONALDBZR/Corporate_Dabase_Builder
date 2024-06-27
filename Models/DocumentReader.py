@@ -211,6 +211,21 @@ class Document_Reader:
             response = self.__extractOfficeBearersDateAppointments(response, date_appointment)
         return response
 
+    def _extractOfficeBearersPositions(self, dataset: List[str]) -> str:
+        """
+        Building the position of an office bearer.
+
+        Parameters:
+            dataset: [string]: The dataset containing the position.
+
+        Returns:
+            string
+        """
+        if len(dataset) == 1 and dataset[0] != "MAURITIUS" and len(dataset[0]) > 1:
+            return dataset[0]
+        else:
+            return "NaP"
+
     def extractOfficeBearersPositions(self, result_set: List[str]) -> List[str]:
         """
         Retrieving the positions of the office bearers.
@@ -224,11 +239,8 @@ class Document_Reader:
         response: List[str] = []
         for index in range(0, len(result_set), 1):
             positions: List[str] = findall(r"\b[A-Z]+\b", result_set[index])
-            if len(positions) == 1 and positions[0] != "MAURITIUS" and len(positions[0]) > 1:
-                position = positions[0]
-            else:
-                position = "NaD"
-            if position != "NaD":
+            position: str = self._extractOfficeBearersPositions(positions)
+            if position != "NaP":
                 response.append(position)
         return response
 
