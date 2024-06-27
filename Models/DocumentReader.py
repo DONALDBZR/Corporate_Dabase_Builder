@@ -337,7 +337,7 @@ class Document_Reader:
             response.append(address)
         return response
 
-    def extractOfficeBearers(self, portable_document_file_result_set: List[str]) -> Dict[str, Union[str, int]]:
+    def extractOfficeBearers(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
         """
         Extracting the data for the office bearers from the result
         set.
@@ -346,8 +346,9 @@ class Document_Reader:
             portable_document_file_result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
 
         Returns:
-            {position: string, name: string, address: string, date_appointment: int}
+            [{position: string, name: string, address: string, date_appointment: int}]
         """
+        response: List[Dict[str, Union[str, int]]] = []
         start_index: int = portable_document_file_result_set.index("Office Bearers") + 1
         end_index: int = portable_document_file_result_set.index("Shareholders")
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
@@ -362,19 +363,19 @@ class Document_Reader:
         names: List[str] = self.extractOfficeBearersNames(result_set)
         result_set = [value for value in result_set if value not in names]
         addresses: List[str] = self.extractOfficeBearersAddresses(result_set)
-        result_set = [value for value in result_set if value not in addresses]
-        print(f"Result Set: {result_set}\nDate of Appointments: {date_appointments}\nPositions: {positions}\nNames: {names}\nAddresses: {addresses}")
-        exit()
-        position: str = result_set[result_set.index("Position") + 1].title()
-        name: str = result_set[result_set.index("Name") + 4].title()
-        address: str = result_set[result_set.index("Service Address") + 3].title()
-        date_appointment: int = int(datetime.strptime(result_set[result_set.index("Appointed Date") + 3], "%d/%m/%Y").timestamp())
-        return {
-            "position": position,
-            "name": name,
-            "address": address,
-            "date_appointment": date_appointment
-        }
+        for index in range(0, len(date_appointments), 1):
+            position: str = positions[index].title()
+            name: str = names[index].title()
+            address: str = addresses[index].title()
+            date_appointment: int = int(datetime.strptime(date_appointments[index], "%d/%m/%Y").timestamp())
+            office_bearer: Dict[str, Union[str, int]] = {
+                "position": position,
+                "name": name,
+                "address": address,
+                "date_appointment": date_appointment
+            }
+            response.append(office_bearer)
+        return response
 
     def extractStateCapital(self, portable_document_file_result_set: List[str]) -> Dict[str, Union[str, int]]:
         """
