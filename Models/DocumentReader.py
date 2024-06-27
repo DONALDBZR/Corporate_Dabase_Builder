@@ -198,7 +198,9 @@ class Document_Reader:
         result_set = [value for value in result_set if value != "Currency"]
         result_set = [value for value in result_set if "/" not in value]
         names: List[str] = self.extractShareholdersNames(result_set)
-        print(f"Dataset: {result_set}\nNames: {names}\n----------")
+        result_set = [value for value in result_set if value not in names]
+        type_of_shares: List[str] = self.extractShareholdersTypeShares(result_set)
+        print(f"Dataset: {result_set}\nNames: {names}\nType Of Shares: {type_of_shares}\n----------")
         exit()
         name: str = result_set[result_set.index("Name") + 9].title()
         amount_shares: int = int(result_set[[index for index, value in enumerate(result_set) if "No. of Shares" in value][1] + 3].split(" ")[0])
