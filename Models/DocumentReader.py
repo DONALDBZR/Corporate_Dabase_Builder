@@ -203,7 +203,7 @@ class Document_Reader:
         for index in range(0, len(result_set), 1):
             type_shares: List[str] = findall(r"\b[A-Z]+\b", result_set[index])
             type_share: str = self._extractShareholdersTypeShares(type_shares)
-            print(f"Type Of Shares[{index}]: {type_share}")
+            response = self.__extractShareholdersTypeShares(response, type_share)
         return response
 
     def extractShareholders(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
