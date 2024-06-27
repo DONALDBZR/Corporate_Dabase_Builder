@@ -221,6 +221,40 @@ class Document_Reader:
             response = self.__extractShareholdersTypeShares(response, type_share)
         return response
 
+    def _extractShareholdersAmountShares(self, amount_shares: List[str]) -> Union[int, str]:
+        """
+        Building the amount of shares.
+
+        Parameters:
+            amount_shares: [string]: The list of the amount of shares.
+
+        Returns:
+            string|int
+        """
+        if len(amount_shares) > 0:
+            return int(amount_shares[0])
+        else:
+            return "NaAS"
+
+    def extractShareholdersAmountShares(self, result_set: List[str]) -> List[int]:
+        """
+        Extracting the amount of shares from the result set.
+
+        Parameters:
+            result_set: [string]: The result set to be used as a dataset.
+
+        Returns:
+            [string]
+        """
+        response: List[int] = []
+        for index in range(0, len(result_set), 1):
+            amount_shares: List[str] = findall(r"\b\d+\b", result_set[index])
+            amount_share: Union[int, str] = self._extractShareholdersAmountShares(amount_shares)
+            print(f"Amount Of Shares[{index}]: {amount_share}")
+            # amount_share: str = self._extractShareholdersAmountShares(amount_shares)
+            # response = self.__extractShareholdersAmountShares(response, amount_share)
+        return response
+
     def extractShareholders(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
         """
         Extracting the data for the shareholders from the result
@@ -247,7 +281,8 @@ class Document_Reader:
         names: List[str] = self.extractShareholdersNames(result_set)
         result_set = [value for value in result_set if value not in names]
         type_of_shares: List[str] = self.extractShareholdersTypeShares(result_set)
-        print(f"Dataset: {result_set}\nNames: {names}\nType Of Shares: {type_of_shares}\n----------")
+        amount_shares: List[int] = self.extractShareholdersAmountShares(result_set)
+        print(f"Dataset: {result_set}\nNames: {names}\nType Of Shares: {type_of_shares}\nAmount: {amount_shares}\n----------")
         exit()
         name: str = result_set[result_set.index("Name") + 9].title()
         amount_shares: int = int(result_set[[index for index, value in enumerate(result_set) if "No. of Shares" in value][1] + 3].split(" ")[0])
