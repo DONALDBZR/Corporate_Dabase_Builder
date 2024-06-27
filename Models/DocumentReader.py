@@ -71,7 +71,7 @@ class Document_Reader:
         self.getLogger().inform(f"The portable document file of the corporate registry has been generated!\nLocation: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}\nStatus: {status}")
         return status
 
-    def extractData(self, status: int, dataset: DocumentFiles) -> Dict[str, Union[int, Dict[str, Union[str, int]]]]:
+    def extractData(self, status: int, dataset: DocumentFiles) -> Dict:
         """
         Extracting the data from the portable document file version
         of the corporate registry based on the status of the file
@@ -82,7 +82,7 @@ class Document_Reader:
             dataset: {identifier: int, file_data: bytes, company_detail: int}: The dataset of the corporate registry retrieved from the relational database server.
 
         Returns:
-            {status: int, company_details: {business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}, business_details: {registered_address: string, name: string, nature: string, operational: string}, state_capital: {type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}, office_bearers: {position: string, name: string, address: string, date_appointment: int}, shareholders: {name: string, amount: int, type: string, currency: string}}
+            {status: int, company_details: {business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}, business_details: [{registered_address: string, name: string, nature: string, operational: string}], state_capital: {type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}, office_bearers: {position: string, name: string, address: string, date_appointment: int}, shareholders: {name: string, amount: int, type: string, currency: string}}
         """
         response: Dict[str, Union[int, Dict[str, Union[str, int]]]]
         file_name: str = f"{self.ENV.getDirectory()}Cache/CorporateDocumentFile/Documents/{dataset.company_detail}.pdf"
@@ -94,11 +94,11 @@ class Document_Reader:
             company_details: Dict[str, Union[str, int]] = self.extractCompanyDetails(portable_document_file_data_result_set)
             business_details: Dict[str, str] = self.extractBusinessDetails(portable_document_file_data_result_set)
             certificate: Union[Dict[str, Union[str, int]], None] = self.extractCertificates(portable_document_file_data_result_set)
-            office_bearers: Dict[str, Union[str, int]] = self.extractOfficeBearers(portable_document_file_data_result_set)
-            print(f"Result Set: {portable_document_file_data_result_set}\nCompany Details: {company_details}\nBusiness Details: {business_details}\nCertificates: {certificate}\nOffice Bearers: {office_bearers}\n----------")
+            office_bearers: List[Dict[str, Union[str, int]]] = self.extractOfficeBearers(portable_document_file_data_result_set)
+            shareholders: List[Dict[str, Union[str, int]]] = self.extractShareholders(portable_document_file_data_result_set)
+            print(f"Result Set: {portable_document_file_data_result_set}\nCompany Details: {company_details}\nBusiness Details: {business_details}\nCertificates: {certificate}\nOffice Bearers: {office_bearers}Shareholders: {shareholders}\n----------")
             exit()
             state_capital: Dict[str, Union[str, int]] = self.extractStateCapital(portable_document_file_data_result_set)
-            shareholders: Dict[str, Union[str, int]] = self.extractShareholders(portable_document_file_data_result_set)
             response = {
                 "status": 200,
                 "company_details": company_details,
@@ -142,17 +142,64 @@ class Document_Reader:
         else:
             return None
 
-    def extractShareholders(self, result_set: List[str]) -> Dict[str, Union[str, int]]:
+    def _extractShareholdersNames(self, names: List[str]) -> str:
+        """
+        Building the name of the shareholders.
+
+        Parameters:
+            names: [string]: The list of the names of the shareholders.
+
+        Returns:
+            string
+        """
+        if len(names) > 0 and "SHARES" not in " ".join(names):
+            return " ".join(names)
+        else:
+            return "NaN"
+
+    def extractShareholdersNames(self, result_set: List[str]) -> List[str]:
+        """
+        Extracting the names of the shareholders from the dataset.
+
+        Parameters:
+            result_set: [string]: The result set to be used as a dataset.
+
+        Returns:
+            [string]
+        """
+        response: List[str] = []
+        for index in range(0, len(result_set), 1):
+            names: List[str] = findall(r"\b[A-Z]+\b", result_set[index])
+            name: str = self._extractShareholdersNames(names)
+            print(f"Names[{index}]: {name}")
+        return response
+
+    def extractShareholders(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
         """
         Extracting the data for the shareholders from the result
         set.
 
         Parameters:
-            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+            portable_document_file_result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
 
         Returns:
-            {name: string, amount: int, type: string, currency: string}
+            [{name: string, amount: int, type: string, currency: string}]
         """
+        response: List[Dict[str, Union[str, int]]] = []
+        start_index: int = portable_document_file_result_set.index("Shareholders") + 1
+        end_index: int = portable_document_file_result_set.index("Members (Applicable for Company Limited by Guarantee or Shares and Guarantee)")
+        result_set: List[str] = portable_document_file_result_set[start_index:end_index]
+        result_set = [value for value in result_set if value != "\x0cDate Issued:"]
+        result_set = [value for value in result_set if value != "Shareholders"]
+        result_set = [value for value in result_set if value != "Page 1"]
+        result_set = [value for value in result_set if value != " of 7"]
+        result_set = [value for value in result_set if value != "Name"]
+        result_set = [value for value in result_set if value != "No. of Shares Type of Shares"]
+        result_set = [value for value in result_set if value != "Currency"]
+        result_set = [value for value in result_set if "/" not in value]
+        names: List[str] = self.extractShareholdersNames(result_set)
+        print(f"Dataset: {result_set}\nNames: {names}\n----------")
+        exit()
         name: str = result_set[result_set.index("Name") + 9].title()
         amount_shares: int = int(result_set[[index for index, value in enumerate(result_set) if "No. of Shares" in value][1] + 3].split(" ")[0])
         type_shares: str = result_set[[index for index, value in enumerate(result_set) if "Type of Shares" in value][1] + 3].split(" ")[1].title()
@@ -163,6 +210,7 @@ class Document_Reader:
             "type_shares": type_shares,
             "currency": currency
         }
+        return response
 
     def _extractOfficeBearersDateAppointments(self, dataset: List[Tuple[str, str, str]]) -> str:
         """
