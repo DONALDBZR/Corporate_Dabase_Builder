@@ -306,13 +306,13 @@ class Document_Reader:
             response = self.__extractOfficeBearersPositions(response, position)
         return response
 
-    def __extractOfficeBearersNames(self, names: List[str], name: str) -> List[str]:
+    def __extractNames(self, names: List[str], name: str) -> List[str]:
         """
         Setting all of the names into the response.
 
         Parameters:
             names: [string]: The response to be returned
-            name: string: The name of the office bearer.
+            name: string: The name.
 
         Returns:
             [string]
