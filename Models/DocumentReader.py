@@ -244,15 +244,13 @@ class Document_Reader:
             result_set: [string]: The result set to be used as a dataset.
 
         Returns:
-            [string]
+            [int]
         """
         response: List[int] = []
         for index in range(0, len(result_set), 1):
             amount_shares: List[str] = findall(r"\b\d+\b", result_set[index])
             amount_share: Union[int, str] = self._extractShareholdersAmountShares(amount_shares)
-            print(f"Amount Of Shares[{index}]: {amount_share}")
-            # amount_share: str = self._extractShareholdersAmountShares(amount_shares)
-            # response = self.__extractShareholdersAmountShares(response, amount_share)
+            response = self.__extractShareholdersAmountShares(response, amount_share)
         return response
 
     def extractShareholders(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
