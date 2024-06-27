@@ -305,6 +305,20 @@ class Document_Reader:
             response = self.__extractOfficeBearersNames(response, name)
         return response
 
+    def _extractOfficeBearersAddresses(self, address: str) -> str:
+        """
+        Building the address of an office bearer.
+
+        Parameters:
+            dataset: [string]: The dataset containing the address.
+
+        Returns:
+            string
+        """
+        if "MAURITIUS" not in address:
+            address = address + "MAURITIUS"
+        return address
+
     def extractOfficeBearersAddresses(self, result_set: List[str]) -> List[str]:
         """
         Extracting the addresses of the office bearers.
@@ -319,11 +333,7 @@ class Document_Reader:
         address_result_set = " ".join(result_set)
         result_set = address_result_set.split("MAURITIUS ")
         for index in range(0, len(result_set), 1):
-            if "MAURITIUS" in result_set[index]:
-                address = result_set[index]
-            else:
-                address = result_set[index] + "MAURITIUS"
-            address = address.title()
+            address: str = self._extractOfficeBearersAddresses(result_set[index])
             response.append(address)
         return response
 
