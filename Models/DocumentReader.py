@@ -9,13 +9,13 @@ Authors:
 """
 
 
-import json
 from Models.Logger import Corporate_Database_Builder_Logger
 from Data.DocumentFiles import DocumentFiles
 from Environment import Environment
 from typing import Dict, Union, List
 from pdfminer.high_level import extract_text
 from datetime import datetime
+from json import dumps
 
 
 class Document_Reader:
@@ -81,7 +81,7 @@ class Document_Reader:
             dataset: {identifier: int, file_data: bytes, company_detail: int}: The dataset of the corporate registry retrieved from the relational database server.
 
         Returns:
-            {status: int, company_details: {business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}, business_details: {registered_address: string, name: string, nature: string, operational: string}, share_capital: {type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}, office_bearers: {position: string, name: string, address: string, date_appointment: int}, shareholders: {name: string, amount: int, type: string, currency: string}}
+            {status: int, company_details: {business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}, business_details: {registered_address: string, name: string, nature: string, operational: string}, state_capital: {type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}, office_bearers: {position: string, name: string, address: string, date_appointment: int}, shareholders: {name: string, amount: int, type: string, currency: string}}
         """
         response: Dict[str, Union[int, Dict[str, Union[str, int]]]]
         file_name: str = f"{self.ENV.getDirectory()}Cache/CorporateDocumentFile/Documents/{dataset.company_detail}.pdf"
@@ -91,21 +91,22 @@ class Document_Reader:
             cache_file = open(cache_data_file_name, "w")
             portable_document_file_data_result_set: List[str] = list(filter(None, portable_document_file_data.split("\n")))
             company_details: Dict[str, Union[str, int]] = self.extractCompanyDetails(portable_document_file_data_result_set)
+            exit()
             business_details: Dict[str, str] = self.extractBusinessDetails(portable_document_file_data_result_set)
             state_capital: Dict[str, Union[str, int]] = self.extractStateCapital(portable_document_file_data_result_set)
-            print(f"Result Set: {portable_document_file_data_result_set}\nCompany Details: {company_details}\nBusiness Details: {business_details}\n----------")
-            exit()
+            certificate: Dict[str, Union[str, int]] = self.extractCertificates(portable_document_file_data_result_set)
+            print(f"Result Set: {portable_document_file_data_result_set}\nCompany Details: {company_details}\nBusiness Details: {business_details}\nStated Capital: {state_capital}\nCertificates: {certificate}\n----------")
             office_bearers: Dict[str, Union[str, int]] = self.extractOfficeBearers(portable_document_file_data_result_set)
             shareholders: Dict[str, Union[str, int]] = self.extractShareholders(portable_document_file_data_result_set)
             response = {
                 "status": 200,
                 "company_details": company_details,
                 "business_details": business_details, # type: ignore
-                "share_capital": share_capital,
+                "state_capital": state_capital,
                 "office_bearers": office_bearers,
                 "shareholders": shareholders
             }
-            cache_file.write(json.dumps(response, indent=4))
+            cache_file.write(dumps(response, indent=4))
             cache_file.close()
             self.getLogger().inform(f"Data has been extracted from the portable document file version of the corporate registry.\nStatus: {response['status']}\nDocument File Identifier: {dataset.identifier}\nFile Location: {file_name}\nCompany Details Identifier: {dataset.company_detail}\nCompany Details: {company_details}\nBusiness Details: {business_details}\nShare Capital: {share_capital}\nOffice Bearers: {office_bearers}\nShareholders: {shareholders}")
         else:
@@ -114,6 +115,19 @@ class Document_Reader:
             }
             self.getLogger().error(f"The portable document file has not been generated correctly!  The application will abort the extraction.\nStatus: {response['status']}\nFile Location: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
         return response
+
+    def extractCertificates(self, portable_document_file_result_set: List[str]) -> Dict[str, Union[str, int]]:
+        """
+        Extracting the data for the certificates from the result
+        set.
+
+        Parameters:
+            portable_document_file_result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            {certificate: string, type: str, date_effective: int, date_expiry: int}
+        """
+        
 
     def extractShareholders(self, result_set: List[str]) -> Dict[str, Union[str, int]]:
         """
@@ -137,17 +151,22 @@ class Document_Reader:
             "currency": currency
         }
 
-    def extractOfficeBearers(self, result_set: List[str]) -> Dict[str, Union[str, int]]:
+    def extractOfficeBearers(self, portable_document_file_result_set: List[str]) -> Dict[str, Union[str, int]]:
         """
         Extracting the data for the office bearers from the result
         set.
 
         Parameters:
-            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+            portable_document_file_result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
 
         Returns:
             {position: string, name: string, address: string, date_appointment: int}
         """
+        start_index: int = portable_document_file_result_set.index("Particulars of Stated Capital") + 1
+        end_index: int = portable_document_file_result_set.index("Certificate (Issued by Other Institutions)")
+        result_set: List[str] = portable_document_file_result_set[start_index:end_index]
+        print(result_set)
+        exit()
         position: str = result_set[result_set.index("Position") + 1].title()
         name: str = result_set[result_set.index("Name") + 4].title()
         address: str = result_set[result_set.index("Service Address") + 3].title()
@@ -227,13 +246,23 @@ class Document_Reader:
         start_index: int = portable_document_file_result_set.index("Company Details") + 1
         end_index: int = [index for index, value in enumerate(portable_document_file_result_set) if "Business Registration No.:" in value][0] + 1
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
+        result_set.remove("File No.:")
+        result_set.remove("Name:")
+        result_set.remove("Type:")
+        result_set.remove("Category:")
+        result_set.remove("Registrar of Companies")
+        result_set.remove("Date Incorporated:")
+        result_set.remove("Nature:")
+        result_set.remove("Status:")
+        result_set.remove("Sub Category:")
+        result_set.remove("Business Details")
         business_registration_number: str = result_set[[index for index, value in enumerate(result_set) if "Business Registration No.:" in value][0]].split(" ")[-1]
-        name: str = result_set[result_set.index("Name:") + 2]
-        file_number: str = result_set[result_set.index("File No.:") + 1]
-        category: str = result_set[result_set.index("Category:") + 1].title()
-        date_incorporation: int = int(datetime.strptime(result_set[result_set.index("Date Incorporated:") + 1], "%d/%m/%Y").timestamp())
-        nature: str = result_set[result_set.index("Nature:") + 3]
-        status: str = result_set[result_set.index("Status:") + 3]
+        name: str = result_set[1].title()
+        file_number: str = result_set[0]
+        category: str = result_set[3].title()
+        date_incorporation: int = int(datetime.strptime(result_set[4], "%d/%m/%Y").timestamp())
+        nature: str = result_set[5]
+        status: str = result_set[6]
         return {
             "business_registration_number": business_registration_number,
             "name": name,
