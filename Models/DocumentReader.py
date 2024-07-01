@@ -99,6 +99,7 @@ class Document_Reader:
             members: List[Dict[str, Union[str, int]]] = self.extractMembers(portable_document_file_data_result_set)
             annual_return: List[Dict[str, int]] = self.extractAnnualReturns(portable_document_file_data_result_set)
             financial_summaries: List[Dict[str, Union[int, str]]] = self.extractFinancialSummaries(portable_document_file_data_result_set)
+            # profit_statement: Dict[str, ]
             # state_capital: Dict[str, Union[str, int]] = self.extractStateCapital(portable_document_file_data_result_set)
             print(f"{portable_document_file_data_result_set=}\n{company_details=}\n{business_details=}\n{certificates=}\n{office_bearers=}\n{shareholders=}\n{members=}\n{annual_return=}\n{financial_summaries=}\n----------")
             exit()
@@ -129,7 +130,7 @@ class Document_Reader:
             portable_document_file_result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
 
         Returns:
-            [{financial_year: int, currency: string, date_approved: int}]
+            [{financial_year: int, currency: string, date_approved: int, unit: int}]
         """
         start_index: int = portable_document_file_result_set.index("Financial Summary/Statements filed for last 3 years") + 1
         end_index: int = portable_document_file_result_set.index("Last Financial Summary Filed") - 4
