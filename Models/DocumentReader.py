@@ -82,7 +82,7 @@ class Document_Reader:
             dataset: {identifier: int, file_data: bytes, company_detail: int}: The dataset of the corporate registry retrieved from the relational database server.
 
         Returns:
-            {status: int, company_details: {business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}, business_details: [{registered_address: string, name: string, nature: string, operational: string}], state_capital: {type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}, office_bearers: {position: string, name: string, address: string, date_appointment: int}, shareholders: {name: string, amount: int, type: string, currency: string}}
+            {status: int, company_details: {business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}, business_details: [{registered_address: string, name: string, nature: string, operational: string}], state_capital: {type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}, office_bearers: {position: string, name: string, address: string, date_appointment: int}, shareholders: [{name: string, amount: int, type: string, currency: string}]}
         """
         response: Dict[str, Union[int, Dict[str, Union[str, int]]]]
         file_name: str = f"{self.ENV.getDirectory()}Cache/CorporateDocumentFile/Documents/{dataset.company_detail}.pdf"
@@ -93,12 +93,12 @@ class Document_Reader:
             portable_document_file_data_result_set: List[str] = list(filter(None, portable_document_file_data.split("\n")))
             company_details: Dict[str, Union[str, int]] = self.extractCompanyDetails(portable_document_file_data_result_set)
             business_details: Dict[str, str] = self.extractBusinessDetails(portable_document_file_data_result_set)
-            certificate: Union[Dict[str, Union[str, int]], None] = self.extractCertificates(portable_document_file_data_result_set)
-            office_bearers: List[Dict[str, Union[str, int]]] = self.extractOfficeBearers(portable_document_file_data_result_set)
-            shareholders: List[Dict[str, Union[str, int]]] = self.extractShareholders(portable_document_file_data_result_set)
-            print(f"Result Set: {portable_document_file_data_result_set}\nCompany Details: {company_details}\nBusiness Details: {business_details}\nCertificates: {certificate}\nOffice Bearers: {office_bearers}Shareholders: {shareholders}\n----------")
+            certificates: List[Dict[str, Union[str, int]]] = self.extractCertificates(portable_document_file_data_result_set)
+            # office_bearers: List[Dict[str, Union[str, int]]] = self.extractOfficeBearers(portable_document_file_data_result_set)
+            # shareholders: List[Dict[str, Union[str, int]]] = self.extractShareholders(portable_document_file_data_result_set)
+            # state_capital: Dict[str, Union[str, int]] = self.extractStateCapital(portable_document_file_data_result_set)
+            print(f"Result Set: {portable_document_file_data_result_set}\nCompany Details: {company_details}\nBusiness Details: {business_details}\nCertificates: {certificates}\n----------")
             exit()
-            state_capital: Dict[str, Union[str, int]] = self.extractStateCapital(portable_document_file_data_result_set)
             response = {
                 "status": 200,
                 "company_details": company_details,
@@ -117,7 +117,7 @@ class Document_Reader:
             self.getLogger().error(f"The portable document file has not been generated correctly!  The application will abort the extraction.\nStatus: {response['status']}\nFile Location: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
         return response
 
-    def extractCertificates(self, portable_document_file_result_set: List[str]) -> Union[Dict[str, Union[str, int]], None]:
+    def extractCertificates(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
         """
         Extracting the data for the certificates from the result
         set.
@@ -126,7 +126,7 @@ class Document_Reader:
             portable_document_file_result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
 
         Returns:
-            {certificate: string, type: str, date_effective: int, date_expiry: int}
+            [{certificate: string, type: str, date_effective: int, date_expiry: int}]
         """
         start_index: int = portable_document_file_result_set.index("Certificate (Issued by Other Institutions)")
         end_index: int = portable_document_file_result_set.index("Office Bearers")
@@ -140,7 +140,7 @@ class Document_Reader:
             self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractCertificates()")
             exit()
         else:
-            return None
+            return []
 
     def _extractShareholdersNames(self, names: List[str]) -> str:
         """
