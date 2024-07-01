@@ -100,8 +100,9 @@ class Document_Reader:
             annual_return: List[Dict[str, int]] = self.extractAnnualReturns(portable_document_file_data_result_set)
             financial_summaries: List[Dict[str, Union[int, str]]] = self.extractFinancialSummaries(portable_document_file_data_result_set)
             profit_statement: Dict[str, Union[Dict[str, Union[int, str]], float]] = self.extractProfitStatements(portable_document_file_data_result_set)
-            # state_capital: Dict[str, Union[str, int]] = self.extractStateCapital(portable_document_file_data_result_set)
-            print(f"{portable_document_file_data_result_set=}\n{company_details=}\n{business_details=}\n{certificates=}\n{office_bearers=}\n{shareholders=}\n{members=}\n{annual_return=}\n{financial_summaries=}\n----------")
+            state_capital: Dict[str, Union[str, int]] = self.extractStateCapital(portable_document_file_data_result_set)
+            balance_sheet: Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]] = self.extractBalanceSheet(portable_document_file_data_result_set)
+            print(f"{portable_document_file_data_result_set=}\n{company_details=}\n{business_details=}\n{state_capital=}\n{certificates=}\n{office_bearers=}\n{shareholders=}\n{members=}\n{annual_return=}\n{financial_summaries=}\n{profit_statement=}\n----------")
             exit()
             response = {
                 "status": 200,
@@ -120,6 +121,47 @@ class Document_Reader:
             }
             self.getLogger().error(f"The portable document file has not been generated correctly!  The application will abort the extraction.\nStatus: {response['status']}\nFile Location: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
         return response
+
+    def extractBalanceSheet(self, portable_document_file_result_set: List[str]) -> Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]]:
+        """
+        Extracting the data for the balance sheets from the result
+        set.
+
+        Parameters:
+            portable_document_file_result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            {balance_sheet: {financial_year: int, currency: string, unit: int}, assets: {non_current_assets: {property_plant_equipment: float, investment_properties: float, intangible_assets: float, other_investments: float, subsidiaries_investments: float, biological_assets: float, others: float, total: float}, current_assets: {inventories: float, trade: float, cash: float, others: float, total: float}, total: float}, liabilities: {equity_and_liabilities: {share_capital: float, other_reserves: float, retained_earnings: float, others: float, total: float}, non_current: {long_term_borrowings: float, deferred_tax: float, long_term_provisions: float, others: float, total: float}, current: {trade: float, short_term_borrowings: float, current_tax_payable: float, short_term_provisions: float, others: float, total: float}, total_liabilities: float, total_equity_and_liabilities: float}}
+        """
+        start_index: int = portable_document_file_result_set.index("BALANCE SHEET")
+        end_index: int = portable_document_file_result_set.index("Charges")
+        result_set: List[str] = portable_document_file_result_set[start_index:end_index]
+        balance_sheet: Dict[str, Union[int, str]] = self._extractBalanceSheet(result_set)
+        print(f"{result_set=}\n{balance_sheet=}")
+        exit()
+
+    def _extractBalanceSheet(self, result_set: List[str]) -> Dict[str, Union[int, str]]:
+        """
+        Extracting the balance sheet that is linked to the balance
+        sheet.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            {financial_year: int, currency: string, unit: int}
+        """
+        start_index: int = result_set.index("BALANCE SHEET") + 1
+        end_index: int = result_set.index("NON-CURRENT ASSETS")
+        result_set = result_set[start_index:end_index]
+        result_set.remove("Financial Year Ended:")
+        result_set.remove("Currency:")
+        result_set.remove("Unit:")
+        if len(result_set) > 0:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractProfitStatements()")
+            exit()
+        else:
+            return {}
 
     def _extractProfitStatements(self, result_set: List[str]) -> Dict[str, Union[int, str]]:
         """
