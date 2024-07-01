@@ -97,8 +97,9 @@ class Document_Reader:
             office_bearers: List[Dict[str, Union[str, int]]] = self.extractOfficeBearers(portable_document_file_data_result_set)
             shareholders: List[Dict[str, Union[str, int]]] = self.extractShareholders(portable_document_file_data_result_set)
             members: List[Dict[str, Union[str, int]]] = self.extractMembers(portable_document_file_data_result_set)
+            annual_return: List[Dict[str, int]] = self.extractAnnualReturns(portable_document_file_data_result_set)
             # state_capital: Dict[str, Union[str, int]] = self.extractStateCapital(portable_document_file_data_result_set)
-            print(f"Result Set: {portable_document_file_data_result_set}\nCompany Details: {company_details}\nBusiness Details: {business_details}\nCertificates: {certificates}\nOffice Bearers: {office_bearers}\nShareholders: {shareholders}\nMembers: {members}\n----------")
+            print(f"{portable_document_file_data_result_set=}\n{company_details=}\n{business_details=}\n{certificates=}\n{office_bearers=}\n{shareholders=}\n{members=}\n{annual_return=}\n----------")
             exit()
             response = {
                 "status": 200,
@@ -117,6 +118,29 @@ class Document_Reader:
             }
             self.getLogger().error(f"The portable document file has not been generated correctly!  The application will abort the extraction.\nStatus: {response['status']}\nFile Location: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
         return response
+
+    def extractAnnualReturns(self, portable_document_file_result_set: List[str]) -> List[Dict[str, int]]:
+        """
+        Extracting the data for the annual returns from the result
+        set.
+
+        Parameters:
+            portable_document_file_result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [{date_annual_return: int, date_annual_meeting: int, date_filled: int}]
+        """
+        start_index: int = portable_document_file_result_set.index("Annual Return filed for last 3 years") + 1
+        end_index: int = portable_document_file_result_set.index("Financial Summary/Statements filed for last 3 years")
+        result_set: List[str] = portable_document_file_result_set[start_index:end_index]
+        result_set.remove("Date Annual Return")
+        result_set.remove("Annual Meeting Date")
+        result_set.remove("Date Filed")
+        if len(result_set) > 0:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractAnnualReturns()")
+            exit()
+        else:
+            return []
 
     def extractMembers(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
         """
