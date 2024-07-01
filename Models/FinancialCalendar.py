@@ -52,7 +52,7 @@ class Financial_Calendar(Database_Handler):
         try:
             data: Union[RowType, Dict[str, Union[int, str]]] = self.getData(
                 table_name=self.getTableName(),
-                filter_condition="CONCAT(YEAR(CURDATE()), '-', start_date) < CURDATE() AND CONCAT(YEAR(CURDATE()), '-', end_date) > CURDATE()",
+                filter_condition="CONCAT(YEAR(CURDATE()), '-', start_date) <= CURDATE() AND CONCAT(YEAR(CURDATE()), '-', end_date) >= CURDATE()",
                 column_names="YEAR(CURDATE()) AS year, quarter, FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(YEAR(CURDATE()), '-', start_date)), '%m/%d/%Y') AS start_date, FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(YEAR(CURDATE()), '-', end_date)), '%m/%d/%Y') AS end_date"
             )[0]
             self.getLogger().inform(
