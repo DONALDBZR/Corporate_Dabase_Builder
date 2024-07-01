@@ -121,7 +121,7 @@ class Document_Reader:
             self.getLogger().error(f"The portable document file has not been generated correctly!  The application will abort the extraction.\nStatus: {response['status']}\nFile Location: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
         return response
 
-    def _extractProfitStatements(self, result_set: List[str]) -> Dict[str, Union[int, str, None]]:
+    def _extractProfitStatements(self, result_set: List[str]) -> Dict[str, Union[int, str]]:
         """
         Extracting the financial summary that is linked to the
         profit statement.
@@ -144,12 +144,7 @@ class Document_Reader:
             self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractProfitStatements()")
             exit()
         else:
-            return {
-                "financial_year": None,
-                "currency": None,
-                "date_approved": None,
-                "unit": None
-            }
+            return {}
 
     def extractProfitStatements(self, portable_document_file_result_set: List[str]) -> Dict[str, Union[Dict[str, Union[int, str]], float]]:
         """
@@ -165,13 +160,27 @@ class Document_Reader:
         start_index: int = portable_document_file_result_set.index("Last Financial Summary Filed")
         end_index: int = portable_document_file_result_set.index("BALANCE SHEET")
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
-        financial_summary: Dict[str, Union[int, str, None]] = self._extractProfitStatements(result_set)
-        # start_index = result_set.index("Turnover")
-        # end_index = result_set.index("PROFIT/(LOSS) FOR THE PERIOD") + 2
-        # result_set = result_set[start_index:end_index]
-        # result_set = [value ]
-        print(f"{result_set=}\n{financial_summary=}")
-        exit()
+        financial_summary: Dict[str, Union[int, str]] = self._extractProfitStatements(result_set)
+        start_index = result_set.index("Turnover")
+        end_index = result_set.index("PROFIT/(LOSS) FOR THE PERIOD") + 2
+        result_set = result_set[start_index:end_index]
+        result_set = [value for value in result_set if "Page" not in value]
+        result_set.remove("Turnover")
+        result_set.remove("Less Cost of Sales")
+        result_set.remove("GROSS PROFIT")
+        result_set.remove("Add Other Income")
+        result_set.remove("Less: Distribution Costs")
+        result_set.remove("Administration Costs")
+        result_set.remove("Finance Costs")
+        result_set.remove("PROFIT/(LOSS) BEFORE TAX")
+        result_set.remove("Tax Expense")
+        result_set.remove("Other Expenses")
+        result_set.remove("PROFIT/(LOSS) FOR THE PERIOD")
+        if len(result_set) > 0:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractProfitStatements()")
+            exit()
+        else:
+            return {}
 
     def extractFinancialSummaries(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[int, str]]]:
         """
