@@ -102,7 +102,8 @@ class Document_Reader:
             profit_statement: Dict[str, Union[Dict[str, Union[int, str]], float]] = self.extractProfitStatements(portable_document_file_data_result_set)
             state_capital: Dict[str, Union[str, int]] = self.extractStateCapital(portable_document_file_data_result_set)
             balance_sheet: Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]] = self.extractBalanceSheet(portable_document_file_data_result_set)
-            print(f"{portable_document_file_data_result_set=}\n{company_details=}\n{business_details=}\n{state_capital=}\n{certificates=}\n{office_bearers=}\n{shareholders=}\n{members=}\n{annual_return=}\n{financial_summaries=}\n{profit_statement=}\n----------")
+            charges: List[Dict[str, Union[int, str]]] = self.extractCharges(portable_document_file_data_result_set)
+            print(f"{portable_document_file_data_result_set=}\n{company_details=}\n{business_details=}\n{state_capital=}\n{certificates=}\n{office_bearers=}\n{shareholders=}\n{members=}\n{annual_return=}\n{financial_summaries=}\n{profit_statement=}\n{balance_sheet=}\n{charges=}")
             exit()
             response = {
                 "status": 200,
@@ -121,6 +122,32 @@ class Document_Reader:
             }
             self.getLogger().error(f"The portable document file has not been generated correctly!  The application will abort the extraction.\nStatus: {response['status']}\nFile Location: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
         return response
+
+    def extractCharges(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[int, str]]]:
+        """
+        Extracting the charges from the result set.
+
+        Parameters:
+            portable_document_file_result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [{volume: int, property: string, nature: string, amount: int, date_charged: int, date_filled: int, currency: string}]
+        """
+        start_index: int = portable_document_file_result_set.index("Charges")
+        end_index: int = portable_document_file_result_set.index("Liquidators")
+        result_set: List[str] = portable_document_file_result_set[start_index:end_index]
+        result_set.remove("Charges")
+        result_set.remove("Volume")
+        result_set.remove("Property")
+        result_set.remove("Nature")
+        result_set = [value for value in result_set if "Amount" not in value]
+        result_set.remove("Date Filed")
+        result_set.remove("Currency")
+        if len(result_set) > 0:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractCharges()")
+            exit()
+        else:
+            return []
 
     def extractBalanceSheet(self, portable_document_file_result_set: List[str]) -> Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]]:
         """
