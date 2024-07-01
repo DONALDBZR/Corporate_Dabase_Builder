@@ -105,7 +105,7 @@ class Document_Reader:
             charges: List[Dict[str, Union[int, str]]] = self.extractCharges(portable_document_file_data_result_set)
             liquidators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractLiquidators(portable_document_file_data_result_set)
             receivers: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractReceivers(portable_document_file_data_result_set)
-            print(f"{portable_document_file_data_result_set=}\n{company_details=}\n{business_details=}\n{state_capital=}\n{certificates=}\n{office_bearers=}\n{shareholders=}\n{members=}\n{annual_return=}\n{financial_summaries=}\n{profit_statement=}\n{balance_sheet=}\n{charges=}\n{liquidators=}\n{receivers=}")
+            print(f"\n-----\n{portable_document_file_data_result_set=}\n{company_details=}\n{business_details=}\n{state_capital=}\n{certificates=}\n{office_bearers=}\n{shareholders=}\n{members=}\n{annual_return=}\n{financial_summaries=}\n{profit_statement=}\n{balance_sheet=}\n{charges=}\n{liquidators=}\n{receivers=}")
             exit()
             response = {
                 "status": 200,
@@ -136,11 +136,43 @@ class Document_Reader:
             {receiver: {name: string, appointed_date: int, address: string}, reports: [{date_filled: int, date_from: int, date_to: int}], affidavits: [{date_filled: int, date_from: int, date_to: int}]}
         """
         start_index: int = portable_document_file_result_set.index("Receivers")
-        end_index: int = portable_document_file_result_set.index("Administrators")
+        end_index: int = portable_document_file_result_set.index("Accounts of Administrator") + 1
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
         receiver: Dict[str, Union[str, int]] = self._extractReceivers(result_set)
-        print(f"{result_set=}\n{receiver=}")
+        reports: List[Dict[str, int]] = self.extractReceiversReports(result_set)
+        print(f"{result_set=}\n{receiver=}\n{reports=}")
         exit()
+
+    def extractReceiversReports(self, result_set: List[str]) -> List[Dict[str, int]]:
+        """
+        Extracting the reports that are related to the receivers.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [{date_filled: int, date_from: int, date_to: int}]
+        """
+        start_index: int = result_set.index("Date Filed")
+        end_index: int = result_set.index("Accounts of Administrator")
+        result_set = result_set[start_index:end_index]
+        start_index = result_set.index("To")
+        end_index = result_set.index("To") + 3
+        date_to: List[str] = result_set[start_index:end_index]
+        end_index = int(len(date_to) / 2)
+        date_to = date_to[0:end_index]
+        start_index = result_set.index("Date Filed")
+        end_index = result_set.index("Affidavits of Receiver")
+        result_set = result_set[start_index:end_index]
+        result_set = result_set + date_to
+        result_set.remove("Date Filed")
+        result_set.remove("From")
+        result_set.remove("To")
+        if len(result_set) > 0:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractReceivers()")
+            exit()
+        else:
+            return []
 
     def _extractReceivers(self, result_set: List[str]) -> Dict[str, Union[str, int]]:
         """
