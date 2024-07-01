@@ -99,7 +99,7 @@ class Document_Reader:
             members: List[Dict[str, Union[str, int]]] = self.extractMembers(portable_document_file_data_result_set)
             annual_return: List[Dict[str, int]] = self.extractAnnualReturns(portable_document_file_data_result_set)
             financial_summaries: List[Dict[str, Union[int, str]]] = self.extractFinancialSummaries(portable_document_file_data_result_set)
-            # profit_statement: Dict[str, ]
+            profit_statement: Dict[str, Union[Dict[str, Union[int, str]], float]] = self.extractProfitStatements(portable_document_file_data_result_set)
             # state_capital: Dict[str, Union[str, int]] = self.extractStateCapital(portable_document_file_data_result_set)
             print(f"{portable_document_file_data_result_set=}\n{company_details=}\n{business_details=}\n{certificates=}\n{office_bearers=}\n{shareholders=}\n{members=}\n{annual_return=}\n{financial_summaries=}\n----------")
             exit()
@@ -120,6 +120,58 @@ class Document_Reader:
             }
             self.getLogger().error(f"The portable document file has not been generated correctly!  The application will abort the extraction.\nStatus: {response['status']}\nFile Location: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
         return response
+
+    def _extractProfitStatements(self, result_set: List[str]) -> Dict[str, Union[int, str, None]]:
+        """
+        Extracting the financial summary that is linked to the
+        profit statement.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            {financial_year: int, currency: string, date_approved: int, unit: int}
+        """
+        start_index: int = result_set.index("Last Financial Summary Filed") + 1
+        end_index: int = result_set.index("Turnover")
+        result_set = result_set[start_index:end_index]
+        result_set.remove("PROFIT AND LOSS STATEMENT")
+        result_set.remove("Financial Year Ended:")
+        result_set.remove("Date Approved:")
+        result_set.remove("Currency:")
+        result_set.remove("Unit:")
+        if len(result_set) > 0:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractProfitStatements()")
+            exit()
+        else:
+            return {
+                "financial_year": None,
+                "currency": None,
+                "date_approved": None,
+                "unit": None
+            }
+
+    def extractProfitStatements(self, portable_document_file_result_set: List[str]) -> Dict[str, Union[Dict[str, Union[int, str]], float]]:
+        """
+        Extracting the profit data for the profit statements from
+        the result set.
+
+        Parameters:
+            portable_document_file_result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            {financial_summary: {financial_year: int, currency: string, date_approved: int, unit: int}, turnover: float, cost_of_sales: float, gross_profit: float, other_income: float, distribution_cost: float, administration_cost: float, expenses: float, finance_cost: float, net_profit_before_taxation: float, taxation: float, net_profit: float}
+        """
+        start_index: int = portable_document_file_result_set.index("Last Financial Summary Filed")
+        end_index: int = portable_document_file_result_set.index("BALANCE SHEET")
+        result_set: List[str] = portable_document_file_result_set[start_index:end_index]
+        financial_summary: Dict[str, Union[int, str, None]] = self._extractProfitStatements(result_set)
+        # start_index = result_set.index("Turnover")
+        # end_index = result_set.index("PROFIT/(LOSS) FOR THE PERIOD") + 2
+        # result_set = result_set[start_index:end_index]
+        # result_set = [value ]
+        print(f"{result_set=}\n{financial_summary=}")
+        exit()
 
     def extractFinancialSummaries(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[int, str]]]:
         """
