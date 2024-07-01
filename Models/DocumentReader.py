@@ -156,8 +156,34 @@ class Document_Reader:
         end_index: int = result_set.index("TOTAL EQUITY AND LIABILITIES") + 2
         result_set = result_set[start_index:end_index]
         equity: Dict[str, float] = self.extractBalanceSheetLiabilitiesEquity(result_set)
-        print(f"{result_set=}")
+        non_current: Dict[str, float] = self.extractBalanceSheetLiabilitiesNonCurrent(result_set)
+        print(f"{result_set=}\n{equity=}\n{non_current=}")
         exit()
+
+    def extractBalanceSheetLiabilitiesNonCurrent(self, result_set: List[str]) -> Dict[str, float]:
+        """
+        Extracting the non-current liabilities that is linked to the
+        liabilities.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            {long_term_borrowings: float, deferred_tax: float, long_term_provisions: float, others: float, total: float}
+        """
+        start_index: int = result_set.index("NON-CURRENT LIABILITIES") + 1
+        end_index: int = result_set.index("CURRENT LIABILITIES")
+        result_set = result_set[start_index:end_index]
+        result_set.remove("Long Term Borrowings")
+        result_set.remove("Deferred Tax")
+        result_set.remove("Long Term Provisions")
+        result_set.remove("Others")
+        result_set.remove("TOTAL")
+        if len(result_set) > 0:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractBalanceSheetLiabilitiesNonCurrent()")
+            exit()
+        else:
+            return {}
 
     def extractBalanceSheetLiabilitiesEquity(self, result_set: List[str]) -> Dict[str, float]:
         """
