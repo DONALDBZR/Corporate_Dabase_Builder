@@ -156,8 +156,11 @@ class Document_Reader:
         result_set = result_set[start_index:end_index]
         non_current: Dict[str, float] = self.extractBalanceSheetAssetsNonCurrent(result_set)
         current: Dict[str, float] = self.extractBalanceSheetAssetsCurrent(result_set)
-        print(f"{result_set=}\n{non_current=}\n{current=}")
-        exit()
+        if not non_current and not current:
+            return {}
+        else:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractBalanceSheetAssets()")
+            exit()
 
     def extractBalanceSheetAssetsCurrent(self, result_set: List[str]) -> Dict[str, float]:
         """
