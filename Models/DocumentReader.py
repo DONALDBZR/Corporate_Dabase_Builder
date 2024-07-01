@@ -138,8 +138,33 @@ class Document_Reader:
         end_index: int = portable_document_file_result_set.index("Receivers")
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
         liquidator: Dict[str, Union[str, int]] = self._extractLiquidators(result_set)
-        print(f"{result_set=}\n{liquidator=}")
+        affidavits: List[Dict[str, int]] = self.extractLiquidatorsAffidavits(result_set)
+        print(f"{result_set=}\n{liquidator=}\n{affidavits=}")
         exit()
+
+    def extractLiquidatorsAffidavits(self, result_set: List[str]) -> List[Dict[str, int]]:
+        """
+        Extracting the affidavits that is related to the
+        liquidators.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            {name: string, appointed_date: int, address: string}
+        """
+        start_index: int = result_set.index("Affidavits of Liquidator")
+        end_index: int = result_set.index("To") + 2
+        result_set = result_set[start_index:end_index]
+        result_set.remove("Affidavits of Liquidator")
+        result_set.remove("Date Filed")
+        result_set.remove("From")
+        result_set.remove("To")
+        if len(result_set) > 0:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractLiquidatorsAffidavits()")
+            exit()
+        else:
+            return {}
 
     def _extractLiquidators(self, result_set: List[str]) -> Dict[str, Union[str, int]]:
         """
