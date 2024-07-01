@@ -139,8 +139,11 @@ class Document_Reader:
         balance_sheet: Dict[str, Union[int, str]] = self._extractBalanceSheet(result_set)
         assets: Dict[str, Union[Dict[str, float], float]] = self.extractBalanceSheetAssets(result_set)
         liabilities: Dict[str, Union[Dict[str, float], float]] = self.extractBalanceSheetLiabilities(result_set)
-        print(f"{result_set=}\n{balance_sheet=}\n{assets=}\n{liabilities=}")
-        exit()
+        if not balance_sheet and not assets and not liabilities:
+            return {}
+        else:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractBalanceSheet()")
+            exit()
 
     def extractBalanceSheetLiabilities(self, result_set: List[str]) -> Dict[str, Union[Dict[str, float], float]]:
         """
