@@ -140,8 +140,40 @@ class Document_Reader:
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
         receiver: Dict[str, Union[str, int]] = self._extractReceivers(result_set)
         reports: List[Dict[str, int]] = self.extractReceiversReports(result_set)
-        print(f"{result_set=}\n{receiver=}\n{reports=}")
+        affidavits: List[Dict[str, int]] = self.extractReceiversAffidavits(result_set)
+        print(f"{result_set=}\n{receiver=}\n{reports=}\n{affidavits=}")
         exit()
+
+    def extractReceiversAffidavits(self, result_set: List[str]) -> List[Dict[str, int]]:
+        """
+        Extracting the affidavits that are related to the receivers.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [{date_filled: int, date_from: int, date_to: int}]
+        """
+        start_index: int = result_set.index("Affidavits of Receiver")
+        end_index: int = result_set.index("Accounts of Administrator")
+        result_set = result_set[start_index:end_index]
+        start_index = result_set.index("To")
+        end_index = result_set.index("To") + 3
+        date_to: List[str] = result_set[start_index:end_index]
+        start_index = int(len(date_to) / 2)
+        date_to = date_to[start_index:]
+        start_index: int = result_set.index("Affidavits of Receiver") + 1
+        end_index: int = result_set.index("Administrators")
+        result_set = result_set[start_index:end_index]
+        result_set = result_set + date_to
+        result_set.remove("Date Filed")
+        result_set.remove("From")
+        result_set.remove("To")
+        if len(result_set) > 0:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractReceivers()")
+            exit()
+        else:
+            return []
 
     def extractReceiversReports(self, result_set: List[str]) -> List[Dict[str, int]]:
         """
