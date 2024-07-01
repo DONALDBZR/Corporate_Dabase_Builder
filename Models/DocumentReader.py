@@ -138,8 +138,50 @@ class Document_Reader:
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
         balance_sheet: Dict[str, Union[int, str]] = self._extractBalanceSheet(result_set)
         assets: Dict[str, Union[Dict[str, float], float]] = self.extractBalanceSheetAssets(result_set)
-        print(f"{result_set=}\n{balance_sheet=}\n{assets=}")
+        liabilities: Dict[str, Union[Dict[str, float], float]] = self.extractBalanceSheetLiabilities(result_set)
+        print(f"{result_set=}\n{balance_sheet=}\n{assets=}\n{liabilities=}")
         exit()
+
+    def extractBalanceSheetLiabilities(self, result_set: List[str]) -> Dict[str, Union[Dict[str, float], float]]:
+        """
+        Extracting the liabilities that is linked to the balance sheet.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            {equity_and_liabilities: {share_capital: float, other_reserves: float, retained_earnings: float, others: float, total: float}, non_current: {long_term_borrowings: float, deferred_tax: float, long_term_provisions: float, others: float, total: float}, current: {trade: float, short_term_borrowings: float, current_tax_payable: float, short_term_provisions: float, others: float, total: float}, total_liabilities: float, total_equity_and_liabilities: float}
+        """
+        start_index: int = result_set.index("EQUITY AND LIABILITIES")
+        end_index: int = result_set.index("TOTAL EQUITY AND LIABILITIES") + 2
+        result_set = result_set[start_index:end_index]
+        equity: Dict[str, float] = self.extractBalanceSheetLiabilitiesEquity(result_set)
+        print(f"{result_set=}")
+        exit()
+
+    def extractBalanceSheetLiabilitiesEquity(self, result_set: List[str]) -> Dict[str, float]:
+        """
+        Extracting the equities that is linked to the liabilities.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            {share_capital: float, other_reserves: float, retained_earnings: float, others: float, total: float}
+        """
+        start_index: int = result_set.index("EQUITY AND LIABILITIES") + 1
+        end_index: int = result_set.index("NON-CURRENT LIABILITIES")
+        result_set = result_set[start_index:end_index]
+        result_set.remove("Share Capital")
+        result_set.remove("Other Reserves")
+        result_set.remove("Retained Earnings")
+        result_set.remove("Others")
+        result_set.remove("TOTAL")
+        if len(result_set) > 0:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractBalanceSheetLiabilitiesEquity()")
+            exit()
+        else:
+            return {}
 
     def extractBalanceSheetAssets(self, result_set: List[str]) -> Dict[str, Union[Dict[str, float], float]]:
         """
