@@ -141,8 +141,11 @@ class Document_Reader:
         receiver: Dict[str, Union[str, int]] = self._extractReceivers(result_set)
         reports: List[Dict[str, int]] = self.extractReceiversReports(result_set)
         affidavits: List[Dict[str, int]] = self.extractReceiversAffidavits(result_set)
-        print(f"{result_set=}\n{receiver=}\n{reports=}\n{affidavits=}")
-        exit()
+        if not receiver and len(reports) == 0 and len(affidavits) == 0:
+            return {}
+        else:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractReceivers()")
+            exit()
 
     def extractReceiversAffidavits(self, result_set: List[str]) -> List[Dict[str, int]]:
         """
