@@ -155,8 +155,35 @@ class Document_Reader:
         end_index: int = result_set.index("TOTAL ASSETS") + 2
         result_set = result_set[start_index:end_index]
         non_current: Dict[str, float] = self.extractBalanceSheetAssetsNonCurrent(result_set)
-        print(f"{result_set=}\n{non_current=}")
+        current: Dict[str, float] = self.extractBalanceSheetAssetsCurrent(result_set)
+        print(f"{result_set=}\n{non_current=}\n{current=}")
         exit()
+
+    def extractBalanceSheetAssetsCurrent(self, result_set: List[str]) -> Dict[str, float]:
+        """
+        Extracting the current assets that is linked to the assets.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            {inventories: float, trade: float, cash: float, others: float, total: float}
+        """
+        start_index: int = result_set.index("CURRENT ASSETS") + 1
+        end_index: int = result_set.index("TOTAL ASSETS") + 2
+        result_set = result_set[start_index:end_index]
+        result_set = [value for value in result_set if "Page" not in value]
+        result_set.remove("Inventories")
+        result_set.remove("Trade and Other Receivables")
+        result_set.remove("Cash and Cash Equivalents")
+        result_set.remove("Others")
+        result_set.remove("TOTAL")
+        result_set.remove("TOTAL ASSETS")
+        if len(result_set) > 0:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractBalanceSheetAssetsCurrent()")
+            exit()
+        else:
+            return {}
 
     def extractBalanceSheetAssetsNonCurrent(self, result_set: List[str]) -> Dict[str, float]:
         """
