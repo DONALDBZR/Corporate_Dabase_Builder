@@ -122,7 +122,8 @@ class Document_Reader:
 
     def extractFinancialSummaries(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[int, str]]]:
         """
-        Extracting the data for the financial summaries from the result set.
+        Extracting the data for the financial summaries from the
+        result set.
 
         Parameters:
             portable_document_file_result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
