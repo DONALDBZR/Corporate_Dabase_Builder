@@ -166,7 +166,7 @@ class Document_Reader:
 
     def extractBalanceSheetLiabilitiesCurrent(self, result_set: List[str]) -> Dict[str, float]:
         """
-        Extarcting the current liabilities that is linked to the
+        Extracting the current liabilities that is linked to the
         liabilities.
 
         Parameters:
