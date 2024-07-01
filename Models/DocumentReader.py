@@ -139,7 +139,7 @@ class Document_Reader:
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
         liquidator: Dict[str, Union[str, int]] = self._extractLiquidators(result_set)
         affidavits: List[Dict[str, int]] = self.extractLiquidatorsAffidavits(result_set)
-        if not liquidator and len(affidavits) = 0:
+        if not liquidator and len(affidavits) == 0:
             return {}
         else:
             self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractLiquidatorsAffidavits()")
