@@ -157,8 +157,38 @@ class Document_Reader:
         result_set = result_set[start_index:end_index]
         equity: Dict[str, float] = self.extractBalanceSheetLiabilitiesEquity(result_set)
         non_current: Dict[str, float] = self.extractBalanceSheetLiabilitiesNonCurrent(result_set)
-        print(f"{result_set=}\n{equity=}\n{non_current=}")
-        exit()
+        current: Dict[str, float] = self.extractBalanceSheetLiabilitiesCurrent(result_set)
+        if not equity and not non_current and not current:
+            return {}
+        else:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractBalanceSheetLiabilities()")
+            exit()
+
+    def extractBalanceSheetLiabilitiesCurrent(self, result_set: List[str]) -> Dict[str, float]:
+        """
+        Extarcting the current liabilities that is linked to the
+        liabilities.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            {trade: float, short_term_borrowings: float, current_tax_payable: float, short_term_provisions: float, others: float, total: float}
+        """
+        start_index: int = result_set.index("CURRENT LIABILITIES") + 1
+        end_index: int = result_set.index("TOTAL LIABILITIES")
+        result_set = result_set[start_index:end_index]
+        result_set.remove("Trade and Other Payables")
+        result_set.remove("Short Term Borrowings")
+        result_set.remove("Current Tax Payable")
+        result_set.remove("Short Term Provisions")
+        result_set.remove("Others")
+        result_set.remove("TOTAL CURRENT LIABILITIES")
+        if len(result_set) > 0:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractBalanceSheetLiabilitiesCurrent()")
+            exit()
+        else:
+            return {}
 
     def extractBalanceSheetLiabilitiesNonCurrent(self, result_set: List[str]) -> Dict[str, float]:
         """
