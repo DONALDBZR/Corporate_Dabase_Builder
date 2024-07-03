@@ -368,11 +368,36 @@ class Builder:
             balance_sheet_response: int = self.storeCorporateDataBalanceSheet(state_capital_response, dataset["balance_sheet"], document_file) # type: ignore
             charges_response: int = self.storeCorporateDataCharges(balance_sheet_response, dataset["charges"], document_file) # type: ignore
             liquidators_response: int = self.storeCorporateDataLiquidators(charges_response, dataset["liquidators"], document_file) # type: ignore
-            print(f"{liquidators_response=}")
+            receivers_response: int = self.storeCorporateDataReceivers(liquidators_response, dataset["receivers"], document_file) # type: ignore
+            print(f"{receivers_response=}")
             exit()
         else:
             response = 500
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {data_extraction_status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
+        return response
+
+    def storeCorporateDataReceivers(self, status: int, receivers: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]], document_file: DocumentFiles) -> int:
+        """
+        Doing the data manipulation on receivers result set.
+
+        Parameters:
+            status: int: The status of the data manipulation.
+            receivers: {receiver: {name: string, date_appointed: int, address: string}, reports: [{date_filled: int, date_from: int, date_to: int}], affidavits: [{date_filled: int, date_from: int, date_to: int}]}: The data that has been extracted for the receivers table.
+            document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
+
+        Returns:
+            int
+        """
+        response: int
+        if status >= 200 and status <= 299 and not receivers:
+            response = 200
+            self.getLogger().inform(f"There is no data to be inserted into the Receivers table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {receivers}")
+        elif status >= 200 and status <= 299 and len(receivers) != 0:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataReceivers()")
+            exit()
+        else:
+            response = status
+            self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
     def storeCorporateDataLiquidators(self, status: int, liquidators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]], document_file: DocumentFiles) -> int:
