@@ -1306,7 +1306,7 @@ class Document_Reader:
         for index in range(0, len(result_set), 1):
             names: List[str] = findall(r"\b[A-Za-z\s]+\b", result_set[index])
             name: str = self._extractBusinessDetailsNames(names)
-            print(f"Name[{index}]: {name}")
+            response = self.__extractNames(response, name)
         return response
 
     def _extractBusinessDetailsNames(self, names: List[str]) -> str:
