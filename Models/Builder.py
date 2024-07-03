@@ -371,11 +371,36 @@ class Builder:
             receivers_response: int = self.storeCorporateDataReceivers(liquidators_response, dataset["receivers"], document_file) # type: ignore
             administrators_response: int = self.storeCorporateDataAdministrators(receivers_response, dataset["administrators"], document_file) # type: ignore
             details_response: int = self.storeCorporateDataDetails(administrators_response, dataset["details"], document_file) # type: ignore
-            print(f"{details_response=}")
+            objections_response: int = self.storeCorporateDataObjections(details_response, dataset["objections"], document_file) # type: ignore
+            print(f"{objections_response=}")
             exit()
         else:
             response = 500
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {data_extraction_status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
+        return response
+
+    def storeCorporateDataObjections(self, status: int, objections: List[Dict[str, Union[int, str]]], document_file: DocumentFiles) -> int:
+        """
+        Doing the data manipulation on the objections result set.
+
+        Parameters:
+            status: int: The status of the data manipulation.
+            objections: [{date_objection: int, objector: string}]: The data that has been extracted for the objections table.
+            document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
+
+        Returns:
+            int
+        """
+        response: int
+        if status >= 200 and status <= 299 and len(objections) == 0:
+            response = 200
+            self.getLogger().inform(f"There is no data to be inserted into the Objections table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {objections}")
+        elif status >= 200 and status <= 299 and len(objections) != 0:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataObjections()")
+            exit()
+        else:
+            response = status
+            self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
     def storeCorporateDataDetails(self, status: int, details: List[Dict[str, Union[str, int]]], document_file: DocumentFiles) -> int:
