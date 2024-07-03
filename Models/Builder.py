@@ -684,7 +684,7 @@ class Builder:
         response: int
         if status == 201:
             response = self._storeCorporateDataShareholders(shareholders, document_file.company_detail)
-            self.getLogger().inform(f"The data has been successfully updated into the State Capital table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {shareholders}")
+            self.getLogger().inform(f"The data has been successfully updated into the Shareholders table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {shareholders}")
         else:
             response = status
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
