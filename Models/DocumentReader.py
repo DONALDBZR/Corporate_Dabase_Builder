@@ -106,7 +106,8 @@ class Document_Reader:
             liquidators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractLiquidators(portable_document_file_data_result_set)
             receivers: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractReceivers(portable_document_file_data_result_set)
             administrators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractAdministrators(portable_document_file_data_result_set)
-            print(f"\n-----\n{portable_document_file_data_result_set=}\n{company_details=}\n{business_details=}\n{state_capital=}\n{certificates=}\n{office_bearers=}\n{shareholders=}\n{members=}\n{annual_return=}\n{financial_summaries=}\n{profit_statement=}\n{balance_sheet=}\n{charges=}\n{liquidators=}\n{receivers=}\n{administrators=}")
+            details: List[Dict[str, Union[str, int]]] = self.extractDetails(portable_document_file_data_result_set)
+            print(f"\n-----\n{portable_document_file_data_result_set=}\n{company_details=}\n{business_details=}\n{state_capital=}\n{certificates=}\n{office_bearers=}\n{shareholders=}\n{members=}\n{annual_return=}\n{financial_summaries=}\n{profit_statement=}\n{balance_sheet=}\n{charges=}\n{liquidators=}\n{receivers=}\n{administrators=}\n{details=}")
             exit()
             response = {
                 "status": 200,
@@ -125,6 +126,34 @@ class Document_Reader:
             }
             self.getLogger().error(f"The portable document file has not been generated correctly!  The application will abort the extraction.\nStatus: {response['status']}\nFile Location: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
         return response
+
+    def extractDetails(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
+        """
+        Extracting the details from the result set.
+
+        Parameters:
+            portable_document_file_result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [{type: string, date_start: int, date_end: int, status: string}]
+        """
+        start_index: int = portable_document_file_result_set.index("Winding Up Details")
+        end_index: int = portable_document_file_result_set.index("Page 6")
+        result_set: List[str] = portable_document_file_result_set[start_index:end_index]
+        result_set.remove("Winding Up Details")
+        result_set.remove("Objections")
+        result_set.remove("Objection Date")
+        result_set.remove("Objector")
+        result_set.remove("Type")
+        result_set.remove("Start Date")
+        result_set.remove("End Date")
+        result_set.remove("Status")
+        result_set = [value for value in result_set if ":" not in value]
+        if len(result_set) > 0:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractDetails()")
+            exit()
+        else:
+            return []
 
     def extractAdministrators(self, portable_document_file_result_set: List[str]) -> Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]:
         """
