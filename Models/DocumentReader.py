@@ -1303,9 +1303,23 @@ class Document_Reader:
         for index in range(0, len(result_set), 1):
             operational_addresses: List[str] = findall(r"\b[A-Z]+\b", result_set[index])
             operational_address: str = self._extractBusinessDetailsOperationalAddresses(operational_addresses)
-            print(f"Operational Address[{index}]: {operational_address}")
-        print(f"{result_set=}")
-        exit()
+            response = self.__extractBusinessDetailsOperationalAddresses(response, operational_address)
+        return response
+
+    def __extractBusinessDetailsOperationalAddresses(self, response: List[str], operational_address: str) -> List[str]:
+        """
+        Building the response needed for the operational addresses.
+
+        Parameters:
+            response: [string]: The list to be returned.
+            operational_address: string: The operational address.
+
+        Returns:
+            [string]
+        """
+        if operational_address != "NaOA":
+            response.append(operational_address)
+        return response
 
     def _extractBusinessDetailsOperationalAddresses(self, operational_addresses: List[str]) -> str:
         """
