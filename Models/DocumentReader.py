@@ -1272,10 +1272,10 @@ class Document_Reader:
         result_set = [value for value in result_set if operational_address not in value]
         nature: str = ' '.join(result_set)
         return {
-            "registered_address": registered_address,
+            "registered_address": registered_address.title(),
             "name": name,
-            "nature": nature,
-            "operational_address": operational_address
+            "nature": nature.title(),
+            "operational_address": operational_address.title()
         }
 
     def extractCompanyDetails(self, portable_document_file_result_set: List[str]) -> Dict[str, Union[str, int]]:
