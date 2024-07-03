@@ -417,7 +417,7 @@ class Builder:
         Storing the shareholders.
 
         Parameters:
-            shareholders: [{name: string, amount: int, type: string, currency: string}]: The data that has been extracted for the shareholders table.
+            shareholders: [{name: string, amount_shares: int, type_shares: string, currency: string}]: The data that has been extracted for the shareholders table.
             company_detail: int: The identifier of the company.
 
         Returns:
