@@ -372,11 +372,12 @@ class Builder:
             administrators_response: int = self.storeCorporateDataAdministrators(receivers_response, dataset["administrators"], document_file) # type: ignore
             details_response: int = self.storeCorporateDataDetails(administrators_response, dataset["details"], document_file) # type: ignore
             objections_response: int = self.storeCorporateDataObjections(details_response, dataset["objections"], document_file) # type: ignore
-            print(f"{objections_response=}")
-            exit()
+            response = objections_response
         else:
             response = 500
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {data_extraction_status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
+        if response >= 200 and response <= 299:
+            response = 201
         return response
 
     def storeCorporateDataObjections(self, status: int, objections: List[Dict[str, Union[int, str]]], document_file: DocumentFiles) -> int:
