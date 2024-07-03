@@ -140,8 +140,31 @@ class Document_Reader:
         end_index: int = portable_document_file_result_set.index("Page 6")
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
         administrator: Dict[str, Union[str, int]] = self._extractAdministrators(result_set)
-        print(f"{result_set=}\n{administrator=}")
+        accounts: List[Dict[str, int]] = self.extractAdministratorsAccounts(result_set)
+        print(f"{result_set=}\n{administrator=}\n{accounts=}")
         exit()
+
+    def extractAdministratorsAccounts(self, result_set: List[str]) -> List[Dict[str, int]]:
+        """
+        Extracting the accounts of the administrators.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [{date_filled: int, date_from: int, date_to: int}]
+        """
+        start_index: int = result_set.index("Date Filed")
+        end_index: int = result_set.index("Winding Up Details")
+        result_set = result_set[start_index:end_index]
+        result_set.remove("Date Filed")
+        result_set.remove("From")
+        result_set.remove("To")
+        if len(result_set) > 0:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractAdministrators()")
+            exit()
+        else:
+            return []
 
     def _extractAdministrators(self, result_set: List[str]) -> Dict[str, Union[str, int]]:
         """
@@ -165,7 +188,7 @@ class Document_Reader:
         result_set = result_set + date_appointeds
         result_set = [value for value in result_set if ":" not in value]
         if len(result_set) > 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractReceivers()")
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractAdministrators()")
             exit()
         else:
             return {}
