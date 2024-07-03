@@ -359,10 +359,10 @@ class Builder:
             business_detail_response: int = self.storeCorporateDataBusinessDetail(company_detail_response, dataset["business_details"], document_file) # type: ignore
             certificate_response: int = self.storeCorporateDataCertificate(business_detail_response, dataset["certificates"], document_file) # type: ignore
             office_bearers_response: int = self.storeCorporateDataOfficeBearers(certificate_response, dataset["office_bearers"], document_file) # type: ignore
-            print(f"{office_bearers_response=}")
+            shareholder_response: int = self.storeCorporateDataShareholders(office_bearers_response, dataset["shareholders"], document_file) # type: ignore
+            print(f"{shareholder_response=}")
             exit()
             # state_capital_response: int = self.storeCorporateDataStateCapital(business_detail_response, dataset["share_capital"], document_file) # type: ignore
-            # response = self.storeCorporateDataShareholders(office_bearers_response, dataset["shareholders"], document_file) # type: ignore
         else:
             response = 500
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {data_extraction_status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
@@ -391,13 +391,13 @@ class Builder:
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
-    def storeCorporateDataShareholders(self, status: int, shareholders: Dict[str, Union[str, int]], document_file: DocumentFiles) -> int:
+    def storeCorporateDataShareholders(self, status: int, shareholders: List[Dict[str, Union[str, int]]], document_file: DocumentFiles) -> int:
         """
         Doing the data manipulation on the Shareholders result set.
 
         Parameters:
             status: int: The status of the data manipulation.
-            shareholders: {name: string, amount: int, type: string, currency: string}: The data that has been extracted for the shareholders table.
+            shareholders: [{name: string, amount: int, type: string, currency: string}]: The data that has been extracted for the shareholders table.
             document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
 
         Returns:
@@ -405,11 +405,35 @@ class Builder:
         """
         response: int
         if status == 201:
-            response = self.getShareholders().addShareholders(shareholders, document_file.company_detail)
+            response = self._storeCorporateDataShareholders(shareholders, document_file.company_detail)
+            # response = self.getShareholders().addShareholders(shareholders, document_file.company_detail)
             self.getLogger().inform(f"The data has been successfully updated into the State Capital table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {shareholders}")
         else:
             response = status
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
+        return response
+
+    def _storeCorporateDataShareholders(self, shareholders: List[Dict[str, Union[str, int]]], company_detail: int) -> int:
+        """
+        Storing the shareholders.
+
+        Parameters:
+            shareholders: [{name: string, amount: int, type: string, currency: string}]: The data that has been extracted for the shareholders table.
+            company_detail: int: The identifier of the company.
+
+        Returns:
+            int
+        """
+        response: int
+        responses: List[int] = []
+        for index in range(0, len(shareholders), 1):
+            relational_database_response: int = self.getShareholders().addShareholders(shareholders[index], company_detail)
+            responses.append(relational_database_response)
+        responses = list(set(responses))
+        if len(responses) == 1 and responses[0] == 201:
+            response = 201
+        else:
+            response = 503
         return response
 
     def storeCorporateDataOfficeBearers(self, status: int, office_bearers: List[Dict[str, Union[str, int]]], document_file: DocumentFiles) -> int:
@@ -450,6 +474,7 @@ class Builder:
         for index in range(0, len(office_bearers), 1):
             relational_database_response: int = self.getOfficeBearers().addDirectors(office_bearers[index], document_file.company_detail)
             responses.append(relational_database_response)
+        responses = list(set(responses))
         if len(responses) == 1 and responses[0] == 201:
             response = 201
         else:
