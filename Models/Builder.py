@@ -365,12 +365,37 @@ class Builder:
             financial_summary_response: int = self.storeCorporateDataFinancialSummary(annual_return_response, dataset["financial_summaries"], document_file) # type: ignore
             profit_statement_response: int = self.storeCorporateDataProfitStatement(financial_summary_response, dataset["profit_statement"], document_file) # type: ignore
             state_capital_response: int = self.storeCorporateDataStateCapital(profit_statement_response, dataset["state_capital"], document_file) # type: ignore
-            balance_sheet_response: int = self.storeCorporateDataBalanceSheet(state_capital_response, dataset["balance_sheet"], document_file)
-            print(f"{balance_sheet_response=}")
+            balance_sheet_response: int = self.storeCorporateDataBalanceSheet(state_capital_response, dataset["balance_sheet"], document_file) # type: ignore
+            charges_response: int = self.storeCorporateDataCharges(balance_sheet_response, dataset["charges"], document_file) # type: ignore
+            print(f"{charges_response=}")
             exit()
         else:
             response = 500
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {data_extraction_status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
+        return response
+
+    def storeCorporateDataCharges(self, status: int, charges: List[Dict[str, Union[int, str]]], document_file: DocumentFiles) -> int:
+        """
+        Doing the data manipulation on the charges result set.
+
+        Parameters:
+            status: int: The status of the data manipulation.
+            charges: [{volume: int, property: string, nature: string, amount: int, date_charged: int, date_filled: int, currency: string}]: The data that has been extracted for the charges table.
+            document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
+
+        Returns:
+            int
+        """
+        response: int
+        if status >= 200 and status <= 299 and len(charges) == 0:
+            response = 200
+            self.getLogger().inform(f"There is no data to be inserted into the Charges table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {charges}")
+        elif status >= 200 and status <= 299 and len(charges) != 0:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataCharges()")
+            exit()
+        else:
+            response = status
+            self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
     def storeCorporateDataBalanceSheet(self, status: int, balance_sheet: Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]], document_file: DocumentFiles) -> int:
