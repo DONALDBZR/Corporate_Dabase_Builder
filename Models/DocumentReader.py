@@ -977,7 +977,7 @@ class Document_Reader:
         start_index: int = portable_document_file_result_set.index("Shareholders") + 1
         end_index: int = portable_document_file_result_set.index("Members (Applicable for Company Limited by Guarantee or Shares and Guarantee)")
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
-        result_set = [value for value in result_set if "Date Issued" not in value]
+        result_set = [value for value in result_set if "Date" not in value]
         result_set = [value for value in result_set if "Name" not in value]
         result_set = [value for value in result_set if "Type of Shares" not in value]
         result_set = [value for value in result_set if "Currency" not in value]
@@ -985,6 +985,8 @@ class Document_Reader:
         result_set = [value for value in result_set if " of " not in value]
         result_set = [value for value in result_set if "/" not in value]
         result_set = [value for value in result_set if "Shareholders" not in value]
+        result_set = [value for value in result_set if "STREET" not in value]
+        result_set = [value for value in result_set if "MAURITIUS" not in value]
         names: List[str] = self.extractShareholdersNames(result_set)
         result_set = [value for value in result_set if value not in names]
         type_of_shares: List[str] = self.extractShareholdersTypeShares(result_set)
