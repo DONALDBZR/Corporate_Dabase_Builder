@@ -16,7 +16,7 @@ from typing import Dict, Tuple, Union, List
 from pdfminer.high_level import extract_text
 from datetime import datetime
 from json import dumps
-from re import findall
+from re import findall, search
 
 
 class Document_Reader:
@@ -1267,8 +1267,11 @@ class Document_Reader:
         registered_address: str = result_set[[index for index, value in enumerate(result_set) if "Registered Office Address:" in value][0]].split(": ")[-1]
         result_set = result_set + [registered_address]
         result_set = [value for value in result_set if ":" not in value]
+        result_set = [value for value in result_set if registered_address not in value]
         operational_addresses: List[str] = self.extractBusinessDetailsOperationalAddresses(result_set)
-        print(f"{result_set=}\n{registered_address=}\n{operational_addresses=}")
+        result_set = [value for value in result_set if "MAURITIUS" not in value]
+        names: List[str] = self.extractBusinessDetailsNames(result_set)
+        print(f"{result_set=}\n{registered_address=}\n{operational_addresses=}\n{names=}")
         exit()
         # result_set.remove("Business Details")
         # result_set.remove("Business Name")
@@ -1287,6 +1290,39 @@ class Document_Reader:
             "nature": nature.title(),
             "operational_address": operational_address.title()
         }
+
+    def extractBusinessDetailsNames(self, result_set: List[str]) -> List[str]:
+        """
+        Extracting the names that are linked to the business
+        details.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [string]
+        """
+        response: List[str] = []
+        for index in range(0, len(result_set), 1):
+            names: List[str] = findall(r"\b[A-Za-z\s]+\b", result_set[index])
+            name: str = self._extractBusinessDetailsNames(names)
+            print(f"Name[{index}]: {name}")
+        return response
+
+    def _extractBusinessDetailsNames(self, names: List[str]) -> str:
+        """
+        Bulding the name that is linked to the business details.
+
+        Parameters:
+            names: [string]: The list of the names.
+
+        Returns:
+            string
+        """
+        if len(names) == 1 and bool(search(r"^[A-Z][a-z]*\s?[A-Z]?[a-z]*$", names[0])):
+            return names[0]
+        else:
+            return "NaN"
 
     def extractBusinessDetailsOperationalAddresses(self, result_set: List[str]) -> List[str]:
         """
