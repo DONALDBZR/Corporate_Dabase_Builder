@@ -974,6 +974,8 @@ class Document_Reader:
         start_index: int = portable_document_file_result_set.index("Shareholders") + 1
         end_index: int = portable_document_file_result_set.index("Members (Applicable for Company Limited by Guarantee or Shares and Guarantee)")
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
+        start_index: int = portable_document_file_result_set.index("Currency") + 1
+        result_set: List[str] = portable_document_file_result_set[start_index:end_index]
         result_set = [value for value in result_set if value != "\x0cDate Issued:"]
         result_set = [value for value in result_set if value != "Shareholders"]
         result_set = [value for value in result_set if value != "Page 1"]
