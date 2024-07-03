@@ -141,8 +141,11 @@ class Document_Reader:
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
         administrator: Dict[str, Union[str, int]] = self._extractAdministrators(result_set)
         accounts: List[Dict[str, int]] = self.extractAdministratorsAccounts(result_set)
-        print(f"{result_set=}\n{administrator=}\n{accounts=}")
-        exit()
+        if not administrator and len(accounts) == 0:
+            return {}
+        else:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractAdministrators()")
+            exit()
 
     def extractAdministratorsAccounts(self, result_set: List[str]) -> List[Dict[str, int]]:
         """
@@ -161,7 +164,7 @@ class Document_Reader:
         result_set.remove("From")
         result_set.remove("To")
         if len(result_set) > 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractAdministrators()")
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractAdministratorsAccounts()")
             exit()
         else:
             return []
