@@ -800,9 +800,12 @@ class Document_Reader:
         start_index: int = portable_document_file_result_set.index("Members (Applicable for Company Limited by Guarantee or Shares and Guarantee)") + 1
         end_index: int = portable_document_file_result_set.index("Annual Return filed for last 3 years")
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
+        result_set = [value for value in result_set if "Date" not in value]
+        result_set = [value for value in result_set if "/" not in value]
+        result_set = [value for value in result_set if "Page" not in value]
+        result_set = [value for value in result_set if " of " not in value]
         result_set.remove("Name")
         result_set.remove("Amount")
-        result_set.remove("Start Date")
         result_set.remove("Currency")
         if len(result_set) > 0:
             self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractMembers()")
