@@ -1290,17 +1290,9 @@ class Document_Reader:
         start_index: int = portable_document_file_result_set.index("Company Details") + 1
         end_index: int = [index for index, value in enumerate(portable_document_file_result_set) if "Business Registration No.:" in value][0] + 1
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
-        result_set.remove("File No.:")
-        result_set.remove("Name:")
-        result_set.remove("Type:")
-        result_set.remove("Category:")
-        result_set.remove("Registrar of Companies")
-        result_set.remove("Date Incorporated:")
-        result_set.remove("Nature:")
-        result_set.remove("Status:")
-        result_set.remove("Sub Category:")
-        result_set.remove("Business Details")
         business_registration_number: str = result_set[[index for index, value in enumerate(result_set) if "Business Registration No.:" in value][0]].split(" ")[-1]
+        result_set = [value for value in result_set if ":" not in value]
+        result_set.remove("Business Details")
         name: str = result_set[1]
         file_number: str = result_set[0]
         category: str = result_set[3].title()
