@@ -63,7 +63,7 @@ class State_Capital(Database_Handler):
             self.postData(
                 table=self.getTableName(),
                 columns="type, amount, stated_capital, amount_unpaid, par_value, currency, CompanyDetail",
-                values="%s, %s, %s, %s, %s",
+                values="%s, %s, %s, %s, %s, %s, %s",
                 parameters=parameters # type: ignore
             )
             response = 201
