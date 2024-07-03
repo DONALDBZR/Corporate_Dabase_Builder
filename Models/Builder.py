@@ -370,11 +370,36 @@ class Builder:
             liquidators_response: int = self.storeCorporateDataLiquidators(charges_response, dataset["liquidators"], document_file) # type: ignore
             receivers_response: int = self.storeCorporateDataReceivers(liquidators_response, dataset["receivers"], document_file) # type: ignore
             administrators_response: int = self.storeCorporateDataAdministrators(receivers_response, dataset["administrators"], document_file) # type: ignore
-            print(f"{administrators_response=}")
+            details_response: int = self.storeCorporateDataDetails(administrators_response, dataset["details"], document_file) # type: ignore
+            print(f"{details_response=}")
             exit()
         else:
             response = 500
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {data_extraction_status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
+        return response
+
+    def storeCorporateDataDetails(self, status: int, details: List[Dict[str, Union[str, int]]], document_file: DocumentFiles) -> int:
+        """
+        Doing the data manipulation on the details result set.
+
+        Parameters:
+            status: int: The status of the data manipulation.
+            details: [{type: string, date_start: int, date_end: int, status: string}]: The data that has been extracted for the details table.
+            document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
+
+        Returns:
+            int
+        """
+        response: int
+        if status >= 200 and status <= 299 and len(details) == 0:
+            response = 200
+            self.getLogger().inform(f"There is no data to be inserted into the Details table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {details}")
+        elif status >= 200 and status <= 299 and len(details) != 0:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataDetails()")
+            exit()
+        else:
+            response = status
+            self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
     def storeCorporateDataAdministrators(self, status: int, administrators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]], document_file: DocumentFiles) -> int:
@@ -383,7 +408,7 @@ class Builder:
 
         Parameters:
             status: int: The status of the data manipulation.
-            administrators: {administrator: {name: string, date_appointed: int, designation: string, address: string}, accounts: [{date_filled: int, date_from: int, date_to: int}]}: The data that has been extracted for the administratos table.
+            administrators: {administrator: {name: string, date_appointed: int, designation: string, address: string}, accounts: [{date_filled: int, date_from: int, date_to: int}]}: The data that has been extracted for the administrators table.
             document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
 
         Returns:
