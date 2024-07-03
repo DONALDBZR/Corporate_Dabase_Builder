@@ -1263,10 +1263,14 @@ class Document_Reader:
         result_set.remove("Business Name")
         result_set.remove("Nature of Business")
         result_set.remove("Principal Place of Business")
-        registered_address: str = result_set[[index for index, value in enumerate(result_set) if "Registered Office Address:" in value][0]].split(": ")[-1].title()
-        name: str = result_set[3]
-        nature: str = ' '.join([result_set[3], result_set[4]])
-        operational_address: str = ' '.join([result_set[5], result_set[6]]).title()
+        result_set = [value for value in result_set if "Business Registration No" not in value]
+        registered_address: str = result_set[[index for index, value in enumerate(result_set) if "Registered Office Address:" in value][0]].split(": ")[-1]
+        result_set = [value for value in result_set if registered_address not in value]
+        name: str = result_set[0]
+        result_set = [value for value in result_set if name not in value]
+        operational_address: str = result_set[-1]
+        result_set = [value for value in result_set if operational_address not in value]
+        nature: str = ' '.join(result_set)
         return {
             "registered_address": registered_address,
             "name": name,
