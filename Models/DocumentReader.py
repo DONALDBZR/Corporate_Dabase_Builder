@@ -107,6 +107,7 @@ class Document_Reader:
             receivers: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractReceivers(portable_document_file_data_result_set)
             administrators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractAdministrators(portable_document_file_data_result_set)
             details: List[Dict[str, Union[str, int]]] = self.extractDetails(portable_document_file_data_result_set)
+            objections: List[Dict[str, Union[int, str]]] = self.extractObjections(portable_document_file_data_result_set)
             print(f"\n-----\n{portable_document_file_data_result_set=}\n{company_details=}\n{business_details=}\n{state_capital=}\n{certificates=}\n{office_bearers=}\n{shareholders=}\n{members=}\n{annual_return=}\n{financial_summaries=}\n{profit_statement=}\n{balance_sheet=}\n{charges=}\n{liquidators=}\n{receivers=}\n{administrators=}\n{details=}")
             exit()
             response = {
@@ -126,6 +127,26 @@ class Document_Reader:
             }
             self.getLogger().error(f"The portable document file has not been generated correctly!  The application will abort the extraction.\nStatus: {response['status']}\nFile Location: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
         return response
+
+    def extractObjections(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[int, str]]]:
+        """
+        Extracting the objections from te result set.
+
+        Parameters:
+            portable_document_file_result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [{date_objection: int, objector: string}]
+        """
+        start_index: int = portable_document_file_result_set.index("Objection Date")
+        end_index: int = portable_document_file_result_set.index("Last Annual Registration Fee Paid:")
+        result_set: List[str] = portable_document_file_result_set[start_index:end_index]
+        result_set = [value for value in result_set if "Object" not in value]
+        if len(result_set) > 0:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractObjections()")
+            exit()
+        else:
+            return []
 
     def extractDetails(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
         """
