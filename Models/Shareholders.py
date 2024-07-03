@@ -53,7 +53,7 @@ class Shareholders(Database_Handler):
         try:
             parameters: Tuple[str, int, str, str, int] = (
                 str(data["name"]),
-                int(data["amount"]),
+                int(data["amount_shares"]),
                 str(data["type"]),
                 str(data["currency"]),
                 company_detail
