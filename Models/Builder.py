@@ -364,9 +364,9 @@ class Builder:
             annual_return_response: int = self.storeCorporateDataAnnualReturn(member_response, dataset["annual_return"], document_file) # type: ignore
             financial_summary_response: int = self.storeCorporateDataFinancialSummary(annual_return_response, dataset["financial_summaries"], document_file) # type: ignore
             profit_statement_response: int = self.storeCorporateDataProfitStatement(financial_summary_response, dataset["profit_statement"], document_file) # type: ignore
-            print(f"{profit_statement_response=}")
+            state_capital_response: int = self.storeCorporateDataStateCapital(profit_statement_response, dataset["state_capital"], document_file) # type: ignore
+            print(f"{state_capital_response=}")
             exit()
-            # state_capital_response: int = self.storeCorporateDataStateCapital(business_detail_response, dataset["share_capital"], document_file) # type: ignore
         else:
             response = 500
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {data_extraction_status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
@@ -582,12 +582,12 @@ class Builder:
             response = 503
         return response
 
-    def storeCorporateDataStateCapital(self, business_detail: int, state_capital: Dict[str, Union[str, int]], document_file: DocumentFiles) -> int:
+    def storeCorporateDataStateCapital(self, status: int, state_capital: Dict[str, Union[str, int]], document_file: DocumentFiles) -> int:
         """
         Doing the data manipulation State Capital result set.
 
         Parameters:
-            business_detail: int: The status of the data manipulation.
+            status: int: The status of the data manipulation.
             state_capital: {type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}: The data that has been extracted for the shareholder table.
             document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
 
@@ -595,12 +595,15 @@ class Builder:
             int
         """
         response: int
-        if business_detail == 201:
+        if status >= 200 and status <= 299 and not state_capital:
+            response = 200
+            self.getLogger().inform(f"There is no data to be inserted into the State Capital table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {state_capital}")
+        elif status >= 200 and status <= 299 and len(state_capital) > 0:
             response = self.getStateCapital().addStateCapital(state_capital, document_file.company_detail)
             self.getLogger().inform(f"The data has been successfully updated into the State Capital table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {state_capital}")
         else:
-            response = business_detail
-            self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {business_detail}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
+            response = status
+            self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
     def storeCorporateDataBusinessDetail(self, company_detail: int, business_details: Dict[str, str], document_file: DocumentFiles) -> int:
