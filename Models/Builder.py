@@ -358,8 +358,10 @@ class Builder:
             company_detail_response: int = self.storeCorporateDataCompanyDetail(data_extraction_status, dataset["company_details"], document_file) # type: ignore
             business_detail_response: int = self.storeCorporateDataBusinessDetail(company_detail_response, dataset["business_details"], document_file) # type: ignore
             certificate_response: int = self.storeCorporateDataCertificate(business_detail_response, dataset["certificates"], document_file) # type: ignore
+            office_bearers_response: int = self.storeCorporateDataOfficeBearers(certificate_response, dataset["office_bearers"], document_file) # type: ignore
+            print(f"{office_bearers_response=}")
+            exit()
             # state_capital_response: int = self.storeCorporateDataStateCapital(business_detail_response, dataset["share_capital"], document_file) # type: ignore
-            # office_bearers_response: int = self.storeCorporateDataOfficeBearers(state_capital_response, dataset["office_bearers"], document_file) # type: ignore
             # response = self.storeCorporateDataShareholders(office_bearers_response, dataset["shareholders"], document_file) # type: ignore
         else:
             response = 500
@@ -410,23 +412,23 @@ class Builder:
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
-    def storeCorporateDataOfficeBearers(self, status: int, office_bearers: Dict[str, Union[str, int]], document_file: DocumentFiles) -> int:
+    def storeCorporateDataOfficeBearers(self, status: int, office_bearers: List[Dict[str, Union[str, int]]], document_file: DocumentFiles) -> int:
         """
         Doing the data manipulation on the Office Bearers result
         set.
 
         Parameters:
             status: int: The status of the data manipulation.
-            office_bearers: {position: string, name: string, address: string, date_appointment: int}: The data that has been extracted for the office bearers table.
+            office_bearers: [{position: string, name: string, address: string, date_appointment: int}]: The data that has been extracted for the office bearers table.
             document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
 
         Returns:
             int
         """
         response: int
-        if status == 201:
-            response = self.getOfficeBearers().addDirectors(office_bearers, document_file.company_detail)
-            self.getLogger().inform(f"The data has been successfully updated into the State Capital table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {office_bearers}")
+        if status >= 200 and status <= 299:
+            response = self._storeCorporateDataOfficeBearers(office_bearers)
+            self.getLogger().inform(f"The data has been successfully updated into the Office Bearers table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {office_bearers}")
         else:
             response = status
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
