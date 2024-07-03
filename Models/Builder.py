@@ -365,11 +365,36 @@ class Builder:
             financial_summary_response: int = self.storeCorporateDataFinancialSummary(annual_return_response, dataset["financial_summaries"], document_file) # type: ignore
             profit_statement_response: int = self.storeCorporateDataProfitStatement(financial_summary_response, dataset["profit_statement"], document_file) # type: ignore
             state_capital_response: int = self.storeCorporateDataStateCapital(profit_statement_response, dataset["state_capital"], document_file) # type: ignore
-            print(f"{state_capital_response=}")
+            balance_sheet_response: int = self.storeCorporateDataBalanceSheet(state_capital_response, dataset["balance_sheet"], document_file)
+            print(f"{balance_sheet_response=}")
             exit()
         else:
             response = 500
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {data_extraction_status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
+        return response
+
+    def storeCorporateDataBalanceSheet(self, status: int, balance_sheet: Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]], document_file: DocumentFiles) -> int:
+        """
+        Doing the data manipulation on the balance sheet result set.
+
+        Parameters:
+            status: int: The status of the data manipulation.
+            balance_sheet: {balance_sheet: {financial_year: int, currency: string, unit: int}, assets: {non_current_assets: {property_plant_equipment: float, investment_properties: float, intangible_assets: float, other_investments: float, subsidiaries_investments: float, biological_assets: float, others: float, total: float}, current_assets: {inventories: float, trade: float, cash: float, others: float, total: float}, total: float}, liabilities: {equity_and_liabilities: {share_capital: float, other_reserves: float, retained_earnings: float, others: float, total: float}, non_current: {long_term_borrowings: float, deferred_tax: float, long_term_provisions: float, others: float, total: float}, current: {trade: float, short_term_borrowings: float, current_tax_payable: float, short_term_provisions: float, others: float, total: float}, total_liabilities: float, total_equity_and_liabilities: float}}: The data that has been extracted for the balance sheet table.
+            document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
+
+        Returns:
+            int
+        """
+        response: int
+        if status >= 200 and status <= 299 and not balance_sheet:
+            response = 200
+            self.getLogger().inform(f"There is no data to be inserted into the Balance Sheet table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {balance_sheet}")
+        elif status >= 200 and status <= 299 and len(balance_sheet) != 0:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataBalanceSheet()")
+            exit()
+        else:
+            response = status
+            self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
     def storeCorporateDataProfitStatement(self, status: int, profit_statement: Dict[str, Union[Dict[str, Union[int, str]], float]], document_file: DocumentFiles) -> int:
