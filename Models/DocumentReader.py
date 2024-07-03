@@ -1183,12 +1183,13 @@ class Document_Reader:
         """
         response: List[Dict[str, Union[str, int]]] = []
         start_index: int = portable_document_file_result_set.index("Office Bearers") + 1
-        end_index: int = portable_document_file_result_set.index("Shareholders")
+        end_index: int = portable_document_file_result_set.index("No. of Shares Type of Shares")
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
         result_set.remove("Position")
-        result_set.remove("Name")
+        result_set = [value for value in result_set if "Name" not in value]
         result_set.remove("Service Address")
         result_set.remove("Appointed Date")
+        result_set.remove("Shareholders")
         date_appointments: List[str] = self.extractOfficeBearersDateAppointments(result_set)
         result_set = [value for value in result_set if value not in date_appointments]
         positions: List[str] = self.extractOfficeBearersPositions(result_set)
