@@ -397,7 +397,7 @@ class Builder:
 
         Parameters:
             status: int: The status of the data manipulation.
-            shareholders: [{name: string, amount: int, type: string, currency: string}]: The data that has been extracted for the shareholders table.
+            shareholders: [{name: string, amount_shares: int, type_shares: string, currency: string}]: The data that has been extracted for the shareholders table.
             document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
 
         Returns:
