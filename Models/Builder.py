@@ -362,12 +362,38 @@ class Builder:
             shareholder_response: int = self.storeCorporateDataShareholders(office_bearers_response, dataset["shareholders"], document_file) # type: ignore
             member_response: int = self.storeCorporateDataMembers(shareholder_response, dataset["members"], document_file) # type: ignore
             annual_return_response: int = self.storeCorporateDataAnnualReturn(member_response, dataset["annual_return"], document_file) # type: ignore
-            print(f"{annual_return_response=}")
+            financial_summary_response: int = self.storeCorporateDataFinancialSummary(annual_return_response, dataset["financial_summaries"], document_file) # type: ignore
+            print(f"{financial_summary_response=}")
             exit()
             # state_capital_response: int = self.storeCorporateDataStateCapital(business_detail_response, dataset["share_capital"], document_file) # type: ignore
         else:
             response = 500
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {data_extraction_status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
+        return response
+
+    def storeCorporateDataFinancialSummary(self, status: int, financial_summaries: List[Dict[str, Union[int, str]]], document_file: DocumentFiles) -> int:
+        """
+        Doing the data manipulation on the financial summary result
+        set.
+
+        Parameters:
+            status: int: The status of the data manipulation.
+            financial_summaries: [{financial_year: int, currency: string, date_approved: int, unit: int}]: The data that has been extracted for the financial summary table.
+            document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
+
+        Returns:
+            int
+        """
+        response: int
+        if status >= 200 and status <= 299 and len(financial_summaries) > 0:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataAnnualReturn()")
+            exit()
+        elif status >= 200 and status <= 299 and len(financial_summaries) == 0:
+            response = 200
+            self.getLogger().inform(f"There is no data to be inserted into the Financial Summaries table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {financial_summaries}")
+        else:
+            response = status
+            self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
     def storeCorporateDataAnnualReturn(self, status: int, annual_return: List[Dict[str, int]], document_file: DocumentFiles) -> int:
@@ -376,7 +402,7 @@ class Builder:
 
         Parameters:
             status: int: The status of the data manipulation.
-            annual_return: [{date_annual_return: int, date_annual_meeting: int, date_filled: int}]: The data that has been extracted for the members table.
+            annual_return: [{date_annual_return: int, date_annual_meeting: int, date_filled: int}]: The data that has been extracted for the annual return table.
             document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
 
         Returns:
