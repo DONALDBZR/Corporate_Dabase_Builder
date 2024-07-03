@@ -43,7 +43,7 @@ class Shareholders(Database_Handler):
         relational database server.
 
         Parameters:
-            data: {name: string, amount: int, type: string, currency: string}: The data that has been extracted for the office bearers table.
+            data: {name: string, amount_shares: int, type_shares: string, currency: string}: The data that has been extracted for the office bearers table.
             company_detail: int: The identifier of the company.
 
         Returns:
