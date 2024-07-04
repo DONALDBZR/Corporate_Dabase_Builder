@@ -1272,8 +1272,6 @@ class Document_Reader:
         result_set = [value for value in result_set if "MAURITIUS" not in value]
         result_set = [value for value in result_set if value not in operational_addresses]
         names: List[str] = self.extractBusinessDetailsNames(result_set)
-        print(f"{result_set=}\n{registered_address=}\n{operational_addresses=}\n{names=}")
-        exit()
         result_set = [value for value in result_set if value not in names]
         natures: List[str] = self.extractBusinessDetailsNatures(result_set)
         for index in range(0, len(names), 1):
@@ -1319,7 +1317,6 @@ class Document_Reader:
         for index in range(0, len(result_set), 1):
             names: List[str] = findall(r"\b[A-Za-z\s]+\b", result_set[index])
             name: str = self._extractBusinessDetailsNames(names)
-            print(f"Names[{index}]: {names}\nName[{index}]: {name}")
             response = self.__extractNames(response, name)
         return response
 
