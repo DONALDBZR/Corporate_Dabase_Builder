@@ -938,6 +938,8 @@ class Document_Reader:
             [string]
         """
         response: List[str] = []
+        types: List[str] = [value for value in result_set if "SHARES" in value]
+        result_set = types
         for index in range(0, len(result_set), 1):
             type_shares: List[str] = findall(r"\b[A-Z]+\b", result_set[index])
             type_share: str = self._extractShareholdersTypeShares(type_shares)
@@ -1019,10 +1021,10 @@ class Document_Reader:
         result_set = [value for value in result_set if "MAURITIUS" not in value]
         result_set = [value for value in result_set if "Service Address" not in value]
         names: List[str] = self.extractShareholdersNames(result_set)
-        print(f"{result_set=}\n{names=}")
-        exit()
-        result_set = [value for value in result_set if value not in names]
+        # result_set = [value for value in result_set if value not in names]
         type_of_shares: List[str] = self.extractShareholdersTypeShares(result_set)
+        print(f"{result_set=}\n{names=}\n{type_of_shares=}")
+        exit()
         amount_of_shares: List[int] = self.extractShareholdersAmountShares(result_set)
         currencies: List[str] = [value for value in result_set if type_of_shares[0] not in value]
         for index in range(0, len(names), 1):
