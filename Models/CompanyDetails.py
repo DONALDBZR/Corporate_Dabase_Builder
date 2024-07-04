@@ -325,3 +325,21 @@ class Company_Details(Database_Handler):
                 "data": CompanyDetails({})
             }
         return company_details
+
+    def __getSpecificCompanyDetails(self, dataset: Union[RowType, Dict[str, Union[int, str]]]) -> Dict[str, Union[int, CompanyDetails]]:
+        """
+        Formating the data into the correct datatype when the result
+        set is not empty.
+
+        Parameters:
+            dataset: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int, is_extracted: int, company_identifier: int, company_type: string}: The data from the relational database server.
+
+        Returns:
+            {status: int, data: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int, is_extracted: int, company_identifier: int, company_type: string}}
+        """
+        status: int = 200
+        data: CompanyDetails = CompanyDetails(dataset) # type: ignore
+        return {
+            "status": status,
+            "data": data
+        }
