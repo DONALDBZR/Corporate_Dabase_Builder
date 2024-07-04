@@ -1274,8 +1274,6 @@ class Document_Reader:
         names: List[str] = self.extractBusinessDetailsNames(result_set)
         result_set = [value for value in result_set if value not in names]
         natures: List[str] = self.extractBusinessDetailsNatures(result_set)
-        print(f"{result_set=}\n{registered_address=}\n{operational_addresses=}\n{names=}\n{natures=}")
-        exit()
         for index in range(0, len(names), 1):
             data: Dict[str, str] = {
                 "registered_address": registered_address.title(),
