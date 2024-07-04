@@ -1270,9 +1270,10 @@ class Document_Reader:
         result_set = [value for value in result_set if ":" not in value]
         operational_addresses: List[str] = self.extractBusinessDetailsOperationalAddresses(result_set)
         result_set = [value for value in result_set if "MAURITIUS" not in value]
-        print(f"{result_set=}\n{registered_address=}\n{operational_addresses=}")
-        exit()
+        result_set = [value for value in result_set if value not in operational_addresses]
         names: List[str] = self.extractBusinessDetailsNames(result_set)
+        print(f"{result_set=}\n{registered_address=}\n{operational_addresses=}\n{names=}")
+        exit()
         result_set = [value for value in result_set if value not in names]
         natures: List[str] = self.extractBusinessDetailsNatures(result_set)
         for index in range(0, len(names), 1):
@@ -1317,6 +1318,7 @@ class Document_Reader:
         response: List[str] = []
         for index in range(0, len(result_set), 1):
             names: List[str] = findall(r"\b[A-Za-z\s]+\b", result_set[index])
+            print(f"Names[{index}]: {names}")
             name: str = self._extractBusinessDetailsNames(names)
             response = self.__extractNames(response, name)
         return response
@@ -1349,9 +1351,9 @@ class Document_Reader:
         """
         response: List[str] = []
         for index in range(0, len(result_set), 1):
-            operational_addresses: List[str] = findall(r"\b[A-Za-z\s]+\b", result_set[index])
+            operational_addresses: List[str] = findall(r"\b[0-9A-Za-z\s]+\b", result_set[index])
+            print(f"Operational Addresses[{index}]: {operational_addresses}")
             operational_address: str = self._extractBusinessDetailsOperationalAddresses(operational_addresses)
-            print(f"Operational Addresses[{index}]: {operational_addresses}\nOperational Address[{index}]: {operational_address}")
             response = self.__extractBusinessDetailsOperationalAddresses(response, operational_address)
         return response
 
