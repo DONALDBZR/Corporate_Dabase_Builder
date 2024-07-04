@@ -1096,7 +1096,6 @@ class Document_Reader:
         for index in range(0, len(result_set), 1):
             positions: List[str] = findall(r"\b[A-Z]+\b", result_set[index])
             position: str = self._extractOfficeBearersPositions(positions)
-            print(f"Position[{index}]: {position}")
             response = self.__extractOfficeBearersPositions(response, position)
         return response
 
@@ -1125,7 +1124,7 @@ class Document_Reader:
         Returns:
             string
         """
-        if len(dataset) > 1 and "MAURITIUS" not in dataset:
+        if len(dataset) > 0 and "MAURITIUS" not in dataset:
             return " ".join(dataset)
         else:
             return "NaN"
@@ -1141,9 +1140,17 @@ class Document_Reader:
             [string]
         """
         response: List[str] = []
+        # result_set = [value for value in result_set if "MAURITIUS" not in value]
+        # dataset: List[str] = [value for value in result_set if " 6 " in value]
+        # for index in range(0, len(dataset), 1):
+        #     result_set.append(dataset[index].split(" 6 ")[0])
+        # result_set = [value for value in result_set if value not in dataset]
         for index in range(0, len(result_set), 1):
             names: List[str] = findall(r"\b[A-Z]+\b", result_set[index])
+            names = [value for value in names if value != "MAURITIUS"]
+            names = [value for value in names if len(value) > 1]
             name: str = self._extractOfficeBearersNames(names)
+            print(f"Name[{index}]: {name}")
             response = self.__extractNames(response, name)
         return response
 
@@ -1203,10 +1210,10 @@ class Document_Reader:
         result_set = [value for value in result_set if value not in date_appointments]
         positions: List[str] = self.extractOfficeBearersPositions(result_set)
         result_set = [value for value in result_set if value not in positions]
-        print(f"{result_set=}\n{date_appointments=}\n{positions=}")
-        exit()
         names: List[str] = self.extractOfficeBearersNames(result_set)
         result_set = [value for value in result_set if value not in names]
+        print(f"{result_set=}\n{date_appointments=}\n{positions=}\n{names=}")
+        exit()
         addresses: List[str] = self.extractOfficeBearersAddresses(result_set)
         print(f"{positions=}\n{names=}\n{addresses=}\n{date_appointments=}")
         exit()
