@@ -1274,6 +1274,8 @@ class Document_Reader:
         names: List[str] = self.extractBusinessDetailsNames(result_set)
         result_set = [value for value in result_set if value not in names]
         natures: List[str] = self.extractBusinessDetailsNatures(result_set)
+        print(f"{result_set=}\n{registered_address=}\n{operational_addresses=}\n{names=}\n{natures=}")
+        exit()
         for index in range(0, len(names), 1):
             data: Dict[str, str] = {
                 "registered_address": registered_address.title(),
@@ -1349,7 +1351,6 @@ class Document_Reader:
         response: List[str] = []
         for index in range(0, len(result_set), 1):
             operational_addresses: List[str] = findall(r"\b[0-9A-Za-z\s]+\b", result_set[index])
-            print(f"Operational Addresses[{index}]: {operational_addresses}")
             operational_address: str = self._extractBusinessDetailsOperationalAddresses(operational_addresses)
             response = self.__extractBusinessDetailsOperationalAddresses(response, operational_address)
         return response
@@ -1379,7 +1380,7 @@ class Document_Reader:
         Returns:
             string
         """
-        if len(operational_addresses) >= 3 or bool(search(r"\b[A-Z]\b", operational_addresses[0])):
+        if len(operational_addresses) >= 3 or bool(search(r"\b[A-Z]\b", operational_addresses[0])) or 'MAURITIUS' in operational_addresses[0]:
             return " ".join(operational_addresses)
         else:
             return "NaOA"
