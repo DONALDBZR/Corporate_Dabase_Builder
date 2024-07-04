@@ -13,6 +13,7 @@ from typing import Union, Dict, List, Tuple, Any
 from mysql.connector.types import RowType
 from mysql.connector.errors import Error
 from Data.CompanyDetails import CompanyDetails
+from symbol import parameters
 
 
 class Company_Details(Database_Handler):
@@ -275,3 +276,31 @@ class Company_Details(Database_Handler):
             response = 503
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {response}\nError: {error}")
         return response
+
+    def getSpecificCompanyDetails(self, identifier: int) -> CompanyDetails:
+        """
+        Retrieving a specific company detail.
+
+        Parameters:
+            identifier: int: The identifier of a company.
+
+        Returns:
+            {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int, is_extracted: int, company_identifier: int, company_type: string}
+        """
+        try:
+            parameters: Tuple[int] = (identifier,)
+            data: Union[RowType, Dict[str, Union[int, str]]] = self.getData(
+                table_name=self.getTableName(),
+                parameters=parameters,
+                filter_condition="identifier = %s"
+            )[0]
+            response: Dict[str, Union[int, CompanyDetails]] = self._getSpecificCompanyDetails(data)
+            self.getLogger().inform(
+                f"The data from {self.getTableName()} has been retrieved!\nStatus: {response['status']}\nData: {data}"
+            )
+            return response["data"]  # type: ignore
+        except Error as error:
+            self.getLogger().error(
+                f"An error occurred in {self.getTableName()}\nStatus: 503\nError: {error}"
+            )
+            return CompanyDetails({})
