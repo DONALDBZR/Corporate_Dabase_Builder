@@ -782,14 +782,14 @@ class Builder:
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
-    def storeCorporateDataBusinessDetail(self, company_detail: int, business_details: Dict[str, str], document_file: DocumentFiles) -> int:
+    def storeCorporateDataBusinessDetail(self, company_detail: int, business_details: List[Dict[str, str]], document_file: DocumentFiles) -> int:
         """
         Doing the data manipulation on the Business Details result
         set.
 
         Parameters:
             company_detail: int: The status of the data manipulation.
-            business_details: {registered_address: string, name: string, nature: string, operational_address: string}: The data that has been extracted for the business details table.
+            business_details: [{registered_address: string, name: string, nature: string, operational_address: string}]: The data that has been extracted for the business details table.
             document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
 
         Returns:
