@@ -1319,6 +1319,7 @@ class Document_Reader:
         for index in range(0, len(result_set), 1):
             names: List[str] = findall(r"\b[A-Za-z\s]+\b", result_set[index])
             name: str = self._extractBusinessDetailsNames(names)
+            print(f"Name[{index}]: {name}")
             response = self.__extractNames(response, name)
         return response
 
@@ -1332,7 +1333,8 @@ class Document_Reader:
         Returns:
             string
         """
-        if len(names) == 1 and bool(search(r"[A-Z]", names[0])):
+        names_regex: List[bool] = list(set([bool(search(r"[A-Z]", value)) for value in [value.split(" ") for value in names][0]]))
+        if len(names) == 1 and bool(search(r"[A-Z]", names[0])) and (len(names_regex) == 1 and names_regex[0] == True):
             return names[0]
         else:
             return "NaN"
