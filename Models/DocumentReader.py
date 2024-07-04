@@ -1265,14 +1265,16 @@ class Document_Reader:
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
         result_set = [value for value in result_set if "Business" not in value]
         registered_address: str = result_set[[index for index, value in enumerate(result_set) if "Registered Office Address:" in value][0]].split(": ")[-1]
-        result_set = result_set + [registered_address]
+        # result_set = result_set + [registered_address]
         result_set = [value for value in result_set if ":" not in value]
-        result_set = [value for value in result_set if registered_address not in value]
+        # result_set = [value for value in result_set if registered_address not in value]
         operational_addresses: List[str] = self.extractBusinessDetailsOperationalAddresses(result_set)
         result_set = [value for value in result_set if "MAURITIUS" not in value]
         names: List[str] = self.extractBusinessDetailsNames(result_set)
         result_set = [value for value in result_set if value not in names]
         natures: List[str] = self.extractBusinessDetailsNatures(result_set)
+        print(f"{result_set=}\n{names=}\n{registered_address=}\n{natures=}\n{operational_addresses=}")
+        exit()
         for index in range(0, len(names), 1):
             data: Dict[str, str] = {
                 "registered_address": registered_address.title(),
@@ -1347,8 +1349,9 @@ class Document_Reader:
         """
         response: List[str] = []
         for index in range(0, len(result_set), 1):
-            operational_addresses: List[str] = findall(r"\b[A-Z]+\b", result_set[index])
+            operational_addresses: List[str] = findall(r"\b[A-Za-z\s]+\b", result_set[index])
             operational_address: str = self._extractBusinessDetailsOperationalAddresses(operational_addresses)
+            print(f"Operational Address[{index}]: {operational_address}")
             response = self.__extractBusinessDetailsOperationalAddresses(response, operational_address)
         return response
 
@@ -1377,7 +1380,7 @@ class Document_Reader:
         Returns:
             string
         """
-        if len(operational_addresses) >= 4:
+        if len(operational_addresses) >= 3:
             return " ".join(operational_addresses)
         else:
             return "NaOA"
