@@ -797,11 +797,36 @@ class Builder:
         """
         response: int
         if company_detail == 202:
-            response = self.getBusinessDetails().addBusinessDetails(business_details, document_file.company_detail)
+            response = self._storeCorporateDataBusinessDetail(business_details, document_file.company_detail)
             self.getLogger().inform(f"The data has been successfully updated into the Business Details table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {business_details}")
         else:
             response = company_detail
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {company_detail}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
+        return response
+
+    def _storeCorporateDataBusinessDetail(self, business_details: List[Dict[str, str]], company_detail: int) -> int:
+        """
+        Adding the business details into the relational database
+        server.
+
+        Parameters:
+            business_details: [{registered_address: string, name: string, nature: string, operational_address: string}]: The data that has been extracted for the business details table.
+            company_detail: int: The identifier of the company.
+
+        Returns:
+            int
+        """
+        response: int
+        responses: List[int] = []
+        for index in range(0, len(business_details), 1):
+            responses.append(self.getBusinessDetails().addBusinessDetails(business_details[index], company_detail))
+        responses = list(set(responses))
+        if len(responses) == 1 and responses[0] == 201:
+            response = 201
+            self.getLogger().inform(f"The data has been successfully updated into the Business Details table.\nStatus: {response}\nIdentifier: {company_detail}\nData: {business_details}")
+        else:
+            response = 503
+            self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {response}\nCompany Detail Identifier: {company_detail}")
         return response
 
     def storeCorporateDataCompanyDetail(self, data_extraction: int, company_details: Dict[str, Union[str, int]], document_file: DocumentFiles) -> int:
