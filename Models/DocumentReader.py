@@ -121,7 +121,7 @@ class Document_Reader:
             business_details: Dict[str, str] = self._extractDataAuthorisedCompanyBusinessDetails(portable_document_file_data_result_set)
             office_bearers: List[Dict[str, Union[str, int]]] = self._extractDataAuthorisedCompanyOfficeBearers(portable_document_file_data_result_set)
             receivers: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractReceivers(portable_document_file_data_result_set)
-            administrators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractAdministrators(portable_document_file_data_result_set)
+            administrators: Dict[str, Union[Dict[str, str], List[Dict[str, int]]]] = self._extractDataAuthorisedCompanyAdministrators(portable_document_file_data_result_set)
             print(f"{portable_document_file_data_result_set=}\n{company_details=}\n{business_details=}\n{office_bearers=}\n{receivers=}\n{administrators=}")
             exit()
             # certificates: List[Dict[str, Union[str, int]]] = self.extractCertificates(portable_document_file_data_result_set)
@@ -165,6 +165,45 @@ class Document_Reader:
             }
             self.getLogger().error(f"The portable document file has not been generated correctly!  The application will abort the extraction.\nStatus: {response['status']}\nFile Location: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
         return response
+
+    def _extractDataAuthorisedCompanyAdministrators(self, portable_document_file_data: List[str]) -> Dict[str, Union[Dict[str, str], List[Dict[str, int]]]]:
+        """
+        Extracting the administrators from an authorised company.
+
+        Parameters:
+            portable_document_file_data: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            {administrator: {name: string, designation: string, address: string}, accounts: [{date_filled: int, date_from: int, date_to: int}]}
+        """
+        start_index: int = portable_document_file_data.index("Administrators")
+        end_index: int = portable_document_file_data.index("Liquidators")
+        result_set: List[str] = portable_document_file_data[start_index:end_index]
+        administrator: Dict[str, str] = self.__extractDataAuthorisedCompanyAdministrators(result_set)
+        print(f"{result_set=}\n{administrator=}")
+        exit()
+
+    def __extractDataAuthorisedCompanyAdministrators(self, result_set: List[str]) -> Dict[str, str]:
+        """
+        Extracting the name of the administrator which is related to
+        an authorised company.
+
+        Parameters:
+            result_set: [string]: The result set containing the data needed.
+
+        Returns:
+            {name: string, designation: string, address: string}
+        """
+        start_index: int = result_set.index("Administrators") + 1
+        end_index: int = result_set.index("Accounts of Administrator")
+        result_set = result_set[start_index:end_index]
+        result_set = [value for value in result_set if "To" not in value]
+        result_set = [value for value in result_set if ":" not in value]
+        if len(result_set) > 0:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.__extractDataAuthorisedCompanyAdministrators()")
+            exit()
+        else:
+            return {}
 
     def _extractDataAuthorisedCompanyOfficeBearers(self, portable_document_file_data: List[str]) -> List[Dict[str, Union[str, int]]]:
         """
@@ -388,7 +427,7 @@ class Document_Reader:
             {administrator: {name: string, date_appointed: int, designation: string, address: string}, accounts: [{date_filled: int, date_from: int, date_to: int}]}
         """
         start_index: int = portable_document_file_result_set.index("Administrators")
-        end_index: int = portable_document_file_result_set.index("Liquidators")
+        end_index: int = portable_document_file_result_set.index("Page 6")
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
         administrator: Dict[str, Union[str, int]] = self._extractAdministrators(result_set)
         accounts: List[Dict[str, int]] = self.extractAdministratorsAccounts(result_set)
@@ -432,7 +471,7 @@ class Document_Reader:
             {name: string, date_appointed: int, designation: string, address: string}
         """
         start_index: int = result_set.index("Name:")
-        end_index: int = result_set.index("Accounts of Administrator")
+        end_index: int = result_set.index("Start Date")
         result_set = result_set[start_index:end_index]
         date_appointeds: List[str] = [value for value in result_set if "Appointed Date" in value]
         start_index = result_set.index("Name:")
