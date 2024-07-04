@@ -182,8 +182,11 @@ class Document_Reader:
         result_set: List[str] = portable_document_file_data[start_index:end_index]
         liquidator: Dict[str, str] = self.__extractDataAuthorisedCompanyLiquidators(result_set)
         affidavits: List[Dict[str, int]] = self._extractDataAuthorisedCompanyLiquidatorsAffidavits(result_set)
-        print(f"{result_set=}\n{liquidator=}")
-        exit()
+        if not liquidator and len(affidavits) == 0:
+            return {}
+        else:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractDataAuthorisedCompanyLiquidators()")
+            exit()
 
     def _extractDataAuthorisedCompanyLiquidatorsAffidavits(self, result_set: List[str]) -> List[Dict[str, int]]:
         """
