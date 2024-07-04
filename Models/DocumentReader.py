@@ -16,7 +16,7 @@ from typing import Dict, Tuple, Union, List
 from pdfminer.high_level import extract_text
 from datetime import datetime
 from json import dumps
-from re import findall, search
+from re import findall, search, split
 
 
 class Document_Reader:
@@ -1298,10 +1298,8 @@ class Document_Reader:
             [string]
         """
         response: List[str] = []
-        last_nature: str = result_set[-1]
-        result_set = [value for value in result_set if last_nature not in value]
-        first_nature: str = " ".join(result_set)
-        response = [first_nature, last_nature]
+        result_set = split(r'(?=[A-Z])', ' '.join(result_set))[1:]
+        response = result_set
         return response
 
     def extractBusinessDetailsNames(self, result_set: List[str]) -> List[str]:
@@ -1319,7 +1317,6 @@ class Document_Reader:
         for index in range(0, len(result_set), 1):
             names: List[str] = findall(r"\b[A-Za-z\s]+\b", result_set[index])
             name: str = self._extractBusinessDetailsNames(names)
-            print(f"Name[{index}]: {name}")
             response = self.__extractNames(response, name)
         return response
 
