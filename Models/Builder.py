@@ -333,8 +333,9 @@ class Builder:
         amount_found: int = self.getDocumentFiles().getAmountFound(date)
         self.getLogger().inform(f"The corporate registries have been retrieved from the relational database server and they will be used for the extracttion of the data about the companies.\nDate of Incorporation: {date}\nCorporate Registries Amount: {amount}\nAmount Downloaded: {amount_found}")
         for index in range(0, len(document_files), 1):
+            company_detail: CompanyDetails = self.getCompanyDetails().getSpecificCompanyDetails(document_files[index].company_detail)
             file_generation_status: int = self.getDocumentReader().generatePortableDocumentFile(document_files[index])
-            data_extraction: Dict[str, Union[int, Dict[str, Union[str, int]], List[Dict[str, str]], List[Dict[str, Union[str, int]]], List[Dict[str, int]], Dict[str, Union[Dict[str, Union[int, str]], float]], Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]]] = self.getDocumentReader().extractData(file_generation_status, document_files[index])
+            data_extraction: Dict[str, Union[int, Dict[str, Union[str, int]], List[Dict[str, str]], List[Dict[str, Union[str, int]]], List[Dict[str, int]], Dict[str, Union[Dict[str, Union[int, str]], float]], Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]]] = self.getDocumentReader().extractData(file_generation_status, document_files[index], company_detail)
             data_manipulation: int = self.storeCorporateData(data_extraction, document_files[index])
             # exit()
             # Deleting the generated portable document file.
