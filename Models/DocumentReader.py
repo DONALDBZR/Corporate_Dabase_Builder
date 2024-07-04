@@ -1062,7 +1062,7 @@ class Document_Reader:
         Returns:
             string
         """
-        if len(dataset) == 1 and dataset[0] != "MAURITIUS" and len(dataset[0]) > 1:
+        if len(dataset) == 1 and dataset[0] != "MAURITIUS" and len(dataset[0]) > 1 and (dataset[0] == "DIRECTOR" or dataset[0] == "SECRETARY"):
             return dataset[0]
         else:
             return "NaP"
@@ -1096,6 +1096,7 @@ class Document_Reader:
         for index in range(0, len(result_set), 1):
             positions: List[str] = findall(r"\b[A-Z]+\b", result_set[index])
             position: str = self._extractOfficeBearersPositions(positions)
+            print(f"Position[{index}]: {position}")
             response = self.__extractOfficeBearersPositions(response, position)
         return response
 
@@ -1202,9 +1203,13 @@ class Document_Reader:
         result_set = [value for value in result_set if value not in date_appointments]
         positions: List[str] = self.extractOfficeBearersPositions(result_set)
         result_set = [value for value in result_set if value not in positions]
+        print(f"{result_set=}\n{date_appointments=}\n{positions=}")
+        exit()
         names: List[str] = self.extractOfficeBearersNames(result_set)
         result_set = [value for value in result_set if value not in names]
         addresses: List[str] = self.extractOfficeBearersAddresses(result_set)
+        print(f"{positions=}\n{names=}\n{addresses=}\n{date_appointments=}")
+        exit()
         for index in range(0, len(date_appointments), 1):
             position: str = positions[index].title()
             name: str = names[index].title()
