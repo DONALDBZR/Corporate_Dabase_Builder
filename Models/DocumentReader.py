@@ -1140,17 +1140,11 @@ class Document_Reader:
             [string]
         """
         response: List[str] = []
-        # result_set = [value for value in result_set if "MAURITIUS" not in value]
-        # dataset: List[str] = [value for value in result_set if " 6 " in value]
-        # for index in range(0, len(dataset), 1):
-        #     result_set.append(dataset[index].split(" 6 ")[0])
-        # result_set = [value for value in result_set if value not in dataset]
         for index in range(0, len(result_set), 1):
             names: List[str] = findall(r"\b[A-Z]+\b", result_set[index])
             names = [value for value in names if value != "MAURITIUS"]
             names = [value for value in names if len(value) > 1]
             name: str = self._extractOfficeBearersNames(names)
-            print(f"Name[{index}]: {name}")
             response = self.__extractNames(response, name)
         return response
 
