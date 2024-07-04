@@ -1271,7 +1271,9 @@ class Document_Reader:
         operational_addresses: List[str] = self.extractBusinessDetailsOperationalAddresses(result_set)
         result_set = [value for value in result_set if "MAURITIUS" not in value]
         names: List[str] = self.extractBusinessDetailsNames(result_set)
-        print(f"{result_set=}\n{registered_address=}\n{operational_addresses=}\n{names=}")
+        result_set = [value for value in result_set if value not in names]
+        natures: List[str] = self.extractBusinessDetailsNatures(result_set)
+        print(f"{result_set=}\n{registered_address=}\n{operational_addresses=}\n{names=}\n{nature=}")
         exit()
         # result_set.remove("Business Details")
         # result_set.remove("Business Name")
@@ -1290,6 +1292,24 @@ class Document_Reader:
             "nature": nature.title(),
             "operational_address": operational_address.title()
         }
+
+    def extractBusinessDetailsNatures(self, result_set: List[str]) -> List[str]:
+        """
+        Extracting the natures that are linked to the business
+        details.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [string]
+        """
+        response: List[str] = []
+        last_nature: str = result_set[-1]
+        result_set = [value for value in result_set if last_nature not in value]
+        first_nature: str = " ".join(result_set)
+        response = [first_nature, last_nature]
+        return response
 
     def extractBusinessDetailsNames(self, result_set: List[str]) -> List[str]:
         """
