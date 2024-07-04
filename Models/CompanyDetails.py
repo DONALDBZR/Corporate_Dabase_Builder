@@ -304,3 +304,24 @@ class Company_Details(Database_Handler):
                 f"An error occurred in {self.getTableName()}\nStatus: 503\nError: {error}"
             )
             return CompanyDetails({})
+
+    def _getSpecificCompanyDetails(self, dataset: Union[RowType, Dict[str, Union[int, str]]]) -> Dict[str, Union[int, CompanyDetails]]:
+        """
+        Retrieving the data into the correct data type for the
+        application.
+
+        Parameters:
+            dataset: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int, is_extracted: int, company_identifier: int, company_type: string}: The data from the relational database server.
+
+        Returns:
+            {status: int, data: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int, is_extracted: int, company_identifier: int, company_type: string}}
+        """
+        company_details: Dict[str, Union[int, CompanyDetails]]
+        if len(dataset) > 0:
+            company_details = self.__getSpecificCompanyDetails(dataset)
+        else:
+            company_details = {
+                "status": 204,
+                "data": CompanyDetails({})
+            }
+        return company_details
