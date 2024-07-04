@@ -1206,11 +1206,7 @@ class Document_Reader:
         result_set = [value for value in result_set if value not in positions]
         names: List[str] = self.extractOfficeBearersNames(result_set)
         result_set = [value for value in result_set if value not in names]
-        print(f"{result_set=}\n{date_appointments=}\n{positions=}\n{names=}")
-        exit()
         addresses: List[str] = self.extractOfficeBearersAddresses(result_set)
-        print(f"{positions=}\n{names=}\n{addresses=}\n{date_appointments=}")
-        exit()
         for index in range(0, len(date_appointments), 1):
             position: str = positions[index].title()
             name: str = names[index].title()
@@ -1274,6 +1270,8 @@ class Document_Reader:
         result_set = [value for value in result_set if ":" not in value]
         operational_addresses: List[str] = self.extractBusinessDetailsOperationalAddresses(result_set)
         result_set = [value for value in result_set if "MAURITIUS" not in value]
+        print(f"{result_set=}\n{registered_address=}\n{operational_addresses=}")
+        exit()
         names: List[str] = self.extractBusinessDetailsNames(result_set)
         result_set = [value for value in result_set if value not in names]
         natures: List[str] = self.extractBusinessDetailsNatures(result_set)
@@ -1353,6 +1351,7 @@ class Document_Reader:
         for index in range(0, len(result_set), 1):
             operational_addresses: List[str] = findall(r"\b[A-Za-z\s]+\b", result_set[index])
             operational_address: str = self._extractBusinessDetailsOperationalAddresses(operational_addresses)
+            print(f"Operational Addresses[{index}]: {operational_addresses}\nOperational Address[{index}]: {operational_address}")
             response = self.__extractBusinessDetailsOperationalAddresses(response, operational_address)
         return response
 
@@ -1381,7 +1380,7 @@ class Document_Reader:
         Returns:
             string
         """
-        if len(operational_addresses) >= 3:
+        if len(operational_addresses) >= 3 or bool(search(r"\b[A-Z]\b", operational_addresses[0])):
             return " ".join(operational_addresses)
         else:
             return "NaOA"
