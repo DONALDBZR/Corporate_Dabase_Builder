@@ -1023,12 +1023,9 @@ class Document_Reader:
         result_set = [value for value in result_set if "MAURITIUS" not in value]
         result_set = [value for value in result_set if "Service Address" not in value]
         names: List[str] = self.extractShareholdersNames(result_set)
-        # result_set = [value for value in result_set if value not in names]
         type_of_shares: List[str] = self.extractShareholdersTypeShares(result_set)
         amount_of_shares: List[int] = self.extractShareholdersAmountShares(result_set)
-        print(f"{result_set=}\n{names=}\n{type_of_shares=}\n{amount_of_shares=}")
-        exit()
-        currencies: List[str] = [value for value in result_set if type_of_shares[0] not in value]
+        currencies: List[str] = [value for value in result_set if result_set[-1] == value]
         for index in range(0, len(names), 1):
             data: Dict[str, Union[str, int]] = {
                 "name": names[index].title(),
