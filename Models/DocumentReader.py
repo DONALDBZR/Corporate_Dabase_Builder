@@ -432,7 +432,7 @@ class Document_Reader:
             {name: string, date_appointed: int, designation: string, address: string}
         """
         start_index: int = result_set.index("Name:")
-        end_index: int = result_set.index("Start Date")
+        end_index: int = result_set.index("Accounts of Administrator")
         result_set = result_set[start_index:end_index]
         date_appointeds: List[str] = [value for value in result_set if "Appointed Date" in value]
         start_index = result_set.index("Name:")
