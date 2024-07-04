@@ -180,8 +180,31 @@ class Document_Reader:
         end_index: int = portable_document_file_data.index("Liquidators")
         result_set: List[str] = portable_document_file_data[start_index:end_index]
         administrator: Dict[str, str] = self.__extractDataAuthorisedCompanyAdministrators(result_set)
-        print(f"{result_set=}\n{administrator=}")
+        accounts: List[Dict[str, int]] = self._extractDataAuthorisedCompanyAdministratorsAccounts(result_set)
+        print(f"{result_set=}\n{administrator=}\n{accounts=}")
         exit()
+
+    def _extractDataAuthorisedCompanyAdministratorsAccounts(self, result_set: List[str]) -> List[Dict[str, int]]:
+        """
+        Extracting the accounts that are linked to the
+        administrators of an authorised company.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [{date_filled: int, date_from: int, date_to: int}]
+        """
+        start_index: int = result_set.index("Accounts of Administrator") + 1
+        result_set = result_set[start_index:]
+        result_set.remove("Date Filed")
+        result_set.remove("From")
+        result_set.remove("To")
+        if len(result_set) > 0:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractDataAuthorisedCompanyAdministratorsAccounts()")
+            exit()
+        else:
+            return []
 
     def __extractDataAuthorisedCompanyAdministrators(self, result_set: List[str]) -> Dict[str, str]:
         """
