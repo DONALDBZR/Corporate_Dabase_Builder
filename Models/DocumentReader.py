@@ -189,8 +189,24 @@ class Document_Reader:
         result_set = [value for value in result_set if value not in date_appointments]
         positions: List[str] = self.extractOfficeBearersPositions(result_set)
         result_set = [value for value in result_set if value not in positions]
-        print(f"{result_set=}\n{date_appointments=}\n{positions=}")
+        addresses: List[str] = self._extractDataAuthorisedCompanyOfficeBearersAddresses(result_set)
+        print(f"{result_set=}\n{date_appointments=}\n{positions=}\n{addresses=}")
         exit()
+
+    def _extractDataAuthorisedCompanyOfficeBearersAddresses(self, result_set: List[str]) -> List[str]:
+        """
+        Extracting the addresses of the office bearers for an
+        authorised company.
+
+        Parameters:
+            result_set: [string]: The result set containing the data needed.
+
+        Returns:
+            [string]
+        """
+        dataset: str = " ".join(result_set)
+        response: List[str] = findall(r"\b\d.*?[A-Z]\b", dataset)
+        return response
 
     def _extractDataAuthorisedCompanyBusinessDetails(self, portable_document_file_data: List[str]) -> Dict[str, str]:
         """
