@@ -988,6 +988,8 @@ class Document_Reader:
             [int]
         """
         response: List[int] = []
+        amounts: List[str] = [value for value in result_set if "SHARES" in value]
+        result_set = amounts
         for index in range(0, len(result_set), 1):
             amount_shares: List[str] = findall(r"\b\d+\b", result_set[index])
             amount_share: Union[int, str] = self._extractShareholdersAmountShares(amount_shares)
@@ -1023,9 +1025,9 @@ class Document_Reader:
         names: List[str] = self.extractShareholdersNames(result_set)
         # result_set = [value for value in result_set if value not in names]
         type_of_shares: List[str] = self.extractShareholdersTypeShares(result_set)
-        print(f"{result_set=}\n{names=}\n{type_of_shares=}")
-        exit()
         amount_of_shares: List[int] = self.extractShareholdersAmountShares(result_set)
+        print(f"{result_set=}\n{names=}\n{type_of_shares=}\n{amount_of_shares=}")
+        exit()
         currencies: List[str] = [value for value in result_set if type_of_shares[0] not in value]
         for index in range(0, len(names), 1):
             data: Dict[str, Union[str, int]] = {
