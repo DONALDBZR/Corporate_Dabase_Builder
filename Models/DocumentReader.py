@@ -463,15 +463,76 @@ class Document_Reader:
             result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
 
         Returns:
-            {status: int, company_details: {name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}, business_details: [{registered_address: string, name: string, nature: string, operational: string}] | {registered_address: string, name: string, nature: string, operational: string}}
+            {status: int, company_details: {name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}, business_details: [{registered_address: string, name: string, nature: string, operational: string}] | {registered_address: string, name: string, nature: string, operational: string}, state_capital: [{type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}], office_bearers: [{position: string, name: string, address: string, date_appointed: int}]}
         """
         response: Dict
         company_details: Dict[str, Union[str, int]] = self._extractDataDomesticCivilCivilCompanyDetails(result_set)
         business_details: Union[List[Dict[str, str]], Dict[str, str]] = self._extractDataDomesticCivilCivilBusinessDetails(result_set)
         state_capital: List[Dict[str, Union[str, int]]] = self._extractDataDomesticCivilCivilStateCapital(result_set)
-        print(f"{result_set=}\n{company_details=}\n{business_details=}")
+        office_bearers: List[Dict[str, Union[str, int]]] = self._extractDataDomesticCivilCivilOfficeBearers(result_set)
+        print(f"{result_set=}\n{company_details=}\n{business_details=}\n{state_capital=}\n{office_bearers=}")
         exit()
         return response
+
+    def _extractDataDomesticCivilCivilOfficeBearers(self, result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
+        """
+        Extracting the office bearers of a société civile.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [{position: string, name: string, address: string, date_appointed: int}]
+        """
+        response: List[Dict[str, Union[str, int]]] = []
+        start_index: int = result_set.index("Office Bearers") + 1
+        end_index: int = result_set.index("Currency")
+        result_set = result_set[start_index:end_index]
+        result_set = [value for value in result_set if "Associes" not in value]
+        result_set = [value for value in result_set if "Type of Shares" not in value]
+        result_set = [value for value in result_set if "Position" not in value]
+        result_set = [value for value in result_set if "Name" not in value]
+        result_set = [value for value in result_set if "Service Address" not in value]
+        result_set = [value for value in result_set if "Appointed Date" not in value]
+        date_appointeds: List[str] = self._extractDataDomesticCivilCivilOfficeBearersDateAppointed(result_set)
+        result_set = [value for value in result_set if value not in date_appointeds]
+        print(f"{result_set=}\n{date_appointeds=}")
+        exit()
+        return response
+
+    def _extractDataDomesticCivilCivilOfficeBearersDateAppointed(self, result_set: List[str]) -> List[str]:
+        """
+        Extracting the date appointed of the office bearers of a
+        société civile.
+
+        Parameters:
+            result_set: [string]: The result set of the office bearers.
+
+        Returns:
+            [string]
+        """
+        response: List[str] = []
+        for index in range(0, len(result_set), 1):
+            date_appointed: str = " ".join(findall(r"[\d/]+", result_set[index]))
+            date_appointed = self.__extractDataDomesticCivilCivilOfficeBearersDateAppointed(date_appointed)
+            print(f"Date Appointed[{index}]: {date_appointed}")
+        exit()
+
+    def __extractDataDomesticCivilCivilOfficeBearersDateAppointed(self, date_appointed: str) -> str:
+        """
+        Ensuring that the date appointed is retrieved from the
+        result set.
+
+        Parameters:
+            date_appointed: string: The date at which the office bearer has been appointed.
+
+        Returns:
+            string
+        """
+        if "/" in date_appointed:
+            return date_appointed
+        else:
+            return "NaDA"
 
     def _extractDataDomesticCivilCivilStateCapital(self, result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
         """
