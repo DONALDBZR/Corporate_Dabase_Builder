@@ -517,8 +517,7 @@ class Document_Reader:
         for index in range(0, len(result_set), 1):
             currencies: str = " ".join(findall(r"[\d\sA-z]+", result_set[index]))
             currency: str = self.__extractDataDomesticCivilCivilStateCapitalCurrency(currencies)
-            print(f"Currency[{index}]: {currency}")
-        exit()
+            response = self.___extractDataDomesticCivilCivilStateCapitalCurrency(response, currency)
         return response
 
     def __extractDataDomesticCivilCivilStateCapitalCurrency(self, currencies: str) -> str:
