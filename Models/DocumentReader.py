@@ -388,6 +388,8 @@ class Document_Reader:
         response: Dict[str, Union[int, Dict[str, Union[str, int]], List[Dict[str, str]], List[Dict[str, Union[str, int]]], List[Dict[str, int]], Dict[str, Union[Dict[str, Union[int, str]], float]], Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]]]
         if company_detail.nature.upper() == "PRIVATE":
             response = self.extractDataDomesticPrivate(status, dataset)
+        elif company_detail.nature.upper() == "CIVIL":
+            response = self.extractDataDomesticCivil(status, dataset)
         else:
             self.getLogger().error(f"The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractData()\nNature: {company_detail.nature}")
             exit()
