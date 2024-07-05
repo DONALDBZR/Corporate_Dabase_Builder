@@ -417,9 +417,7 @@ class Document_Reader:
             cache_file = open(cache_data_file_name, "w")
             portable_document_file_data_result_set: List[str] = list(filter(None, portable_document_file_data.split("\n")))
             business_registration_number: Union[str, None] = self.extractDataDomesticCivilBusinessRegistrationNumber(portable_document_file_data_result_set)
-            print(f"{portable_document_file_data_result_set=}\n{business_registration_number=}")
-            exit()
-            response = self._extractDataDomesticCivil(portable_document_file_data_result_set)
+            response = self._extractDataDomesticCivil(portable_document_file_data_result_set, business_registration_number)
             cache_file.write(dumps(response, indent=4))
             cache_file.close()
             self.getLogger().inform(f"Data has been extracted from the portable document file version of the corporate registry.\nStatus: {response['status']}\nDocument File Identifier: {dataset.identifier}\nFile Location: {file_name}\nCompany Details Identifier: {dataset.company_detail}")
@@ -428,6 +426,29 @@ class Document_Reader:
                 "status": 404
             }
             self.getLogger().error(f"The portable document file has not been generated correctly!  The application will abort the extraction.\nStatus: {response['status']}\nFile Location: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
+        return response
+
+    def _extractDataDomesticCivil(self, result_set: List[str], business_registration_number: str) -> Dict:
+        """
+        Extracting the data from the portable document file version
+        of the corporate registry based on the status of the file
+        generation as well as on the dataset for a domestic company
+        which is also a civil company to determine whether the
+        company is a société civile or a société commerciale.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+            business_registration_number: string: The registration number of a company which is allowed to do business domestically.
+
+        Returns:
+            {status: int}
+        """
+        response: Dict
+        if business_registration_number == None:
+            response = self._extractDataDomesticCivilCivil(result_set)
+        else:
+            self.getLogger().error(f"The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractData()\nCivil Company Type: Société Commerciale")
+            exit()
         return response
 
     def extractDataDomesticCivilBusinessRegistrationNumber(self, result_set: List[str]) -> Union[str, None]:
