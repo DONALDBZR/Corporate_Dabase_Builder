@@ -468,9 +468,70 @@ class Document_Reader:
         response: Dict
         company_details: Dict[str, Union[str, int]] = self._extractDataDomesticCivilCivilCompanyDetails(result_set)
         business_details: Union[List[Dict[str, str]], Dict[str, str]] = self._extractDataDomesticCivilCivilBusinessDetails(result_set)
+        state_capital: List[Dict[str, Union[str, int]]] = self._extractDataDomesticCivilCivilStateCapital(result_set)
         print(f"{result_set=}\n{company_details=}\n{business_details=}")
         exit()
         return response
+
+    def _extractDataDomesticCivilCivilStateCapital(self, result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
+        """
+        Extracting the state capital of a socitété civile.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [{type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}]
+        """
+        response: List[Dict[str, Union[str, int]]] = []
+        start_index: int = result_set.index("Particulars of Stated Capital") + 1
+        end_index: int = result_set.index("Office Bearers")
+        result_set = result_set[start_index:end_index]
+        result_set = [value for value in result_set if "Type of Shares" not in value]
+        result_set = [value for value in result_set if "No. of Shares Currency" not in value]
+        result_set = [value for value in result_set if "Stated Capital" not in value]
+        result_set = [value for value in result_set if "Amount Unpaid" not in value]
+        result_set = [value for value in result_set if "Valeur" not in value]
+        result_set = [value for value in result_set if "Nominale" not in value]
+        types: List[str] = findall(r"\b^[A-Z\s]+\b", " ".join(result_set))
+        result_set = [value for value in result_set if value not in types]
+        amounts: List[int] = self._extractDataDomesticCivilCivilStateCapitalAmount(result_set)
+        print(f"{result_set=}\n{types=}\n{amounts=}")
+        exit()
+        return response
+
+    def _extractDataDomesticCivilCivilStateCapitalAmount(self, result_set: List[str]) -> List[int]:
+        """
+        Extracting the amount of shares of the stated capital of a
+        société civile.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [int]
+        """
+        for index in range(0, len(result_set), 1):
+            amounts: str = " ".join(findall(r"[\d\sA-Z]+", result_set[index]))
+            amount: str = self.__extractDataDomesticCivilCivilStateCapitalAmount(amounts)
+            print(f"Amount[{index}]: {amount}")
+        exit()
+
+    def __extractDataDomesticCivilCivilStateCapitalAmount(self, amount: str) -> str:
+        """
+        Retrieving the correct value for the amount of shares for a
+        stated capital for a société civile.
+
+        Parameters:
+            amount: string: The value to be processed.
+
+        Returns:
+            string
+        """
+        if bool(search(r"[\d]+", amount)) and bool(search(r"[A-Z]+", amount)):
+            return " ".join(findall(r"[\d]+", amount))
+        else:
+            return "NaA"
 
     def _extractDataDomesticCivilCivilBusinessDetails(self, result_set: List[str]) -> Union[List[Dict[str, str]], Dict[str, str]]:
         """
