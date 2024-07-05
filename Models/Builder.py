@@ -381,11 +381,34 @@ class Builder:
         data_extraction_status: int = dataset["status"] # type: ignore
         if data_extraction_status == 200:
             company_detail_response: int = self.storeCorporateDataAuthorisedCompanyCompanyDetails(data_extraction_status, dataset["company_details"], document_file) # type: ignore
-            print(f"{data_extraction_status=}\n{dataset['company_details']=}\n{company_detail_response=}")
+            business_detail_response: int = self.storeCorporateDataAuthorisedCompanyBusinessDetails(company_detail_response, dataset["business_details"], document_file) # type: ignore
+            print(f"{data_extraction_status=}\n{company_detail_response=}\n{dataset['business_details']=}")
             exit()
         else:
             response = 500
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {data_extraction_status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
+        return response
+
+    def storeCorporateDataAuthorisedCompanyBusinessDetails(self, status: int, business_details: Dict[str, str], document_file: DocumentFiles) -> int:
+        """
+        Doing the data manipulation on the Business Details result
+        set.
+
+        Parameters:
+            status: int: The status of the data manipulation.
+            business_details: {registered_address: string}: The data that has been extracted for the business details table.
+            document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
+
+        Returns:
+            int
+        """
+        response: int
+        if status == 202:
+            response = self.getBusinessDetails().addBusinessDetailsAuthorisedCompany(business_details, document_file.company_detail)
+            self.getLogger().inform(f"The data has been successfully updated into the Business Details table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {business_details}")
+        else:
+            response = status
+            self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
     def storeCorporateDataAuthorisedCompanyCompanyDetails(self, status: int, company_details: Dict[str, Union[str, int]], document_file: DocumentFiles) -> int:
@@ -895,7 +918,7 @@ class Builder:
         response: int
         responses: List[int] = []
         for index in range(0, len(business_details), 1):
-            responses.append(self.getBusinessDetails().addBusinessDetails(business_details[index], company_detail))
+            responses.append(self.getBusinessDetails().addBusinessDetailsDomestic(business_details[index], company_detail))
         responses = list(set(responses))
         if len(responses) == 1 and responses[0] == 201:
             response = 201
