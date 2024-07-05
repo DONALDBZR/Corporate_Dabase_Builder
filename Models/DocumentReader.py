@@ -340,7 +340,7 @@ class Document_Reader:
         end_index: int = portable_document_file_data.index("Office Bearers")
         result_set: List[str] = portable_document_file_data[start_index:end_index]
         response = {
-            "registered_address": " ".join([value.split(": ")[-1] for value in result_set])
+            "registered_address": " ".join([value.split(": ")[-1] for value in result_set]).title()
         }
         return response
 
