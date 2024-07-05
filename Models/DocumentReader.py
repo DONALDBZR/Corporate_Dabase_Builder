@@ -517,7 +517,23 @@ class Document_Reader:
         for index in range(0, len(result_set), 1):
             types: str = " ".join(findall(r"^[A-z\s]+", result_set[index]))
             type: str = self.__extractDataDomesticCivilCivilStateCapitalTypes(types)
-            response = self.___extractDataDomesticCivilCivilStateCapitalTypes(type)
+            response = self.___extractDataDomesticCivilCivilStateCapitalTypes(response, type)
+        return response
+
+    def ___extractDataDomesticCivilCivilStateCapitalTypes(self, response: List[str], type: str) -> List[str]:
+        """
+        Building the response to be returned with the types of
+        shares.
+
+        Parameters:
+            response: [string]: The data to be returned.
+            type: string: The type of shares.
+
+        Returns:
+            [string]
+        """
+        if type != "NaT":
+            response.append(type)
         return response
 
     def __extractDataDomesticCivilCivilStateCapitalTypes(self, types: str) -> str:
