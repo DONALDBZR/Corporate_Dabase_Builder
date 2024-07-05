@@ -496,9 +496,45 @@ class Document_Reader:
         result_set = [value for value in result_set if "Appointed Date" not in value]
         date_appointeds: List[str] = self._extractDataDomesticCivilCivilOfficeBearersDateAppointed(result_set)
         result_set = [value for value in result_set if value not in date_appointeds]
-        print(f"{result_set=}\n{date_appointeds=}")
+        addresses: List[str] = self._extractDataDomesticCivilCivilOfficeBearersAddresses(result_set)
+        print(f"{result_set=}\n{date_appointeds=}\n{addresses=}")
         exit()
         return response
+
+    def _extractDataDomesticCivilCivilOfficeBearersAddresses(self, result_set: List[str]) -> List[str]:
+        """
+        Extracting the addresses of the office bearers of a société
+        civile.
+
+        Parameters:
+            result_set: [string]: The result set of the office bearers.
+
+        Returns:
+            [string]
+        """
+        localities: List[str] = []
+        for index in range(0, len(result_set), 1):
+            locality: str = " ".join(findall(r"[A-Z\s\d,]+", result_set[index]))
+            locality = self._extractDataDomesticCivilCivilOfficeBearersAddressesLocality(locality)
+            # localities = self.__extractDataDomesticCivilCivilOfficeBearersAddressesLocality(locality)
+            print(f"Locality[{index}]: {locality}")
+        exit()
+
+    def _extractDataDomesticCivilCivilOfficeBearersAddressesLocality(self, locality: str) -> str:
+        """
+        Extracting the locality needed for the address of the office
+        bearers.
+
+        Parameters:
+            locality: string: The locality of the address.
+
+        Returns:
+            string
+        """
+        if bool(search(r"[\d]+", locality)):
+            return locality
+        else:
+            return "NaL"
 
     def _extractDataDomesticCivilCivilOfficeBearersDateAppointed(self, result_set: List[str]) -> List[str]:
         """
