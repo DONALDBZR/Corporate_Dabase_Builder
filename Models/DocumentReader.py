@@ -518,6 +518,22 @@ class Document_Reader:
             response = self.___extractDataDomesticCivilCivilOfficeBearersDateAppointed(response, date_appointed)
         return response
 
+    def ___extractDataDomesticCivilCivilOfficeBearersDateAppointed(self, response: List[str], date_appointed: str) -> List[str]:
+        """
+        Building the response needed for the date appointed of an
+        office bearer.
+
+        Parameters:
+            response: [string]: The data to be returned
+            date_appointed: string: The date of appointment of the office bearer.
+
+        Returns:
+            [string]
+        """
+        if date_appointed != "NaDA":
+            response.append(date_appointed)
+        return response
+
     def __extractDataDomesticCivilCivilOfficeBearersDateAppointed(self, date_appointed: str) -> str:
         """
         Ensuring that the date appointed is retrieved from the
