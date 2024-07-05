@@ -364,7 +364,7 @@ class Document_Reader:
         response = {
             "name": result_set[1],
             "file_number": result_set[0],
-            "category": result_set[3],
+            "category": result_set[3].title(),
             "date_incorporation": int(datetime.strptime(result_set[4], "%d/%m/%Y").timestamp()),
             "nature": result_set[5],
             "status": result_set[6]
