@@ -463,12 +463,39 @@ class Document_Reader:
             result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
 
         Returns:
-            {status: int}
+            {status: int, company_details: {name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}, business_details: [{registered_address: string, name: string, nature: string, operational: string}] | {registered_address: string, name: string, nature: string, operational: string}}
         """
         response: Dict
         company_details: Dict[str, Union[str, int]] = self._extractDataDomesticCivilCivilCompanyDetails(result_set)
-        print(f"{result_set=}\n{company_details=}")
+        business_details: Union[List[Dict[str, str]], Dict[str, str]] = self._extractDataDomesticCivilCivilBusinessDetails(result_set)
+        print(f"{result_set=}\n{company_details=}\n{business_details=}")
         exit()
+        return response
+
+    def _extractDataDomesticCivilCivilBusinessDetails(self, result_set: List[str]) -> Union[List[Dict[str, str]], Dict[str, str]]:
+        """
+        Extracting the business details of société civile.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [{registered_address: string, name: string, nature: string, operational: string}] | {registered_address: string, name: string, nature: string, operational: string}
+        """
+        response: Union[List[Dict[str, str]], Dict[str, str]] = []
+        registered_address: str = result_set[[index for index, value in enumerate(result_set) if "Siege Social Address:" in value][0]].split(": ")[-1]
+        start_index: int = result_set.index("Business Details") + 1
+        end_index: int = result_set.index("Particulars of Stated Capital")
+        result_set = result_set[start_index:end_index]
+        result_set = [value for value in result_set if ":" not in value]
+        result_set = [value for value in result_set if "Business" not in value]
+        if len(result_set) > 0:
+            self.getLogger().error(f"The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractDataDomesticCivilCivilBusinessDetails()\nAmount of Data: {len(result_set)}")
+            exit()
+        else:
+            response = {
+                "registered_address": registered_address.title()
+            }
         return response
 
     def _extractDataDomesticCivilCivilCompanyDetails(self, result_set: List[str]) -> Dict[str, Union[str, int]]:
