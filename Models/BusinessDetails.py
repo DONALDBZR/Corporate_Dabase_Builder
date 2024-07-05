@@ -37,7 +37,7 @@ class Business_Details(Database_Handler):
     def setTableName(self, table_name: str) -> None:
         self.__table_name = table_name
 
-    def addBusinessDetails(self, data: Dict[str, str], company_detail: int) -> int:
+    def addBusinessDetailsDomestic(self, data: Dict[str, str], company_detail: int) -> int:
         """
         Adding the business details into the relational database
         server.
