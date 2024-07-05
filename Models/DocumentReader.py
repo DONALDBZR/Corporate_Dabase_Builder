@@ -511,11 +511,28 @@ class Document_Reader:
         Returns:
             [int]
         """
+        response: List[int] = []
         for index in range(0, len(result_set), 1):
             amounts: str = " ".join(findall(r"[\d\sA-Z]+", result_set[index]))
             amount: str = self.__extractDataDomesticCivilCivilStateCapitalAmount(amounts)
-            print(f"Amount[{index}]: {amount}")
-        exit()
+            response = self.___extractDataDomesticCivilCivilStateCapitalAmount(response, amount)
+        return response
+
+    def ___extractDataDomesticCivilCivilStateCapitalAmount(self, response: List[int], amount: str) -> List[int]:
+        """
+        Building the array which contains the amount of shares of
+        the stated capital for a société civile.
+
+        Parameters:
+            response: [int]: The array to be returned.
+            amount: str: The amount to be processed.
+
+        Returns:
+            [int]
+        """
+        if amount != "NaA":
+            response.append(int(amount))
+        return response
 
     def __extractDataDomesticCivilCivilStateCapitalAmount(self, amount: str) -> str:
         """
