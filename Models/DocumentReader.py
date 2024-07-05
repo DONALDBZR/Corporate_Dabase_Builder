@@ -513,14 +513,14 @@ class Document_Reader:
             result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
 
         Returns:
-            [string]
+            [int]
         """
         response: List[int] = []
         for index in range(0, len(result_set), 1):
             stated_capital: str = " ".join(findall(r"[\d\sA-Z]+", result_set[index]))
             stated_capital = self.__extractDataDomesticCivilCivilStateCapitalStatedCapital(stated_capital)
-            print(f"Stated Capital[{index}]: {stated_capital}")
-        exit()
+            response = self.___extractDataDomesticCivilCivilStateCapitalStatedCapital(response, stated_capital)
+        return response
 
     def __extractDataDomesticCivilCivilStateCapitalStatedCapital(self, stated_capital: str) -> str:
         """
