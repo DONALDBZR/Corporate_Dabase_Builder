@@ -354,9 +354,9 @@ class Builder:
             int
         """
         response: int
-        if company_detail.category == "DOMESTIC":
+        if company_detail.category.upper() == "DOMESTIC":
             response = self.storeCorporateDataDomestic(dataset, document_file) # type: ignore
-        elif company_detail.category == "AUTHORISED COMPANY":
+        elif company_detail.category.upper() == "AUTHORISED COMPANY":
             response = self.storeCorporateDataAuthorisedCompany(dataset, document_file) # type: ignore
         else:
             self.getLogger().error(f"The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateData()\nCategory: {company_detail.category}")
@@ -382,7 +382,7 @@ class Builder:
         if data_extraction_status == 200:
             company_detail_response: int = self.storeCorporateDataAuthorisedCompanyCompanyDetails(data_extraction_status, dataset["company_details"], document_file) # type: ignore
             business_detail_response: int = self.storeCorporateDataAuthorisedCompanyBusinessDetails(company_detail_response, dataset["business_details"], document_file) # type: ignore
-            print(f"{data_extraction_status=}\n{company_detail_response=}\n{dataset['business_details']=}")
+            print(f"{data_extraction_status=}\n{company_detail_response=}\n{business_detail_response=}\n{dataset=}")
             exit()
         else:
             response = 500
