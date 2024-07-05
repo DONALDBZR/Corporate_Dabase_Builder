@@ -386,8 +386,7 @@ class Builder:
             receivers_response: int = self.storeCorporateDataAuthorisedCompanyReceivers(office_bearers_response, dataset["receivers"], document_file) # type: ignore
             administrators_response: int = self.storeCorporateDataAuthorisedCompanyAdministrators(receivers_response, dataset["administrators"], document_file) # type: ignore
             liquidators_response: int = self.storeCorporateDataAuthorisedCompanyLiquidators(administrators_response, dataset["liquidators"], document_file) # type: ignore
-            print(f"{data_extraction_status=}\n{company_detail_response=}\n{business_detail_response=}\n{office_bearers_response=}\n{receivers_response=}\n{administrators_response=}\n{liquidators_response=}")
-            exit()
+            response = liquidators_response
         else:
             response = 500
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {data_extraction_status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
