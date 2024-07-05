@@ -522,6 +522,21 @@ class Document_Reader:
             response = self.___extractDataDomesticCivilCivilStateCapitalStatedCapital(response, stated_capital)
         return response
 
+    def ___extractDataDomesticCivilCivilStateCapitalStatedCapital(self, response: List[int], stated_capital: str) -> List[int]:
+        """
+        Bulding the response to be returned for processing.
+
+        Parameters:
+            response: [int]: The data to be returned.
+            stated_capital: string: The data to be verified.
+
+        Returns:
+            [int]
+        """
+        if stated_capital != "NaSC":
+            response.append(int(stated_capital))
+        return response
+
     def __extractDataDomesticCivilCivilStateCapitalStatedCapital(self, stated_capital: str) -> str:
         """
         Retrieving the correct stated capital from the processed
