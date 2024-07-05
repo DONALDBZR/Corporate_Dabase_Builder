@@ -384,11 +384,37 @@ class Builder:
             business_detail_response: int = self.storeCorporateDataAuthorisedCompanyBusinessDetails(company_detail_response, dataset["business_details"], document_file) # type: ignore
             office_bearers_response: int = self.storeCorporateDataAuthorisedCompanyOfficeBearers(business_detail_response, dataset["office_bearers"], document_file) # type: ignore
             receivers_response: int = self.storeCorporateDataAuthorisedCompanyReceivers(office_bearers_response, dataset["receivers"], document_file) # type: ignore
+            administrators_response: int = self.storeCorporateDataAuthorisedCompanyAdministrators(receivers_response, dataset["administrators"], document_file) # type: ignore
             print(f"{data_extraction_status=}\n{company_detail_response=}\n{business_detail_response=}\n{office_bearers_response=}\n{receivers_response=}\n{dataset=}\n{dataset['administrators']=}")
             exit()
         else:
             response = 500
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {data_extraction_status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
+        return response
+
+    def storeCorporateDataAuthorisedCompanyAdministrators(self, status: int, administrators: Dict[str, Union[Dict[str, str], List[Dict[str, int]]]], document_file: DocumentFiles) -> int:
+        """
+        Doing the data manipulation on administrators of an
+        authorised company result set.
+
+        Parameters:
+            status: int: The status of the data manipulation.
+            administrators: {administrator: {name: string, date_appointed: int, designation: string, address: string}, accounts: [{date_filled: int, date_from: int, date_to: int}]}: The data that has been extracted for the administrators table.
+            document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
+
+        Returns:
+            int
+        """
+        response: int
+        if status >= 200 and status <= 299 and not administrators:
+            response = 200
+            self.getLogger().inform(f"There is no data to be inserted into the Administrators table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {administrators}")
+        elif status >= 200 and status <= 299 and len(administrators) != 0:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataDomesticAdministrators()")
+            exit()
+        else:
+            response = status
+            self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
     def storeCorporateDataAuthorisedCompanyReceivers(self, status: int, receivers: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]], document_file: DocumentFiles) -> int:
