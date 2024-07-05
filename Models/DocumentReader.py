@@ -513,6 +513,7 @@ class Document_Reader:
             [string]
         """
         localities: List[str] = []
+        cities: List[str] = []
         for index in range(0, len(result_set), 1):
             locality: str = " ".join(findall(r"[A-Z\s\d,]+", result_set[index]))
             locality = self._extractDataDomesticCivilCivilOfficeBearersAddressesLocality(locality)
@@ -520,8 +521,23 @@ class Document_Reader:
         for index in range(0, len(result_set), 1):
             city: str = " ".join(findall(r"[A-Z,]+", result_set[index]))
             city = self._extractDataDomesticCivilCivilOfficeBearersAddressesCity(city)
-            print(f"City[{index}]: {city}")
+            cities = self.__extractDataDomesticCivilCivilOfficeBearersAddressesCity(cities, city)
         exit()
+
+    def __extractDataDomesticCivilCivilOfficeBearersAddressesCity(self, cities: List[str], city: str) -> List[str]:
+        """
+        Building the list of the cities based on the result set.
+
+        Parameters:
+            cities: [string]: The data to be returned.
+            city: string: The city of the address of the office bearers.
+
+        Returns:
+            [string]
+        """
+        if city != "NaC":
+            cities.append(city)
+        return cities
 
     def _extractDataDomesticCivilCivilOfficeBearersAddressesCity(self, city: str) -> str:
         """
