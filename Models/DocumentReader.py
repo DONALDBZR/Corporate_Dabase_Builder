@@ -493,7 +493,7 @@ class Document_Reader:
         result_set = [value for value in result_set if "Amount Unpaid" not in value]
         result_set = [value for value in result_set if "Valeur" not in value]
         result_set = [value for value in result_set if "Nominale" not in value]
-        types: List[str] = findall(r"\b^[A-Z\s]+\b", " ".join(result_set))
+        types: List[str] = self._extractDataDomesticCivilCivilStateCapitalTypes(result_set)
         result_set = [value for value in result_set if value not in types]
         amounts: List[int] = self._extractDataDomesticCivilCivilStateCapitalAmount(result_set)
         currencies: List[str] = self._extractDataDomesticCivilCivilStateCapitalCurrency(result_set)
@@ -501,6 +501,40 @@ class Document_Reader:
         print(f"{result_set=}\n{types=}\n{amounts=}\n{currencies=}")
         exit()
         return response
+
+    def _extractDataDomesticCivilCivilStateCapitalTypes(self, result_set: List[str]) -> List[str]:
+        """
+        Extracting the types from the state capital of a société
+        civile.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [str]
+        """
+        response: List[str] = []
+        for index in range(0, len(result_set), 1):
+            types: str = " ".join(findall(r"^[A-z\s]+", result_set[index]))
+            type: str = self.__extractDataDomesticCivilCivilStateCapitalTypes(types)
+            response = self.___extractDataDomesticCivilCivilStateCapitalTypes(type)
+        return response
+
+    def __extractDataDomesticCivilCivilStateCapitalTypes(self, types: str) -> str:
+        """
+        Processing the types of shares to be returned for
+        processing.
+
+        Parameters:
+            types: string: The data to be processed.
+
+        Returns:
+            string
+        """
+        if types != "":
+            return types
+        else:
+            return "NaT"
 
     def _extractDataDomesticCivilCivilStateCapitalCurrency(self, result_set: List[str]) -> List[str]:
         """
