@@ -237,9 +237,9 @@ class Company_Details(Database_Handler):
             condition="identifier = %s"
         )
 
-    def updateCorporateMetadata(self, data: Dict[str, Union[str, int]], identifier: int) -> int:
+    def updateCorporateMetadataDomestic(self, data: Dict[str, Union[str, int]], identifier: int) -> int:
         """
-        Updating the Corporate Metadata.
+        Updating the Corporate Metadata for a domestic company.
 
         Parameters:
             data: {business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int, is_extracted: int, company_identifier: int, company_type: string}: The data that has been extracted for the company details table.
