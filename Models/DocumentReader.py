@@ -520,6 +520,22 @@ class Document_Reader:
             response = self.___extractDataDomesticCivilCivilStateCapitalCurrency(response, currency)
         return response
 
+    def ___extractDataDomesticCivilCivilStateCapitalCurrency(self, response: List[str], currency: str) -> List[str]:
+        """
+        Building the array which contains the currencies of shares
+        of the stated capital for a société civile.
+
+        Parameters:
+            response: [string]: The array to be returned.
+            currency: string: The currency to be processed.
+
+        Returns:
+            [string]
+        """
+        if currency != "NaC":
+            response.append(currency)
+        return response
+
     def __extractDataDomesticCivilCivilStateCapitalCurrency(self, currencies: str) -> str:
         """
         Extracting the correct currency to be used for the
