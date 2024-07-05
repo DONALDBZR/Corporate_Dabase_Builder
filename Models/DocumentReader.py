@@ -498,9 +498,45 @@ class Document_Reader:
         amounts: List[int] = self._extractDataDomesticCivilCivilStateCapitalAmount(result_set)
         currencies: List[str] = self._extractDataDomesticCivilCivilStateCapitalCurrency(result_set)
         result_set = [value for value in result_set if value not in currencies]
-        print(f"{result_set=}\n{types=}\n{amounts=}\n{currencies=}")
+        stated_capitals: List[int] = self._extractDataDomesticCivilCivilStateCapitalStatedCapital(result_set)
+        result_set = [value for value in result_set if value not in stated_capitals]
+        print(f"{result_set=}\n{types=}\n{amounts=}\n{currencies=}\n{stated_capitals=}")
         exit()
         return response
+
+    def _extractDataDomesticCivilCivilStateCapitalStatedCapital(self, result_set: List[str]) -> List[int]:
+        """
+        Extracting the stated capital of the stated capital of an
+        authorised company.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [string]
+        """
+        response: List[int] = []
+        for index in range(0, len(result_set), 1):
+            stated_capital: str = " ".join(findall(r"[\d\sA-Z]+", result_set[index]))
+            stated_capital = self.__extractDataDomesticCivilCivilStateCapitalStatedCapital(stated_capital)
+            print(f"Stated Capital[{index}]: {stated_capital}")
+        exit()
+
+    def __extractDataDomesticCivilCivilStateCapitalStatedCapital(self, stated_capital: str) -> str:
+        """
+        Retrieving the correct stated capital from the processed
+        dataset.
+
+        Parameters:
+            stated_capital: string: The stated capital that has been processed.
+
+        Returns:
+            string
+        """
+        if bool(search(r"[\s]", stated_capital)) == False:
+            return stated_capital
+        else:
+            return "NaSC"
 
     def _extractDataDomesticCivilCivilStateCapitalTypes(self, result_set: List[str]) -> List[str]:
         """
@@ -511,7 +547,7 @@ class Document_Reader:
             result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
 
         Returns:
-            [str]
+            [string]
         """
         response: List[str] = []
         for index in range(0, len(result_set), 1):
