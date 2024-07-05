@@ -302,9 +302,9 @@ class Document_Reader:
         names: List[str] = [value for value in result_set if value not in addresses]
         for index in range(0, min([len(date_appointments), len(positions), len(addresses), len(names)]), 1):
             response.append({
-                "position": positions[index],
-                "name": names[index],
-                "address": addresses[index],
+                "position": positions[index].title(),
+                "name": names[index].title(),
+                "address": addresses[index].title(),
                 "date_appointment": int(datetime.strptime(date_appointments[index], "%d/%m/%Y").timestamp())
             })
         return response
