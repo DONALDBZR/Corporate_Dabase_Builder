@@ -519,9 +519,9 @@ class Document_Reader:
         """
         response: List[int] = []
         for index in range(0, len(result_set), 1):
-            amount_unpaid: str = " ".join(findall(r"[\d\sA-Z]+", result_set[index]))
-            amount_unpaid: str = self.__extractDataDomesticCivilCivilStateCapitalParValue(amount_unpaid)
-            response = self.___extractDataDomesticCivilCivilStateCapitalParValue(response, amount_unpaid)
+            share_value: str = " ".join(findall(r"[\d\sA-Z]+", result_set[index]))
+            share_value: str = self.__extractDataDomesticCivilCivilStateCapitalParValue(share_value)
+            response = self.___extractDataDomesticCivilCivilStateCapitalParValue(response, share_value)
         return response
 
     def _extractDataDomesticCivilCivilStateCapitalAmountUnpaid(self, result_set: List[str]) -> List[int]:
