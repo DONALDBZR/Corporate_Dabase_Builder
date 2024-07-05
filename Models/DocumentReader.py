@@ -88,7 +88,7 @@ class Document_Reader:
         """
         response: Union[Dict[str, Union[int, Dict[str, Union[str, int]], List[Dict[str, str]], List[Dict[str, Union[str, int]]], List[Dict[str, int]], Dict[str, Union[Dict[str, Union[int, str]], float]], Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]]], Dict[str, Union[int, Dict[str, Union[str, int]], Dict[str, str], List[Dict[str, Union[str, int]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]], Dict[str, Union[Dict[str, str], List[Dict[str, int]]]]]]]
         if company_detail.category.upper() == "DOMESTIC":
-            response = self.extractDataDomestic(status, dataset)
+            response = self.extractDataDomestic(status, dataset, company_detail)
         elif company_detail.category.upper() == "AUTHORISED COMPANY":
             response = self.extractDataAuthorisedCompany(status, dataset)
         else:
