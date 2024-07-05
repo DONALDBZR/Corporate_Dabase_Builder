@@ -359,34 +359,49 @@ class Builder:
         else:
             self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateData()")
             exit()
-        data_extraction_status: int = dataset["status"] # type: ignore
-        if data_extraction_status == 200:
-            company_detail_response: int = self.storeCorporateDataCompanyDetail(data_extraction_status, dataset["company_details"], document_file) # type: ignore
-            business_detail_response: int = self.storeCorporateDataBusinessDetail(company_detail_response, dataset["business_details"], document_file) # type: ignore
-            certificate_response: int = self.storeCorporateDataCertificate(business_detail_response, dataset["certificates"], document_file) # type: ignore
-            office_bearers_response: int = self.storeCorporateDataOfficeBearers(certificate_response, dataset["office_bearers"], document_file) # type: ignore
-            shareholder_response: int = self.storeCorporateDataShareholders(office_bearers_response, dataset["shareholders"], document_file) # type: ignore
-            member_response: int = self.storeCorporateDataMembers(shareholder_response, dataset["members"], document_file) # type: ignore
-            annual_return_response: int = self.storeCorporateDataAnnualReturn(member_response, dataset["annual_return"], document_file) # type: ignore
-            financial_summary_response: int = self.storeCorporateDataFinancialSummary(annual_return_response, dataset["financial_summaries"], document_file) # type: ignore
-            profit_statement_response: int = self.storeCorporateDataProfitStatement(financial_summary_response, dataset["profit_statement"], document_file) # type: ignore
-            state_capital_response: int = self.storeCorporateDataStateCapital(profit_statement_response, dataset["state_capital"], document_file) # type: ignore
-            balance_sheet_response: int = self.storeCorporateDataBalanceSheet(state_capital_response, dataset["balance_sheet"], document_file) # type: ignore
-            charges_response: int = self.storeCorporateDataCharges(balance_sheet_response, dataset["charges"], document_file) # type: ignore
-            liquidators_response: int = self.storeCorporateDataLiquidators(charges_response, dataset["liquidators"], document_file) # type: ignore
-            receivers_response: int = self.storeCorporateDataReceivers(liquidators_response, dataset["receivers"], document_file) # type: ignore
-            administrators_response: int = self.storeCorporateDataAdministrators(receivers_response, dataset["administrators"], document_file) # type: ignore
-            details_response: int = self.storeCorporateDataDetails(administrators_response, dataset["details"], document_file) # type: ignore
-            objections_response: int = self.storeCorporateDataObjections(details_response, dataset["objections"], document_file) # type: ignore
-            response = objections_response
-        else:
-            response = 500
-            self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {data_extraction_status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         if response >= 200 and response <= 299:
             response = 201
         return response
 
-    def storeCorporateDataObjections(self, status: int, objections: List[Dict[str, Union[int, str]]], document_file: DocumentFiles) -> int:
+    def storeCorporateDataDomestic(self, dataset: Dict[str, Union[int, Dict[str, Union[str, int]], List[Dict[str, str]], List[Dict[str, Union[str, int]]], List[Dict[str, int]], Dict[str, Union[Dict[str, Union[int, str]], float]], Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]]], document_file: DocumentFiles) -> int:
+        """
+        Storing the corporate data that is extracted from the
+        corporate registry for a domestic company.
+
+        Parameters:
+            dataset: {status: int, company_details: {business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}, business_details: {registered_address: string, name: string, nature: string, operational: string}, certificates: [{certificate: string, type: str, date_effective: int, date_expiry: int}], office_bearers: [{position: string, name: string, address: string, date_appointment: int}], shareholders: [{name: string, amount: int, type: string, currency: string}], members: [{name: string, amount: int, date_start: int, currency: string}], annual_return: [{date_annual_return: int, date_annual_meeting: int, date_filled: int}], financial_summaries: [{financial_year: int, currency: string, date_approved: int, unit: int}], profit_statement: {financial_summary: {financial_year: int, currency: string, date_approved: int, unit: int}, turnover: float, cost_of_sales: float, gross_profit: float, other_income: float, distribution_cost: float, administration_cost: float, expenses: float, finance_cost: float, net_profit_before_taxation: float, taxation: float, net_profit: float}, state_capital: {type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}, balance_sheet: {balance_sheet: {financial_year: int, currency: string, unit: int}, assets: {non_current_assets: {property_plant_equipment: float, investment_properties: float, intangible_assets: float, other_investments: float, subsidiaries_investments: float, biological_assets: float, others: float, total: float}, current_assets: {inventories: float, trade: float, cash: float, others: float, total: float}, total: float}, liabilities: {equity_and_liabilities: {share_capital: float, other_reserves: float, retained_earnings: float, others: float, total: float}, non_current: {long_term_borrowings: float, deferred_tax: float, long_term_provisions: float, others: float, total: float}, current: {trade: float, short_term_borrowings: float, current_tax_payable: float, short_term_provisions: float, others: float, total: float}, total_liabilities: float, total_equity_and_liabilities: float}}, charges: [{volume: int, property: string, nature: string, amount: int, date_charged: int, date_filled: int, currency: string}], liquidators: {liquidator: {name: string, appointed_date: int, address: string}, affidavits: [{date_filled: int, date_from: int, date_to: int}]}, receivers: {receiver: {name: string, date_appointed: int, address: string}, reports: [{date_filled: int, date_from: int, date_to: int}], affidavits: [{date_filled: int, date_from: int, date_to: int}]}, administrators: {administrator: {name: string, date_appointed: int, designation: string, address: string}, accounts: [{date_filled: int, date_from: int, date_to: int}]}, details: [{type: string, date_start: int, date_end: int, status: string}], objections: [{date_objection: int, objector: string}]}: The data that has been extracted from the corporate registry.
+            document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
+
+        Returns:
+            int
+        """
+        response: int
+        data_extraction_status: int = dataset["status"] # type: ignore
+        if data_extraction_status == 200:
+            company_detail_response: int = self.storeCorporateDataDomesticCompanyDetails(data_extraction_status, dataset["company_details"], document_file) # type: ignore
+            business_detail_response: int = self.storeCorporateDataDomesticBusinessDetail(company_detail_response, dataset["business_details"], document_file) # type: ignore
+            certificate_response: int = self.storeCorporateDataDomesticCertificate(business_detail_response, dataset["certificates"], document_file) # type: ignore
+            office_bearers_response: int = self.storeCorporateDataDomesticOfficeBearers(certificate_response, dataset["office_bearers"], document_file) # type: ignore
+            shareholder_response: int = self.storeCorporateDataDomesticShareholders(office_bearers_response, dataset["shareholders"], document_file) # type: ignore
+            member_response: int = self.storeCorporateDataDomesticMembers(shareholder_response, dataset["members"], document_file) # type: ignore
+            annual_return_response: int = self.storeCorporateDataDomesticAnnualReturn(member_response, dataset["annual_return"], document_file) # type: ignore
+            financial_summary_response: int = self.storeCorporateDataDomesticFinancialSummary(annual_return_response, dataset["financial_summaries"], document_file) # type: ignore
+            profit_statement_response: int = self.storeCorporateDataDomesticProfitStatement(financial_summary_response, dataset["profit_statement"], document_file) # type: ignore
+            state_capital_response: int = self.storeCorporateDataDomesticStateCapital(profit_statement_response, dataset["state_capital"], document_file) # type: ignore
+            balance_sheet_response: int = self.storeCorporateDataDomesticBalanceSheet(state_capital_response, dataset["balance_sheet"], document_file) # type: ignore
+            charges_response: int = self.storeCorporateDataDomesticCharges(balance_sheet_response, dataset["charges"], document_file) # type: ignore
+            liquidators_response: int = self.storeCorporateDataDomesticLiquidators(charges_response, dataset["liquidators"], document_file) # type: ignore
+            receivers_response: int = self.storeCorporateDataDomesticReceivers(liquidators_response, dataset["receivers"], document_file) # type: ignore
+            administrators_response: int = self.storeCorporateDataDomesticAdministrators(receivers_response, dataset["administrators"], document_file) # type: ignore
+            details_response: int = self.storeCorporateDataDomesticDetails(administrators_response, dataset["details"], document_file) # type: ignore
+            objections_response: int = self.storeCorporateDataDomesticObjections(details_response, dataset["objections"], document_file) # type: ignore
+            response = objections_response
+        else:
+            response = 500
+            self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {data_extraction_status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
+        return response
+
+    def storeCorporateDataDomesticObjections(self, status: int, objections: List[Dict[str, Union[int, str]]], document_file: DocumentFiles) -> int:
         """
         Doing the data manipulation on the objections result set.
 
@@ -403,14 +418,14 @@ class Builder:
             response = 200
             self.getLogger().inform(f"There is no data to be inserted into the Objections table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {objections}")
         elif status >= 200 and status <= 299 and len(objections) != 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataObjections()")
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataDomesticObjections()")
             exit()
         else:
             response = status
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
-    def storeCorporateDataDetails(self, status: int, details: List[Dict[str, Union[str, int]]], document_file: DocumentFiles) -> int:
+    def storeCorporateDataDomesticDetails(self, status: int, details: List[Dict[str, Union[str, int]]], document_file: DocumentFiles) -> int:
         """
         Doing the data manipulation on the details result set.
 
@@ -427,14 +442,14 @@ class Builder:
             response = 200
             self.getLogger().inform(f"There is no data to be inserted into the Details table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {details}")
         elif status >= 200 and status <= 299 and len(details) != 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataDetails()")
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataDomesticDetails()")
             exit()
         else:
             response = status
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
-    def storeCorporateDataAdministrators(self, status: int, administrators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]], document_file: DocumentFiles) -> int:
+    def storeCorporateDataDomesticAdministrators(self, status: int, administrators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]], document_file: DocumentFiles) -> int:
         """
         Doing the data manipulation on administrators result set.
 
@@ -451,14 +466,14 @@ class Builder:
             response = 200
             self.getLogger().inform(f"There is no data to be inserted into the Administrators table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {administrators}")
         elif status >= 200 and status <= 299 and len(administrators) != 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataAdministrators()")
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataDomesticAdministrators()")
             exit()
         else:
             response = status
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
-    def storeCorporateDataReceivers(self, status: int, receivers: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]], document_file: DocumentFiles) -> int:
+    def storeCorporateDataDomesticReceivers(self, status: int, receivers: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]], document_file: DocumentFiles) -> int:
         """
         Doing the data manipulation on receivers result set.
 
@@ -475,14 +490,14 @@ class Builder:
             response = 200
             self.getLogger().inform(f"There is no data to be inserted into the Receivers table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {receivers}")
         elif status >= 200 and status <= 299 and len(receivers) != 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataReceivers()")
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataDomesticReceivers()")
             exit()
         else:
             response = status
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
-    def storeCorporateDataLiquidators(self, status: int, liquidators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]], document_file: DocumentFiles) -> int:
+    def storeCorporateDataDomesticLiquidators(self, status: int, liquidators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]], document_file: DocumentFiles) -> int:
         """
         Doing the data manipulation on liquidators result set.
 
@@ -499,14 +514,14 @@ class Builder:
             response = 200
             self.getLogger().inform(f"There is no data to be inserted into the Liquidators table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {liquidators}")
         elif status >= 200 and status <= 299 and len(liquidators) != 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataLiquidators()")
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataDomesticLiquidators()")
             exit()
         else:
             response = status
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
-    def storeCorporateDataCharges(self, status: int, charges: List[Dict[str, Union[int, str]]], document_file: DocumentFiles) -> int:
+    def storeCorporateDataDomesticCharges(self, status: int, charges: List[Dict[str, Union[int, str]]], document_file: DocumentFiles) -> int:
         """
         Doing the data manipulation on the charges result set.
 
@@ -523,14 +538,14 @@ class Builder:
             response = 200
             self.getLogger().inform(f"There is no data to be inserted into the Charges table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {charges}")
         elif status >= 200 and status <= 299 and len(charges) != 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataCharges()")
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataDomesticCharges()")
             exit()
         else:
             response = status
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
-    def storeCorporateDataBalanceSheet(self, status: int, balance_sheet: Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]], document_file: DocumentFiles) -> int:
+    def storeCorporateDataDomesticBalanceSheet(self, status: int, balance_sheet: Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]], document_file: DocumentFiles) -> int:
         """
         Doing the data manipulation on the balance sheet result set.
 
@@ -547,14 +562,14 @@ class Builder:
             response = 200
             self.getLogger().inform(f"There is no data to be inserted into the Balance Sheet table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {balance_sheet}")
         elif status >= 200 and status <= 299 and len(balance_sheet) != 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataBalanceSheet()")
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataDomesticBalanceSheet()")
             exit()
         else:
             response = status
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
-    def storeCorporateDataProfitStatement(self, status: int, profit_statement: Dict[str, Union[Dict[str, Union[int, str]], float]], document_file: DocumentFiles) -> int:
+    def storeCorporateDataDomesticProfitStatement(self, status: int, profit_statement: Dict[str, Union[Dict[str, Union[int, str]], float]], document_file: DocumentFiles) -> int:
         """
         Doing the data manipulation on the profit statement result
         set.
@@ -572,14 +587,14 @@ class Builder:
             response = 200
             self.getLogger().inform(f"There is no data to be inserted into the Profit Statement table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {profit_statement}")
         elif status >= 200 and status <= 299 and len(profit_statement) != 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataProfitStatement()")
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataDomesticProfitStatement()")
             exit()
         else:
             response = status
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
-    def storeCorporateDataFinancialSummary(self, status: int, financial_summaries: List[Dict[str, Union[int, str]]], document_file: DocumentFiles) -> int:
+    def storeCorporateDataDomesticFinancialSummary(self, status: int, financial_summaries: List[Dict[str, Union[int, str]]], document_file: DocumentFiles) -> int:
         """
         Doing the data manipulation on the financial summary result
         set.
@@ -594,7 +609,7 @@ class Builder:
         """
         response: int
         if status >= 200 and status <= 299 and len(financial_summaries) > 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataFinancialSummary()")
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataDomesticFinancialSummary()")
             exit()
         elif status >= 200 and status <= 299 and len(financial_summaries) == 0:
             response = 200
@@ -604,7 +619,7 @@ class Builder:
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
-    def storeCorporateDataAnnualReturn(self, status: int, annual_return: List[Dict[str, int]], document_file: DocumentFiles) -> int:
+    def storeCorporateDataDomesticAnnualReturn(self, status: int, annual_return: List[Dict[str, int]], document_file: DocumentFiles) -> int:
         """
         Doing the data manipulation on the annual return result set.
 
@@ -618,7 +633,7 @@ class Builder:
         """
         response: int
         if status >= 200 and status <= 299 and len(annual_return) > 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataAnnualReturn()")
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataDomesticAnnualReturn()")
             exit()
         elif status >= 200 and status <= 299 and len(annual_return) == 0:
             response = 200
@@ -628,7 +643,7 @@ class Builder:
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
-    def storeCorporateDataMembers(self, status: int, members: List[Dict[str, Union[str, int]]], document_file: DocumentFiles) -> int:
+    def storeCorporateDataDomesticMembers(self, status: int, members: List[Dict[str, Union[str, int]]], document_file: DocumentFiles) -> int:
         """
         Doing the data manipulation on the members result set.
 
@@ -642,7 +657,7 @@ class Builder:
         """
         response: int
         if status == 201 and len(members) > 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataMembers()")
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataDomesticMembers()")
             exit()
         elif status == 201 and len(members) == 0:
             response = 200
@@ -652,7 +667,7 @@ class Builder:
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
-    def storeCorporateDataCertificate(self, status: int, certificates: List[Dict[str, Union[str, int]]], document_file: DocumentFiles) -> int:
+    def storeCorporateDataDomesticCertificate(self, status: int, certificates: List[Dict[str, Union[str, int]]], document_file: DocumentFiles) -> int:
         """
         Doing the data manipulation on the certificates result set.
 
@@ -665,7 +680,7 @@ class Builder:
             int
         """
         if status == 201 and len(certificates) > 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataCertificate()")
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataDomesticCertificate()")
             exit()
         elif status == 201 and len(certificates) == 0:
             response = 200
@@ -675,7 +690,7 @@ class Builder:
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
-    def storeCorporateDataShareholders(self, status: int, shareholders: List[Dict[str, Union[str, int]]], document_file: DocumentFiles) -> int:
+    def storeCorporateDataDomesticShareholders(self, status: int, shareholders: List[Dict[str, Union[str, int]]], document_file: DocumentFiles) -> int:
         """
         Doing the data manipulation on the Shareholders result set.
 
@@ -689,14 +704,14 @@ class Builder:
         """
         response: int
         if status == 201:
-            response = self._storeCorporateDataShareholders(shareholders, document_file.company_detail)
+            response = self._storeCorporateDataDomesticShareholders(shareholders, document_file.company_detail)
             self.getLogger().inform(f"The data has been successfully updated into the Shareholders table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {shareholders}")
         else:
             response = status
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
-    def _storeCorporateDataShareholders(self, shareholders: List[Dict[str, Union[str, int]]], company_detail: int) -> int:
+    def _storeCorporateDataDomesticShareholders(self, shareholders: List[Dict[str, Union[str, int]]], company_detail: int) -> int:
         """
         Storing the shareholders.
 
@@ -719,7 +734,7 @@ class Builder:
             response = 503
         return response
 
-    def storeCorporateDataOfficeBearers(self, status: int, office_bearers: List[Dict[str, Union[str, int]]], document_file: DocumentFiles) -> int:
+    def storeCorporateDataDomesticOfficeBearers(self, status: int, office_bearers: List[Dict[str, Union[str, int]]], document_file: DocumentFiles) -> int:
         """
         Doing the data manipulation on the Office Bearers result
         set.
@@ -734,14 +749,14 @@ class Builder:
         """
         response: int
         if status >= 200 and status <= 299:
-            response = self._storeCorporateDataOfficeBearers(office_bearers, document_file)
+            response = self._storeCorporateDataDomesticOfficeBearers(office_bearers, document_file)
             self.getLogger().inform(f"The data has been successfully updated into the Office Bearers table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {office_bearers}")
         else:
             response = status
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
-    def _storeCorporateDataOfficeBearers(self, office_bearers: List[Dict[str, Union[str, int]]], document_file: DocumentFiles) -> int:
+    def _storeCorporateDataDomesticOfficeBearers(self, office_bearers: List[Dict[str, Union[str, int]]], document_file: DocumentFiles) -> int:
         """
         Storing the office bearers in its respective table.
 
@@ -764,7 +779,7 @@ class Builder:
             response = 503
         return response
 
-    def storeCorporateDataStateCapital(self, status: int, state_capital: Dict[str, Union[str, int]], document_file: DocumentFiles) -> int:
+    def storeCorporateDataDomesticStateCapital(self, status: int, state_capital: Dict[str, Union[str, int]], document_file: DocumentFiles) -> int:
         """
         Doing the data manipulation State Capital result set.
 
@@ -788,7 +803,7 @@ class Builder:
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
-    def storeCorporateDataBusinessDetail(self, company_detail: int, business_details: List[Dict[str, str]], document_file: DocumentFiles) -> int:
+    def storeCorporateDataDomesticBusinessDetail(self, company_detail: int, business_details: List[Dict[str, str]], document_file: DocumentFiles) -> int:
         """
         Doing the data manipulation on the Business Details result
         set.
@@ -803,14 +818,14 @@ class Builder:
         """
         response: int
         if company_detail == 202:
-            response = self._storeCorporateDataBusinessDetail(business_details, document_file.company_detail)
+            response = self._storeCorporateDataDomesticBusinessDetail(business_details, document_file.company_detail)
             self.getLogger().inform(f"The data has been successfully updated into the Business Details table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {business_details}")
         else:
             response = company_detail
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {company_detail}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
-    def _storeCorporateDataBusinessDetail(self, business_details: List[Dict[str, str]], company_detail: int) -> int:
+    def _storeCorporateDataDomesticBusinessDetail(self, business_details: List[Dict[str, str]], company_detail: int) -> int:
         """
         Adding the business details into the relational database
         server.
@@ -835,7 +850,7 @@ class Builder:
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {response}\nCompany Detail Identifier: {company_detail}")
         return response
 
-    def storeCorporateDataCompanyDetail(self, data_extraction: int, company_details: Dict[str, Union[str, int]], document_file: DocumentFiles) -> int:
+    def storeCorporateDataDomesticCompanyDetails(self, data_extraction: int, company_details: Dict[str, Union[str, int]], document_file: DocumentFiles) -> int:
         """
         Doing the data manipulation on the Company Details result
         set.
