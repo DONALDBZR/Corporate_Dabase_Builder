@@ -520,8 +520,24 @@ class Document_Reader:
         for index in range(0, len(result_set), 1):
             amount_unpaid: str = " ".join(findall(r"[\d\sA-Z]+", result_set[index]))
             amount_unpaid: str = self.__extractDataDomesticCivilCivilStateCapitalAmountUnpaid(amount_unpaid)
-            print(f"Amount Unpaid[{index}]: {amount_unpaid}")
-        exit()
+            response = self.___extractDataDomesticCivilCivilStateCapitalAmountUnpaid(response, amount_unpaid)
+        return response
+
+    def ___extractDataDomesticCivilCivilStateCapitalAmountUnpaid(self, response: List[int], amount_unpaid: str) -> List[int]:
+        """
+        Building the response needed for the amount unpaid of the
+        state capital of an authorised company.
+
+        Parameters:
+            response: [int]: The data to be returned.
+            amount_unpaid: string: The amount unpaid that has been processed.
+
+        Returns:
+            [int]
+        """
+        if amount_unpaid != "NaAU":
+            response.append(int(amount_unpaid))
+        return response
 
     def __extractDataDomesticCivilCivilStateCapitalAmountUnpaid(self, amount_unpaid: str) -> str:
         """
