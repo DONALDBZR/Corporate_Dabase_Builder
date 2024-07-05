@@ -428,7 +428,7 @@ class Document_Reader:
             self.getLogger().error(f"The portable document file has not been generated correctly!  The application will abort the extraction.\nStatus: {response['status']}\nFile Location: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
         return response
 
-    def _extractDataDomesticCivil(self, result_set: List[str], business_registration_number: str) -> Dict:
+    def _extractDataDomesticCivil(self, result_set: List[str], business_registration_number: Union[str, None]) -> Dict:
         """
         Extracting the data from the portable document file version
         of the corporate registry based on the status of the file
@@ -438,7 +438,7 @@ class Document_Reader:
 
         Parameters:
             result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
-            business_registration_number: string: The registration number of a company which is allowed to do business domestically.
+            business_registration_number: string | null: The registration number of a company which is allowed to do business domestically.
 
         Returns:
             {status: int}
@@ -449,6 +449,54 @@ class Document_Reader:
         else:
             self.getLogger().error(f"The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractData()\nCivil Company Type: Société Commerciale")
             exit()
+        return response
+
+    def _extractDataDomesticCivilCivil(self, result_set: List[str]) -> Dict:
+        """
+        Extracting the data from the portable document file version
+        of the corporate registry based on the status of the file
+        generation as well as on the dataset for a domestic company
+        which is also a civil company which is also a société
+        civile.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            {status: int}
+        """
+        response: Dict
+        company_details: Dict[str, Union[str, int]] = self._extractDataDomesticCivilCivilCompanyDetails(result_set)
+        print(f"{result_set=}\n{company_details=}")
+        exit()
+        return response
+
+    def _extractDataDomesticCivilCivilCompanyDetails(self, result_set: List[str]) -> Dict[str, Union[str, int]]:
+        """
+        Extracting the company details of a société civile.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            {name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}
+        """
+        response: Dict[str, Union[str, int]]
+        start_index: int = result_set.index("Partnership Details") + 1
+        end_index: int = result_set.index("Business Details")
+        result_set = result_set[start_index:end_index]
+        result_set.remove("Registrar of Companies")
+        category: str = result_set[[index for index, value in enumerate(result_set) if "Category" in value][0]].split(": ")[-1]
+        result_set = result_set + [category]
+        result_set = [value for value in result_set if ":" not in value]
+        response = {
+            "name": result_set[1].title(),
+            "file_number": result_set[0],
+            "category": result_set[5].title(),
+            "date_incorporation": int(datetime.strptime(result_set[2], "%d/%m/%Y").timestamp()),
+            "nature": result_set[3].title(),
+            "status": result_set[4].title()
+        }
         return response
 
     def extractDataDomesticCivilBusinessRegistrationNumber(self, result_set: List[str]) -> Union[str, None]:
