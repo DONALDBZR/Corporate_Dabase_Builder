@@ -501,8 +501,27 @@ class Document_Reader:
         stated_capitals: List[int] = self._extractDataDomesticCivilCivilStateCapitalStatedCapital(result_set)
         result_set = [value for value in result_set if value not in str(amounts)]
         amount_unpaids: List[int] = self._extractDataDomesticCivilCivilStateCapitalAmountUnpaid(result_set)
+        par_values: List[int] = self._extractDataDomesticCivilCivilStateCapitalParValue(result_set)
         print(f"{result_set=}\n{types=}\n{amounts=}\n{currencies=}\n{stated_capitals=}\n{amount_unpaids=}")
         exit()
+        return response
+
+    def _extractDataDomesticCivilCivilStateCapitalParValue(self, result_set: List[str]) -> List[int]:
+        """
+        Extracting the share value of the stated capital of an
+        authorised company.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [int]
+        """
+        response: List[int] = []
+        for index in range(0, len(result_set), 1):
+            amount_unpaid: str = " ".join(findall(r"[\d\sA-Z]+", result_set[index]))
+            amount_unpaid: str = self.__extractDataDomesticCivilCivilStateCapitalParValue(amount_unpaid)
+            response = self.___extractDataDomesticCivilCivilStateCapitalParValue(response, amount_unpaid)
         return response
 
     def _extractDataDomesticCivilCivilStateCapitalAmountUnpaid(self, result_set: List[str]) -> List[int]:
