@@ -516,9 +516,43 @@ class Document_Reader:
         for index in range(0, len(result_set), 1):
             locality: str = " ".join(findall(r"[A-Z\s\d,]+", result_set[index]))
             locality = self._extractDataDomesticCivilCivilOfficeBearersAddressesLocality(locality)
-            # localities = self.__extractDataDomesticCivilCivilOfficeBearersAddressesLocality(locality)
-            print(f"Locality[{index}]: {locality}")
+            localities = self.__extractDataDomesticCivilCivilOfficeBearersAddressesLocality(localities, locality)
+        for index in range(0, len(result_set), 1):
+            city: str = " ".join(findall(r"[A-Z,]+", result_set[index]))
+            city = self._extractDataDomesticCivilCivilOfficeBearersAddressesCity(city)
+            print(f"City[{index}]: {city}")
         exit()
+
+    def _extractDataDomesticCivilCivilOfficeBearersAddressesCity(self, city: str) -> str:
+        """
+        Extracting the city needed for the address of the office
+        bearers.
+
+        Parameters:
+            city: string: The city of the address.
+
+        Returns:
+            string
+        """
+        if "Mauritius" in city:
+            return city
+        else:
+            return "NaC"
+
+    def __extractDataDomesticCivilCivilOfficeBearersAddressesLocality(self, localities: List[str], locality: str) -> List[str]:
+        """
+        Building the list of the localities based on the result set.
+
+        Parameters:
+            localities: [string]: The data to be returned.
+            locality: string: The locality of the address of the office bearers.
+
+        Returns:
+            [string]
+        """
+        if locality != "NaL":
+            localities.append(locality)
+        return localities
 
     def _extractDataDomesticCivilCivilOfficeBearersAddressesLocality(self, locality: str) -> str:
         """
