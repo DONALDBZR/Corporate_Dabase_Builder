@@ -515,8 +515,8 @@ class Document_Reader:
         for index in range(0, len(result_set), 1):
             date_appointed: str = " ".join(findall(r"[\d/]+", result_set[index]))
             date_appointed = self.__extractDataDomesticCivilCivilOfficeBearersDateAppointed(date_appointed)
-            print(f"Date Appointed[{index}]: {date_appointed}")
-        exit()
+            response = self.___extractDataDomesticCivilCivilOfficeBearersDateAppointed(response, date_appointed)
+        return response
 
     def __extractDataDomesticCivilCivilOfficeBearersDateAppointed(self, date_appointed: str) -> str:
         """
