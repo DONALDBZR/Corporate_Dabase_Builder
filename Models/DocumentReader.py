@@ -524,6 +524,22 @@ class Document_Reader:
             response = self.___extractDataDomesticCivilCivilStateCapitalParValue(response, share_value)
         return response
 
+    def __extractDataDomesticCivilCivilStateCapitalParValue(self, share_value: str) -> str:
+        """
+        Sanitizing the share value of the state capital of an
+        authorised company.
+
+        Parameters:
+            share_value: string: The data to be processed
+
+        Returns:
+            string
+        """
+        if bool(search(r"[A-z]+", share_value)) == False:
+            return share_value.split(" ")[-1]
+        else:
+            return "NaSV"
+
     def _extractDataDomesticCivilCivilStateCapitalAmountUnpaid(self, result_set: List[str]) -> List[int]:
         """
         Extracting the amount unpaid of the stated capital of an
