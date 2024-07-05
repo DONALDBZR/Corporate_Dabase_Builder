@@ -496,9 +496,46 @@ class Document_Reader:
         types: List[str] = findall(r"\b^[A-Z\s]+\b", " ".join(result_set))
         result_set = [value for value in result_set if value not in types]
         amounts: List[int] = self._extractDataDomesticCivilCivilStateCapitalAmount(result_set)
-        print(f"{result_set=}\n{types=}\n{amounts=}")
+        currencies: List[str] = self._extractDataDomesticCivilCivilStateCapitalCurrency(result_set)
+        result_set = [value for value in result_set if value not in currencies]
+        print(f"{result_set=}\n{types=}\n{amounts=}\n{currencies=}")
         exit()
         return response
+
+    def _extractDataDomesticCivilCivilStateCapitalCurrency(self, result_set: List[str]) -> List[str]:
+        """
+        Extracting the currencies of the shares of the stated
+        capital of a société civile.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [str]
+        """
+        response: List[str] = []
+        for index in range(0, len(result_set), 1):
+            currencies: str = " ".join(findall(r"[\d\sA-z]+", result_set[index]))
+            currency: str = self.__extractDataDomesticCivilCivilStateCapitalCurrency(currencies)
+            print(f"Currency[{index}]: {currency}")
+        exit()
+        return response
+
+    def __extractDataDomesticCivilCivilStateCapitalCurrency(self, currencies: str) -> str:
+        """
+        Extracting the correct currency to be used for the
+        processing.
+
+        Parameters:
+            currencies: string: THe value to be processed.
+
+        Returns:
+            string
+        """
+        if bool(search(r"[\d]+", currencies)) and bool(search(r"[A-z\s]+", currencies)) and bool(search(r"[A-z]+", currencies)):
+            return " ".join(findall(r"[A-z]+", currencies))
+        else:
+            return "NaC"
 
     def _extractDataDomesticCivilCivilStateCapitalAmount(self, result_set: List[str]) -> List[int]:
         """
