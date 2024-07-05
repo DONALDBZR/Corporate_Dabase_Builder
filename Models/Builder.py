@@ -355,9 +355,9 @@ class Builder:
         """
         response: int
         if company_detail.category == "DOMESTIC":
-            response = self.storeCorporateDataDomestic(dataset, document_file)
+            response = self.storeCorporateDataDomestic(dataset, document_file) # type: ignore
         else:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateData()")
+            self.getLogger().error(f"The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateData()\nCategory: {company_detail.category}")
             exit()
         if response >= 200 and response <= 299:
             response = 201
