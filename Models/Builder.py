@@ -371,7 +371,7 @@ class Builder:
         corporate registry for an authorised company.
 
         Parameters:
-            dataset: {status: int, company_details: {name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}, business_details: {registered_address: string}, office_bearers: [{position: string, name: string, address: string, date_appointment: int}], administrators: {administrator: {name: string, designation: string, address: string}, accounts: [{date_filled: int, date_from: int, date_to: int}]}, liquidators: {liquidator: {name: string, address: string}, affidavits: [{date_filled: int, date_from: int, date_to: int}]}}: The data that has been extracted from the corporate registry.
+            dataset: {status: int, company_details: {name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}, business_details: {registered_address: string}, office_bearers: [{position: string, name: string, address: string, date_appointment: int}], receivers: {receiver: {name: string, date_appointed: int, address: string}, reports: [{date_filled: int, date_from: int, date_to: int}], affidavits: [{date_filled: int, date_from: int, date_to: int}]}, administrators: {administrator: {name: string, designation: string, address: string}, accounts: [{date_filled: int, date_from: int, date_to: int}]}, liquidators: {liquidator: {name: string, address: string}, affidavits: [{date_filled: int, date_from: int, date_to: int}]}}: The data that has been extracted from the corporate registry.
             document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
 
         Returns:
@@ -383,11 +383,36 @@ class Builder:
             company_detail_response: int = self.storeCorporateDataAuthorisedCompanyCompanyDetails(data_extraction_status, dataset["company_details"], document_file) # type: ignore
             business_detail_response: int = self.storeCorporateDataAuthorisedCompanyBusinessDetails(company_detail_response, dataset["business_details"], document_file) # type: ignore
             office_bearers_response: int = self.storeCorporateDataAuthorisedCompanyOfficeBearers(business_detail_response, dataset["office_bearers"], document_file) # type: ignore
-            print(f"{data_extraction_status=}\n{company_detail_response=}\n{business_detail_response=}\n{dataset['office_bearers']=}")
+            receivers_response: int = self.storeCorporateDataAuthorisedCompanyReceivers(office_bearers_response, dataset["receivers"], document_file) # type: ignore
+            print(f"{data_extraction_status=}\n{company_detail_response=}\n{business_detail_response=}\n{office_bearers_response=}\n{receivers_response=}\n{dataset=}\n{dataset['administrators']=}")
             exit()
         else:
             response = 500
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {data_extraction_status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
+        return response
+
+    def storeCorporateDataAuthorisedCompanyReceivers(self, status: int, receivers: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]], document_file: DocumentFiles) -> int:
+        """
+        Doing the data manipulation on receivers result set.
+
+        Parameters:
+            status: int: The status of the data manipulation.
+            receivers: {receiver: {name: string, date_appointed: int, address: string}, reports: [{date_filled: int, date_from: int, date_to: int}], affidavits: [{date_filled: int, date_from: int, date_to: int}]}: The data that has been extracted for the receivers table.
+            document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
+
+        Returns:
+            int
+        """
+        response: int
+        if status >= 200 and status <= 299 and not receivers:
+            response = 200
+            self.getLogger().inform(f"There is no data to be inserted into the Receivers table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {receivers}")
+        elif status >= 200 and status <= 299 and len(receivers) != 0:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataDomesticReceivers()")
+            exit()
+        else:
+            response = status
+            self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
     def storeCorporateDataAuthorisedCompanyOfficeBearers(self, status: int, office_bearers: List[Dict[str, Union[str, int]]], document_file: DocumentFiles) -> int:
