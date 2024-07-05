@@ -395,6 +395,58 @@ class Document_Reader:
             exit()
         return response
 
+    def extractDataDomesticCivil(self, status: int, dataset: DocumentFiles) -> Dict:
+        """
+        Extracting the data from the portable document file version
+        of the corporate registry based on the status of the file
+        generation as well as on the dataset for a domestic company
+        which is also a civil company.
+
+        Parameters:
+            status: int: The status of the file generation.
+            dataset: {identifier: int, file_data: bytes, company_detail: int}: The dataset of the corporate registry retrieved from the relational database server.
+
+        Returns:
+            {status: int}
+        """
+        response: Dict
+        file_name: str = f"{self.ENV.getDirectory()}Cache/CorporateDocumentFile/Documents/{dataset.company_detail}.pdf"
+        cache_data_file_name: str = f"{self.ENV.getDirectory()}Cache/CorporateDocumentFile/Metadata/{dataset.company_detail}.json"
+        if status == 201:
+            portable_document_file_data: str = extract_text(file_name)
+            cache_file = open(cache_data_file_name, "w")
+            portable_document_file_data_result_set: List[str] = list(filter(None, portable_document_file_data.split("\n")))
+            business_registration_number: Union[str, None] = self.extractDataDomesticCivilBusinessRegistrationNumber(portable_document_file_data_result_set)
+            print(f"{portable_document_file_data_result_set=}\n{business_registration_number=}")
+            exit()
+            response = self._extractDataDomesticCivil(portable_document_file_data_result_set)
+            cache_file.write(dumps(response, indent=4))
+            cache_file.close()
+            self.getLogger().inform(f"Data has been extracted from the portable document file version of the corporate registry.\nStatus: {response['status']}\nDocument File Identifier: {dataset.identifier}\nFile Location: {file_name}\nCompany Details Identifier: {dataset.company_detail}")
+        else:
+            response = {
+                "status": 404
+            }
+            self.getLogger().error(f"The portable document file has not been generated correctly!  The application will abort the extraction.\nStatus: {response['status']}\nFile Location: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
+        return response
+
+    def extractDataDomesticCivilBusinessRegistrationNumber(self, result_set: List[str]) -> Union[str, None]:
+        """
+        Extracting the business registration number of a domestic
+        civil company.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            string | null
+        """
+        business_registration_numbers: List[str] = findall(r"\b[A-Z][0-9]+\b", result_set[[index for index, value in enumerate(result_set) if "Business Registration No" in value][0]])
+        if len(business_registration_numbers) == 1:
+            return business_registration_numbers[0]
+        else:
+            return None
+
     def extractDataDomesticPrivate(self, status: int, dataset: DocumentFiles) -> Dict[str, Union[int, Dict[str, Union[str, int]], List[Dict[str, str]], List[Dict[str, Union[str, int]]], List[Dict[str, int]], Dict[str, Union[Dict[str, Union[int, str]], float]], Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]]]:
         """
         Extracting the data from the portable document file version
