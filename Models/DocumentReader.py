@@ -534,7 +534,7 @@ class Document_Reader:
         Returns:
             string
         """
-        if "Mauritius" in city:
+        if "MAURITIUS" in city:
             return city
         else:
             return "NaC"
