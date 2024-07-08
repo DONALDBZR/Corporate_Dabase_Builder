@@ -508,7 +508,25 @@ class Document_Reader:
         result_set = [value for value in result_set if " of " not in value]
         receiver: Dict[str, Union[str, int]] = self.__extractDataDomesticCivilCivilReceivers(result_set)
         reports: List[Dict[str, int]] = self._extractDataDomesticCivilCivilReports(result_set)
-        print(f"{result_set=}\n{receiver=}\n{reports=}")
+        affidavits: List[Dict[str, int]] = self._extractDataDomesticCivilCivilAffidavits(result_set)
+        print(f"{result_set=}\n{receiver=}\n{reports=}\n{affidavits=}")
+        exit()
+
+    def _extractDataDomesticCivilCivilAffidavits(self, result_set: List[str]) -> List[Dict[str, int]]:
+        """
+        Extracting the affidavits that are related to the receivers
+        of a société civile.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [{date_filled: int, date_from: int, date_to: int}]
+        """
+        start_index: int = result_set.index("Affidavits of Receiver")
+        end_index: int = result_set.index("Accounts of Administrator")
+        result_set = result_set[start_index:end_index]
+        print(f"{result_set=}")
         exit()
 
     def _extractDataDomesticCivilCivilReports(self, result_set: List[str]) -> List[Dict[str, int]]:
@@ -524,14 +542,17 @@ class Document_Reader:
         """
         start_index: int = result_set.index("Date Filed")
         result_set = result_set[start_index:]
+        start_index = result_set.index("Date Filed")
+        end_index: int = result_set.index("Date Filed") + 4
+        dataset: List[str] = result_set[start_index:end_index]
+        end_index = int(len(dataset) / 2)
+        dataset = dataset[:end_index]
         start_index = result_set.index("To")
-        end_index: int = result_set.index("To") + 3
+        end_index = result_set.index("To") + 4
         date_to: List[str] = result_set[start_index:end_index]
         end_index = int(len(date_to) / 2)
         date_to = date_to[:end_index]
-        end_index = result_set.index("Administrators") - 2
-        result_set = result_set[:end_index]
-        result_set = result_set + date_to
+        result_set = dataset + date_to
         result_set = [value for value in result_set if "Date Filed" not in value]
         result_set = [value for value in result_set if "From" not in value]
         result_set = [value for value in result_set if "To" not in value]
