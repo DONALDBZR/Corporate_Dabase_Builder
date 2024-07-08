@@ -355,7 +355,7 @@ class Builder:
         """
         response: int
         if company_detail.category.upper() == "DOMESTIC":
-            response = self.storeCorporateDataDomestic(dataset, document_file) # type: ignore
+            response = self.storeCorporateDataDomestic(dataset, document_file, company_detail) # type: ignore
         elif company_detail.category.upper() == "AUTHORISED COMPANY":
             response = self.storeCorporateDataAuthorisedCompany(dataset, document_file) # type: ignore
         else:
