@@ -2619,7 +2619,7 @@ class Document_Reader:
         """
         response: List[int] = []
         stated_capitals: List[str] = [value for value in result_set if bool(search(r"[\d]+", value)) == True and "," in value]
-        for index in range(, len(stated_capitals), 1):
+        for index in range(0, len(stated_capitals), 1):
             stated_capital: int = int(stated_capitals[index].replace(",", ""))
             response.append(stated_capital)
         return response
