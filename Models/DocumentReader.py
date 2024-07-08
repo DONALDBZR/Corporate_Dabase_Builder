@@ -508,8 +508,15 @@ class Document_Reader:
         shareholders_types: Dict[str, List[str]] = self._extractDataDomesticCivilCivilShareholdersType(result_set)
         types: List[str] = shareholders_types["types"]
         result_set = shareholders_types["result_set"]
-        print(f"{result_set=}\n{amounts=}\n{types=}")
-        exit()
+        names: List[str] = [value for value in result_set if bool(search(r"[A-Z\s]+", value)) == True and bool(search(r"[a-z]+", value)) == False]
+        currencies: List[str] = [value for value in result_set if value not in names]
+        for index in range(0, min([len(amounts), len(types), len(names), len(currencies)]), 1):
+            response.append({
+                "name": names[index].title(),
+                "amount": amounts[index],
+                "type": types[index].title(),
+                "currency": currencies[index].title()
+            })
         return response
 
     def _extractDataDomesticCivilCivilShareholdersType(self, result_set: List[str]) -> Dict[str, List[str]]:
