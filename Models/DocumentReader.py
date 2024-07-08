@@ -476,7 +476,7 @@ class Document_Reader:
             result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
 
         Returns:
-            {status: int, company_details: {name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}, business_details: [{registered_address: string, name: string, nature: string, operational: string}] | {registered_address: string, name: string, nature: string, operational: string}, state_capital: [{type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}], office_bearers: [{position: string, name: string, address: string, date_appointed: int}], shareholders: [{name: string, amount: int, type: string, currency: string}], liquidators: {liquidator: {name: string, appointed_date: int, address: string}, affidavits: [{date_filled: int, date_from: int, date_to: int}]}}
+            {status: int, company_details: {name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}, business_details: [{registered_address: string, name: string, nature: string, operational: string}] | {registered_address: string, name: string, nature: string, operational: string}, state_capital: [{type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}], office_bearers: [{position: string, name: string, address: string, date_appointed: int}], shareholders: [{name: string, amount: int, type: string, currency: string}], liquidators: {liquidator: {name: string, appointed_date: int, address: string}, affidavits: [{date_filled: int, date_from: int, date_to: int}]}, receivers: {receiver: {name: string, date_appointed: int, address: string}, reports: [{date_filled: int, date_from: int, date_to: int}], affidavits: [{date_filled: int, date_from: int, date_to: int}]}}
         """
         response: Dict
         company_details: Dict[str, Union[str, int]] = self._extractDataDomesticCivilCivilCompanyDetails(result_set)
@@ -486,9 +486,54 @@ class Document_Reader:
         shareholders: List[Dict[str, Union[str, int]]] = self._extractDataDomesticCivilCivilShareholders(result_set)
         liquidators: Dict[str, Union[Dict[str, Union[str, int]], List[int]]] = self._extractDataDomesticCivilCivilLiquidators(result_set)
         receivers: Dict[str, Union[Dict[str, Union[str, int]], List[int]]] = self._extractDataDomesticCivilCivilReceivers(result_set)
-        print(f"{result_set=}\n{company_details=}\n{business_details=}\n{state_capital=}\n{office_bearers=}\n{shareholders=}\n{liquidators=}\n{receivers=}")
+        administrators: Dict[str, Union[Dict[str, Union[str, int]], List[int]]] = self._extractDataDomesticCivilCivilAdministrators(result_set)
+        print(f"{result_set=}\n{company_details=}\n{business_details=}\n{state_capital=}\n{office_bearers=}\n{shareholders=}\n{liquidators=}\n{receivers=}\n{administrators=}")
         exit()
         return response
+
+    def _extractDataDomesticCivilCivilAdministrators(self, result_set: List[str]) -> Dict[str, Union[Dict[str, Union[str, int]], List[int]]]:
+        """
+        Extracting the administrators of a société civile.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            {administrator: {name: string, date_appointed: int, designation: string, address: string}, accounts: [{date_filled: int, date_from: int, date_to: int}]}
+        """
+        start_index: int = result_set.index("Administrators")
+        end_index: int = result_set.index("Start Date")
+        result_set = result_set[start_index:end_index]
+        administrator: Dict[str, Union[str, int]] = self.__extractDataDomesticCivilCivilAdministrators(result_set)
+        print(f"{result_set=}\n{administrator=}")
+        exit()
+
+    def __extractDataDomesticCivilCivilAdministrators(self, result_set: List[str]) -> Dict[str, Union[str, int]]:
+        """
+        Extracting the administrators of a société civile.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            {name: string, date_appointed: int, designation: string, address: string}
+        """
+        start_index: int = result_set.index("Appointed Date:")
+        end_index: int = result_set.index("Appointed Date:") + 4
+        date_appointeds: List[str] = result_set[start_index:end_index]
+        end_index = int(len(date_appointeds) / 2)
+        date_appointeds = date_appointeds[:end_index]
+        start_index = result_set.index("Administrators") + 1
+        end_index = result_set.index("Address:") + 2
+        result_set = result_set[start_index:end_index]
+        result_set = [value for value in result_set if "To" not in value]
+        result_set = result_set + date_appointeds
+        result_set = [value for value in result_set if ":" not in value]
+        if len(result_set) > 0:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.__extractDataDomesticCivilCivilAdministrators()")
+            exit()
+        else:
+            return {}
 
     def _extractDataDomesticCivilCivilReceivers(self, result_set: List[str]) -> Dict[str, Union[Dict[str, Union[str, int]], List[int]]]:
         """
