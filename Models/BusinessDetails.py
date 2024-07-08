@@ -99,3 +99,33 @@ class Business_Details(Database_Handler):
             response = 503
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {response}\nError: {error}")
         return response
+
+    def addBusinessDetailsDomesticCivil(self, data: Dict[str, str], company_detail: int) -> int:
+        """
+        Adding the business details of a société civile or société
+        commerciale into the relational database server.
+
+        Parameters:
+            data: {registered_address: string}: The data that has been extracted for the business details table.
+            company_detail: int: The identifier of the company.
+
+        Returns:
+            int
+        """
+        response: int
+        try:
+            parameters: Tuple[str, int] = (
+                str(data["registered_address"]),
+                company_detail
+            )
+            self.postData(
+                table=self.getTableName(),
+                columns="registered_address, CompanyDetail",
+                values="%s, %s",
+                parameters=parameters # type: ignore
+            )
+            response = 201
+        except Error as error:
+            response = 503
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {response}\nError: {error}")
+        return response
