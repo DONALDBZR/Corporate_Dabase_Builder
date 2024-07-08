@@ -2574,6 +2574,7 @@ class Document_Reader:
         Returns:
             [{type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}]
         """
+        response: List[Dict[str, Union[str, int]]] = []
         start_index: int = portable_document_file_result_set.index("Particulars of Stated Capital") + 1
         end_index: int = portable_document_file_result_set.index("Certificate (Issued by Other Institutions)")
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
@@ -2593,22 +2594,15 @@ class Document_Reader:
         result_set = [value for value in result_set if value not in dataset]
         amount_unpaids: List[int] = self.extractStateCapitalAmountUnpaid(result_set)
         share_values: List[int] = self.extractStateCapitalShareValue(result_set)
-        print(f"{result_set=}\n{types=}\n{amounts=}\n{currencies=}\n{stated_capitals=}\n{amount_unpaids=}\n{share_values=}")
-        exit()
-        # type: str = " ".join([result_set[result_set.index("Type of Shares") + 4], result_set[result_set.index("Type of Shares") + 5]]).title()
-        # amount: int = int(result_set[[index for index, value in enumerate(result_set) if "No. of Shares" in value][0] + 5].split(" ")[0])
-        # currency: str = " ".join([result_set[[index for index, value in enumerate(result_set) if "No. of Shares" in value][0] + 5].split(" ")[1], result_set[[index for index, value in enumerate(result_set) if "No. of Shares" in value][0] + 5].split(" ")[2]])
-        # stated_capital: int = int(result_set[result_set.index("Stated Capital") + 5].replace(",", ""))
-        # amount_unpaid: int = int(result_set[[index for index, value in enumerate(result_set) if "Amount Unpaid" in value][0] + 5].split(" ")[0])
-        par_value: int = int(result_set[[index for index, value in enumerate(result_set) if "Par Value" in value][0] + 5].split(" ")[1])
-        return {
-            "type": type,
-            "amount": amount,
-            "currency": currency,
-            "stated_capital": stated_capital,
-            "amount_unpaid": amount_unpaid,
-            "par_value": par_value
-        }
+        for index in range(0, min([len(types), len(amounts), len(currencies), len(stated_capitals), len(amount_unpaids), len(share_values)]), 1):
+            response.append({
+                "type": types[index],
+                "amount": amounts[index],
+                "stated_capital": stated_capitals[index],
+                "amount_unpaid": amount_unpaids[index],
+                "par_value": share_values[index]
+            })
+        return response
 
     def extractStateCapitalShareValue(self, result_set: List[str]) -> List[int]:
         """
