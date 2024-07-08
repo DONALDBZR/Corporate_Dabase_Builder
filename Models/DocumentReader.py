@@ -505,14 +505,14 @@ class Document_Reader:
         end_index: int = result_set.index("Liquidators")
         result_set = result_set[start_index:end_index]
         amounts: List[int] = self._extractDataDomesticCivilCivilShareholdersAmount(result_set)
-        types: List[str] = self._extractDataDomesticCivilCivilShareholdersType(result_set)
-        result_set = [value for value in result_set if value not in types]
-        result_set = [value for value in result_set if value not in amounts]
+        shareholders_types: Dict[str, List[str]] = self._extractDataDomesticCivilCivilShareholdersType(result_set)
+        types: List[str] = shareholders_types["types"]
+        result_set = shareholders_types["result_set"]
         print(f"{result_set=}\n{amounts=}\n{types=}")
         exit()
         return response
 
-    def _extractDataDomesticCivilCivilShareholdersType(self, result_set: List[str]) -> List[str]:
+    def _extractDataDomesticCivilCivilShareholdersType(self, result_set: List[str]) -> Dict[str, List[str]]:
         """
         Extracting the type of the shares for a shareholder of a
         société civile.
@@ -521,13 +521,19 @@ class Document_Reader:
             result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
 
         Returns:
-            [string]
+            {types: [string], result_set: [string]}
         """
-        response: List[str] = []
-        result_set = [value for value in result_set if bool(search(r"[\d]+", value)) == True]
-        for index in range(0, len(result_set), 1):
-            type: str = " ".join([value for value in split(" ", result_set[index]) if bool(search(r"[\d]+", value)) == False])
-            response.append(type)
+        types: List[str] = []
+        dataset = [value for value in result_set if bool(search(r"[\d]+", value)) == True]
+        for index in range(0, len(dataset), 1):
+            type: str = " ".join([value for value in split(" ", dataset[index]) if bool(search(r"[\d]+", value)) == False])
+            types.append(type)
+        for index in range(0, len(types), 1):
+            result_set = [value for value in result_set if types[index] not in value]
+        response: Dict[str, List[str]] = {
+            "types": types,
+            "result_set": result_set
+        }
         return response
 
     def _extractDataDomesticCivilCivilShareholdersAmount(self, result_set: List[str]) -> List[int]:
