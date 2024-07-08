@@ -476,16 +476,73 @@ class Document_Reader:
             result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
 
         Returns:
-            {status: int, company_details: {name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}, business_details: [{registered_address: string, name: string, nature: string, operational: string}] | {registered_address: string, name: string, nature: string, operational: string}, state_capital: [{type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}], office_bearers: [{position: string, name: string, address: string, date_appointed: int}]}
+            {status: int, company_details: {name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}, business_details: [{registered_address: string, name: string, nature: string, operational: string}] | {registered_address: string, name: string, nature: string, operational: string}, state_capital: [{type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}], office_bearers: [{position: string, name: string, address: string, date_appointed: int}], shareholders: [{name: string, amount: int, type: string, currency: string}]}
         """
         response: Dict
         company_details: Dict[str, Union[str, int]] = self._extractDataDomesticCivilCivilCompanyDetails(result_set)
         business_details: Union[List[Dict[str, str]], Dict[str, str]] = self._extractDataDomesticCivilCivilBusinessDetails(result_set)
         state_capital: List[Dict[str, Union[str, int]]] = self._extractDataDomesticCivilCivilStateCapital(result_set)
         office_bearers: List[Dict[str, Union[str, int]]] = self._extractDataDomesticCivilCivilOfficeBearers(result_set)
-        print(f"{result_set=}\n{company_details=}\n{business_details=}\n{state_capital=}\n{office_bearers=}")
+        shareholders: List[Dict[str, Union[str, int]]] = self._extractDataDomesticCivilCivilShareholders(result_set)
+        print(f"{result_set=}\n{company_details=}\n{business_details=}\n{state_capital=}\n{office_bearers=}\n{shareholders=}")
         exit()
         return response
+
+    def _extractDataDomesticCivilCivilShareholders(self, result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
+        """
+        Extracting the shareholders of a société civile.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [{name: string, amount: int, type: string, currency: string}]
+        """
+        response: List[Dict[str, Union[str, int]]] = []
+        start_index: int = result_set.index("Associes")
+        result_set = result_set[start_index:]
+        start_index = result_set.index("Currency") + 1
+        end_index: int = result_set.index("Liquidators")
+        result_set = result_set[start_index:end_index]
+        amounts: List[int] = self._extractDataDomesticCivilCivilShareholdersAmount(result_set)
+        print(f"{result_set=}\n{amounts=}")
+        exit()
+        return response
+
+    def _extractDataDomesticCivilCivilShareholdersAmount(self, result_set: List[str]) -> List[int]:
+        """
+        Extracting the amount of shares of the shareholders of a
+        société civile.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [int]
+        """
+        response: List[int] = []
+        for index in range(0, len(result_set), 1):
+            amounts: List[str] = findall(r"[\d]+", result_set[index])
+            amount: str = self.__extractDataDomesticCivilCivilShareholdersAmount(amounts)
+            print(f"Amount[{index}]: {amount}")
+        exit()
+        return response
+
+    def __extractDataDomesticCivilCivilShareholdersAmount(self, amounts: List[str]) -> str:
+        """
+        Retrieving the correct data for the amount of shares for a
+        shareholder of a société civile.
+
+        Parameters:
+            amounts: [string]: The dataset of the amounts.
+
+        Returns:
+            string
+        """
+        if len(amounts) == 1:
+            return "".join(amounts)
+        else:
+            return "NaA"
 
     def _extractDataDomesticCivilCivilOfficeBearers(self, result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
         """
