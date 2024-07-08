@@ -780,8 +780,8 @@ class Document_Reader:
         for index in range(0, min([len(amounts), len(types), len(names), len(currencies)]), 1):
             response.append({
                 "name": names[index].title(),
-                "amount": amounts[index],
-                "type": types[index].title(),
+                "amount_shares": amounts[index],
+                "type_shares": types[index].title(),
                 "currency": currencies[index].title()
             })
         return response
