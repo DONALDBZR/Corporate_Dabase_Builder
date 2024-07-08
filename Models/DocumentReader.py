@@ -402,7 +402,7 @@ class Document_Reader:
         if company_detail.nature.upper() == "PRIVATE":
             response = self.extractDataDomesticPrivate(status, dataset)
         elif company_detail.nature.upper() == "CIVIL":
-            response = self.extractDataDomesticCivil(status, dataset)
+            response = self.extractDataDomesticCivil(status, dataset) # type: ignore
         else:
             self.getLogger().error(f"The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractData()\nNature: {company_detail.nature}")
             exit()
