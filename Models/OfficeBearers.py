@@ -87,8 +87,8 @@ class Office_Bearers(Database_Handler):
                 column_names="DISTINCT UPPER(position) AS position"
             )
             dataset: Dict[str, Union[int, List[str]]] = self._getPossiblePositions(result_set)
+            response = dataset["response"] # type: ignore
             self.getLogger().inform(f"The data from the {self.getTableName()} table has been successfully retrieved.\nStatus: {dataset['status']}\nData: {dataset['response']}")
-            exit()
         except Error as error:
             status = 503
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {status}\nError: {error}")
