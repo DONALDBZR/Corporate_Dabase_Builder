@@ -501,7 +501,7 @@ class Document_Reader:
         exit()
         return response
 
-    def _extractDataDomesticCivilCivilOfficeBearersAddresses(self, result_set: List[str]) -> List[str]:
+    def _extractDataDomesticCivilCivilOfficeBearersAddresses(self, result_set: List[str]) -> Dict[str, List[str]]:
         """
         Extracting the addresses of the office bearers of a société
         civile.
@@ -510,11 +510,12 @@ class Document_Reader:
             result_set: [string]: The result set of the office bearers.
 
         Returns:
-            [string]
+            {result_set: [string], addresses: [string]}
         """
         localities: List[str] = []
         cities: List[str] = []
-        response: List[str] = []
+        response: Dict[str, List[str]]
+        addresses: List[str] = []
         for index in range(0, len(result_set), 1):
             locality: str = " ".join(findall(r"[A-Z\s\d,]+", result_set[index]))
             locality = self._extractDataDomesticCivilCivilOfficeBearersAddressesLocality(locality)
@@ -524,7 +525,14 @@ class Document_Reader:
             city = self._extractDataDomesticCivilCivilOfficeBearersAddressesCity(city)
             cities = self.__extractDataDomesticCivilCivilOfficeBearersAddressesCity(cities, city)
         for index in range(0, min([len(localities), len(cities)]), 1):
-            response.append(f"{localities[index]} {cities[index]}")
+            addresses.append(f"{localities[index]} {cities[index]}")
+        result_set = [value for value in result_set if value not in localities]
+        result_set = [value for value in result_set if value not in cities]
+        result_set = [value for value in result_set if "MAURITIUS" not in value]
+        response = {
+            "result_set": result_set,
+            "addresses": addresses
+        }
         return response
 
     def __extractDataDomesticCivilCivilOfficeBearersAddressesCity(self, cities: List[str], city: str) -> List[str]:
