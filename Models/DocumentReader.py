@@ -506,8 +506,11 @@ class Document_Reader:
         result_set = result_set[start_index:end_index]
         administrator: Dict[str, Union[str, int]] = self.__extractDataDomesticCivilCivilAdministrators(result_set)
         accounts: List[Dict[str, int]] = self._extractDataDomesticCivilCivilAdministratorsAccounts(result_set)
-        print(f"{result_set=}\n{administrator=}\n{accounts=}")
-        exit()
+        if not administrator and len(accounts) == 0:
+            return {}
+        else:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractAdministrators()")
+            exit()
 
     def _extractDataDomesticCivilCivilAdministratorsAccounts(self, result_set: List[str]) -> List[Dict[str, int]]:
         """
