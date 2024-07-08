@@ -2592,7 +2592,8 @@ class Document_Reader:
         dataset = [value for value in result_set if bool(search(r"[\d]+", value)) == True and "," in value]
         result_set = [value for value in result_set if value not in dataset]
         amount_unpaids: List[int] = self.extractStateCapitalAmountUnpaid(result_set)
-        print(f"{result_set=}\n{types=}\n{amounts=}\n{currencies=}\n{stated_capitals=}")
+        share_values: List[int] = self.extractStateCapitalShareValue(result_set)
+        print(f"{result_set=}\n{types=}\n{amounts=}\n{currencies=}\n{stated_capitals=}\n{amount_unpaids=}\n{share_values=}")
         exit()
         # type: str = " ".join([result_set[result_set.index("Type of Shares") + 4], result_set[result_set.index("Type of Shares") + 5]]).title()
         # amount: int = int(result_set[[index for index, value in enumerate(result_set) if "No. of Shares" in value][0] + 5].split(" ")[0])
@@ -2608,6 +2609,22 @@ class Document_Reader:
             "amount_unpaid": amount_unpaid,
             "par_value": par_value
         }
+
+    def extractStateCapitalShareValue(self, result_set: List[str]) -> List[int]:
+        """
+        Extracting the share value of the stated capital of a
+        private domestic company.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [int]
+        """
+        response: List[int] = []
+        for index in range(0, len(result_set), 1):
+            response.append(int(result_set[index].split(" ")[-1]))
+        return response
 
     def extractStateCapitalAmountUnpaid(self, result_set: List[str]) -> List[int]:
         """
