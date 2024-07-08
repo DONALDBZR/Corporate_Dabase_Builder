@@ -380,3 +380,41 @@ class Company_Details(Database_Handler):
             response = 503
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {response}\nError: {error}")
         return response
+
+    def updateCorporateMetadataDomesticCivil(self, data: Dict[str, Union[str, int]], identifier: int) -> int:
+        """
+        Updating the Corporate Metadata for a domestic company.
+
+        Parameters:
+            data: {name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int, is_extracted: int, company_identifier: int, company_type: string}: The data that has been extracted for the company details table.
+            identifier: int: The identifier of the company.
+
+        Returns:
+            int
+        """
+        response: int
+        try:
+            parameters: Tuple[str, str, str, int, str, str, int, int, int, str, int] = (
+                str(data["name"]),
+                str(data["file_number"]),
+                str(data["category"]),
+                int(data["date_incorporation"]),
+                str(data["nature"]),
+                str(data["status"]),
+                int(data["is_extracted"]),
+                int(data["date_verified"]),
+                int(data["company_identifier"]),
+                str(data["company_type"]),
+                identifier
+            )
+            self.updateData(
+                table=self.getTableName(),
+                values="name = %s, file_number = %s, category = %s, date_incorporation = %s, nature = %s, status = %s, is_extracted = %s, date_verified = %s, company_identifier = %s, company_type = %s",
+                parameters=parameters, # type: ignore
+                condition="identifier = %s"
+            )
+            response = 202
+        except Error as error:
+            response = 503
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {response}\nError: {error}")
+        return response
