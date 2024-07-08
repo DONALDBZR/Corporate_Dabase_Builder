@@ -860,7 +860,7 @@ class Document_Reader:
                 "position": positions[index].title(),
                 "name": names[index].title(),
                 "address": addresses[index].title(),
-                "date_appointed": int(datetime.strptime(date_appointeds[index], "%d/%m/%Y").timestamp())
+                "date_appointment": int(datetime.strptime(date_appointeds[index], "%d/%m/%Y").timestamp())
             })
         return response
 
