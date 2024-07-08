@@ -505,8 +505,32 @@ class Document_Reader:
         end_index: int = result_set.index("Start Date")
         result_set = result_set[start_index:end_index]
         administrator: Dict[str, Union[str, int]] = self.__extractDataDomesticCivilCivilAdministrators(result_set)
-        print(f"{result_set=}\n{administrator=}")
+        accounts: List[Dict[str, int]] = self._extractDataDomesticCivilCivilAdministratorsAccounts(result_set)
+        print(f"{result_set=}\n{administrator=}\n{accounts=}")
         exit()
+
+    def _extractDataDomesticCivilCivilAdministratorsAccounts(self, result_set: List[str]) -> List[Dict[str, int]]:
+        """
+        Extracting the accounts of the administrators of a société
+        civile.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [{date_filled: int, date_from: int, date_to: int}]
+        """
+        start_index: int = result_set.index("Accounts of Administrator") + 1
+        end_index: int = result_set.index("Winding Up Details")
+        result_set = result_set[start_index:end_index]
+        result_set = [value for value in result_set if "Date Filed" not in value]
+        result_set = [value for value in result_set if "From" not in value]
+        result_set = [value for value in result_set if "To" not in value]
+        if len(result_set) > 0:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractDataDomesticCivilCivilAdministratorsAccounts()")
+            exit()
+        else:
+            return []
 
     def __extractDataDomesticCivilCivilAdministrators(self, result_set: List[str]) -> Dict[str, Union[str, int]]:
         """
