@@ -464,7 +464,7 @@ class Document_Reader:
             exit()
         return response
 
-    def _extractDataDomesticCivilCivil(self, result_set: List[str]) -> Dict:
+    def _extractDataDomesticCivilCivil(self, result_set: List[str]) -> Dict[str, Union[int, Dict[str, Union[str, int]], List[Dict[str, str]], Dict[str, str], List[Dict[str, Union[str, int]]], Dict[str, Union[Dict[str, Union[str, int]], List[int]]]]]:
         """
         Extracting the data from the portable document file version
         of the corporate registry based on the status of the file
@@ -476,9 +476,8 @@ class Document_Reader:
             result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
 
         Returns:
-            {status: int, company_details: {name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}, business_details: [{registered_address: string, name: string, nature: string, operational: string}] | {registered_address: string, name: string, nature: string, operational: string}, state_capital: [{type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}], office_bearers: [{position: string, name: string, address: string, date_appointed: int}], shareholders: [{name: string, amount: int, type: string, currency: string}], liquidators: {liquidator: {name: string, appointed_date: int, address: string}, affidavits: [{date_filled: int, date_from: int, date_to: int}]}, receivers: {receiver: {name: string, date_appointed: int, address: string}, reports: [{date_filled: int, date_from: int, date_to: int}], affidavits: [{date_filled: int, date_from: int, date_to: int}]}, administrators: {administrator: {name: string, date_appointed: int, designation: string, address: string}, accounts: [{date_filled: int, date_from: int, date_to: int}]}, details: [{type: string, date_start: int, date_end: int, status: string}]}
+            {status: int, company_details: {name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}, business_details: [{registered_address: string, name: string, nature: string, operational: string}] | {registered_address: string, name: string, nature: string, operational: string}, state_capital: [{type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}], office_bearers: [{position: string, name: string, address: string, date_appointed: int}], shareholders: [{name: string, amount: int, type: string, currency: string}], liquidators: {liquidator: {name: string, appointed_date: int, address: string}, affidavits: [{date_filled: int, date_from: int, date_to: int}]}, receivers: {receiver: {name: string, date_appointed: int, address: string}, reports: [{date_filled: int, date_from: int, date_to: int}], affidavits: [{date_filled: int, date_from: int, date_to: int}]}, administrators: {administrator: {name: string, date_appointed: int, designation: string, address: string}, accounts: [{date_filled: int, date_from: int, date_to: int}]}, details: [{type: string, date_start: int, date_end: int, status: string}], objections: [{date_objection: int, objector: string}]}
         """
-        response: Dict
         company_details: Dict[str, Union[str, int]] = self._extractDataDomesticCivilCivilCompanyDetails(result_set)
         business_details: Union[List[Dict[str, str]], Dict[str, str]] = self._extractDataDomesticCivilCivilBusinessDetails(result_set)
         state_capital: List[Dict[str, Union[str, int]]] = self._extractDataDomesticCivilCivilStateCapital(result_set)
@@ -489,8 +488,19 @@ class Document_Reader:
         administrators: Dict[str, Union[Dict[str, Union[str, int]], List[int]]] = self._extractDataDomesticCivilCivilAdministrators(result_set)
         details: List[Dict[str, Union[str, int]]] = self._extractDataDomesticCivilCivilDetails(result_set)
         objections: List[Dict[str, Union[str, int]]] = self._extractDataDomesticCivilCivilObjections(result_set)
-        print(f"{result_set=}\n{company_details=}\n{business_details=}\n{state_capital=}\n{office_bearers=}\n{shareholders=}\n{liquidators=}\n{receivers=}\n{administrators=}\n{details=}\n{objections=}")
-        exit()
+        response: Dict[str, Union[int, Dict[str, Union[str, int]], List[Dict[str, str]], Dict[str, str], List[Dict[str, Union[str, int]]], Dict[str, Union[Dict[str, Union[str, int]], List[int]]]]] = {
+            "status": 200,
+            "company_details": company_details,
+            "business_details": business_details,
+            "state_capital": state_capital,
+            "office_bearers": office_bearers,
+            "shareholders": shareholders,
+            "liquidators": liquidators,
+            "receivers": receivers,
+            "administrators": administrators,
+            "details": details,
+            "objections": objections
+            }
         return response
 
     def _extractDataDomesticCivilCivilObjections(self, result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
