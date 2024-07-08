@@ -93,3 +93,29 @@ class Office_Bearers(Database_Handler):
             status = 503
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {status}\nError: {error}")
         return response
+
+    def _getPossiblePositions(self, result_set: Union[List[RowType], List[Dict[str, str]]]) -> Dict[str, Union[int, List[str]]]:
+        """
+        Formatting the result set data in the correct format for the
+        application.
+
+        Parameters:
+            result_set: [{position: string}]: The list of positions for the office bearers.
+
+        Returns:
+            {status: int, response: [string]}
+        """
+        response: Dict[str, Union[int, List[str]]]
+        status: int
+        data: List[str]
+        if len(result_set) > 0:
+            status = 200
+            data = [value["position"] for value in result_set]  # type: ignore
+        else:
+            status = 204
+            data = []
+        response = {
+            "status": status,
+            "response": data
+        }
+        return response
