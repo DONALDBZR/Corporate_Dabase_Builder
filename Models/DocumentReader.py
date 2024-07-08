@@ -523,11 +523,27 @@ class Document_Reader:
         Returns:
             [{date_filled: int, date_from: int, date_to: int}]
         """
-        start_index: int = result_set.index("Affidavits of Receiver")
-        end_index: int = result_set.index("Accounts of Administrator")
-        result_set = result_set[start_index:end_index]
-        print(f"{result_set=}")
-        exit()
+        start_index: int = result_set.index("Date Filed")
+        result_set = result_set[start_index:]
+        start_index = result_set.index("Date Filed")
+        end_index: int = result_set.index("Date Filed") + 4
+        dataset: List[str] = result_set[start_index:end_index]
+        start_index = int(len(dataset) / 2)
+        dataset = dataset[start_index:]
+        start_index = result_set.index("To")
+        end_index = result_set.index("To") + 4
+        date_to: List[str] = result_set[start_index:end_index]
+        end_index = int(len(date_to) / 2)
+        date_to = date_to[:end_index]
+        result_set = dataset + date_to
+        result_set = [value for value in result_set if "Date Filed" not in value]
+        result_set = [value for value in result_set if "From" not in value]
+        result_set = [value for value in result_set if "To" not in value]
+        if len(result_set) > 0:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractDataDomesticCivilCivilAffidavits()")
+            exit()
+        else:
+            return []
 
     def _extractDataDomesticCivilCivilReports(self, result_set: List[str]) -> List[Dict[str, int]]:
         """
