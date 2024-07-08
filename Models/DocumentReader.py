@@ -2598,6 +2598,7 @@ class Document_Reader:
             response.append({
                 "type": types[index],
                 "amount": amounts[index],
+                "currency": currencies[index],
                 "stated_capital": stated_capitals[index],
                 "amount_unpaid": amount_unpaids[index],
                 "par_value": share_values[index]
