@@ -605,17 +605,8 @@ class Builder:
             business_detail_response: int = self.storeCorporateDataDomesticCivilBusinessDetail(company_detail_response, dataset["business_details"], document_file) # type: ignore
             office_bearers_response: int = self.storeCorporateDataDomesticOfficeBearers(business_detail_response, dataset["office_bearers"], document_file) # type: ignore
             state_capital_response: int = self.storeCorporateDataDomesticStateCapital(office_bearers_response, dataset["state_capital"], document_file) # type: ignore
-            print(f"{data_extraction_status=}\n{company_detail_response=}\n{business_detail_response=}\n{office_bearers_response=}\n{dataset['state_capital']=}")
-            exit()
-            certificate_response: int = self.storeCorporateDataDomesticCertificate(business_detail_response, dataset["certificates"], document_file) # type: ignore
-            shareholder_response: int = self.storeCorporateDataDomesticShareholders(office_bearers_response, dataset["shareholders"], document_file) # type: ignore
-            member_response: int = self.storeCorporateDataDomesticMembers(shareholder_response, dataset["members"], document_file) # type: ignore
-            annual_return_response: int = self.storeCorporateDataDomesticAnnualReturn(member_response, dataset["annual_return"], document_file) # type: ignore
-            financial_summary_response: int = self.storeCorporateDataDomesticFinancialSummary(annual_return_response, dataset["financial_summaries"], document_file) # type: ignore
-            profit_statement_response: int = self.storeCorporateDataDomesticProfitStatement(financial_summary_response, dataset["profit_statement"], document_file) # type: ignore
-            balance_sheet_response: int = self.storeCorporateDataDomesticBalanceSheet(state_capital_response, dataset["balance_sheet"], document_file) # type: ignore
-            charges_response: int = self.storeCorporateDataDomesticCharges(balance_sheet_response, dataset["charges"], document_file) # type: ignore
-            liquidators_response: int = self.storeCorporateDataDomesticLiquidators(charges_response, dataset["liquidators"], document_file) # type: ignore
+            shareholder_response: int = self.storeCorporateDataDomesticShareholders(state_capital_response, dataset["shareholders"], document_file) # type: ignore
+            liquidators_response: int = self.storeCorporateDataDomesticLiquidators(shareholder_response, dataset["liquidators"], document_file) # type: ignore
             receivers_response: int = self.storeCorporateDataDomesticReceivers(liquidators_response, dataset["receivers"], document_file) # type: ignore
             administrators_response: int = self.storeCorporateDataDomesticAdministrators(receivers_response, dataset["administrators"], document_file) # type: ignore
             details_response: int = self.storeCorporateDataDomesticDetails(administrators_response, dataset["details"], document_file) # type: ignore
