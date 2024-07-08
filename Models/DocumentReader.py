@@ -18,6 +18,7 @@ from pdfminer.high_level import extract_text
 from datetime import datetime
 from json import dumps
 from re import findall, search, split
+from Models.OfficeBearers import Office_Bearers
 
 
 class Document_Reader:
@@ -37,6 +38,11 @@ class Document_Reader:
     information which allows the application to operate
     smoothly.
     """
+    __office_bearers: Office_Bearers
+    """
+    The model which will interact exclusively with the Office
+    Bearers.
+    """
 
     def __init__(self) -> None:
         """
@@ -45,6 +51,7 @@ class Document_Reader:
         """
         self.ENV = Environment()
         self.setLogger(Corporate_Database_Builder_Logger())
+        self.setOfficeBearer(Office_Bearers())
         self.getLogger().inform("The builder has been initialized and all of its dependencies are injected!")
 
     def getLogger(self) -> Corporate_Database_Builder_Logger:
@@ -52,6 +59,12 @@ class Document_Reader:
 
     def setLogger(self, logger: Corporate_Database_Builder_Logger) -> None:
         self.__logger = logger
+
+    def getOfficeBearer(self) -> Office_Bearers:
+        return self.__office_bearer
+
+    def setOfficeBearer(self, office_bearer: Office_Bearers) -> None:
+        self.__office_bearer = office_bearer
 
     def generatePortableDocumentFile(self, dataset: DocumentFiles) -> int:
         """
@@ -496,9 +509,30 @@ class Document_Reader:
         result_set = [value for value in result_set if "Appointed Date" not in value]
         date_appointeds: List[str] = self._extractDataDomesticCivilCivilOfficeBearersDateAppointed(result_set)
         result_set = [value for value in result_set if value not in date_appointeds]
-        addresses: List[str] = self._extractDataDomesticCivilCivilOfficeBearersAddresses(result_set)
+        office_bearers_addresses: Dict[str, List[str]] = self._extractDataDomesticCivilCivilOfficeBearersAddresses(result_set)
+        result_set = office_bearers_addresses["result_set"]
+        addresses = office_bearers_addresses["addresses"]
+        positions: List[str] = self._extractDataDomesticCivilCivilOfficeBearersPositions(result_set)
+        result_set = [value for value in result_set if value not in positions]
         print(f"{result_set=}\n{date_appointeds=}\n{addresses=}")
         exit()
+        return response
+
+    def _extractDataDomesticCivilCivilOfficeBearersPositions(self, result_set: List[str]) -> List[str]:
+        """
+        Extracting the positions of the office bearers of a société
+        civile.
+
+        Parameters:
+            result_set: [string]: The result set of the office bearers.
+
+        Returns:
+            [string]
+        """
+        possible_positions: List[str] = self.getOfficeBearer().getPossiblePositions()
+        possible_positions.append("GERANT")
+        possible_positions = list(set(possible_positions))
+        response: List[str] = [value for value in result_set if value in possible_positions]
         return response
 
     def _extractDataDomesticCivilCivilOfficeBearersAddresses(self, result_set: List[str]) -> Dict[str, List[str]]:
