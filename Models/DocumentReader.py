@@ -1467,7 +1467,7 @@ class Document_Reader:
             annual_return: List[Dict[str, int]] = self.extractAnnualReturns(portable_document_file_data_result_set)
             financial_summaries: List[Dict[str, Union[int, str]]] = self.extractFinancialSummaries(portable_document_file_data_result_set)
             profit_statement: Dict[str, Union[Dict[str, Union[int, str]], float]] = self.extractProfitStatements(portable_document_file_data_result_set)
-            state_capital: Dict[str, Union[str, int]] = self.extractStateCapital(portable_document_file_data_result_set)
+            state_capital: List[Dict[str, Union[str, int]]] = self.extractStateCapital(portable_document_file_data_result_set)
             balance_sheet: Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]] = self.extractBalanceSheet(portable_document_file_data_result_set)
             charges: List[Dict[str, Union[int, str]]] = self.extractCharges(portable_document_file_data_result_set)
             liquidators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractLiquidators(portable_document_file_data_result_set)
@@ -2563,7 +2563,7 @@ class Document_Reader:
             response.append(office_bearer)
         return response
 
-    def extractStateCapital(self, portable_document_file_result_set: List[str]) -> Dict[str, Union[str, int]]:
+    def extractStateCapital(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
         """
         Extracting the data for the share capital from the result
         set.
@@ -2572,12 +2572,20 @@ class Document_Reader:
             portable_document_file_result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
 
         Returns:
-            {type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}
+            [{type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}]
         """
         start_index: int = portable_document_file_result_set.index("Particulars of Stated Capital") + 1
         end_index: int = portable_document_file_result_set.index("Certificate (Issued by Other Institutions)")
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
-        type: str = " ".join([result_set[result_set.index("Type of Shares") + 4], result_set[result_set.index("Type of Shares") + 5]]).title()
+        result_set = [value for value in result_set if "Type of Shares" not in value]
+        result_set = [value for value in result_set if "No. of Shares Currency" not in value]
+        result_set = [value for value in result_set if "Stated Capital" not in value]
+        result_set = [value for value in result_set if "Amount Unpaid Par Value" not in value]
+        types: List[str] = [f"{value} SHARES" for value in " ".join([value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == False]).split(" SHARES") if value != ""]
+        amounts: List[int] = self.extractStateCapitalAmount(result_set)
+        print(f"{result_set=}\n{types=}\n{amounts=}")
+        exit()
+        # type: str = " ".join([result_set[result_set.index("Type of Shares") + 4], result_set[result_set.index("Type of Shares") + 5]]).title()
         amount: int = int(result_set[[index for index, value in enumerate(result_set) if "No. of Shares" in value][0] + 5].split(" ")[0])
         currency: str = " ".join([result_set[[index for index, value in enumerate(result_set) if "No. of Shares" in value][0] + 5].split(" ")[1], result_set[[index for index, value in enumerate(result_set) if "No. of Shares" in value][0] + 5].split(" ")[2]])
         stated_capital: int = int(result_set[result_set.index("Stated Capital") + 5].replace(",", ""))
@@ -2591,6 +2599,24 @@ class Document_Reader:
             "amount_unpaid": amount_unpaid,
             "par_value": par_value
         }
+
+    def extractStateCapitalAmount(self, result_set: List[str]) -> List[int]:
+        """
+        Extracting the amount of shares of the stated capital of a
+        private domestic company.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [int]
+        """
+        response: List[int] = []
+        amounts: List[str] = [value for value in result_set if bool(search(r"[\d\s]+", value)) == True and bool(search(r"[A-z]+", value)) == True]
+        for index in range(0, len(amounts), 1):
+            amount: int = int("".join(findall(r"[\d]+", amounts[index])))
+            response.append(amount)
+        return response
 
     def extractBusinessDetails(self, portable_document_file_result_set: List[str]) -> List[Dict[str, str]]:
         """
