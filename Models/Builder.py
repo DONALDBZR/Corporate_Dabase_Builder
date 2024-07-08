@@ -577,7 +577,7 @@ class Builder:
             int
         """
         response: int
-        if company_detail.nature.upper() == "Private":
+        if company_detail.nature.upper() == "PRIVATE":
             response = self.storeCorporateDataDomesticPrivate(dataset, document_file)
         else:
             self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataDomestic()")
