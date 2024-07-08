@@ -586,6 +586,76 @@ class Builder:
             exit()
         return response
 
+    def storeCorporateDataDomesticCivil(self, dataset: Dict[str, Union[int, Dict[str, Union[str, int]], List[Dict[str, str]], List[Dict[str, Union[str, int]]], List[Dict[str, int]], Dict[str, Union[Dict[str, Union[int, str]], float]], Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]]], document_file: DocumentFiles) -> int:
+        """
+        Storing the corporate data that is extracted from the
+        corporate registry for a private domestic company.
+
+        Parameters:
+            dataset: {status: int, company_details: {business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}, business_details: {registered_address: string, name: string, nature: string, operational: string}, certificates: [{certificate: string, type: str, date_effective: int, date_expiry: int}], office_bearers: [{position: string, name: string, address: string, date_appointment: int}], shareholders: [{name: string, amount: int, type: string, currency: string}], members: [{name: string, amount: int, date_start: int, currency: string}], annual_return: [{date_annual_return: int, date_annual_meeting: int, date_filled: int}], financial_summaries: [{financial_year: int, currency: string, date_approved: int, unit: int}], profit_statement: {financial_summary: {financial_year: int, currency: string, date_approved: int, unit: int}, turnover: float, cost_of_sales: float, gross_profit: float, other_income: float, distribution_cost: float, administration_cost: float, expenses: float, finance_cost: float, net_profit_before_taxation: float, taxation: float, net_profit: float}, state_capital: {type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}, balance_sheet: {balance_sheet: {financial_year: int, currency: string, unit: int}, assets: {non_current_assets: {property_plant_equipment: float, investment_properties: float, intangible_assets: float, other_investments: float, subsidiaries_investments: float, biological_assets: float, others: float, total: float}, current_assets: {inventories: float, trade: float, cash: float, others: float, total: float}, total: float}, liabilities: {equity_and_liabilities: {share_capital: float, other_reserves: float, retained_earnings: float, others: float, total: float}, non_current: {long_term_borrowings: float, deferred_tax: float, long_term_provisions: float, others: float, total: float}, current: {trade: float, short_term_borrowings: float, current_tax_payable: float, short_term_provisions: float, others: float, total: float}, total_liabilities: float, total_equity_and_liabilities: float}}, charges: [{volume: int, property: string, nature: string, amount: int, date_charged: int, date_filled: int, currency: string}], liquidators: {liquidator: {name: string, appointed_date: int, address: string}, affidavits: [{date_filled: int, date_from: int, date_to: int}]}, receivers: {receiver: {name: string, date_appointed: int, address: string}, reports: [{date_filled: int, date_from: int, date_to: int}], affidavits: [{date_filled: int, date_from: int, date_to: int}]}, administrators: {administrator: {name: string, date_appointed: int, designation: string, address: string}, accounts: [{date_filled: int, date_from: int, date_to: int}]}, details: [{type: string, date_start: int, date_end: int, status: string}], objections: [{date_objection: int, objector: string}]}: The data that has been extracted from the corporate registry.
+            document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
+
+        Returns:
+            int
+        """
+        response: int
+        data_extraction_status: int = dataset["status"] # type: ignore
+        if data_extraction_status == 200:
+            company_detail_response: int = self.storeCorporateDataDomesticCivilCompanyDetails(data_extraction_status, dataset["company_details"], document_file) # type: ignore
+            print(f"{data_extraction_status=}\n{company_detail_response=}")
+            exit()
+            business_detail_response: int = self.storeCorporateDataDomesticBusinessDetail(company_detail_response, dataset["business_details"], document_file) # type: ignore
+            certificate_response: int = self.storeCorporateDataDomesticCertificate(business_detail_response, dataset["certificates"], document_file) # type: ignore
+            office_bearers_response: int = self.storeCorporateDataDomesticOfficeBearers(certificate_response, dataset["office_bearers"], document_file) # type: ignore
+            shareholder_response: int = self.storeCorporateDataDomesticShareholders(office_bearers_response, dataset["shareholders"], document_file) # type: ignore
+            member_response: int = self.storeCorporateDataDomesticMembers(shareholder_response, dataset["members"], document_file) # type: ignore
+            annual_return_response: int = self.storeCorporateDataDomesticAnnualReturn(member_response, dataset["annual_return"], document_file) # type: ignore
+            financial_summary_response: int = self.storeCorporateDataDomesticFinancialSummary(annual_return_response, dataset["financial_summaries"], document_file) # type: ignore
+            profit_statement_response: int = self.storeCorporateDataDomesticProfitStatement(financial_summary_response, dataset["profit_statement"], document_file) # type: ignore
+            state_capital_response: int = self.storeCorporateDataDomesticStateCapital(profit_statement_response, dataset["state_capital"], document_file) # type: ignore
+            balance_sheet_response: int = self.storeCorporateDataDomesticBalanceSheet(state_capital_response, dataset["balance_sheet"], document_file) # type: ignore
+            charges_response: int = self.storeCorporateDataDomesticCharges(balance_sheet_response, dataset["charges"], document_file) # type: ignore
+            liquidators_response: int = self.storeCorporateDataDomesticLiquidators(charges_response, dataset["liquidators"], document_file) # type: ignore
+            receivers_response: int = self.storeCorporateDataDomesticReceivers(liquidators_response, dataset["receivers"], document_file) # type: ignore
+            administrators_response: int = self.storeCorporateDataDomesticAdministrators(receivers_response, dataset["administrators"], document_file) # type: ignore
+            details_response: int = self.storeCorporateDataDomesticDetails(administrators_response, dataset["details"], document_file) # type: ignore
+            objections_response: int = self.storeCorporateDataDomesticObjections(details_response, dataset["objections"], document_file) # type: ignore
+            response = objections_response
+        else:
+            response = 500
+            self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {data_extraction_status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
+        return response
+
+    def storeCorporateDataDomesticCivilCompanyDetails(self, status: int, company_details: Dict[str, Union[str, int]], document_file: DocumentFiles) -> int:
+        """
+        Executing the data manipulation for the company details of a
+        société civile.
+
+        Parameters:
+            status: int: The status of the previous operation.
+            company_details: {name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}: The data that has been extracted for the company details table.
+            document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
+
+        Returns:
+            int
+        """
+        response: int
+        date_verified: int = int(time())
+        is_extracted: int = 1
+        company_identifier: int = int("".join(findall(r"\d+", str(company_details["file_number"]))))
+        company_type: str = "".join(findall(r"[A-Z]+", str(company_details["file_number"])))
+        if status == 200:
+            company_details["date_verified"] = date_verified
+            company_details["is_extracted"] = is_extracted
+            company_details["company_identifier"] = company_identifier
+            company_details["company_type"] = company_type
+            response = self.getCompanyDetails().updateCorporateMetadataDomesticCivil(company_details, document_file.company_detail)
+            self.getLogger().inform(f"The data has been successfully updated into the Company Details table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {company_details}")
+        else:
+            response = status
+            self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
+        return response
+
     def storeCorporateDataDomesticPrivate(self, dataset: Dict[str, Union[int, Dict[str, Union[str, int]], List[Dict[str, str]], List[Dict[str, Union[str, int]]], List[Dict[str, int]], Dict[str, Union[Dict[str, Union[int, str]], float]], Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]]], document_file: DocumentFiles) -> int:
         """
         Storing the corporate data that is extracted from the
@@ -601,7 +671,7 @@ class Builder:
         response: int
         data_extraction_status: int = dataset["status"] # type: ignore
         if data_extraction_status == 200:
-            company_detail_response: int = self.storeCorporateDataDomesticCompanyDetails(data_extraction_status, dataset["company_details"], document_file) # type: ignore
+            company_detail_response: int = self.storeCorporateDataDomesticPrivateCompanyDetails(data_extraction_status, dataset["company_details"], document_file) # type: ignore
             business_detail_response: int = self.storeCorporateDataDomesticBusinessDetail(company_detail_response, dataset["business_details"], document_file) # type: ignore
             certificate_response: int = self.storeCorporateDataDomesticCertificate(business_detail_response, dataset["certificates"], document_file) # type: ignore
             office_bearers_response: int = self.storeCorporateDataDomesticOfficeBearers(certificate_response, dataset["office_bearers"], document_file) # type: ignore
@@ -1073,7 +1143,7 @@ class Builder:
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {response}\nCompany Detail Identifier: {company_detail}")
         return response
 
-    def storeCorporateDataDomesticCompanyDetails(self, data_extraction: int, company_details: Dict[str, Union[str, int]], document_file: DocumentFiles) -> int:
+    def storeCorporateDataDomesticPrivateCompanyDetails(self, data_extraction: int, company_details: Dict[str, Union[str, int]], document_file: DocumentFiles) -> int:
         """
         Doing the data manipulation on the Company Details result
         set.
@@ -1096,7 +1166,7 @@ class Builder:
             company_details["is_extracted"] = is_extracted
             company_details["company_identifier"] = company_identifier
             company_details["company_type"] = company_type
-            response = self.getCompanyDetails().updateCorporateMetadataDomestic(company_details, document_file.company_detail)
+            response = self.getCompanyDetails().updateCorporateMetadataDomesticPrivate(company_details, document_file.company_detail)
             self.getLogger().inform(f"The data has been successfully updated into the Company Details table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {company_details}")
         else:
             response = data_extraction
