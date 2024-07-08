@@ -2294,7 +2294,7 @@ class Document_Reader:
             type_shares.append(type_share)
         return type_shares
 
-    def extractShareholdersTypeShares(self, result_set: List[str]) -> List[str]:
+    def extractShareholdersTypeShares(self, result_set: List[str]) -> Dict[str, List[str]]:
         """
         Extracting the type of shares from the result set.
 
@@ -2302,15 +2302,19 @@ class Document_Reader:
             result_set: [string]: The result set to be used as a dataset.
 
         Returns:
-            [string]
+            {result_set: [string], types: [string]}
         """
-        response: List[str] = []
-        types: List[str] = [value for value in result_set if "SHARES" in value]
-        result_set = types
-        for index in range(0, len(result_set), 1):
-            type_shares: List[str] = findall(r"\b[A-Z]+\b", result_set[index])
-            type_share: str = self._extractShareholdersTypeShares(type_shares)
-            response = self.__extractShareholdersTypeShares(response, type_share)
+        types: List[str] = []
+        dataset = [value for value in result_set if bool(search(r"[\d]+", value)) == True]
+        for index in range(0, len(dataset), 1):
+            type: str = " ".join([value for value in split(" ", dataset[index]) if bool(search(r"[\d]+", value)) == False])
+            types.append(type)
+        for index in range(0, len(types), 1):
+            result_set = [value for value in result_set if types[index] not in value]
+        response: Dict[str, List[str]] = {
+            "types": types,
+            "result_set": result_set
+        }
         return response
 
     def _extractShareholdersAmountShares(self, amount_shares: List[str]) -> Union[int, str]:
@@ -2378,20 +2382,27 @@ class Document_Reader:
         start_index: int = portable_document_file_result_set.index("Shareholders") + 1
         end_index: int = portable_document_file_result_set.index("Members (Applicable for Company Limited by Guarantee or Shares and Guarantee)")
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
-        result_set = [value for value in result_set if "Date" not in value]
-        result_set = [value for value in result_set if "Name" not in value]
+        start_index = result_set.index("Appointed Date") + 1
+        result_set = result_set[start_index:]
         result_set = [value for value in result_set if "Type of Shares" not in value]
         result_set = [value for value in result_set if "Currency" not in value]
-        result_set = [value for value in result_set if "Page" not in value]
-        result_set = [value for value in result_set if " of " not in value]
-        result_set = [value for value in result_set if "/" not in value]
-        result_set = [value for value in result_set if "Shareholders" not in value]
         result_set = [value for value in result_set if "STREET" not in value]
         result_set = [value for value in result_set if "MAURITIUS" not in value]
-        result_set = [value for value in result_set if "Service Address" not in value]
-        names: List[str] = self.extractShareholdersNames(result_set)
-        type_of_shares: List[str] = self.extractShareholdersTypeShares(result_set)
+        result_set = [value for value in result_set if "ROAD" not in value]
+        result_set = [value for value in result_set if "/" not in value]
         amount_of_shares: List[int] = self.extractShareholdersAmountShares(result_set)
+        type_of_shares: Dict[str, List[str]] = self.extractShareholdersTypeShares(result_set)
+        result_set = type_of_shares["result_set"]
+        types = type_of_shares["types"]
+        print(f"{result_set=}\n{amount_of_shares=}\n{types=}")
+        exit()
+        # result_set = [value for value in result_set if "Date" not in value]
+        # result_set = [value for value in result_set if "Name" not in value]
+        # result_set = [value for value in result_set if "Page" not in value]
+        # result_set = [value for value in result_set if " of " not in value]
+        # result_set = [value for value in result_set if "Shareholders" not in value]
+        # result_set = [value for value in result_set if "Service Address" not in value]
+        names: List[str] = self.extractShareholdersNames(result_set)
         currencies: List[str] = [value for value in result_set if result_set[-1] == value]
         for index in range(0, len(names), 1):
             data: Dict[str, Union[str, int]] = {
