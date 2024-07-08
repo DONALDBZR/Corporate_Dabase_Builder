@@ -1124,7 +1124,7 @@ class Builder:
         a société civile or société commerciale.
 
         Parameters:
-            status: int: The status of the data manipulation.
+            status: int: The status of the previous operation.
             business_details: {registered_address: string}: The data that has been extracted for the business details table.
             document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
 
@@ -1133,7 +1133,7 @@ class Builder:
         """
         response: int
         if status == 202:
-            response = self.getBusinessDetails().addBusinessDetailsDomestic(business_details, document_file.company_detail)
+            response = self.getBusinessDetails().addBusinessDetailsDomesticCivil(business_details, document_file.company_detail)
             self.getLogger().inform(f"The data has been successfully updated into the Business Details table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {business_details}")
         else:
             response = status
