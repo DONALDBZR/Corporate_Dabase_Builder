@@ -8,8 +8,9 @@ Authors:
 
 
 from Models.DatabaseHandler import Database_Handler
-from typing import Union, Dict, Tuple
+from typing import Union, Dict, Tuple, List
 from mysql.connector.errors import Error
+from mysql.connector.types import RowType
 
 
 class Office_Bearers(Database_Handler):
@@ -68,4 +69,27 @@ class Office_Bearers(Database_Handler):
         except Error as error:
             response = 503
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {response}\nError: {error}")
+        return response
+
+    def getPossiblePositions(self) -> List[str]:
+        """
+        Retrieving all of the possible positions that are stored in
+        the relational database server.
+        
+        Returns:
+            [string]
+        """
+        response: List[str] = []
+        try:
+            result_set: Union[List[RowType], List[Dict[str, str]]] = self.getData(
+                table_name=self.getTableName(),
+                parameters=None,
+                column_names="DISTINCT UPPER(position) AS position"
+            )
+            dataset: Dict[str, Union[int, List[str]]] = self._getPossiblePositions(result_set)
+            self.getLogger().inform(f"The data from the {self.getTableName()} table has been successfully retrieved.\nStatus: {dataset['status']}\nData: {dataset['response']}")
+            exit()
+        except Error as error:
+            status = 503
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {status}\nError: {error}")
         return response
