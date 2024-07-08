@@ -476,7 +476,7 @@ class Document_Reader:
             result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
 
         Returns:
-            {status: int, company_details: {name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}, business_details: [{registered_address: string, name: string, nature: string, operational: string}] | {registered_address: string, name: string, nature: string, operational: string}, state_capital: [{type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}], office_bearers: [{position: string, name: string, address: string, date_appointed: int}], shareholders: [{name: string, amount: int, type: string, currency: string}], liquidators: {liquidator: {name: string, appointed_date: int, address: string}, affidavits: [{date_filled: int, date_from: int, date_to: int}]}, receivers: {receiver: {name: string, date_appointed: int, address: string}, reports: [{date_filled: int, date_from: int, date_to: int}], affidavits: [{date_filled: int, date_from: int, date_to: int}]}, administrators: {administrator: {name: string, date_appointed: int, designation: string, address: string}, accounts: [{date_filled: int, date_from: int, date_to: int}]}}
+            {status: int, company_details: {name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}, business_details: [{registered_address: string, name: string, nature: string, operational: string}] | {registered_address: string, name: string, nature: string, operational: string}, state_capital: [{type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}], office_bearers: [{position: string, name: string, address: string, date_appointed: int}], shareholders: [{name: string, amount: int, type: string, currency: string}], liquidators: {liquidator: {name: string, appointed_date: int, address: string}, affidavits: [{date_filled: int, date_from: int, date_to: int}]}, receivers: {receiver: {name: string, date_appointed: int, address: string}, reports: [{date_filled: int, date_from: int, date_to: int}], affidavits: [{date_filled: int, date_from: int, date_to: int}]}, administrators: {administrator: {name: string, date_appointed: int, designation: string, address: string}, accounts: [{date_filled: int, date_from: int, date_to: int}]}, details: [{type: string, date_start: int, date_end: int, status: string}]}
         """
         response: Dict
         company_details: Dict[str, Union[str, int]] = self._extractDataDomesticCivilCivilCompanyDetails(result_set)
@@ -488,9 +488,30 @@ class Document_Reader:
         receivers: Dict[str, Union[Dict[str, Union[str, int]], List[int]]] = self._extractDataDomesticCivilCivilReceivers(result_set)
         administrators: Dict[str, Union[Dict[str, Union[str, int]], List[int]]] = self._extractDataDomesticCivilCivilAdministrators(result_set)
         details: List[Dict[str, Union[str, int]]] = self._extractDataDomesticCivilCivilDetails(result_set)
-        print(f"{result_set=}\n{company_details=}\n{business_details=}\n{state_capital=}\n{office_bearers=}\n{shareholders=}\n{liquidators=}\n{receivers=}\n{administrators=}\n{details=}")
+        objections: List[Dict[str, Union[str, int]]] = self._extractDataDomesticCivilCivilObjections(result_set)
+        print(f"{result_set=}\n{company_details=}\n{business_details=}\n{state_capital=}\n{office_bearers=}\n{shareholders=}\n{liquidators=}\n{receivers=}\n{administrators=}\n{details=}\n{objections=}")
         exit()
         return response
+
+    def _extractDataDomesticCivilCivilObjections(self, result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
+        """
+        Extracting the objections of a société civile.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [{date_objection: int, objector: string}]
+        """
+        start_index: int = result_set.index("Objection Date")
+        end_index: int = result_set.index("Last Annual Registration Fee Paid:")
+        result_set = result_set[start_index:end_index]
+        result_set = [value for value in result_set if "Object" not in value]
+        if len(result_set) > 0:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractDataDomesticCivilCivilObjections()")
+            exit()
+        else:
+            return []
 
     def _extractDataDomesticCivilCivilDetails(self, result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
         """
@@ -1476,7 +1497,7 @@ class Document_Reader:
 
     def extractObjections(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[int, str]]]:
         """
-        Extracting the objections from te result set.
+        Extracting the objections from the result set.
 
         Parameters:
             portable_document_file_result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
