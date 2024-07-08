@@ -441,7 +441,7 @@ class Document_Reader:
             self.getLogger().error(f"The portable document file has not been generated correctly!  The application will abort the extraction.\nStatus: {response['status']}\nFile Location: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
         return response
 
-    def _extractDataDomesticCivil(self, result_set: List[str], business_registration_number: Union[str, None]) -> Dict:
+    def _extractDataDomesticCivil(self, result_set: List[str], business_registration_number: Union[str, None]) -> Dict[str, Union[int, Dict[str, Union[str, int]], List[Dict[str, str]], Dict[str, str], List[Dict[str, Union[str, int]]], Dict[str, Union[Dict[str, Union[str, int]], List[int]]]]]:
         """
         Extracting the data from the portable document file version
         of the corporate registry based on the status of the file
