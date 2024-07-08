@@ -2589,13 +2589,16 @@ class Document_Reader:
         dataset = [value for value in result_set if bool(search(r"[\d]+", value)) == True and bool(search(r"[A-z]+", value)) == True]
         result_set = [value for value in result_set if value not in dataset]
         stated_capitals: List[int] = self.extractStateCapitalStatedCapital(result_set)
+        dataset = [value for value in result_set if bool(search(r"[\d]+", value)) == True and "," in value]
+        result_set = [value for value in result_set if value not in dataset]
+        amount_unpaids: List[int] = self.extractStateCapitalAmountUnpaid(result_set)
         print(f"{result_set=}\n{types=}\n{amounts=}\n{currencies=}\n{stated_capitals=}")
         exit()
         # type: str = " ".join([result_set[result_set.index("Type of Shares") + 4], result_set[result_set.index("Type of Shares") + 5]]).title()
         # amount: int = int(result_set[[index for index, value in enumerate(result_set) if "No. of Shares" in value][0] + 5].split(" ")[0])
         # currency: str = " ".join([result_set[[index for index, value in enumerate(result_set) if "No. of Shares" in value][0] + 5].split(" ")[1], result_set[[index for index, value in enumerate(result_set) if "No. of Shares" in value][0] + 5].split(" ")[2]])
-        stated_capital: int = int(result_set[result_set.index("Stated Capital") + 5].replace(",", ""))
-        amount_unpaid: int = int(result_set[[index for index, value in enumerate(result_set) if "Amount Unpaid" in value][0] + 5].split(" ")[0])
+        # stated_capital: int = int(result_set[result_set.index("Stated Capital") + 5].replace(",", ""))
+        # amount_unpaid: int = int(result_set[[index for index, value in enumerate(result_set) if "Amount Unpaid" in value][0] + 5].split(" ")[0])
         par_value: int = int(result_set[[index for index, value in enumerate(result_set) if "Par Value" in value][0] + 5].split(" ")[1])
         return {
             "type": type,
@@ -2605,6 +2608,22 @@ class Document_Reader:
             "amount_unpaid": amount_unpaid,
             "par_value": par_value
         }
+
+    def extractStateCapitalAmountUnpaid(self, result_set: List[str]) -> List[int]:
+        """
+        Extracting the amount unpaid of the stated capital of a
+        private domestic company.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [int]
+        """
+        response: List[int] = []
+        for index in range(0, len(result_set), 1):
+            response.append(int(result_set[index].split(" ")[0]))
+        return response
 
     def extractStateCapitalStatedCapital(self, result_set: List[str]) -> List[int]:
         """
