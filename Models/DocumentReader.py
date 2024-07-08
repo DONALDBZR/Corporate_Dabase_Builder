@@ -524,8 +524,7 @@ class Document_Reader:
         for index in range(0, len(result_set), 1):
             amounts: List[str] = findall(r"[\d]+", result_set[index])
             amount: str = self.__extractDataDomesticCivilCivilShareholdersAmount(amounts)
-            print(f"Amount[{index}]: {amount}")
-        exit()
+            response = self.___extractDataDomesticCivilCivilShareholdersAmount(response, amount)
         return response
 
     def __extractDataDomesticCivilCivilShareholdersAmount(self, amounts: List[str]) -> str:
