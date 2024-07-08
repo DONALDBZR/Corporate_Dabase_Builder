@@ -523,25 +523,9 @@ class Document_Reader:
         response: List[int] = []
         for index in range(0, len(result_set), 1):
             amounts: List[str] = findall(r"[\d]+", result_set[index])
-            amount: str = self.__extractDataDomesticCivilCivilShareholdersAmount(amounts)
-            response = self.___extractDataDomesticCivilCivilShareholdersAmount(response, amount)
+            amount: Union[int, str] = self._extractShareholdersAmountShares(amounts)
+            response = self.__extractShareholdersAmountShares(response, amount)
         return response
-
-    def __extractDataDomesticCivilCivilShareholdersAmount(self, amounts: List[str]) -> str:
-        """
-        Retrieving the correct data for the amount of shares for a
-        shareholder of a société civile.
-
-        Parameters:
-            amounts: [string]: The dataset of the amounts.
-
-        Returns:
-            string
-        """
-        if len(amounts) == 1:
-            return "".join(amounts)
-        else:
-            return "NaA"
 
     def _extractDataDomesticCivilCivilOfficeBearers(self, result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
         """
