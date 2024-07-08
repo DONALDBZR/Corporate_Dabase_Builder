@@ -602,9 +602,9 @@ class Builder:
         data_extraction_status: int = dataset["status"] # type: ignore
         if data_extraction_status == 200:
             company_detail_response: int = self.storeCorporateDataDomesticCivilCompanyDetails(data_extraction_status, dataset["company_details"], document_file) # type: ignore
-            print(f"{data_extraction_status=}\n{company_detail_response=}")
+            business_detail_response: int = self.storeCorporateDataDomesticCivilBusinessDetail(company_detail_response, dataset["business_details"], document_file) # type: ignore
+            print(f"{data_extraction_status=}\n{company_detail_response=}\n{business_detail_response=}")
             exit()
-            business_detail_response: int = self.storeCorporateDataDomesticBusinessDetail(company_detail_response, dataset["business_details"], document_file) # type: ignore
             certificate_response: int = self.storeCorporateDataDomesticCertificate(business_detail_response, dataset["certificates"], document_file) # type: ignore
             office_bearers_response: int = self.storeCorporateDataDomesticOfficeBearers(certificate_response, dataset["office_bearers"], document_file) # type: ignore
             shareholder_response: int = self.storeCorporateDataDomesticShareholders(office_bearers_response, dataset["shareholders"], document_file) # type: ignore
@@ -672,7 +672,7 @@ class Builder:
         data_extraction_status: int = dataset["status"] # type: ignore
         if data_extraction_status == 200:
             company_detail_response: int = self.storeCorporateDataDomesticPrivateCompanyDetails(data_extraction_status, dataset["company_details"], document_file) # type: ignore
-            business_detail_response: int = self.storeCorporateDataDomesticBusinessDetail(company_detail_response, dataset["business_details"], document_file) # type: ignore
+            business_detail_response: int = self.storeCorporateDataDomesticPrivateBusinessDetail(company_detail_response, dataset["business_details"], document_file) # type: ignore
             certificate_response: int = self.storeCorporateDataDomesticCertificate(business_detail_response, dataset["certificates"], document_file) # type: ignore
             office_bearers_response: int = self.storeCorporateDataDomesticOfficeBearers(certificate_response, dataset["office_bearers"], document_file) # type: ignore
             shareholder_response: int = self.storeCorporateDataDomesticShareholders(office_bearers_response, dataset["shareholders"], document_file) # type: ignore
@@ -1096,7 +1096,7 @@ class Builder:
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
-    def storeCorporateDataDomesticBusinessDetail(self, company_detail: int, business_details: List[Dict[str, str]], document_file: DocumentFiles) -> int:
+    def storeCorporateDataDomesticPrivateBusinessDetail(self, company_detail: int, business_details: List[Dict[str, str]], document_file: DocumentFiles) -> int:
         """
         Doing the data manipulation on the Business Details result
         set.
@@ -1111,14 +1111,36 @@ class Builder:
         """
         response: int
         if company_detail == 202:
-            response = self._storeCorporateDataDomesticBusinessDetail(business_details, document_file.company_detail)
+            response = self._storeCorporateDataDomesticPrivateBusinessDetail(business_details, document_file.company_detail)
             self.getLogger().inform(f"The data has been successfully updated into the Business Details table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {business_details}")
         else:
             response = company_detail
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {company_detail}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
-    def _storeCorporateDataDomesticBusinessDetail(self, business_details: List[Dict[str, str]], company_detail: int) -> int:
+    def storeCorporateDataDomesticCivilBusinessDetail(self, status: int, business_details: Dict[str, str], document_file: DocumentFiles) -> int:
+        """
+        Manipulating the data processed for the business details of
+        a société civile or société commerciale.
+
+        Parameters:
+            status: int: The status of the data manipulation.
+            business_details: {registered_address: string}: The data that has been extracted for the business details table.
+            document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
+
+        Returns:
+            int
+        """
+        response: int
+        if status == 202:
+            response = self.getBusinessDetails().addBusinessDetailsDomestic(business_details, document_file.company_detail)
+            self.getLogger().inform(f"The data has been successfully updated into the Business Details table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {business_details}")
+        else:
+            response = status
+            self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
+        return response
+
+    def _storeCorporateDataDomesticPrivateBusinessDetail(self, business_details: List[Dict[str, str]], company_detail: int) -> int:
         """
         Adding the business details into the relational database
         server.
