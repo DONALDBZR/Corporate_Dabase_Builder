@@ -511,11 +511,16 @@ class Document_Reader:
         result_set = [value for value in result_set if value not in date_appointeds]
         office_bearers_addresses: Dict[str, List[str]] = self._extractDataDomesticCivilCivilOfficeBearersAddresses(result_set)
         result_set = office_bearers_addresses["result_set"]
-        addresses = office_bearers_addresses["addresses"]
+        addresses: List[str] = office_bearers_addresses["addresses"]
         positions: List[str] = self._extractDataDomesticCivilCivilOfficeBearersPositions(result_set)
-        result_set = [value for value in result_set if value not in positions]
-        print(f"{result_set=}\n{date_appointeds=}\n{addresses=}")
-        exit()
+        names: List[str] = [value for value in result_set if value not in positions]
+        for index in range(0, min([len(date_appointeds), len(addresses), len(positions), len(names)]), 1):
+            response.append({
+                "position": positions[index].title(),
+                "name": names[index].title(),
+                "address": addresses[index].title(),
+                "date_appointed": int(datetime.strptime(date_appointeds[index], "%d/%m/%Y").timestamp())
+            })
         return response
 
     def _extractDataDomesticCivilCivilOfficeBearersPositions(self, result_set: List[str]) -> List[str]:
