@@ -237,7 +237,7 @@ class Company_Details(Database_Handler):
             condition="identifier = %s"
         )
 
-    def updateCorporateMetadataDomestic(self, data: Dict[str, Union[str, int]], identifier: int) -> int:
+    def updateCorporateMetadataDomesticPrivate(self, data: Dict[str, Union[str, int]], identifier: int) -> int:
         """
         Updating the Corporate Metadata for a domestic company.
 
