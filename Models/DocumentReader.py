@@ -485,9 +485,50 @@ class Document_Reader:
         office_bearers: List[Dict[str, Union[str, int]]] = self._extractDataDomesticCivilCivilOfficeBearers(result_set)
         shareholders: List[Dict[str, Union[str, int]]] = self._extractDataDomesticCivilCivilShareholders(result_set)
         liquidators: Dict[str, Union[Dict[str, Union[str, int]], List[int]]] = self._extractDataDomesticCivilCivilLiquidators(result_set)
-        print(f"{result_set=}\n{company_details=}\n{business_details=}\n{state_capital=}\n{office_bearers=}\n{shareholders=}\n{liquidators=}")
+        receivers: Dict[str, Union[Dict[str, Union[str, int]], List[int]]] = self._extractDataDomesticCivilCivilReceivers(result_set)
+        print(f"{result_set=}\n{company_details=}\n{business_details=}\n{state_capital=}\n{office_bearers=}\n{shareholders=}\n{liquidators=}\n{receivers=}")
         exit()
         return response
+
+    def _extractDataDomesticCivilCivilReceivers(self, result_set: List[str]) -> Dict[str, Union[Dict[str, Union[str, int]], List[int]]]:
+        """
+        Extracting the receivers of a société civile.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            {receiver: {name: string, date_appointed: int, address: string}, reports: [{date_filled: int, date_from: int, date_to: int}], affidavits: [{date_filled: int, date_from: int, date_to: int}]}
+        """
+        start_index: int = result_set.index("Receivers")
+        end_index: int = result_set.index("Administrators")
+        result_set = result_set[start_index:end_index]
+        result_set = [value for value in result_set if "Page" not in value]
+        result_set = [value for value in result_set if "Date Issued" not in value]
+        result_set = [value for value in result_set if " of " not in value]
+        receiver: Dict[str, Union[str, int]] = self.__extractDataDomesticCivilCivilReceivers(result_set)
+        print(f"{result_set=}\n{receiver=}")
+        exit()
+
+    def __extractDataDomesticCivilCivilReceivers(self, result_set: List[str]) -> Dict[str, Union[str, int]]:
+        """
+        Extracting the receiver that is related to the receivers of a société civile.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            {name: string, date_appointed: int, address: string}
+        """
+        start_index: int = result_set.index("Receivers") + 1
+        end_index: int = result_set.index("Date Filed")
+        result_set = result_set[start_index:end_index]
+        result_set = [value for value in result_set if ":" not in value]
+        if len(result_set) >= 3:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractReceivers()")
+            exit()
+        else:
+            return {}
 
     def _extractDataDomesticCivilCivilLiquidators(self, result_set: List[str]) -> Dict[str, Union[Dict[str, Union[str, int]], List[int]]]:
         """
@@ -504,7 +545,6 @@ class Document_Reader:
         result_set = result_set[start_index:end_index]
         liquidator: Dict[str, Union[str, int]] = self._extractLiquidators(result_set)
         affidavits: List[Dict[str, int]] = self.extractLiquidatorsAffidavits(result_set)
-        print(f"{result_set=}\n{liquidator=}\n{affidavits=}")
         if not liquidator and len(affidavits) == 0:
             return {}
         else:
