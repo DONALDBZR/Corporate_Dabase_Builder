@@ -501,14 +501,45 @@ class Document_Reader:
             {receiver: {name: string, date_appointed: int, address: string}, reports: [{date_filled: int, date_from: int, date_to: int}], affidavits: [{date_filled: int, date_from: int, date_to: int}]}
         """
         start_index: int = result_set.index("Receivers")
-        end_index: int = result_set.index("Administrators")
+        end_index: int = result_set.index("Accounts of Administrator")
         result_set = result_set[start_index:end_index]
         result_set = [value for value in result_set if "Page" not in value]
         result_set = [value for value in result_set if "Date Issued" not in value]
         result_set = [value for value in result_set if " of " not in value]
         receiver: Dict[str, Union[str, int]] = self.__extractDataDomesticCivilCivilReceivers(result_set)
-        print(f"{result_set=}\n{receiver=}")
+        reports: List[Dict[str, int]] = self._extractDataDomesticCivilCivilReports(result_set)
+        print(f"{result_set=}\n{receiver=}\n{reports=}")
         exit()
+
+    def _extractDataDomesticCivilCivilReports(self, result_set: List[str]) -> List[Dict[str, int]]:
+        """
+        Extracting the reports that are related to the receivers of
+        a société civile.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [{date_filled: int, date_from: int, date_to: int}]
+        """
+        start_index: int = result_set.index("Date Filed")
+        result_set = result_set[start_index:]
+        start_index = result_set.index("To")
+        end_index: int = result_set.index("To") + 3
+        date_to: List[str] = result_set[start_index:end_index]
+        end_index = int(len(date_to) / 2)
+        date_to = date_to[:end_index]
+        end_index = result_set.index("Administrators") - 2
+        result_set = result_set[:end_index]
+        result_set = result_set + date_to
+        result_set = [value for value in result_set if "Date Filed" not in value]
+        result_set = [value for value in result_set if "From" not in value]
+        result_set = [value for value in result_set if "To" not in value]
+        if len(result_set) > 0:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractDataDomesticCivilCivilReports()")
+            exit()
+        else:
+            return []
 
     def __extractDataDomesticCivilCivilReceivers(self, result_set: List[str]) -> Dict[str, Union[str, int]]:
         """
