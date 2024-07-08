@@ -2205,65 +2205,6 @@ class Document_Reader:
         else:
             return []
 
-    def _extractShareholdersNames(self, names: List[str]) -> str:
-        """
-        Building the name of the shareholders.
-
-        Parameters:
-            names: [string]: The list of the names of the shareholders.
-
-        Returns:
-            string
-        """
-        if len(names) > 0 and "SHARES" not in " ".join(names):
-            return " ".join(names)
-        else:
-            return "NaN"
-
-    def extractShareholdersNamesRemoveCombinedElements(self, names: List[str]) -> List[str]:
-        """
-        Checking whether there are duplicate elements before
-        removing them from the array.
-
-        Parameters:
-            names: [string]: The list of the names of the shareholders.
-
-        Returns:
-            [string]
-        """
-        for index, element in enumerate(names):
-            combined = True
-            for other_element in names:
-                if other_element != element and other_element not in element:
-                    combined = False
-                    break
-            if combined:
-                return [element for second_index, element in enumerate(names) if second_index != index]
-        return names
-
-    def extractShareholdersNames(self, result_set: List[str]) -> List[str]:
-        """
-        Extracting the names of the shareholders from the dataset.
-
-        Parameters:
-            result_set: [string]: The result set to be used as a dataset.
-
-        Returns:
-            [string]
-        """
-        response: List[str] = []
-        names: List[str] = list(set(findall(r"\b[A-Z\s]+\b", " ".join(result_set))))
-        names = [value for value in names if "SHARES" not in value]
-        names = [value for value in names if value != " "]
-        names = [value for value in names if value != "  "]
-        names = list(set(names))
-        names = self.extractShareholdersNamesRemoveCombinedElements(names)
-        for index in range(0, len(names), 1):
-            names_processed: List[str] = findall(r"\b[A-Z]+\b", names[index])
-            name: str = self._extractShareholdersNames(names_processed)
-            response = self.__extractNames(response, name)
-        return response
-
     def _extractShareholdersTypeShares(self, type_shares: List[str]) -> str:
         """
         Building the type of the shares of the shareholders.
@@ -2393,22 +2334,14 @@ class Document_Reader:
         amount_of_shares: List[int] = self.extractShareholdersAmountShares(result_set)
         type_of_shares: Dict[str, List[str]] = self.extractShareholdersTypeShares(result_set)
         result_set = type_of_shares["result_set"]
-        types = type_of_shares["types"]
-        print(f"{result_set=}\n{amount_of_shares=}\n{types=}")
-        exit()
-        # result_set = [value for value in result_set if "Date" not in value]
-        # result_set = [value for value in result_set if "Name" not in value]
-        # result_set = [value for value in result_set if "Page" not in value]
-        # result_set = [value for value in result_set if " of " not in value]
-        # result_set = [value for value in result_set if "Shareholders" not in value]
-        # result_set = [value for value in result_set if "Service Address" not in value]
-        names: List[str] = self.extractShareholdersNames(result_set)
-        currencies: List[str] = [value for value in result_set if result_set[-1] == value]
-        for index in range(0, len(names), 1):
+        types: List[str] = type_of_shares["types"]
+        names: List[str] = [value for value in result_set if bool(search(r"[A-Z\s]+", value)) == True and bool(search(r"[a-z]+", value)) == False]
+        currencies: List[str] = [value for value in result_set if value not in names]
+        for index in range(0, min([len(names), len(amount_of_shares), len(types), len(currencies)]), 1):
             data: Dict[str, Union[str, int]] = {
                 "name": names[index].title(),
                 "amount_shares": amount_of_shares[index],
-                "type_shares": type_of_shares[index].title(),
+                "type_shares": types[index].title(),
                 "currency": currencies[index].title()
             }
             response.append(data)
