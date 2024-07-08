@@ -603,16 +603,16 @@ class Builder:
         if data_extraction_status == 200:
             company_detail_response: int = self.storeCorporateDataDomesticCivilCompanyDetails(data_extraction_status, dataset["company_details"], document_file) # type: ignore
             business_detail_response: int = self.storeCorporateDataDomesticCivilBusinessDetail(company_detail_response, dataset["business_details"], document_file) # type: ignore
-            print(f"{data_extraction_status=}\n{company_detail_response=}\n{business_detail_response=}")
+            office_bearers_response: int = self.storeCorporateDataDomesticOfficeBearers(business_detail_response, dataset["office_bearers"], document_file) # type: ignore
+            state_capital_response: int = self.storeCorporateDataDomesticStateCapital(office_bearers_response, dataset["state_capital"], document_file) # type: ignore
+            print(f"{data_extraction_status=}\n{company_detail_response=}\n{business_detail_response=}\n{office_bearers_response=}\n{dataset['state_capital']=}")
             exit()
             certificate_response: int = self.storeCorporateDataDomesticCertificate(business_detail_response, dataset["certificates"], document_file) # type: ignore
-            office_bearers_response: int = self.storeCorporateDataDomesticOfficeBearers(certificate_response, dataset["office_bearers"], document_file) # type: ignore
             shareholder_response: int = self.storeCorporateDataDomesticShareholders(office_bearers_response, dataset["shareholders"], document_file) # type: ignore
             member_response: int = self.storeCorporateDataDomesticMembers(shareholder_response, dataset["members"], document_file) # type: ignore
             annual_return_response: int = self.storeCorporateDataDomesticAnnualReturn(member_response, dataset["annual_return"], document_file) # type: ignore
             financial_summary_response: int = self.storeCorporateDataDomesticFinancialSummary(annual_return_response, dataset["financial_summaries"], document_file) # type: ignore
             profit_statement_response: int = self.storeCorporateDataDomesticProfitStatement(financial_summary_response, dataset["profit_statement"], document_file) # type: ignore
-            state_capital_response: int = self.storeCorporateDataDomesticStateCapital(profit_statement_response, dataset["state_capital"], document_file) # type: ignore
             balance_sheet_response: int = self.storeCorporateDataDomesticBalanceSheet(state_capital_response, dataset["balance_sheet"], document_file) # type: ignore
             charges_response: int = self.storeCorporateDataDomesticCharges(balance_sheet_response, dataset["charges"], document_file) # type: ignore
             liquidators_response: int = self.storeCorporateDataDomesticLiquidators(charges_response, dataset["liquidators"], document_file) # type: ignore
@@ -1072,13 +1072,13 @@ class Builder:
             response = 503
         return response
 
-    def storeCorporateDataDomesticStateCapital(self, status: int, state_capital: Dict[str, Union[str, int]], document_file: DocumentFiles) -> int:
+    def storeCorporateDataDomesticStateCapital(self, status: int, state_capital: List[Dict[str, Union[str, int]]], document_file: DocumentFiles) -> int:
         """
         Doing the data manipulation State Capital result set.
 
         Parameters:
             status: int: The status of the data manipulation.
-            state_capital: {type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}: The data that has been extracted for the shareholder table.
+            state_capital: [{type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}]: The data that has been extracted for the shareholder table.
             document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
 
         Returns:
@@ -1089,11 +1089,33 @@ class Builder:
             response = 200
             self.getLogger().inform(f"There is no data to be inserted into the State Capital table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {state_capital}")
         elif status >= 200 and status <= 299 and len(state_capital) > 0:
-            response = self.getStateCapital().addStateCapital(state_capital, document_file.company_detail)
+            response = self._storeCorporateDataDomesticStateCapital(state_capital, document_file.company_detail)
             self.getLogger().inform(f"The data has been successfully updated into the State Capital table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {state_capital}")
         else:
             response = status
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
+        return response
+
+    def _storeCorporateDataDomesticStateCapital(self, state_capital: List[Dict[str, Union[str, int]]], company_detail: int) -> int:
+        """
+        Storing the state capital of the domestic companies.
+
+        Parameters:
+            state_capital: [{type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}]: The data that has been extracted for the shareholder table.
+            company_detail: int: The identifier of the company.
+
+        Returns:
+            int
+        """
+        response: int
+        responses: List[int] = []
+        for index in range(0, len(state_capital), 1):
+            responses.append(self.getStateCapital().addStateCapital(state_capital[index], company_detail))
+        responses = list(set(responses))
+        if len(responses) == 1 and responses[0] == 201:
+            response = responses[0]
+        else:
+            response = responses[0]
         return response
 
     def storeCorporateDataDomesticPrivateBusinessDetail(self, company_detail: int, business_details: List[Dict[str, str]], document_file: DocumentFiles) -> int:
