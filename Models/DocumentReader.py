@@ -466,7 +466,7 @@ class Document_Reader:
             exit()
         return response
 
-    def _extractDataDomesticCivilCivil(self, result_set: List[str]) -> Dict[str, Union[int, Dict[str, Union[str, int]], List[Dict[str, str]], Dict[str, str], List[Dict[str, Union[str, int]]], Dict[str, Union[Dict[str, Union[str, int]], List[int]]]]]:
+    def _extractDataDomesticCivilCivil(self, result_set: List[str]) -> Dict[str, Union[int, Dict[str, Union[str, int]], List[Dict[str, str]], List[Dict[str, Union[str, int]]], List[Dict[str, int]], Dict[str, Union[Dict[str, Union[int, str]], float]], Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]]]:
         """
         Extracting the data from the portable document file version
         of the corporate registry based on the status of the file
@@ -490,7 +490,7 @@ class Document_Reader:
         administrators: Dict[str, Union[Dict[str, Union[str, int]], List[int]]] = self._extractDataDomesticCivilCivilAdministrators(result_set)
         details: List[Dict[str, Union[str, int]]] = self._extractDataDomesticCivilCivilDetails(result_set)
         objections: List[Dict[str, Union[str, int]]] = self._extractDataDomesticCivilCivilObjections(result_set)
-        response: Dict[str, Union[int, Dict[str, Union[str, int]], List[Dict[str, str]], Dict[str, str], List[Dict[str, Union[str, int]]], Dict[str, Union[Dict[str, Union[str, int]], List[int]]]]] = {
+        return {
             "status": 200,
             "company_details": company_details,
             "business_details": business_details,
@@ -502,8 +502,7 @@ class Document_Reader:
             "administrators": administrators,
             "details": details,
             "objections": objections
-            }
-        return response
+        } # type: ignore
 
     def _extractDataDomesticCivilCivilObjections(self, result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
         """
