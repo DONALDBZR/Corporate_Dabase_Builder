@@ -2246,7 +2246,7 @@ class Document_Reader:
             [string]
         """
         response: List[str] = []
-        types: List[str] = [value for value in result_set if bool(search(r"[\d]+", value)) == True]
+        types: List[str] = [value for value in result_set if bool(search(r"[\d]+", value)) == True and bool(search(r"[A-Z]+", value)) == True and bool(search(r"[^\w\s]+", value)) == False]
         for index in range(0, len(types), 1):
             response.append(" ".join([value for value in types[index].split(" ") if bool(search(r"[A-Z]+", value)) == True]))
         return response
@@ -2288,9 +2288,9 @@ class Document_Reader:
         result_set = [value for value in result_set if "Currency" not in value]
         dataset: List[str] = [value for value in result_set if bool(search(r"[\d]+", value)) == True and bool(search(r"[A-Z]+", value)) == True and bool(search(r"[^\w\s]+", value)) == False]
         amount_of_shares: List[int] = self.extractShareholdersAmountShares(result_set)
-        print(f"{result_set=}\n{dataset=}")
-        exit()
         type_of_shares: List[str] = self.extractShareholdersTypeShares(result_set)
+        print(f"{result_set=}\n{dataset=}\n{amount_of_shares=}\n{type_of_shares=}")
+        exit()
         result_set = [value for value in result_set if value not in dataset]
         names: List[str] = [value for value in result_set if bool(search(r"[A-Z\s]+", value)) == True and bool(search(r"[a-z]+", value)) == False]
         result_set = [value for value in result_set if value not in dataset]
