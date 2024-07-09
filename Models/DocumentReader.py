@@ -2714,20 +2714,14 @@ class Document_Reader:
         dataset: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == True]
         natures: List[str] = self.extractBusinessDetailsNatures(result_set)
         result_set = [value for value in result_set if value not in dataset]
-        print(f"{registered_address=}\n{result_set=}\n{operational_addresses=}\n{natures=}")
-        exit()
-        result_set = [value for value in result_set if ":" not in value]
-        result_set = [value for value in result_set if "MAURITIUS" not in value]
-        names: List[str] = self.extractBusinessDetailsNames(result_set)
-        result_set = [value for value in result_set if value not in names]
-        for index in range(0, len(names), 1):
-            data: Dict[str, str] = {
+        names: List[str] = result_set
+        for index in range(0, min([len(names), len(natures), len(operational_addresses)]), 1):
+            response.append({
                 "registered_address": registered_address.title(),
                 "name": names[index].title(),
                 "nature": natures[index].title(),
                 "operational_address": operational_addresses[index].title()
-            }
-            response.append(data)
+            })
         return response
 
     def extractBusinessDetailsNatures(self, result_set: List[str]) -> List[str]:
@@ -2746,40 +2740,6 @@ class Document_Reader:
         for index in range(0, len(natures), 1):
             response.append(natures[index])
         return response
-
-    def extractBusinessDetailsNames(self, result_set: List[str]) -> List[str]:
-        """
-        Extracting the names that are linked to the business
-        details.
-
-        Parameters:
-            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
-
-        Returns:
-            [string]
-        """
-        response: List[str] = []
-        for index in range(0, len(result_set), 1):
-            names: List[str] = findall(r"\b[A-Za-z\s]+\b", result_set[index])
-            name: str = self._extractBusinessDetailsNames(names)
-            response = self.__extractNames(response, name)
-        return response
-
-    def _extractBusinessDetailsNames(self, names: List[str]) -> str:
-        """
-        Bulding the name that is linked to the business details.
-
-        Parameters:
-            names: [string]: The list of the names.
-
-        Returns:
-            string
-        """
-        names_regex: List[bool] = list(set([bool(search(r"[A-Z]", value)) for value in [value.split(" ") for value in names][0]]))
-        if len(names) == 1 and bool(search(r"[A-Z]", names[0])) and (len(names_regex) == 1 and names_regex[0] == True):
-            return names[0]
-        else:
-            return "NaN"
 
     def extractBusinessDetailsOperationalAddresses(self, result_set: List[str]) -> List[str]:
         """
