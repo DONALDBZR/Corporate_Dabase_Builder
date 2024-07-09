@@ -410,6 +410,108 @@ class Document_Reader:
             exit()
         return response
 
+    def extractDataDomesticPublic(self, status: int, dataset: DocumentFiles) -> Dict[str, Union[int, Dict[str, Union[str, int]], List[Dict[str, str]], List[Dict[str, Union[str, int]]], List[Dict[str, int]], Dict[str, Union[Dict[str, Union[int, str]], float]], Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]]]:
+        """
+        Extracting the data from the portable document file version
+        of the corporate registry based on the status of the file
+        generation as well as on the dataset for a domestic company
+        which is also a public company.
+
+        Parameters:
+            status: int: The status of the file generation.
+            dataset: {identifier: int, file_data: bytes, company_detail: int}: The dataset of the corporate registry retrieved from the relational database server.
+
+        Returns:
+            {status: int, company_details: {business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}, business_details: [{registered_address: string, name: string, nature: string, operational: string}], certificates: [{certificate: string, type: str, date_effective: int, date_expiry: int}], office_bearers: [{position: string, name: string, address: string, date_appointment: int}], shareholders: [{name: string, amount: int, type: string, currency: string}], members: [{name: string, amount: int, date_start: int, currency: string}], annual_return: [{date_annual_return: int, date_annual_meeting: int, date_filled: int}], financial_summaries: [{financial_year: int, currency: string, date_approved: int, unit: int}], profit_statement: {financial_summary: {financial_year: int, currency: string, date_approved: int, unit: int}, turnover: float, cost_of_sales: float, gross_profit: float, other_income: float, distribution_cost: float, administration_cost: float, expenses: float, finance_cost: float, net_profit_before_taxation: float, taxation: float, net_profit: float}, state_capital: {type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}, balance_sheet: {balance_sheet: {financial_year: int, currency: string, unit: int}, assets: {non_current_assets: {property_plant_equipment: float, investment_properties: float, intangible_assets: float, other_investments: float, subsidiaries_investments: float, biological_assets: float, others: float, total: float}, current_assets: {inventories: float, trade: float, cash: float, others: float, total: float}, total: float}, liabilities: {equity_and_liabilities: {share_capital: float, other_reserves: float, retained_earnings: float, others: float, total: float}, non_current: {long_term_borrowings: float, deferred_tax: float, long_term_provisions: float, others: float, total: float}, current: {trade: float, short_term_borrowings: float, current_tax_payable: float, short_term_provisions: float, others: float, total: float}, total_liabilities: float, total_equity_and_liabilities: float}}, charges: [{volume: int, property: string, nature: string, amount: int, date_charged: int, date_filled: int, currency: string}], liquidators: {liquidator: {name: string, appointed_date: int, address: string}, affidavits: [{date_filled: int, date_from: int, date_to: int}]}, receivers: {receiver: {name: string, date_appointed: int, address: string}, reports: [{date_filled: int, date_from: int, date_to: int}], affidavits: [{date_filled: int, date_from: int, date_to: int}]}, administrators: {administrator: {name: string, date_appointed: int, designation: string, address: string}, accounts: [{date_filled: int, date_from: int, date_to: int}]}, details: [{type: string, date_start: int, date_end: int, status: string}], objections: [{date_objection: int, objector: string}]}
+        """
+        response: Dict[str, Union[int, Dict[str, Union[str, int]], List[Dict[str, str]], List[Dict[str, Union[str, int]]], List[Dict[str, int]], Dict[str, Union[Dict[str, Union[int, str]], float]], Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]]]
+        file_name: str = f"{self.ENV.getDirectory()}Cache/CorporateDocumentFile/Documents/{dataset.company_detail}.pdf"
+        cache_data_file_name: str = f"{self.ENV.getDirectory()}Cache/CorporateDocumentFile/Metadata/{dataset.company_detail}.json"
+        if status == 201:
+            portable_document_file_data: str = extract_text(file_name)
+            cache_file = open(cache_data_file_name, "w")
+            portable_document_file_data_result_set: List[str] = list(filter(None, portable_document_file_data.split("\n")))
+            company_details: Dict[str, Union[str, int]] = self.extractCompanyDetails(portable_document_file_data_result_set)
+            business_details: List[Dict[str, str]] = self.extractDataDomesticPublicBusinessDetails(portable_document_file_data_result_set)
+            print(f"{company_details=}\n{business_details=}")
+            exit()
+            certificates: List[Dict[str, Union[str, int]]] = self.extractCertificates(portable_document_file_data_result_set)
+            office_bearers: List[Dict[str, Union[str, int]]] = self.extractOfficeBearers(portable_document_file_data_result_set)
+            shareholders: List[Dict[str, Union[str, int]]] = self.extractShareholders(portable_document_file_data_result_set)
+            members: List[Dict[str, Union[str, int]]] = self.extractMembers(portable_document_file_data_result_set)
+            annual_return: List[Dict[str, int]] = self.extractAnnualReturns(portable_document_file_data_result_set)
+            financial_summaries: List[Dict[str, Union[int, str]]] = self.extractFinancialSummaries(portable_document_file_data_result_set)
+            profit_statement: Dict[str, Union[Dict[str, Union[int, str]], float]] = self.extractProfitStatements(portable_document_file_data_result_set)
+            state_capital: List[Dict[str, Union[str, int]]] = self.extractStateCapital(portable_document_file_data_result_set)
+            balance_sheet: Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]] = self.extractBalanceSheet(portable_document_file_data_result_set)
+            charges: List[Dict[str, Union[int, str]]] = self.extractCharges(portable_document_file_data_result_set)
+            liquidators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractLiquidators(portable_document_file_data_result_set)
+            receivers: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractReceivers(portable_document_file_data_result_set)
+            administrators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractAdministrators(portable_document_file_data_result_set)
+            details: List[Dict[str, Union[str, int]]] = self.extractDetails(portable_document_file_data_result_set)
+            objections: List[Dict[str, Union[int, str]]] = self.extractObjections(portable_document_file_data_result_set)
+            response = {
+                "status": 200,
+                "company_details": company_details,
+                "business_details": business_details,
+                "certificates": certificates,
+                "office_bearers": office_bearers,
+                "shareholders": shareholders,
+                "members": members,
+                "annual_return": annual_return,
+                "financial_summaries": financial_summaries,
+                "profit_statement": profit_statement,
+                "state_capital": state_capital,
+                "balance_sheet": balance_sheet,
+                "charges": charges,
+                "liquidators": liquidators,
+                "receivers": receivers,
+                "administrators": administrators,
+                "details": details,
+                "objections": objections
+            }
+            cache_file.write(dumps(response, indent=4))
+            cache_file.close()
+            self.getLogger().inform(f"Data has been extracted from the portable document file version of the corporate registry.\nStatus: {response['status']}\nDocument File Identifier: {dataset.identifier}\nFile Location: {file_name}\nCompany Details Identifier: {dataset.company_detail}")
+        else:
+            response = {
+                "status": 404
+            }
+            self.getLogger().error(f"The portable document file has not been generated correctly!  The application will abort the extraction.\nStatus: {response['status']}\nFile Location: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
+        return response
+
+    def extractDataDomesticPublicBusinessDetails(self, portable_document_file_result_set: List[str]) -> List[Dict[str, str]]:
+        """
+        Extracting the data for the business details of a public
+        domestic company from the result set.
+
+        Parameters:
+            portable_document_file_result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [{registered_address: string, name: string, nature: string, operational: string}]
+        """
+        response: List[Dict[str, str]] = []
+        registered_address: str = " ".join([value for value in portable_document_file_result_set[[index for index, value in enumerate(portable_document_file_result_set) if "Registered Office Address" in value][0]].split(": ")[-1].split(" ") if value != ""])
+        start_index: int = portable_document_file_result_set.index("Business Details")
+        end_index: int = portable_document_file_result_set.index("Particulars of Stated Capital")
+        result_set: List[str] = portable_document_file_result_set[start_index:end_index]
+        result_set = [value for value in result_set if "Business" not in value]
+        dataset: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and "Mauritius".upper() in value]
+        operational_addresses: List[str] = self.extractBusinessDetailsOperationalAddresses(result_set)
+        result_set = [value for value in result_set if value not in dataset]
+        dataset = [value for value in result_set if (bool(search(r"[A-Z]+", value)) == True or bool(search(r"[a-z]+", value)) == True) and bool(search(r"[\w]+", value)) == True]
+        natures: List[str] = [value for value in result_set if (bool(search(r"[A-Z]+", value)) == True or bool(search(r"[a-z]+", value)) == True) and bool(search(r"[\w]+", value)) == True]
+        names: List[str] = [value for value in result_set if value not in dataset]
+        for index in range(0, min([len(names), len(natures), len(operational_addresses)]), 1):
+            response.append({
+                "registered_address": registered_address.title(),
+                "name": names[index].title(),
+                "nature": natures[index].title(),
+                "operational_address": operational_addresses[index].title()
+            })
+        return response
+
     def extractDataDomesticCivil(self, status: int, dataset: DocumentFiles) -> Dict[str, Union[int, Dict[str, Union[str, int]], List[Dict[str, str]], List[Dict[str, Union[str, int]]], List[Dict[str, int]], Dict[str, Union[Dict[str, Union[int, str]], float]], Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]]]:
         """
         Extracting the data from the portable document file version
