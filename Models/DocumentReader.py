@@ -2472,6 +2472,8 @@ class Document_Reader:
             [string]
         """
         response: List[str] = []
+        print(f"{result_set=}")
+        exit()
         address_result_set = " ".join(result_set)
         result_set = address_result_set.split("MAURITIUS ")
         for index in range(0, len(result_set), 1):
@@ -2494,11 +2496,11 @@ class Document_Reader:
         start_index: int = portable_document_file_result_set.index("Office Bearers") + 1
         end_index: int = portable_document_file_result_set.index("No. of Shares Type of Shares")
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
-        result_set.remove("Position")
+        result_set = [value for value in result_set if "Position" not in value]
         result_set = [value for value in result_set if "Name" not in value]
-        result_set.remove("Service Address")
-        result_set.remove("Appointed Date")
-        result_set.remove("Shareholders")
+        result_set = [value for value in result_set if "Service Address" not in value]
+        result_set = [value for value in result_set if "Appointed Date" not in value]
+        result_set = [value for value in result_set if "Shareholders" not in value]
         date_appointments: List[str] = self.extractOfficeBearersDateAppointments(result_set)
         result_set = [value for value in result_set if value not in date_appointments]
         positions: List[str] = self.extractOfficeBearersPositions(result_set)
@@ -2506,7 +2508,7 @@ class Document_Reader:
         names: List[str] = self.extractOfficeBearersNames(result_set)
         result_set = [value for value in result_set if value not in names]
         addresses: List[str] = self.extractOfficeBearersAddresses(result_set)
-        for index in range(0, len(date_appointments), 1):
+        for index in range(0, min([len(date_appointments), len(positions), len(names), len(addresses)]), 1):
             position: str = positions[index].title()
             name: str = names[index].title()
             address: str = addresses[index].title()
