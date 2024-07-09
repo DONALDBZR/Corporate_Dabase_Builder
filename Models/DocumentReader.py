@@ -2552,9 +2552,9 @@ class Document_Reader:
         share_values: List[int] = self.extractStateCapitalShareValue(result_set)
         for index in range(0, min([len(types), len(amounts), len(currencies), len(stated_capitals), len(amount_unpaids), len(share_values)]), 1):
             response.append({
-                "type": types[index],
+                "type": types[index].title(),
                 "amount": amounts[index],
-                "currency": currencies[index],
+                "currency": currencies[index].title(),
                 "stated_capital": stated_capitals[index],
                 "amount_unpaid": amount_unpaids[index],
                 "par_value": share_values[index]
