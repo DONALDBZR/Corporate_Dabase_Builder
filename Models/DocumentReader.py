@@ -2885,11 +2885,11 @@ class Document_Reader:
         """
         business_registration_number: str = portable_document_file_result_set[[index for index, value in enumerate(portable_document_file_result_set) if "Business Registration No.:" in value][0]].split(" ")[-1]
         start_index: int = portable_document_file_result_set.index("Company Details") + 1
-        end_index: int = portable_document_file_result_set.index("Business Details") + 4
+        end_index: int = portable_document_file_result_set.index("Business Name")
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
         result_set = [value for value in result_set if ":" not in value]
         result_set = [value for value in result_set if "Registrar of Companies" not in value]
-        result_set = [value for value in result_set if "Business Details" not in value]
+        result_set = [value for value in result_set if "Business" not in value]
         name: str = result_set[1]
         file_number: str = result_set[0]
         category: str = result_set[3].title()
