@@ -824,8 +824,8 @@ class Document_Reader:
         response: List[int] = []
         for index in range(0, len(result_set), 1):
             amounts: List[str] = findall(r"[\d]+", result_set[index])
-            amount: Union[int, str] = self._extractShareholdersAmountShares(amounts)
-            response = self.__extractShareholdersAmountShares(response, amount)
+            amount: Union[int, str] = self._extractShareholdersAmountShares(amounts) # type: ignore
+            response = self.__extractShareholdersAmountShares(response, amount) # type: ignore
         return response
 
     def _extractDataDomesticCivilCivilOfficeBearers(self, result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
@@ -2258,40 +2258,10 @@ class Document_Reader:
         }
         return response
 
-    def _extractShareholdersAmountShares(self, amount_shares: List[str]) -> Union[int, str]:
-        """
-        Building the amount of shares.
-
-        Parameters:
-            amount_shares: [string]: The list of the amount of shares.
-
-        Returns:
-            string|int
-        """
-        if len(amount_shares) > 0:
-            return int(amount_shares[0])
-        else:
-            return "NaAS"
-
-    def __extractShareholdersAmountShares(self, amount_shares: List[int], amount_share: Union[int, str]) -> List[int]:
-        """
-        Building the response of the extraction of the amount of
-        shares of the shareholders.
-
-        Parameters:
-            amount_shares: [int]: The response to be returned.
-            amount_share: int|string: The amount of the shares.
-
-        Returns:
-            [int]
-        """
-        if type(amount_share) is int:
-            amount_shares.append(amount_share)
-        return amount_shares
-
     def extractShareholdersAmountShares(self, result_set: List[str]) -> List[int]:
         """
-        Extracting the amount of shares from the result set.
+        Extracting the amount of shares of the shareholders of a
+        private domestic company.
 
         Parameters:
             result_set: [string]: The result set to be used as a dataset.
@@ -2300,18 +2270,15 @@ class Document_Reader:
             [int]
         """
         response: List[int] = []
-        amounts: List[str] = [value for value in result_set if "SHARES" in value]
-        result_set = amounts
-        for index in range(0, len(result_set), 1):
-            amount_shares: List[str] = findall(r"\b\d+\b", result_set[index])
-            amount_share: Union[int, str] = self._extractShareholdersAmountShares(amount_shares)
-            response = self.__extractShareholdersAmountShares(response, amount_share)
+        amounts: List[str] = [value for value in result_set if bool(search(r"[\d]+", value)) == True]
+        for index in range(0, len(amounts), 1):
+            response.append(int("".join([value for value in amounts[index].split(" ") if bool(search(r"[\d]+", value)) == True])))
         return response
 
     def extractShareholders(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
         """
-        Extracting the data for the shareholders from the result
-        set.
+        Extracting the data for the shareholders of a private
+        domestic company.
 
         Parameters:
             portable_document_file_result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
@@ -2323,15 +2290,19 @@ class Document_Reader:
         start_index: int = portable_document_file_result_set.index("Shareholders") + 1
         end_index: int = portable_document_file_result_set.index("Members (Applicable for Company Limited by Guarantee or Shares and Guarantee)")
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
-        start_index = result_set.index("Appointed Date") + 1
-        result_set = result_set[start_index:]
+        result_set = [value for value in result_set if "Name" not in value]
         result_set = [value for value in result_set if "Type of Shares" not in value]
         result_set = [value for value in result_set if "Currency" not in value]
+        dataset: List[str] = [value for value in result_set if bool(search(r"[\d]+", value)) == True]
+        amount_of_shares: List[int] = self.extractShareholdersAmountShares(result_set)
+        print(f"{result_set=}\n{dataset=}")
+        exit()
+        start_index = result_set.index("Appointed Date") + 1
+        result_set = result_set[start_index:]
         result_set = [value for value in result_set if "STREET" not in value]
         result_set = [value for value in result_set if "MAURITIUS" not in value]
         result_set = [value for value in result_set if "ROAD" not in value]
         result_set = [value for value in result_set if "/" not in value]
-        amount_of_shares: List[int] = self.extractShareholdersAmountShares(result_set)
         type_of_shares: Dict[str, List[str]] = self.extractShareholdersTypeShares(result_set)
         result_set = type_of_shares["result_set"]
         types: List[str] = type_of_shares["types"]
