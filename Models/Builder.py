@@ -581,6 +581,8 @@ class Builder:
             response = self.storeCorporateDataDomesticPrivate(dataset, document_file)
         elif company_detail.nature.upper() == "CIVIL":
             response = self.storeCorporateDataDomesticCivil(dataset, document_file)
+        elif company_detail.nature.upper() == "PUBLIC":
+            response = self.storeCorporateDataDomesticPublic(dataset, document_file)
         else:
             self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataDomestic()")
             exit()
