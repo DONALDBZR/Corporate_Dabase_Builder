@@ -10,6 +10,7 @@ Authors:
 from Models.DatabaseHandler import Database_Handler
 from typing import Union, Dict, Tuple, List
 from mysql.connector.errors import Error
+from mysql.connector.types import RowType
 
 
 class Shareholders(Database_Handler):
@@ -93,13 +94,13 @@ class Shareholders(Database_Handler):
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {status}\nError: {error}")
         return response
 
-    def _getPossiblePositions(self, result_set: Union[List[RowType], List[Dict[str, str]]]) -> Dict[str, Union[int, List[str]]]:
+    def _getPossibleShareTypes(self, result_set: Union[List[RowType], List[Dict[str, str]]]) -> Dict[str, Union[int, List[str]]]:
         """
         Formatting the result set data in the correct format for the
         application.
 
         Parameters:
-            result_set: [{position: string}]: The list of positions for the office bearers.
+            result_set: [{position: string}]: The list of types of shares for the shareholders.
 
         Returns:
             {status: int, response: [string]}
@@ -109,7 +110,7 @@ class Shareholders(Database_Handler):
         data: List[str]
         if len(result_set) > 0:
             status = 200
-            data = [value["position"] for value in result_set]  # type: ignore
+            data = [value["type_shares"] for value in result_set]  # type: ignore
         else:
             status = 204
             data = []
