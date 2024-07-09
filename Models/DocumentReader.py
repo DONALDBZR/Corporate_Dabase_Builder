@@ -2703,13 +2703,17 @@ class Document_Reader:
             [{registered_address: string, name: string, nature: string, operational: string}]
         """
         response: List[Dict[str, str]] = []
-        start_index: int = [index for index, value in enumerate(portable_document_file_result_set) if "Registered Office Address:" in value][0]
+        registered_address: str = " ".join([value for value in portable_document_file_result_set[[index for index, value in enumerate(portable_document_file_result_set) if "Registered Office Address" in value][0]].split(": ")[-1].split(" ") if value != ""])
+        start_index: int = portable_document_file_result_set.index("Business Details")
         end_index: int = portable_document_file_result_set.index("Particulars of Stated Capital")
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
         result_set = [value for value in result_set if "Business" not in value]
-        registered_address: str = result_set[[index for index, value in enumerate(result_set) if "Registered Office Address:" in value][0]].split(": ")[-1]
-        result_set = [value for value in result_set if ":" not in value]
         operational_addresses: List[str] = self.extractBusinessDetailsOperationalAddresses(result_set)
+        dataset: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == False]
+        result_set = [value for value in result_set if value not in dataset]
+        print(f"{registered_address=}\n{result_set=}\n{operational_addresses=}")
+        exit()
+        result_set = [value for value in result_set if ":" not in value]
         result_set = [value for value in result_set if "MAURITIUS" not in value]
         result_set = [value for value in result_set if value not in operational_addresses]
         names: List[str] = self.extractBusinessDetailsNames(result_set)
@@ -2778,7 +2782,7 @@ class Document_Reader:
     def extractBusinessDetailsOperationalAddresses(self, result_set: List[str]) -> List[str]:
         """
         Extracting the operational addresses that are linked to the
-        business details.
+        business details of private domestic companies.
 
         Parameters:
             result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
@@ -2787,41 +2791,10 @@ class Document_Reader:
             [string]
         """
         response: List[str] = []
-        for index in range(0, len(result_set), 1):
-            operational_addresses: List[str] = findall(r"\b[0-9A-Za-z\s]+\b", result_set[index])
-            operational_address: str = self._extractBusinessDetailsOperationalAddresses(operational_addresses)
-            response = self.__extractBusinessDetailsOperationalAddresses(response, operational_address)
+        operational_addresses: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == False]
+        for index in range(0, len(operational_addresses), 1):
+            response.append(" ".join([value for value in operational_addresses[index].split(" ") if value != ""]))
         return response
-
-    def __extractBusinessDetailsOperationalAddresses(self, response: List[str], operational_address: str) -> List[str]:
-        """
-        Building the response needed for the operational addresses.
-
-        Parameters:
-            response: [string]: The list to be returned.
-            operational_address: string: The operational address.
-
-        Returns:
-            [string]
-        """
-        if operational_address != "NaOA":
-            response.append(operational_address)
-        return response
-
-    def _extractBusinessDetailsOperationalAddresses(self, operational_addresses: List[str]) -> str:
-        """
-        Building the operational address of the business.
-
-        Parameters:
-            operational_addresses: [string]: The list of the operational addresses.
-
-        Returns:
-            string
-        """
-        if len(operational_addresses) >= 3 or bool(search(r"\b[A-Z]\b", operational_addresses[0])) or 'MAURITIUS' in operational_addresses[0]:
-            return " ".join(operational_addresses)
-        else:
-            return "NaOA"
 
     def extractCompanyDetails(self, portable_document_file_result_set: List[str]) -> Dict[str, Union[str, int]]:
         """
