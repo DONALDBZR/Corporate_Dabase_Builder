@@ -2289,12 +2289,12 @@ class Document_Reader:
         dataset: List[str] = [value for value in result_set if bool(search(r"[\d]+", value)) == True and bool(search(r"[A-Z]+", value)) == True and bool(search(r"[^\w\s]+", value)) == False]
         amount_of_shares: List[int] = self.extractShareholdersAmountShares(result_set)
         type_of_shares: List[str] = self.extractShareholdersTypeShares(result_set)
-        print(f"{result_set=}\n{dataset=}\n{amount_of_shares=}\n{type_of_shares=}")
-        exit()
         result_set = [value for value in result_set if value not in dataset]
-        names: List[str] = [value for value in result_set if bool(search(r"[A-Z\s]+", value)) == True and bool(search(r"[a-z]+", value)) == False]
+        names: List[str] = [value for value in result_set if bool(search(r"[A-Z\s]+", value)) == True and bool(search(r"[a-z]+", value)) == False and bool(search(r"[\d]+", value)) == False and "Mauritius".upper() not in value]
+        names = [name for index, name in enumerate(names) if all(name not in names for name in names[:index])]
+        dataset = [value for value in result_set if bool(search(r"[A-Z\s]+", value)) == True and bool(search(r"[a-z]+", value)) == False and bool(search(r"[\d]+", value)) == False and "Mauritius".upper() not in value]
         result_set = [value for value in result_set if value not in dataset]
-        currencies: List[str] = [value for value in result_set if value not in names]
+        currencies: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == True and "Mauritius" in value]
         for index in range(0, min([len(names), len(amount_of_shares), len(type_of_shares), len(currencies)]), 1):
             response.append({
                 "name": names[index].title(),
