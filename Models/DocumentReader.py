@@ -9,6 +9,7 @@ Authors:
 """
 
 
+from concurrent.futures import process
 from Models.Logger import Corporate_Database_Builder_Logger
 from Data.DocumentFiles import DocumentFiles
 from Data.CompanyDetails import CompanyDetails
@@ -2400,8 +2401,10 @@ class Document_Reader:
         """
         response: List[int] = []
         amounts: List[str] = [value for value in result_set if bool(search(r"[\d]+", value)) == True and bool(search(r"[A-Z]+", value)) == True and bool(search(r"[^\w\s]+", value)) == False]
+        processed_amounts: List[str] = []
         for index in range(0, len(amounts), 1):
-            response.append(int("".join([value for value in amounts[index].split(" ") if bool(search(r"[\d]+", value)) == True])))
+            processed_amounts.append("".join([value for value in amounts[index].split(" ") if bool(search(r"[\d]+", value)) == True and bool(search(r"[A-z]+", value)) == False]))
+        response = [int(value) for value in [value for value in processed_amounts if "" != value]]
         return response
 
     def extractShareholders(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
@@ -2422,8 +2425,13 @@ class Document_Reader:
         result_set = [value for value in result_set if "Name" not in value]
         result_set = [value for value in result_set if "Type of Shares" not in value]
         result_set = [value for value in result_set if "Currency" not in value]
+        result_set = [value for value in result_set if "Service Address" not in value]
+        result_set = [value for value in result_set if "Appointed Date" not in value]
+        result_set = [value for value in result_set if "/" not in value]
         dataset: List[str] = [value for value in result_set if bool(search(r"[\d]+", value)) == True and bool(search(r"[A-Z]+", value)) == True and bool(search(r"[^\w\s]+", value)) == False]
         amount_of_shares: List[int] = self.extractShareholdersAmountShares(result_set)
+        print(f"{amount_of_shares=}")
+        exit()
         type_of_shares: List[str] = self.extractShareholdersTypeShares(result_set)
         result_set = [value for value in result_set if value not in dataset]
         names: List[str] = [value for value in result_set if bool(search(r"[A-Z\s]+", value)) == True and bool(search(r"[a-z]+", value)) == False and bool(search(r"[\d]+", value)) == False and "Mauritius".upper() not in value]
