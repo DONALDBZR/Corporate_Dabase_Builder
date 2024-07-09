@@ -20,6 +20,7 @@ from datetime import datetime
 from json import dumps
 from re import findall, search, split
 from Models.OfficeBearers import Office_Bearers
+from Models.Shareholders import Shareholders
 
 
 class Document_Reader:
@@ -44,6 +45,11 @@ class Document_Reader:
     The model which will interact exclusively with the Office
     Bearers.
     """
+    __shareholders: Shareholders
+    """
+    The model which will interact exclusively with the
+    Shareholders.
+    """
 
     def __init__(self) -> None:
         """
@@ -53,6 +59,7 @@ class Document_Reader:
         self.ENV = Environment()
         self.setLogger(Corporate_Database_Builder_Logger())
         self.setOfficeBearer(Office_Bearers())
+        self.setShareholder(Shareholders())
         self.getLogger().inform("The builder has been initialized and all of its dependencies are injected!")
 
     def getLogger(self) -> Corporate_Database_Builder_Logger:
@@ -62,10 +69,16 @@ class Document_Reader:
         self.__logger = logger
 
     def getOfficeBearer(self) -> Office_Bearers:
-        return self.__office_bearer
+        return self.__office_bearers
 
     def setOfficeBearer(self, office_bearer: Office_Bearers) -> None:
-        self.__office_bearer = office_bearer
+        self.__office_bearers = office_bearer
+
+    def getShareholder(self) -> Shareholders:
+        return self.__shareholders
+
+    def setShareholder(self, shareholders: Shareholders) -> None:
+        self.__shareholders = shareholders
 
     def generatePortableDocumentFile(self, dataset: DocumentFiles) -> int:
         """
@@ -2383,9 +2396,12 @@ class Document_Reader:
             [string]
         """
         response: List[str] = []
+        possible_types: List[str] = self.getShareholder().getPossibleShareTypes()
         types: List[str] = [value for value in result_set if bool(search(r"[\d]+", value)) == True and bool(search(r"[A-Z]+", value)) == True and bool(search(r"[^\w\s]+", value)) == False]
+        processed_types: List[str] = []
         for index in range(0, len(types), 1):
-            response.append(" ".join([value for value in types[index].split(" ") if bool(search(r"[A-Z]+", value)) == True]))
+            processed_types.append(" ".join([value for value in types[index].split(" ") if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[\d]+", value)) == False]))
+        response = [value for value in processed_types if value in possible_types]
         return response
 
     def extractShareholdersAmountShares(self, result_set: List[str]) -> List[int]:
@@ -2430,9 +2446,9 @@ class Document_Reader:
         result_set = [value for value in result_set if "/" not in value]
         dataset: List[str] = [value for value in result_set if bool(search(r"[\d]+", value)) == True and bool(search(r"[A-Z]+", value)) == True and bool(search(r"[^\w\s]+", value)) == False]
         amount_of_shares: List[int] = self.extractShareholdersAmountShares(result_set)
-        print(f"{amount_of_shares=}")
-        exit()
         type_of_shares: List[str] = self.extractShareholdersTypeShares(result_set)
+        print(f"{amount_of_shares=}\n{type_of_shares=}")
+        exit()
         result_set = [value for value in result_set if value not in dataset]
         names: List[str] = [value for value in result_set if bool(search(r"[A-Z\s]+", value)) == True and bool(search(r"[a-z]+", value)) == False and bool(search(r"[\d]+", value)) == False and "Mauritius".upper() not in value]
         names = [name for index, name in enumerate(names) if all(name not in names for name in names[:index])]
