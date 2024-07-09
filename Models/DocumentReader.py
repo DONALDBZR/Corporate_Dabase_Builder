@@ -2472,8 +2472,6 @@ class Document_Reader:
             [string]
         """
         response: List[str] = []
-        print(f"{result_set=}")
-        exit()
         address_result_set = " ".join(result_set)
         result_set = address_result_set.split("MAURITIUS ")
         for index in range(0, len(result_set), 1):
