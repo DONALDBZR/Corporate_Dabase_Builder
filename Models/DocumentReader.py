@@ -1527,7 +1527,8 @@ class Document_Reader:
 
     def extractDetails(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
         """
-        Extracting the details from the result set.
+        Extracting the details of a private domestic company from
+        the result set.
 
         Parameters:
             portable_document_file_result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
@@ -1536,17 +1537,15 @@ class Document_Reader:
             [{type: string, date_start: int, date_end: int, status: string}]
         """
         start_index: int = portable_document_file_result_set.index("Winding Up Details")
-        end_index: int = portable_document_file_result_set.index("Page 6")
+        end_index: int = portable_document_file_result_set.index("Status") + 1
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
-        result_set.remove("Winding Up Details")
-        result_set.remove("Objections")
-        result_set.remove("Objection Date")
-        result_set.remove("Objector")
-        result_set.remove("Type")
-        result_set.remove("Start Date")
-        result_set.remove("End Date")
-        result_set.remove("Status")
+        result_set = [value for value in result_set if "Winding Up Details" not in value]
+        result_set = [value for value in result_set if "Object" not in value]
         result_set = [value for value in result_set if ":" not in value]
+        result_set = [value for value in result_set if "Type" not in value]
+        result_set = [value for value in result_set if "Start Date" not in value]
+        result_set = [value for value in result_set if "End Date" not in value]
+        result_set = [value for value in result_set if "Status" not in value]
         if len(result_set) > 0:
             self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractDetails()")
             exit()
