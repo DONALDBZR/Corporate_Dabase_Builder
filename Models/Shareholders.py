@@ -8,7 +8,7 @@ Authors:
 
 
 from Models.DatabaseHandler import Database_Handler
-from typing import Union, Dict, Tuple
+from typing import Union, Dict, Tuple, List
 from mysql.connector.errors import Error
 
 
@@ -68,4 +68,53 @@ class Shareholders(Database_Handler):
         except Error as error:
             response = 503
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {response}\nError: {error}")
+        return response
+
+    def getPossibleShareTypes(self) -> List[str]:
+        """
+        Retrieving all of the possible share types that are stored
+        in the relational database server.
+        
+        Returns:
+            [string]
+        """
+        response: List[str] = []
+        try:
+            result_set: Union[List[RowType], List[Dict[str, str]]] = self.getData(
+                table_name=self.getTableName(),
+                parameters=None,
+                column_names="DISTINCT UPPER(type_shares) AS type_shares"
+            )
+            dataset: Dict[str, Union[int, List[str]]] = self._getPossibleShareTypes(result_set)
+            response = dataset["response"] # type: ignore
+            self.getLogger().inform(f"The data from the {self.getTableName()} table has been successfully retrieved.\nStatus: {dataset['status']}\nData: {dataset['response']}")
+        except Error as error:
+            status = 503
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {status}\nError: {error}")
+        return response
+
+    def _getPossiblePositions(self, result_set: Union[List[RowType], List[Dict[str, str]]]) -> Dict[str, Union[int, List[str]]]:
+        """
+        Formatting the result set data in the correct format for the
+        application.
+
+        Parameters:
+            result_set: [{position: string}]: The list of positions for the office bearers.
+
+        Returns:
+            {status: int, response: [string]}
+        """
+        response: Dict[str, Union[int, List[str]]]
+        status: int
+        data: List[str]
+        if len(result_set) > 0:
+            status = 200
+            data = [value["position"] for value in result_set]  # type: ignore
+        else:
+            status = 204
+            data = []
+        response = {
+            "status": status,
+            "response": data
+        }
         return response
