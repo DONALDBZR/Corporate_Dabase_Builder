@@ -2711,14 +2711,15 @@ class Document_Reader:
         operational_addresses: List[str] = self.extractBusinessDetailsOperationalAddresses(result_set)
         dataset: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == False]
         result_set = [value for value in result_set if value not in dataset]
-        print(f"{registered_address=}\n{result_set=}\n{operational_addresses=}")
+        dataset: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == True]
+        natures: List[str] = self.extractBusinessDetailsNatures(result_set)
+        result_set = [value for value in result_set if value not in dataset]
+        print(f"{registered_address=}\n{result_set=}\n{operational_addresses=}\n{natures=}")
         exit()
         result_set = [value for value in result_set if ":" not in value]
         result_set = [value for value in result_set if "MAURITIUS" not in value]
-        result_set = [value for value in result_set if value not in operational_addresses]
         names: List[str] = self.extractBusinessDetailsNames(result_set)
         result_set = [value for value in result_set if value not in names]
-        natures: List[str] = self.extractBusinessDetailsNatures(result_set)
         for index in range(0, len(names), 1):
             data: Dict[str, str] = {
                 "registered_address": registered_address.title(),
@@ -2732,7 +2733,7 @@ class Document_Reader:
     def extractBusinessDetailsNatures(self, result_set: List[str]) -> List[str]:
         """
         Extracting the natures that are linked to the business
-        details.
+        details of a private domestic company.
 
         Parameters:
             result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
@@ -2741,8 +2742,9 @@ class Document_Reader:
             [string]
         """
         response: List[str] = []
-        result_set = split(r'(?=[A-Z])', ' '.join(result_set))[1:]
-        response = result_set
+        natures: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == True]
+        for index in range(0, len(natures), 1):
+            response.append(natures[index])
         return response
 
     def extractBusinessDetailsNames(self, result_set: List[str]) -> List[str]:
