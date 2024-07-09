@@ -2665,6 +2665,8 @@ class Document_Reader:
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
         result_set = [value for value in result_set if "Business" not in value]
         operational_addresses: List[str] = self.extractBusinessDetailsOperationalAddresses(result_set)
+        print(f"{registered_address=}\n{result_set=}\n{operational_addresses=}")
+        exit()
         dataset: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == False]
         result_set = [value for value in result_set if value not in dataset]
         dataset: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == True]
@@ -2709,7 +2711,7 @@ class Document_Reader:
             [string]
         """
         response: List[str] = []
-        operational_addresses: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == False]
+        operational_addresses: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and "Mauritius".upper() in value]
         for index in range(0, len(operational_addresses), 1):
             response.append(" ".join([value for value in operational_addresses[index].split(" ") if value != ""]))
         return response
