@@ -2665,14 +2665,11 @@ class Document_Reader:
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
         result_set = [value for value in result_set if "Business" not in value]
         operational_addresses: List[str] = self.extractBusinessDetailsOperationalAddresses(result_set)
-        print(f"{registered_address=}\n{result_set=}\n{operational_addresses=}")
-        exit()
-        dataset: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == False]
+        dataset: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and "Mauritius".upper() in value]
         result_set = [value for value in result_set if value not in dataset]
-        dataset: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == True]
+        dataset = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == True]
         natures: List[str] = self.extractBusinessDetailsNatures(result_set)
-        result_set = [value for value in result_set if value not in dataset]
-        names: List[str] = result_set
+        names: List[str] = [value for value in result_set if value not in dataset]
         for index in range(0, min([len(names), len(natures), len(operational_addresses)]), 1):
             response.append({
                 "registered_address": registered_address.title(),
