@@ -2264,7 +2264,7 @@ class Document_Reader:
             [int]
         """
         response: List[int] = []
-        amounts: List[str] = [value for value in result_set if bool(search(r"[\d]+", value)) == True]
+        amounts: List[str] = [value for value in result_set if bool(search(r"[\d]+", value)) == True and bool(search(r"[A-Z]+", value)) == True]
         for index in range(0, len(amounts), 1):
             response.append(int("".join([value for value in amounts[index].split(" ") if bool(search(r"[\d]+", value)) == True])))
         return response
