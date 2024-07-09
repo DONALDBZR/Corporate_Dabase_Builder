@@ -402,7 +402,7 @@ class Document_Reader:
         if company_detail.nature.upper() == "PRIVATE":
             response = self.extractDataDomesticPrivate(status, dataset)
         elif company_detail.nature.upper() == "CIVIL":
-            response = self.extractDataDomesticCivil(status, dataset) # type: ignore
+            response = self.extractDataDomesticCivil(status, dataset)
         elif company_detail.nature.upper() == "PUBLIC":
             response = self.extractDataDomesticPublic(status, dataset)
         else:
