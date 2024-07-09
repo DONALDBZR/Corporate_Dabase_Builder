@@ -2290,26 +2290,17 @@ class Document_Reader:
         dataset: List[str] = [value for value in result_set if bool(search(r"[\d]+", value)) == True]
         amount_of_shares: List[int] = self.extractShareholdersAmountShares(result_set)
         type_of_shares: List[str] = self.extractShareholdersTypeShares(result_set)
-        print(f"{result_set=}\n{dataset=}\n{amount_of_shares=}\n{type_of_shares=}")
-        exit()
-        start_index = result_set.index("Appointed Date") + 1
-        result_set = result_set[start_index:]
-        result_set = [value for value in result_set if "STREET" not in value]
-        result_set = [value for value in result_set if "MAURITIUS" not in value]
-        result_set = [value for value in result_set if "ROAD" not in value]
-        result_set = [value for value in result_set if "/" not in value]
-        result_set = type_of_shares["result_set"]
-        types: List[str] = type_of_shares["types"]
+        result_set = [value for value in result_set if value not in dataset]
         names: List[str] = [value for value in result_set if bool(search(r"[A-Z\s]+", value)) == True and bool(search(r"[a-z]+", value)) == False]
+        result_set = [value for value in result_set if value not in dataset]
         currencies: List[str] = [value for value in result_set if value not in names]
-        for index in range(0, min([len(names), len(amount_of_shares), len(types), len(currencies)]), 1):
-            data: Dict[str, Union[str, int]] = {
+        for index in range(0, min([len(names), len(amount_of_shares), len(type_of_shares), len(currencies)]), 1):
+            response.append({
                 "name": names[index].title(),
                 "amount_shares": amount_of_shares[index],
-                "type_shares": types[index].title(),
+                "type_shares": type_of_shares[index].title(),
                 "currency": currencies[index].title()
-            }
-            response.append(data)
+            })
         return response
 
     def _extractOfficeBearersDateAppointments(self, dataset: List[Tuple[str, str, str]]) -> str:
