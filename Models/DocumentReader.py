@@ -2715,8 +2715,8 @@ class Document_Reader:
 
     def extractCompanyDetails(self, portable_document_file_result_set: List[str]) -> Dict[str, Union[str, int]]:
         """
-        Extracting the data for the company details from the result
-        set.
+        Extracting the data for the company details of a private
+        domestic company from the result set.
 
         Parameters:
             portable_document_file_result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
@@ -2724,14 +2724,11 @@ class Document_Reader:
         Returns:
             {business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}
         """
+        business_registration_number: str = portable_document_file_result_set[[index for index, value in enumerate(portable_document_file_result_set) if "Business Registration No.:" in value][0]].split(" ")[-1]
         start_index: int = portable_document_file_result_set.index("Company Details") + 1
-        end_index: int = [index for index, value in enumerate(portable_document_file_result_set) if "Business Registration No.:" in value][0] + 1
+        end_index: int = portable_document_file_result_set.index("Business Details")
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
-        business_registration_number: str = result_set[[index for index, value in enumerate(result_set) if "Business Registration No.:" in value][0]].split(" ")[-1]
-        result_set = result_set + [business_registration_number]
         result_set = [value for value in result_set if ":" not in value]
-        result_set.remove("Business Details")
-        result_set.remove("Registrar of Companies")
         name: str = result_set[1]
         file_number: str = result_set[0]
         category: str = result_set[3].title()
