@@ -435,7 +435,9 @@ class Document_Reader:
             business_details: List[Dict[str, str]] = self.extractDataDomesticPublicBusinessDetails(portable_document_file_data_result_set)
             certificates: List[Dict[str, Union[str, int]]] = self.extractCertificates(portable_document_file_data_result_set)
             office_bearers: List[Dict[str, Union[str, int]]] = self.extractOfficeBearers(portable_document_file_data_result_set)
-            shareholders: List[Dict[str, Union[str, int]]] = self.extractShareholders(portable_document_file_data_result_set)
+            shareholders: List[Dict[str, Union[str, int]]] = self.extractDataDomesticPublicShareholder(portable_document_file_data_result_set)
+            print(f"{shareholders=}")
+            exit()
             members: List[Dict[str, Union[str, int]]] = self.extractMembers(portable_document_file_data_result_set)
             annual_return: List[Dict[str, int]] = self.extractAnnualReturns(portable_document_file_data_result_set)
             financial_summaries: List[Dict[str, Union[int, str]]] = self.extractFinancialSummaries(portable_document_file_data_result_set)
@@ -476,6 +478,41 @@ class Document_Reader:
                 "status": 404
             }
             self.getLogger().error(f"The portable document file has not been generated correctly!  The application will abort the extraction.\nStatus: {response['status']}\nFile Location: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
+        return response
+
+    def extractDataDomesticPublicShareholder(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
+        """
+        Extracting the data for the shareholders of a private
+        domestic company.
+
+        Parameters:
+            portable_document_file_result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [{name: string, amount: int, type: string, currency: string}]
+        """
+        response: List[Dict[str, Union[str, int]]] = []
+        start_index: int = portable_document_file_result_set.index("Shareholders") + 1
+        end_index: int = portable_document_file_result_set.index("Members (Applicable for Company Limited by Guarantee or Shares and Guarantee)")
+        result_set: List[str] = portable_document_file_result_set[start_index:end_index]
+        result_set = [value for value in result_set if "Name" not in value]
+        result_set = [value for value in result_set if "Type of Shares" not in value]
+        result_set = [value for value in result_set if "Currency" not in value]
+        dataset: List[str] = [value for value in result_set if bool(search(r"[\d]+", value)) == True and bool(search(r"[A-Z]+", value)) == True and bool(search(r"[^\w\s]+", value)) == False]
+        amount_of_shares: List[int] = self.extractShareholdersAmountShares(result_set)
+        type_of_shares: List[str] = self.extractShareholdersTypeShares(result_set)
+        result_set = [value for value in result_set if value not in dataset]
+        names: List[str] = [value for value in result_set if bool(search(r"[A-z\s]+", value)) == True and "Mauritius" not in value]
+        names = [name for index, name in enumerate(names) if all(name not in names for name in names[:index])]
+        dataset = [value for value in result_set if bool(search(r"[A-z\s]+", value)) == True and "Mauritius" not in value]
+        currencies: List[str] = [value for value in result_set if value not in dataset]
+        for index in range(0, min([len(names), len(amount_of_shares), len(type_of_shares), len(currencies)]), 1):
+            response.append({
+                "name": names[index].title(),
+                "amount_shares": amount_of_shares[index],
+                "type_shares": type_of_shares[index].title(),
+                "currency": currencies[index].title()
+            })
         return response
 
     def extractDataDomesticPublicBusinessDetails(self, portable_document_file_result_set: List[str]) -> List[Dict[str, str]]:
