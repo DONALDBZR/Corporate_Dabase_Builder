@@ -2235,27 +2235,21 @@ class Document_Reader:
             type_shares.append(type_share)
         return type_shares
 
-    def extractShareholdersTypeShares(self, result_set: List[str]) -> Dict[str, List[str]]:
+    def extractShareholdersTypeShares(self, result_set: List[str]) -> List[str]:
         """
-        Extracting the type of shares from the result set.
+        Extracting the type of shares of the shareholders of a
+        private domestic company.
 
         Parameters:
             result_set: [string]: The result set to be used as a dataset.
 
         Returns:
-            {result_set: [string], types: [string]}
+            [string]
         """
-        types: List[str] = []
-        dataset = [value for value in result_set if bool(search(r"[\d]+", value)) == True]
-        for index in range(0, len(dataset), 1):
-            type: str = " ".join([value for value in split(" ", dataset[index]) if bool(search(r"[\d]+", value)) == False])
-            types.append(type)
+        response: List[str] = []
+        types: List[str] = [value for value in result_set if bool(search(r"[\d]+", value)) == True]
         for index in range(0, len(types), 1):
-            result_set = [value for value in result_set if types[index] not in value]
-        response: Dict[str, List[str]] = {
-            "types": types,
-            "result_set": result_set
-        }
+            response.append(" ".join([value for value in types[index].split(" ") if bool(search(r"[A-Z]+", value)) == True]))
         return response
 
     def extractShareholdersAmountShares(self, result_set: List[str]) -> List[int]:
@@ -2295,7 +2289,8 @@ class Document_Reader:
         result_set = [value for value in result_set if "Currency" not in value]
         dataset: List[str] = [value for value in result_set if bool(search(r"[\d]+", value)) == True]
         amount_of_shares: List[int] = self.extractShareholdersAmountShares(result_set)
-        print(f"{result_set=}\n{dataset=}")
+        type_of_shares: List[str] = self.extractShareholdersTypeShares(result_set)
+        print(f"{result_set=}\n{dataset=}\n{amount_of_shares=}\n{type_of_shares=}")
         exit()
         start_index = result_set.index("Appointed Date") + 1
         result_set = result_set[start_index:]
@@ -2303,7 +2298,6 @@ class Document_Reader:
         result_set = [value for value in result_set if "MAURITIUS" not in value]
         result_set = [value for value in result_set if "ROAD" not in value]
         result_set = [value for value in result_set if "/" not in value]
-        type_of_shares: Dict[str, List[str]] = self.extractShareholdersTypeShares(result_set)
         result_set = type_of_shares["result_set"]
         types: List[str] = type_of_shares["types"]
         names: List[str] = [value for value in result_set if bool(search(r"[A-Z\s]+", value)) == True and bool(search(r"[a-z]+", value)) == False]
