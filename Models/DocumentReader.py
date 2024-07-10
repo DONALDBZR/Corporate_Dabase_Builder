@@ -137,7 +137,7 @@ class Document_Reader:
             dataset: {identifier: int, file_data: bytes, company_detail: int}: The dataset of the corporate registry retrieved from the relational database server.
 
         Returns:
-            {}
+            {company_details: {file_number: string, name: string, category: string, date_incorporation: int, nature: string, status: string}}
         """
         response: Dict[str, Union[int, Dict[str, Union[str, int]], List[Dict[str, str]], List[Dict[str, Union[str, int]]], List[Dict[str, int]], Dict[str, Union[Dict[str, Union[int, str]], float]], Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]]]
         file_name: str = f"{self.ENV.getDirectory()}Cache/CorporateDocumentFile/Documents/{dataset.company_detail}.pdf"
@@ -193,6 +193,32 @@ class Document_Reader:
                 "status": 404
             }
             self.getLogger().error(f"The portable document file has not been generated correctly!  The application will abort the extraction.\nStatus: {response['status']}\nFile Location: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
+        return response
+
+    def extractDataGlobalBusinessCompanyCompanyDetails(self, result_set: List[str]) -> Dict[str, Union[str, int]]:
+        """
+        Extracting the company details of a global business company
+        from the corporate registry.
+
+        Parameters:
+            result_set: [string]: The data of the corporate registry.
+
+        Returns:
+            {file_number: string, name: string, category: string, date_incorporation: int, nature: string, status: string}
+        """
+        response: Dict[str, Union[str, int]]
+        start_index: int = result_set.index("Company Details") + 1
+        end_index: int = result_set.index("Office Bearers")
+        result_set = result_set[start_index:end_index]
+        result_set = [value for value in result_set if ":" not in value]
+        response = {
+            "file_number": result_set[0],
+            "name": result_set[1].title(),
+            "category": result_set[3].title(),
+            "date_incorporation": int(datetime.strptime(result_set[4], "%d/%m/%Y").timestamp()),
+            "nature": result_set[5].title(),
+            "status": result_set[6].title(),
+        }
         return response
 
     def extractDataAuthorisedCompany(self, status: int, dataset: DocumentFiles) -> Dict[str, Union[int, Dict[str, Union[str, int]], Dict[str, str], List[Dict[str, Union[str, int]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]], Dict[str, Union[Dict[str, str], List[Dict[str, int]]]]]]:
