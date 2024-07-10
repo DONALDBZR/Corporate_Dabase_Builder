@@ -334,8 +334,19 @@ class Builder:
         self.getLogger().inform(f"The corporate registries have been retrieved from the relational database server and they will be used for the extracttion of the data about the companies.\nDate of Incorporation: {date}\nCorporate Registries Amount: {amount}\nAmount Downloaded: {amount_found}")
         if len(document_files) > 0:
             self._extractCorporateData(document_files)
+            self.extractCorporateData()
         else:
-            # Storing the logs and cleaning the processing server.
+            logs: Tuple[str, str, int, int, int, int, int] = (
+                "extractCorporateData",
+                quarter.quarter,
+                int(datetime.strptime(date, "%Y-%m-%d").timestamp()),
+                int(datetime.strptime(date, "%Y-%m-%d").timestamp()),
+                200,
+                amount,
+                amount_found
+            )
+            self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(logs) # type: ignore
+            self.cleanExtractionCacheDirectory()
 
     def _extractCorporateData(self, document_files: List[DocumentFiles]) -> None:
         """
