@@ -1613,6 +1613,8 @@ class Document_Reader:
             certificates: List[Dict[str, Union[str, int]]] = self.extractCertificates(portable_document_file_data_result_set)
             office_bearers: List[Dict[str, Union[str, int]]] = self.extractOfficeBearers(portable_document_file_data_result_set)
             shareholders: List[Dict[str, Union[str, int]]] = self.extractShareholders(portable_document_file_data_result_set)
+            print(f"{shareholders=}")
+            exit()
             members: List[Dict[str, Union[str, int]]] = self.extractMembers(portable_document_file_data_result_set)
             annual_return: List[Dict[str, int]] = self.extractAnnualReturns(portable_document_file_data_result_set)
             financial_summaries: List[Dict[str, Union[int, str]]] = self.extractFinancialSummaries(portable_document_file_data_result_set)
@@ -2438,6 +2440,8 @@ class Document_Reader:
         start_index: int = portable_document_file_result_set.index("Shareholders") + 1
         end_index: int = portable_document_file_result_set.index("Members (Applicable for Company Limited by Guarantee or Shares and Guarantee)")
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
+        start_index = result_set.index("Currency") + 1
+        result_set = result_set[start_index:]
         result_set = [value for value in result_set if "Name" not in value]
         result_set = [value for value in result_set if "Type of Shares" not in value]
         result_set = [value for value in result_set if "Currency" not in value]
@@ -2448,9 +2452,9 @@ class Document_Reader:
         amount_of_shares: List[int] = self.extractShareholdersAmountShares(result_set)
         type_of_shares: List[str] = self.extractShareholdersTypeShares(result_set)
         result_set = [value for value in result_set if value not in dataset]
-        names: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == True and "Mauritius" not in value]
+        names: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and "Mauritius" not in value]
         names = [name for index, name in enumerate(names) if all(name not in names for name in names[:index])]
-        dataset = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == True and "Mauritius" not in value]
+        dataset = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and "Mauritius" not in value]
         result_set = [value for value in result_set if value not in dataset]
         currencies: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == True]
         for index in range(0, min([len(names), len(amount_of_shares), len(type_of_shares), len(currencies)]), 1):
