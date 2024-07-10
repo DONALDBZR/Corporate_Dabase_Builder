@@ -1610,6 +1610,8 @@ class Document_Reader:
             portable_document_file_data_result_set: List[str] = list(filter(None, portable_document_file_data.split("\n")))
             company_details: Dict[str, Union[str, int]] = self.extractCompanyDetails(portable_document_file_data_result_set)
             business_details: List[Dict[str, str]] = self.extractBusinessDetails(portable_document_file_data_result_set)
+            print(f"{business_details=}")
+            exit()
             certificates: List[Dict[str, Union[str, int]]] = self.extractCertificates(portable_document_file_data_result_set)
             office_bearers: List[Dict[str, Union[str, int]]] = self.extractOfficeBearers(portable_document_file_data_result_set)
             shareholders: List[Dict[str, Union[str, int]]] = self.extractShareholders(portable_document_file_data_result_set)
@@ -2822,7 +2824,11 @@ class Document_Reader:
         start_index: int = portable_document_file_result_set.index("Business Details")
         end_index: int = portable_document_file_result_set.index("Particulars of Stated Capital")
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
-        result_set = [value for value in result_set if "Business" not in value]
+        result_set = [value for value in result_set if "Business Details" not in value]
+        result_set = [value for value in result_set if "Business Registration No" not in value]
+        result_set = [value for value in result_set if "Business Name" not in value]
+        result_set = [value for value in result_set if "Nature of Business" not in value]
+        result_set = [value for value in result_set if "Principal Place of Business" not in value]
         operational_addresses: List[str] = self.extractBusinessDetailsOperationalAddresses(result_set)
         dataset: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and "Mauritius".upper() in value]
         result_set = [value for value in result_set if value not in dataset]
