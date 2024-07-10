@@ -333,9 +333,21 @@ class Builder:
         amount_found: int = self.getDocumentFiles().getAmountFound(date)
         self.getLogger().inform(f"The corporate registries have been retrieved from the relational database server and they will be used for the extracttion of the data about the companies.\nDate of Incorporation: {date}\nCorporate Registries Amount: {amount}\nAmount Downloaded: {amount_found}")
         if len(document_files) > 0:
-            # Extracting the corporate data
+            self._extractCorporateData(document_files)
         else:
             # Storing the logs and cleaning the processing server.
+
+    def _extractCorporateData(self, document_files: List[DocumentFiles]) -> None:
+        """
+        Extracting the corporate data as well as storing it in the
+        relational database server.
+
+        Parameters:
+            document_files: [{identifier: int, file_data: bytes, company_detail: int}]: The list of corporate registries.
+
+        Returns:
+            void
+        """
         for index in range(0, len(document_files), 1):
             company_detail: CompanyDetails = self.getCompanyDetails().getSpecificCompanyDetails(document_files[index].company_detail)
             file_generation_status: int = self.getDocumentReader().generatePortableDocumentFile(document_files[index])
