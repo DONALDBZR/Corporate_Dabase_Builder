@@ -348,6 +348,23 @@ class Builder:
             self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(logs) # type: ignore
             self.cleanExtractionCacheDirectory()
 
+    def cleanExtractionCacheDirectory(self) -> None:
+        """
+        Cleaning all of the data that are in the extraction cache
+        directory.
+
+        Returns:
+            void
+        """
+        portable_document_files_directory: str = f"{self.ENV.getDirectory()}Cache/CorporateDocumentFile/Documents/"
+        data_directory: str = f"{self.ENV.getDirectory()}Cache/CorporateDocumentFile/Metadata/"
+        portable_document_files: List[str] = os.listdir(portable_document_files_directory)
+        data: List[str] = os.listdir(data_directory)
+        for index in range(0, len(portable_document_files), 1):
+            os.remove(f"{portable_document_files_directory}{portable_document_files[index]}")
+        for index in range(0, len(data), 1):
+            os.remove(f"{data_directory}{data[index]}")
+
     def _extractCorporateData(self, document_files: List[DocumentFiles]) -> None:
         """
         Extracting the corporate data as well as storing it in the
