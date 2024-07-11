@@ -9,7 +9,6 @@ Authors:
 """
 
 
-from concurrent.futures import process
 from Models.Logger import Corporate_Database_Builder_Logger
 from Data.DocumentFiles import DocumentFiles
 from Data.CompanyDetails import CompanyDetails
@@ -148,10 +147,10 @@ class Document_Reader:
             portable_document_file_data_result_set: List[str] = list(filter(None, portable_document_file_data.split("\n")))
             company_details: Dict[str, Union[str, int]] = self.extractDataGlobalBusinessCompanyCompanyDetails(portable_document_file_data_result_set)
             business_details: Dict[str, str] = self.extractDataGlobalBusinessCompanyBusinessDetails(portable_document_file_data_result_set)
-            print(f"{company_details=}\n{business_details=}")
+            office_bearers: List[Dict[str, Union[str, int]]] = self.extractDataGlobalBusinessCompanyOfficeBearers(portable_document_file_data_result_set)
+            print(f"{company_details=}\n{business_details=}\n{office_bearers=}")
             exit()
             certificates: List[Dict[str, Union[str, int]]] = self.extractCertificates(portable_document_file_data_result_set)
-            office_bearers: List[Dict[str, Union[str, int]]] = self.extractOfficeBearers(portable_document_file_data_result_set)
             shareholders: List[Dict[str, Union[str, int]]] = self.extractShareholders(portable_document_file_data_result_set)
             members: List[Dict[str, Union[str, int]]] = self.extractMembers(portable_document_file_data_result_set)
             annual_return: List[Dict[str, int]] = self.extractAnnualReturns(portable_document_file_data_result_set)
@@ -193,6 +192,49 @@ class Document_Reader:
                 "status": 404
             }
             self.getLogger().error(f"The portable document file has not been generated correctly!  The application will abort the extraction.\nStatus: {response['status']}\nFile Location: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
+        return response
+
+    def extractDataGlobalBusinessCompanyOfficeBearers(self, result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
+        """
+        Extracting the office bearers of a global business company
+        from the corporate registry.
+
+        Parameters:
+            result_set: [string]: The data of the corporate registry.
+
+        Returns:
+            [{position: string, name: string, address: string, date_appointment: int}]
+        """
+        response: List[Dict[str, Union[str, int]]] = []
+        possible_positions: List[str] = self.getOfficeBearer().getPossiblePositions() + ["MANAGEMENT COMPANY"]
+        start_index: int = result_set.index("Office Bearers") + 1
+        end_index: int = result_set.index("Liquidators")
+        date_appointments: List[str] = [value for value in result_set[start_index:end_index] if "/" in value and bool(search(r"[A-Z]+", value)) == False]
+        end_index = result_set.index("Receivers")
+        positions: List[str] = [value for value in result_set[start_index:end_index] if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == False and value in possible_positions]
+        end_index = result_set.index("Reports of Receiver")
+        result_set = result_set[start_index:end_index]
+        dataset = [value for value in result_set[start_index:end_index] if bool(search(r"[A-Z]+", value)) == True and ":" not in value and "Receivers" not in value and "MANAGEMENT" not in value and "COMPANY" not in value and "SECRETARY" not in value]
+        addresses: List[str] = self.extractDataGlobalBusinessCompanyOfficeBearersAddress(dataset)
+        print(f"{date_appointments=}\n{positions=}\n{addresses=}")
+        exit()
+        return response
+
+    def extractDataGlobalBusinessCompanyOfficeBearersAddress(self, result_set: List[str]) -> List[str]:
+        """
+        Extracting the addresses of the office bearers of a global
+        business company.
+
+        Parameters:
+            result_set: [string]: The data of the corporate registry.
+
+        Returns:
+            [string]
+        """
+        response: List[str] = []
+        addresses: List[str] = [value for value in " ".join([value for value in " ".join(result_set).split(" ") if value != ""]).split("MAURITIUS") if value != ""]
+        for index in range(0, len(addresses), 1):
+            response.append(f"{addresses[index]}MAURITIUS")
         return response
 
     def extractDataGlobalBusinessCompanyBusinessDetails(self, result_set: List[str]) -> Dict[str, str]:
