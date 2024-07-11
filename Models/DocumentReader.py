@@ -216,8 +216,15 @@ class Document_Reader:
         result_set = result_set[start_index:end_index]
         dataset = [value for value in result_set[start_index:end_index] if bool(search(r"[A-Z]+", value)) == True and ":" not in value and "Receivers" not in value and "MANAGEMENT" not in value and "COMPANY" not in value and "SECRETARY" not in value]
         addresses: List[str] = self.extractDataGlobalBusinessCompanyOfficeBearersAddress(dataset)
-        print(f"{date_appointments=}\n{positions=}\n{addresses=}")
-        exit()
+        names: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and value not in possible_positions and "MAURITIUS" not in value and bool(search(r"[a-z]+", value)) == False]
+        limit: int = min([len(date_appointments), len(positions), len(addresses), len(names)])
+        for index in range(0, limit, 1):
+            response.append({
+                "position": positions[index].title(),
+                "name": names[index].title(),
+                "address": addresses[index].title(),
+                "date_appointment": int(datetime.strptime(date_appointments[index], "%d/%m/%Y").timestamp())
+            })
         return response
 
     def extractDataGlobalBusinessCompanyOfficeBearersAddress(self, result_set: List[str]) -> List[str]:
