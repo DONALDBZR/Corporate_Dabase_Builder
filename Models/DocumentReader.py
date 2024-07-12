@@ -136,7 +136,7 @@ class Document_Reader:
             dataset: {identifier: int, file_data: bytes, company_detail: int}: The dataset of the corporate registry retrieved from the relational database server.
 
         Returns:
-            {company_details: {file_number: string, name: string, category: string, date_incorporation: int, nature: string, status: string}, business_details: {registered_address: string}}
+            {company_details: {file_number: string, name: string, category: string, date_incorporation: int, nature: string, status: string}, business_details: {registered_address: string}, office_bearers: [{position: string, name: string, address: string, date_appointment: int}]}
         """
         response: Dict[str, Union[int, Dict[str, Union[str, int]], List[Dict[str, str]], List[Dict[str, Union[str, int]]], List[Dict[str, int]], Dict[str, Union[Dict[str, Union[int, str]], float]], Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]]]
         file_name: str = f"{self.ENV.getDirectory()}Cache/CorporateDocumentFile/Documents/{dataset.company_detail}.pdf"
@@ -148,7 +148,8 @@ class Document_Reader:
             company_details: Dict[str, Union[str, int]] = self.extractDataGlobalBusinessCompanyCompanyDetails(portable_document_file_data_result_set)
             business_details: Dict[str, str] = self.extractDataGlobalBusinessCompanyBusinessDetails(portable_document_file_data_result_set)
             office_bearers: List[Dict[str, Union[str, int]]] = self.extractDataGlobalBusinessCompanyOfficeBearers(portable_document_file_data_result_set)
-            print(f"{company_details=}\n{business_details=}\n{office_bearers=}")
+            receivers: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractDataGlobalBusinessCompanyReceivers(portable_document_file_data_result_set)
+            print(f"{company_details=}\n{business_details=}\n{office_bearers=}\n{receivers=}")
             exit()
             certificates: List[Dict[str, Union[str, int]]] = self.extractCertificates(portable_document_file_data_result_set)
             shareholders: List[Dict[str, Union[str, int]]] = self.extractShareholders(portable_document_file_data_result_set)
@@ -160,7 +161,6 @@ class Document_Reader:
             balance_sheet: Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]] = self.extractBalanceSheet(portable_document_file_data_result_set)
             charges: List[Dict[str, Union[int, str]]] = self.extractCharges(portable_document_file_data_result_set)
             liquidators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractLiquidators(portable_document_file_data_result_set)
-            receivers: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractReceivers(portable_document_file_data_result_set)
             administrators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractAdministrators(portable_document_file_data_result_set)
             details: List[Dict[str, Union[str, int]]] = self.extractDetails(portable_document_file_data_result_set)
             objections: List[Dict[str, Union[int, str]]] = self.extractObjections(portable_document_file_data_result_set)
@@ -192,6 +192,49 @@ class Document_Reader:
                 "status": 404
             }
             self.getLogger().error(f"The portable document file has not been generated correctly!  The application will abort the extraction.\nStatus: {response['status']}\nFile Location: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
+        return response
+
+    def extractDataGlobalBusinessCompanyReceivers(self, result_set: List[str]) -> Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]:
+        """
+        Extracting the receivers of a global business company from
+        the corporate registry.
+
+        Parameters:
+            result_set: [string]: The data of the corporate registry.
+
+        Returns:
+            {receiver: {name: string, date_appointed: int, address: string}, reports: [{date_filled: int, date_from: int, date_to: int}], affidavits: [{date_filled: int, date_from: int, date_to: int}]}
+        """
+        response: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]
+        start_index: int = result_set.index("Receivers")
+        end_index: int =  result_set.index("Administrators")
+        result_set = result_set[start_index:end_index]
+        result_set = [value for value in result_set if "Mauritius" not in value and "MAURITIUS" not in value and "IQ EQ" not in value and "Street" not in value]
+        receiver: Dict[str, Union[str, int]] = self._extractDataGlobalBusinessCompanyReceivers(result_set)
+        print(f"{receiver=}")
+        exit()
+        return response
+
+    def _extractDataGlobalBusinessCompanyReceivers(self, result_set: List[str]) -> Dict[str, Union[str, int]]:
+        """
+        Extracting the receiver of the receivers of a global
+        business company from the corporate registry.
+
+        Parameters:
+            result_set: [string]: The data of the corporate registry.
+
+        Returns:
+            {name: string, date_appointed: int, address: string}
+        """
+        response: Dict[str, Union[str, int]]
+        start_index: int = result_set.index("Name:")
+        end_index: int = result_set.index("Reports of Receiver")
+        result_set = [value for value in result_set[start_index:end_index] if ":" not in value]
+        if len(result_set) > 0:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractDataAuthorisedCompanyLiquidators()")
+            exit()
+        else:
+            response = {}
         return response
 
     def extractDataGlobalBusinessCompanyOfficeBearers(self, result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
