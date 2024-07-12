@@ -207,13 +207,41 @@ class Document_Reader:
         """
         response: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]
         start_index: int = result_set.index("Receivers")
-        end_index: int =  result_set.index("Administrators")
+        end_index: int =  result_set.index("Appointed Date")
         result_set = result_set[start_index:end_index]
-        result_set = [value for value in result_set if "Mauritius" not in value and "MAURITIUS" not in value and "IQ EQ" not in value and "Street" not in value]
+        result_set = [value for value in result_set if "Mauritius" not in value and "MAURITIUS" not in value and "IQ EQ" not in value and "Street" not in value and "Administrators" not in value]
         receiver: Dict[str, Union[str, int]] = self._extractDataGlobalBusinessCompanyReceivers(result_set)
         reports: List[Dict[str, int]] = self.extractDataGlobalBusinessCompanyReceiversReports(result_set)
-        print(f"{receiver=}\n{reports=}")
+        affidavits: List[Dict[str, int]] = self.extractDataGlobalBusinessCompanyReceiversAffidavits(result_set)
+        print(f"{receiver=}\n{reports=}\n{affidavits=}")
         exit()
+        return response
+
+    def extractDataGlobalBusinessCompanyReceiversAffidavits(self, result_set: List[str]) -> List[Dict[str, int]]:
+        """
+        Extracting the affidavits of the receivers of a global
+        business company from the corporate registry.
+
+        Parameters:
+            result_set: [string]: The data of the corporate registry.
+
+        Returns:
+            [{date_filled: int, date_from: int, date_to: int}]
+        """
+        response: List[Dict[str, int]]
+        start_index: int = result_set.index("To")
+        end_index: int = start_index + 4
+        date_to: List[str] = result_set[start_index:end_index]
+        start_index = int((len(date_to) / 2))
+        date_to = date_to[start_index:]
+        start_index = result_set.index("Affidavits of Receiver") + 1
+        result_set = [value for value in result_set[start_index:] if "To" not in value] + date_to
+        result_set = [value for value in result_set if "Date Filed" not in value and "From" not in value and "To" not in value]
+        if len(result_set) > 0:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractDataGlobalBusinessCompanyReceiversAffidavits()")
+            exit()
+        else:
+            response = []
         return response
 
     def extractDataGlobalBusinessCompanyReceiversReports(self, result_set: List[str]) -> List[Dict[str, int]]:
@@ -228,9 +256,15 @@ class Document_Reader:
             [{date_filled: int, date_from: int, date_to: int}]
         """
         response: List[Dict[str, int]]
-        start_index: int = result_set.index("Reports of Receiver") + 1
-        end_index: int = result_set.index("Affidavits of Receiver")
-        result_set = [value for value in result_set[start_index:end_index] if "Date Filed" not in value and "From" not in value]
+        start_index: int = result_set.index("To")
+        end_index: int = start_index + 4
+        date_to: List[str] = result_set[start_index:end_index]
+        end_index = int((len(date_to) / 2))
+        date_to = date_to[:end_index]
+        start_index = result_set.index("Reports of Receiver") + 1
+        end_index = result_set.index("Affidavits of Receiver")
+        result_set = result_set[start_index:end_index] + date_to
+        result_set = [value for value in result_set[start_index:end_index] if "Date Filed" not in value and "From" not in value and "To" not in value]
         if len(result_set) > 0:
             self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractDataGlobalBusinessCompanyReceiversReports()")
             exit()
