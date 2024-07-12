@@ -211,8 +211,31 @@ class Document_Reader:
         result_set = result_set[start_index:end_index]
         result_set = [value for value in result_set if "Mauritius" not in value and "MAURITIUS" not in value and "IQ EQ" not in value and "Street" not in value]
         receiver: Dict[str, Union[str, int]] = self._extractDataGlobalBusinessCompanyReceivers(result_set)
-        print(f"{receiver=}")
+        reports: List[Dict[str, int]] = self.extractDataGlobalBusinessCompanyReceiversReports(result_set)
+        print(f"{receiver=}\n{reports=}")
         exit()
+        return response
+
+    def extractDataGlobalBusinessCompanyReceiversReports(self, result_set: List[str]) -> List[Dict[str, int]]:
+        """
+        Extracting the reports of the receivers of a global business
+        company from the corporate registry.
+
+        Parameters:
+            result_set: [string]: The data of the corporate registry.
+
+        Returns:
+            [{date_filled: int, date_from: int, date_to: int}]
+        """
+        response: List[Dict[str, int]]
+        start_index: int = result_set.index("Reports of Receiver") + 1
+        end_index: int = result_set.index("Affidavits of Receiver")
+        result_set = [value for value in result_set[start_index:end_index] if "Date Filed" not in value and "From" not in value]
+        if len(result_set) > 0:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractDataGlobalBusinessCompanyReceiversReports()")
+            exit()
+        else:
+            response = []
         return response
 
     def _extractDataGlobalBusinessCompanyReceivers(self, result_set: List[str]) -> Dict[str, Union[str, int]]:
@@ -231,7 +254,7 @@ class Document_Reader:
         end_index: int = result_set.index("Reports of Receiver")
         result_set = [value for value in result_set[start_index:end_index] if ":" not in value]
         if len(result_set) > 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractDataAuthorisedCompanyLiquidators()")
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractDataGlobalBusinessCompanyReceivers()")
             exit()
         else:
             response = {}
