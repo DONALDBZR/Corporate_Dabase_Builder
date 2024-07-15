@@ -409,6 +409,64 @@ class Builder:
             response = 201
         return response
 
+    def storeCorporateDataGlobalBusinessCompany(self, dataset: Dict[str, Union[int, Dict[str, Union[str, int]], Dict[str, str], List[Dict[str, Union[str, int]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]], Dict[str, Union[Dict[str, str], List[Dict[str, int]]]]]], document_file: DocumentFiles) -> int:
+        """
+        Storing the corporate data that is extracted from the corporate registry for a global business company.
+
+        Parameters:
+            dataset: {status: int, company_details: {file_number: string, name: string, category: string, date_incorporation: int, nature: string, status: string}, business_details: {registered_address: string}, office_bearers: [{position: string, name: string, address: string, date_appointment: int}], receivers:  {receiver: {name: string, date_appointed: int, address: string}, reports: [{date_filled: int, date_from: int, date_to: int}], affidavits: [{date_filled: int, date_from: int, date_to: int}]}, administrators: {administrator: {name: string, designation: string, address: string, date_appointed: int}, accounts: [{date_filled: int, date_from: int, date_to: int}]}, liquidators: {liquidator: {name: string, designation: string, address: string, date_appointed: int}, affidavits: [{date_filled: int, date_from: int, date_to: int}]}}: The data that has been extracted from the corporate registry.
+            document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
+
+        Returns:
+            int
+        """
+        response: int
+        data_extraction_status: int = dataset["status"] # type: ignore
+        if data_extraction_status == 200:
+            company_detail_response: int = self.storeCorporateDataGlobalBusinessCompanyCompanyDetails(data_extraction_status, dataset["company_details"], document_file) # type: ignore
+            print(f"{company_detail_response=}")
+            exit()
+            business_detail_response: int = self.storeCorporateDataAuthorisedCompanyBusinessDetails(company_detail_response, dataset["business_details"], document_file) # type: ignore
+            office_bearers_response: int = self.storeCorporateDataAuthorisedCompanyOfficeBearers(business_detail_response, dataset["office_bearers"], document_file) # type: ignore
+            receivers_response: int = self.storeCorporateDataAuthorisedCompanyReceivers(office_bearers_response, dataset["receivers"], document_file) # type: ignore
+            administrators_response: int = self.storeCorporateDataAuthorisedCompanyAdministrators(receivers_response, dataset["administrators"], document_file) # type: ignore
+            liquidators_response: int = self.storeCorporateDataAuthorisedCompanyLiquidators(administrators_response, dataset["liquidators"], document_file) # type: ignore
+            response = liquidators_response
+        else:
+            response = 500
+            self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {data_extraction_status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
+        return response
+
+    def storeCorporateDataGlobalBusinessCompanyCompanyDetails(self, status: int, company_details: Dict[str, Union[str, int]], document_file: DocumentFiles) -> int:
+        """
+        Doing the data manipulation on the Company Details dataset
+        of a global business company.
+
+        Parameters:
+            data_extraction: int: The status of the data extraction.
+            company_details: {name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}: The data that has been extracted for the company details table.
+            document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
+
+        Returns:
+            int
+        """
+        response: int
+        date_verified: int = int(time())
+        is_extracted: int = 1
+        company_identifier: int = int("".join(findall(r"\d+", str(company_details["file_number"]))))
+        company_type: str = "".join(findall(r"[A-Z]+", str(company_details["file_number"])))
+        if status == 200:
+            company_details["date_verified"] = date_verified
+            company_details["is_extracted"] = is_extracted
+            company_details["company_identifier"] = company_identifier
+            company_details["company_type"] = company_type
+            response = self.getCompanyDetails().updateCorporateMetadataAuthorisedCompany(company_details, document_file.company_detail)
+            self.getLogger().inform(f"The data has been successfully updated into the Company Details table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {company_details}")
+        else:
+            response = status
+            self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
+        return response
+
     def storeCorporateDataAuthorisedCompany(self, dataset: Dict[str, Union[int, Dict[str, Union[str, int]], Dict[str, str], List[Dict[str, Union[str, int]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]], Dict[str, Union[Dict[str, str], List[Dict[str, int]]]]]], document_file: DocumentFiles) -> int:
         """
         Storing the corporate data that is extracted from the
