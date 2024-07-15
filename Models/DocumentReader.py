@@ -367,6 +367,7 @@ class Document_Reader:
         date_to = date_to[start_index:]
         start_index = result_set.index("Affidavits of Receiver") + 1
         result_set = [value for value in result_set[start_index:] if "To" not in value] + date_to
+        result_set = [value for value in result_set if ":" not in value and "Accounts of Administrator" not in value and "Service Address" not in value]
         result_set = [value for value in result_set if "Date Filed" not in value and "From" not in value and "To" not in value]
         if len(result_set) > 0:
             self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractDataGlobalBusinessCompanyReceiversAffidavits()")
