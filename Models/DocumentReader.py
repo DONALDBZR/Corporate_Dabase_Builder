@@ -218,8 +218,11 @@ class Document_Reader:
         result_set = result_set[:end_index]
         administrator: Dict[str, Union[str, int]] = self._extractDataGlobalBusinessCompanyAdministrators(result_set, date_appointeds)
         accounts: List[Dict[str, int]] = self.extractDataGlobalBusinessCompanyAdministratorsAccounts(result_set)
-        print(f"{administrator=}\n{accounts=}")
-        exit()
+        if not administrator and len(accounts) == 0:
+            response = {}
+        else:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractDataGlobalBusinessCompanyAdministrators()")
+            exit()
         return response
 
     def extractDataGlobalBusinessCompanyAdministratorsAccounts(self, result_set: List[str]) -> List[Dict[str, int]]:
@@ -242,7 +245,7 @@ class Document_Reader:
         if len(result_set) == 0:
             response = []
         else:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractDataGlobalBusinessCompanyAdministrators()")
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractDataGlobalBusinessCompanyAdministratorsAccounts()")
             exit()
         return response
 
