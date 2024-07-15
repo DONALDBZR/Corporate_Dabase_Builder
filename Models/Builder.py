@@ -400,6 +400,8 @@ class Builder:
             response = self.storeCorporateDataDomestic(dataset, document_file, company_detail) # type: ignore
         elif company_detail.category.upper() == "AUTHORISED COMPANY":
             response = self.storeCorporateDataAuthorisedCompany(dataset, document_file) # type: ignore
+        elif company_detail.category.upper() == "GLOBAL BUSINESS COMPANY":
+            response = self.storeCorporateDataGlobalBusinessCompany(dataset, document_file) # type: ignore
         else:
             self.getLogger().error(f"The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateData()\nCategory: {company_detail.category}")
             exit()
