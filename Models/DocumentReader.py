@@ -3084,7 +3084,7 @@ class Document_Reader:
             [{type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}]
         """
         response: List[Dict[str, Union[str, int]]] = []
-        start_index: int = portable_document_file_result_set.index("Particulars of Stated Capital") + 1
+        start_index: int = portable_document_file_result_set.index("Type of Shares")
         end_index: int = portable_document_file_result_set.index("Certificate (Issued by Other Institutions)")
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
         result_set = [value for value in result_set if "Type of Shares" not in value]
@@ -3103,7 +3103,8 @@ class Document_Reader:
         result_set = [value for value in result_set if value not in dataset]
         amount_unpaids: List[int] = self.extractStateCapitalAmountUnpaid(result_set)
         share_values: List[int] = self.extractStateCapitalShareValue(result_set)
-        for index in range(0, min([len(types), len(amounts), len(currencies), len(stated_capitals), len(amount_unpaids), len(share_values)]), 1):
+        limitation: int = min([len(types), len(amounts), len(currencies), len(stated_capitals), len(amount_unpaids), len(share_values)])
+        for index in range(0, limitation, 1):
             response.append({
                 "type": types[index].title(),
                 "amount": amounts[index],
