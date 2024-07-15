@@ -214,9 +214,36 @@ class Document_Reader:
         date_appointeds: List[str] = [value for value in result_set[start_index:end_index] if ":" in value or "/" in value]
         end_index = int(len(date_appointeds) / 2)
         date_appointeds = date_appointeds[:end_index]
+        end_index = result_set.index("Liquidators")
+        result_set = result_set[:end_index]
         administrator: Dict[str, Union[str, int]] = self._extractDataGlobalBusinessCompanyAdministrators(result_set, date_appointeds)
-        print(f"{administrator=}")
+        accounts: List[Dict[str, int]] = self.extractDataGlobalBusinessCompanyAdministratorsAccounts(result_set)
+        print(f"{administrator=}\n{accounts=}")
         exit()
+        return response
+
+    def extractDataGlobalBusinessCompanyAdministratorsAccounts(self, result_set: List[str]) -> List[Dict[str, int]]:
+        """
+        Extracting the accounts of the administrators of a global
+        business company from the corporate registry.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [{date_filled: int, date_from: int, date_to: int}]
+        """
+        response: List[Dict[str, int]]
+        start_index: int = result_set.index("Accounts of Administrator") + 1
+        result_set = result_set[start_index:]
+        result_set = [value for value in result_set if "Date Filed" not in value]
+        result_set = [value for value in result_set if "From" not in value]
+        result_set = [value for value in result_set if "To" not in value]
+        if len(result_set) == 0:
+            response = []
+        else:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractDataGlobalBusinessCompanyAdministrators()")
+            exit()
         return response
 
     def _extractDataGlobalBusinessCompanyAdministrators(self, result_set: List[str], date_appointeds: List[str]) -> Dict[str, Union[str, int]]:
