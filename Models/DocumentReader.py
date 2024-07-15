@@ -215,8 +215,11 @@ class Document_Reader:
         date_appointeds = date_appointeds[start_index:]
         liquidator: Dict[str, Union[str, int]] = self._extractDataGlobalBusinessCompanyLiquidators(result_set, date_appointeds)
         affidavits: List[Dict[str, int]] = self.extractDataGlobalBusinessCompanyLiquidatorsAffidavits(result_set)
-        print(f"{liquidator=}\n{affidavits=}")
-        exit()
+        if not liquidator and len(affidavits) == 0:
+            response = {}
+        else:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractDataGlobalBusinessCompanyLiquidators()")
+            exit()
         return response
 
     def extractDataGlobalBusinessCompanyLiquidatorsAffidavits(self, result_set: List[str]) -> List[Dict[str, int]]:
