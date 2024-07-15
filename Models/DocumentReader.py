@@ -151,38 +151,14 @@ class Document_Reader:
             receivers: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractDataGlobalBusinessCompanyReceivers(portable_document_file_data_result_set)
             administrators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractDataGlobalBusinessCompanyAdministrators(portable_document_file_data_result_set)
             liquidators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractDataGlobalBusinessCompanyLiquidators(portable_document_file_data_result_set)
-            print(f"{company_details=}\n{business_details=}\n{office_bearers=}\n{receivers=}\n{administrators=}\n{liquidators=}")
-            exit()
-            certificates: List[Dict[str, Union[str, int]]] = self.extractCertificates(portable_document_file_data_result_set)
-            shareholders: List[Dict[str, Union[str, int]]] = self.extractShareholders(portable_document_file_data_result_set)
-            members: List[Dict[str, Union[str, int]]] = self.extractMembers(portable_document_file_data_result_set)
-            annual_return: List[Dict[str, int]] = self.extractAnnualReturns(portable_document_file_data_result_set)
-            financial_summaries: List[Dict[str, Union[int, str]]] = self.extractFinancialSummaries(portable_document_file_data_result_set)
-            profit_statement: Dict[str, Union[Dict[str, Union[int, str]], float]] = self.extractProfitStatements(portable_document_file_data_result_set)
-            state_capital: List[Dict[str, Union[str, int]]] = self.extractStateCapital(portable_document_file_data_result_set)
-            balance_sheet: Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]] = self.extractBalanceSheet(portable_document_file_data_result_set)
-            charges: List[Dict[str, Union[int, str]]] = self.extractCharges(portable_document_file_data_result_set)
-            details: List[Dict[str, Union[str, int]]] = self.extractDetails(portable_document_file_data_result_set)
-            objections: List[Dict[str, Union[int, str]]] = self.extractObjections(portable_document_file_data_result_set)
             response = {
                 "status": 200,
                 "company_details": company_details,
-                "business_details": business_details,
-                "certificates": certificates,
+                "business_details": business_details, # type: ignore
                 "office_bearers": office_bearers,
-                "shareholders": shareholders,
-                "members": members,
-                "annual_return": annual_return,
-                "financial_summaries": financial_summaries,
-                "profit_statement": profit_statement,
-                "state_capital": state_capital,
-                "balance_sheet": balance_sheet,
-                "charges": charges,
-                "liquidators": liquidators,
                 "receivers": receivers,
                 "administrators": administrators,
-                "details": details,
-                "objections": objections
+                "liquidators": liquidators
             }
             cache_file.write(dumps(response, indent=4))
             cache_file.close()
