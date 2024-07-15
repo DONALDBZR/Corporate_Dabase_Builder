@@ -257,7 +257,7 @@ class Document_Reader:
             {administrator: {name: string, designation: string, address: string, date_appointed: int}, accounts: [{date_filled: int, date_from: int, date_to: int}]}
         """
         response: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]
-        start_index: int = result_set.index("Administrators") + 14
+        start_index: int = result_set.index("Administrators")
         end_index: int = result_set.index("Liquidators")
         result_set = result_set[start_index:]
         start_index = result_set.index("Appointed Date:")
@@ -314,7 +314,7 @@ class Document_Reader:
         """
         response: Dict[str, Union[str, int]]
         end_index: int = result_set.index("Accounts of Administrator")
-        result_set = [value for value in result_set[:end_index] + date_appointeds if ":" not in value]
+        result_set = [value for value in result_set[:end_index] + date_appointeds if ":" not in value and "Administrators" not in value]
         if len(result_set) == 0:
             response = {}
         else:
