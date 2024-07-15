@@ -289,7 +289,8 @@ class Document_Reader:
         """
         response: List[Dict[str, int]]
         start_index: int = result_set.index("Accounts of Administrator") + 1
-        result_set = result_set[start_index:]
+        end_index: int = result_set.index("Service Address")
+        result_set = result_set[start_index:end_index]
         result_set = [value for value in result_set if "Date Filed" not in value]
         result_set = [value for value in result_set if "From" not in value]
         result_set = [value for value in result_set if "To" not in value]
