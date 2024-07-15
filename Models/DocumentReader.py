@@ -136,7 +136,7 @@ class Document_Reader:
             dataset: {identifier: int, file_data: bytes, company_detail: int}: The dataset of the corporate registry retrieved from the relational database server.
 
         Returns:
-            {company_details: {file_number: string, name: string, category: string, date_incorporation: int, nature: string, status: string}, business_details: {registered_address: string}, office_bearers: [{position: string, name: string, address: string, date_appointment: int}], receivers:  {receiver: {name: string, date_appointed: int, address: string}, reports: [{date_filled: int, date_from: int, date_to: int}], affidavits: [{date_filled: int, date_from: int, date_to: int}]}, administrators: {administrator: {name: string, designation: string, address: string, date_appointed: int}, accounts: [{date_filled: int, date_from: int, date_to: int}]}}
+            {company_details: {file_number: string, name: string, category: string, date_incorporation: int, nature: string, status: string}, business_details: {registered_address: string}, office_bearers: [{position: string, name: string, address: string, date_appointment: int}], receivers:  {receiver: {name: string, date_appointed: int, address: string}, reports: [{date_filled: int, date_from: int, date_to: int}], affidavits: [{date_filled: int, date_from: int, date_to: int}]}, administrators: {administrator: {name: string, designation: string, address: string, date_appointed: int}, accounts: [{date_filled: int, date_from: int, date_to: int}]}, liquidators: {liquidator: {name: string, designation: string, address: string, date_appointed: int}, affidavits: [{date_filled: int, date_from: int, date_to: int}]}}
         """
         response: Dict[str, Union[int, Dict[str, Union[str, int]], List[Dict[str, str]], List[Dict[str, Union[str, int]]], List[Dict[str, int]], Dict[str, Union[Dict[str, Union[int, str]], float]], Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]]]
         file_name: str = f"{self.ENV.getDirectory()}Cache/CorporateDocumentFile/Documents/{dataset.company_detail}.pdf"
@@ -150,7 +150,8 @@ class Document_Reader:
             office_bearers: List[Dict[str, Union[str, int]]] = self.extractDataGlobalBusinessCompanyOfficeBearers(portable_document_file_data_result_set)
             receivers: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractDataGlobalBusinessCompanyReceivers(portable_document_file_data_result_set)
             administrators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractDataGlobalBusinessCompanyAdministrators(portable_document_file_data_result_set)
-            print(f"{company_details=}\n{business_details=}\n{office_bearers=}\n{receivers=}\n{administrators=}")
+            liquidators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractDataGlobalBusinessCompanyLiquidators(portable_document_file_data_result_set)
+            print(f"{company_details=}\n{business_details=}\n{office_bearers=}\n{receivers=}\n{administrators=}\n{liquidators=}")
             exit()
             certificates: List[Dict[str, Union[str, int]]] = self.extractCertificates(portable_document_file_data_result_set)
             shareholders: List[Dict[str, Union[str, int]]] = self.extractShareholders(portable_document_file_data_result_set)
@@ -161,7 +162,6 @@ class Document_Reader:
             state_capital: List[Dict[str, Union[str, int]]] = self.extractStateCapital(portable_document_file_data_result_set)
             balance_sheet: Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]] = self.extractBalanceSheet(portable_document_file_data_result_set)
             charges: List[Dict[str, Union[int, str]]] = self.extractCharges(portable_document_file_data_result_set)
-            liquidators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractLiquidators(portable_document_file_data_result_set)
             details: List[Dict[str, Union[str, int]]] = self.extractDetails(portable_document_file_data_result_set)
             objections: List[Dict[str, Union[int, str]]] = self.extractObjections(portable_document_file_data_result_set)
             response = {
@@ -192,6 +192,52 @@ class Document_Reader:
                 "status": 404
             }
             self.getLogger().error(f"The portable document file has not been generated correctly!  The application will abort the extraction.\nStatus: {response['status']}\nFile Location: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
+        return response
+
+    def extractDataGlobalBusinessCompanyLiquidators(self, result_set: List[str]) -> Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]:
+        """
+        Extracting the liquidator of a global business company from
+        the corporate registry.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            {liquidator: {name: string, designation: string, address: string, date_appointed: int}, affidavits: [{date_filled: int, date_from: int, date_to: int}]}
+        """
+        response: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]
+        start_index: int = result_set.index("Liquidators")
+        result_set = result_set[start_index:]
+        start_index = result_set.index("Appointed Date:")
+        end_index: int = start_index + 4
+        date_appointeds: List[str] = [value for value in result_set[start_index:end_index] if ":" in value or "/" in value]
+        start_index = int(len(date_appointeds) / 2)
+        date_appointeds = date_appointeds[start_index:]
+        liquidator: Dict[str, Union[str, int]] = self._extractDataGlobalBusinessCompanyLiquidators(result_set, date_appointeds)
+        print(f"{liquidator=}")
+        exit()
+        return response
+
+    def _extractDataGlobalBusinessCompanyLiquidators(self, result_set: List[str], date_appointed: List[str]) -> Dict[str, Union[str, int]]:
+        """
+        Extracting the liquidator of the liquidator of a global
+        business company from the corporate registry.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            {name: string, designation: string, address: string, date_appointed: int}
+        """
+        response: Dict[str, Union[str, int]]
+        start_index: int = result_set.index("Liquidators") + 1
+        end_index: int = result_set.index("Affidavits of Liquidator")
+        result_set = [value for value in result_set[start_index:end_index] + date_appointed if ":" not in value]
+        if len(result_set) == 0:
+            response = {}
+        else:
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractDataGlobalBusinessCompanyLiquidators()")
+            exit()
         return response
 
     def extractDataGlobalBusinessCompanyAdministrators(self, result_set: List[str]) -> Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]:
