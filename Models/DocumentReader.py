@@ -781,7 +781,7 @@ class Document_Reader:
         end_index: int = portable_document_file_data.index("Office Bearers")
         result_set: List[str] = portable_document_file_data[start_index:end_index]
         result_set = [value for value in result_set if ":" not in value]
-        result_set.remove("Registrar of Companies")
+        result_set = [value for value in result_set if "Registrar of Companies" not in value]
         response = {
             "name": result_set[1],
             "file_number": result_set[0],
