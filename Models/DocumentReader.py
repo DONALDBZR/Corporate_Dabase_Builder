@@ -1329,13 +1329,14 @@ class Document_Reader:
         shareholders_types: Dict[str, List[str]] = self._extractDataDomesticCivilCivilShareholdersType(result_set)
         types: List[str] = shareholders_types["types"]
         result_set = shareholders_types["result_set"]
-        print(f"{amounts=}\n{types=}")
-        exit()
+        names: List[str] = [value for value in result_set if bool(search(r"[A-Z\s]+", value)) == True and bool(search(r"[a-z]+", value)) == False]
+        currencies: List[str] = [value for value in result_set if value not in names]
+        start_index = currencies.index("Currency") + 1
+        currencies = currencies[start_index:]
+        currencies = [value for value in currencies if bool(search(r"[\d]+", value)) == False and bool(search(r"[A-Z]+", value)) == True and ":" not in value]
         start_index = result_set.index("Currency") + 1
         end_index: int = result_set.index("Liquidators")
         result_set = result_set[start_index:end_index]
-        names: List[str] = [value for value in result_set if bool(search(r"[A-Z\s]+", value)) == True and bool(search(r"[a-z]+", value)) == False]
-        currencies: List[str] = [value for value in result_set if value not in names]
         limitation: int = min([len(amounts), len(types), len(names), len(currencies)])
         for index in range(0, limitation, 1):
             response.append({
