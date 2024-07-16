@@ -2253,7 +2253,7 @@ class Document_Reader:
         result_set.remove("From")
         result_set.remove("To")
         if len(result_set) > 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractReceivers()")
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractReceiversReports()")
             exit()
         else:
             return []
