@@ -380,7 +380,7 @@ class Document_Reader:
         result_set = [value for value in result_set if "Date Filed" not in value and "From" not in value and "To" not in value]
         if len(result_set) > 0:
             self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractDataGlobalBusinessCompanyReceiversAffidavits()")
-            exit()
+            response = {}
         else:
             response = []
         return response
