@@ -350,7 +350,9 @@ class Document_Reader:
         end_index = result_set.index("Administrators")
         result_set = result_set[start_index:end_index]
         receiver: Dict[str, Union[str, int]] = self._extractDataGlobalBusinessCompanyReceivers(result_set, date_appointeds)
-        reports: List[Dict[str, int]] = self.extractDataGlobalBusinessCompanyReceiversReports(result_set)
+        reports: List[Dict[str, int]] = self.extractDataGlobalBusinessCompanyReceiversReports(result_set, date_tos)
+        print(f"{receiver=}\n{reports=}")
+        exit()
         affidavits: List[Dict[str, int]] = self.extractDataGlobalBusinessCompanyReceiversAffidavits(result_set)
         if not receiver and len(reports) == 0 and len(affidavits) == 0:
             response = {}
@@ -387,27 +389,25 @@ class Document_Reader:
             response = []
         return response
 
-    def extractDataGlobalBusinessCompanyReceiversReports(self, result_set: List[str]) -> List[Dict[str, int]]:
+    def extractDataGlobalBusinessCompanyReceiversReports(self, result_set: List[str], date_tos: List[str]) -> List[Dict[str, int]]:
         """
         Extracting the reports of the receivers of a global business
         company from the corporate registry.
 
         Parameters:
             result_set: [string]: The data of the corporate registry.
+            date_tos: [string]: The data about the date to for the reports.
 
         Returns:
             [{date_filled: int, date_from: int, date_to: int}]
         """
         response: List[Dict[str, int]]
-        start_index: int = result_set.index("To")
-        end_index: int = start_index + 4
-        date_to: List[str] = result_set[start_index:end_index]
-        end_index = int((len(date_to) / 2))
-        date_to = date_to[:end_index]
-        start_index = result_set.index("Reports of Receiver") + 1
+        end_index: int = int(len(date_tos) / 2)
+        date_tos = date_tos[:end_index]
+        start_index: int = result_set.index("Reports of Receiver") + 1
         end_index = result_set.index("Affidavits of Receiver")
-        result_set = result_set[start_index:end_index] + date_to
-        result_set = [value for value in result_set[start_index:end_index] if "Date Filed" not in value and "From" not in value and "To" not in value]
+        result_set = result_set[start_index:end_index] + date_tos
+        result_set = [value for value in result_set if "Date Filed" not in value and "From" not in value and "To" not in value]
         if len(result_set) > 0:
             self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractDataGlobalBusinessCompanyReceiversReports()")
             exit()
