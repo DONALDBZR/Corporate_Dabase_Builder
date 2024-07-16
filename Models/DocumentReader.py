@@ -15,7 +15,7 @@ from Data.CompanyDetails import CompanyDetails
 from Environment import Environment
 from typing import Dict, Tuple, Union, List
 from pdfminer.high_level import extract_text
-from datetime import datetime
+from datetime import date, datetime
 from json import dumps
 from re import findall, search, split
 from Models.OfficeBearers import Office_Bearers
@@ -336,17 +336,16 @@ class Document_Reader:
             {receiver: {name: string, date_appointed: int, address: string}, reports: [{date_filled: int, date_from: int, date_to: int}], affidavits: [{date_filled: int, date_from: int, date_to: int}]}
         """
         response: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]
-        start_index: int = result_set.index("Appointed Date:")
-        end_index: int = start_index + 4
-        date_appointeds: List[str] = [value for value in result_set[start_index:end_index] if "Page" not in value and "of" not in value]
-        end_index = int(len(date_appointeds) / 2)
-        date_appointeds = date_appointeds[:end_index]
+        start_index: int = result_set.index("Receivers")
+        date_appointeds: List[str] = result_set[start_index:]
+        start_index = date_appointeds.index("Appointed Date:")
+        end_index: int = start_index + 2
+        date_appointeds = [value for value in date_appointeds[start_index:end_index] if "Page" not in value]
         start_index = result_set.index("Receivers")
-        end_index = result_set.index("Accounts of Administrator")
-        date_tos: List[str] = result_set[start_index:end_index]
+        date_tos: List[str] = result_set[start_index:]
         start_index = date_tos.index("To")
         end_index = start_index + 4
-        date_tos = date_tos[start_index:end_index]
+        date_tos = [value for value in date_tos[start_index:end_index] if ":" not in value and "Page" not in value]
         start_index = result_set.index("Receivers")
         end_index = result_set.index("Administrators")
         result_set = result_set[start_index:end_index]
