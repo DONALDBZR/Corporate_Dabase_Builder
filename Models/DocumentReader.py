@@ -1035,6 +1035,8 @@ class Document_Reader:
         state_capital: List[Dict[str, Union[str, int]]] = self._extractDataDomesticCivilCivilStateCapital(result_set)
         office_bearers: List[Dict[str, Union[str, int]]] = self._extractDataDomesticCivilCivilOfficeBearers(result_set)
         shareholders: List[Dict[str, Union[str, int]]] = self._extractDataDomesticCivilCivilShareholders(result_set)
+        print(f"{shareholders=}")
+        exit()
         liquidators: Dict[str, Union[Dict[str, Union[str, int]], List[int]]] = self._extractDataDomesticCivilCivilLiquidators(result_set)
         receivers: Dict[str, Union[Dict[str, Union[str, int]], List[int]]] = self._extractDataDomesticCivilCivilReceivers(result_set)
         administrators: Dict[str, Union[Dict[str, Union[str, int]], List[int]]] = self._extractDataDomesticCivilCivilAdministrators(result_set)
@@ -1321,11 +1323,14 @@ class Document_Reader:
         """
         response: List[Dict[str, Union[str, int]]] = []
         start_index: int = result_set.index("Associes")
-        result_set = result_set[start_index:]
+        end_index: int = result_set.index("Reports of Receiver")
+        result_set = result_set[start_index:end_index]
+        amounts: List[int] = self._extractDataDomesticCivilCivilShareholdersAmount(result_set)
+        print(f"{amounts=}")
+        exit()
         start_index = result_set.index("Currency") + 1
         end_index: int = result_set.index("Liquidators")
         result_set = result_set[start_index:end_index]
-        amounts: List[int] = self._extractDataDomesticCivilCivilShareholdersAmount(result_set)
         shareholders_types: Dict[str, List[str]] = self._extractDataDomesticCivilCivilShareholdersType(result_set)
         types: List[str] = shareholders_types["types"]
         result_set = shareholders_types["result_set"]
@@ -1377,7 +1382,7 @@ class Document_Reader:
             [int]
         """
         response: List[int] = []
-        amounts: List[str] = [value for value in result_set if bool(search(r"[\d]+", value)) == True]
+        amounts: List[str] = [value for value in result_set if bool(search(r"[\d]+", value)) == True and bool(search(r"[a-z]+", value)) == False and "/" not in value]
         for index in range(0, len(amounts), 1):
             amount: int = int("".join(findall(r"[\d]+", amounts[index])))
             response.append(amount)
