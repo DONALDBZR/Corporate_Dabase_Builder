@@ -2276,8 +2276,6 @@ class Document_Reader:
         result_set.remove("Address:")
         result_set.remove("Reports of Receiver")
         result_set.remove("Date Filed")
-        print(f"{result_set=}")
-        exit()
         if len(result_set) > 0:
             self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 5000003\nFunction: Document_Reader._extractReceivers()")
             exit()
