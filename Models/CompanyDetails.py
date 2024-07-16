@@ -13,7 +13,7 @@ from typing import Union, Dict, List, Tuple, Any
 from mysql.connector.types import RowType
 from mysql.connector.errors import Error
 from Data.CompanyDetails import CompanyDetails
-from mysql.connector import errorcode
+from mysql.connector import errorcode, IntegrityError
 
 
 class Company_Details(Database_Handler):
@@ -61,8 +61,8 @@ class Company_Details(Database_Handler):
                 columns="name, file_number, category, date_incorporation, nature, status",
                 values="%s, %s, %s, %s, %s, %s"
             )
-        except Error as relational_database_error:
-            self.handleAddCompany(relational_database_error)
+        except IntegrityError as relational_integrity_error:
+            self.handleAddCompany(relational_integrity_error)
 
     def handleAddCompany(self, error: Error) -> None:
         """
