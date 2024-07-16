@@ -54,12 +54,15 @@ class Company_Details(Database_Handler):
         Returns:
             void
         """
-        return self.postData(
-            table=self.getTableName(),
-            parameters=data,
-            columns="name, file_number, category, date_incorporation, nature, status",
-            values="%s, %s, %s, %s, %s, %s"
-        )
+        try:
+            return self.postData(
+                table=self.getTableName(),
+                parameters=data,
+                columns="name, file_number, category, date_incorporation, nature, status",
+                values="%s, %s, %s, %s, %s, %s"
+            )
+        except Error as relational_database_error:
+            self._addCompany(relational_database_error)
 
     def getAmountDownloadedCorporateDocumentsStatus(self, dataset: Union[List[RowType], List[Dict[str, int]]]) -> int:
         """
