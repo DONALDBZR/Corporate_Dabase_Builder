@@ -1322,7 +1322,10 @@ class Document_Reader:
         start_index = result_set.index("Currency") + 1
         end_index: int = result_set.index("Liquidators")
         result_set = result_set[start_index:end_index]
+        dataset: List[str] = [value for value in result_set if bool(search(r"[\d]+", value)) == True]
         amounts: List[int] = self._extractDataDomesticCivilCivilShareholdersAmount(result_set)
+        print(f"{amounts=}")
+        exit()
         shareholders_types: Dict[str, List[str]] = self._extractDataDomesticCivilCivilShareholdersType(result_set)
         types: List[str] = shareholders_types["types"]
         result_set = shareholders_types["result_set"]
@@ -1373,10 +1376,10 @@ class Document_Reader:
             [int]
         """
         response: List[int] = []
-        for index in range(0, len(result_set), 1):
-            amounts: List[str] = findall(r"[\d]+", result_set[index])
-            amount: Union[int, str] = self._extractShareholdersAmountShares(amounts) # type: ignore
-            response = self.__extractShareholdersAmountShares(response, amount) # type: ignore
+        amounts: List[str] = [value for value in result_set if bool(search(r"[\d]+", value)) == True]
+        for index in range(0, len(amounts), 1):
+            amount: int = int("".join(findall(r"[\d]+", amounts[index])))
+            response.append(amount)
         return response
 
     def _extractDataDomesticCivilCivilOfficeBearers(self, result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
