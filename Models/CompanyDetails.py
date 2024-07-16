@@ -64,7 +64,22 @@ class Company_Details(Database_Handler):
         except Error as relational_database_error:
             self.handleAddCompany(relational_database_error)
 
-    
+    def handleAddCompany(self, error: Error) -> None:
+        """
+        Handling the errors when trying to add the company metadata
+        into the relational database server.
+
+        Parameters:
+            error: Error: The error object of the MySQL library.
+
+        Returns:
+            void
+        """
+        if error.errno == errorcode.ER_DUP_ENTRY:
+            self.getLogger().error(f"Status: 403\nMessage: The record will be skipped as it is already in the relational database server.\nDuplicate Entry Error: {error}")
+        else:
+            self.getLogger().error(f"Critical Error: {error}")
+            exit()
 
     def getAmountDownloadedCorporateDocumentsStatus(self, dataset: Union[List[RowType], List[Dict[str, int]]]) -> int:
         """
