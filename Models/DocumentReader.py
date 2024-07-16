@@ -258,8 +258,20 @@ class Document_Reader:
         """
         response: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]
         start_index: int = result_set.index("Administrators")
-        end_index: int = result_set.index("Liquidators")
-        result_set = result_set[start_index:]
+        date_appointeds: List[str] = result_set[start_index:]
+        start_index = date_appointeds.index("Appointed Date:")
+        end_index: int = start_index + 4
+        date_appointeds = [value for value in date_appointeds[start_index:end_index] if "Page" not in value and "of" not in value]
+        start_index = int(len(date_appointeds) / 2)
+        date_appointeds = date_appointeds[start_index:]
+        start_index = result_set.index("Administrators")
+        end_index = result_set.index("Liquidators")
+        result_set = result_set[start_index:end_index]
+        end_index = result_set.index("Appointed Date:")
+        result_set = result_set[:end_index]
+        administrator: Dict[str, Union[str, int]] = self._extractDataGlobalBusinessCompanyAdministrators(result_set, date_appointeds)
+        print(f"{administrator=}")
+        exit()
         start_index = result_set.index("Appointed Date:")
         end_index = start_index + 4
         date_appointeds: List[str] = [value for value in result_set[start_index:end_index] if ":" in value or "/" in value]
@@ -267,7 +279,6 @@ class Document_Reader:
         date_appointeds = date_appointeds[:end_index]
         end_index = result_set.index("Liquidators")
         result_set = result_set[:end_index]
-        administrator: Dict[str, Union[str, int]] = self._extractDataGlobalBusinessCompanyAdministrators(result_set, date_appointeds)
         accounts: List[Dict[str, int]] = self.extractDataGlobalBusinessCompanyAdministratorsAccounts(result_set)
         if not administrator and len(accounts) == 0:
             response = {}
@@ -315,7 +326,9 @@ class Document_Reader:
         """
         response: Dict[str, Union[str, int]]
         end_index: int = result_set.index("Accounts of Administrator")
-        result_set = [value for value in result_set[:end_index] + date_appointeds if ":" not in value and "Administrators" not in value]
+        result_set = result_set[:end_index]
+        result_set = [value for value in result_set if "/" not in value and "To" not in value] + date_appointeds
+        result_set = [value for value in result_set if ":" not in value and "Administrators" not in value]
         if len(result_set) == 0:
             response = {}
         else:
