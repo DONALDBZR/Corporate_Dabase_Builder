@@ -45,7 +45,7 @@ class Company_Details(Database_Handler):
 
     def addCompany(self, data: Tuple[Any]) -> None:
         """
-        Adding the compony metadata into the relational database
+        Adding the company metadata into the relational database
         server.
 
         Parameters:
