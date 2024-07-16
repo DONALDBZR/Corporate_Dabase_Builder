@@ -64,22 +64,23 @@ class Company_Details(Database_Handler):
         except IntegrityError as relational_integrity_error:
             self.handleAddCompany(relational_integrity_error, data)
 
-    def handleAddCompany(self, error: Error) -> None:
+    def handleAddCompany(self, error: Error, data: Tuple[Any]) -> None:
         """
         Handling the errors when trying to add the company metadata
         into the relational database server.
 
         Parameters:
             error: Error: The error object of the MySQL library.
+            data: array: The company data that caused the error.
 
         Returns:
             void
         """
         if error.errno == errorcode.ER_DUP_ENTRY:
-            self.getLogger().error(f"Status: 403\nMessage: The record will be skipped as it is already in the relational database server.\nDuplicate Entry Error: {error}")
+            self.getLogger().error(f"Status: 403\nMessage: The record will be skipped as it is already in the relational database server.\nDuplicate Entry Error: {error}\nSQL Error Code: {error.errno}\nData: {data}")
         else:
-            self.getLogger().error(f"Critical Error: {error}")
-            exit()
+            self.getLogger().error(f"Status: 503\nCritical Error: {error}\nSQL Error Code: {error.errno}\nData: {data}")
+            raise error
 
     def getAmountDownloadedCorporateDocumentsStatus(self, dataset: Union[List[RowType], List[Dict[str, int]]]) -> int:
         """
