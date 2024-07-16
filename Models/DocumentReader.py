@@ -257,18 +257,18 @@ class Document_Reader:
             {administrator: {name: string, designation: string, address: string, date_appointed: int}, accounts: [{date_filled: int, date_from: int, date_to: int}]}
         """
         response: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]
-        start_index: int = result_set.index("Administrators")
+        start_index: int = result_set.index("Accounts of Administrator")
         date_appointeds: List[str] = result_set[start_index:]
         start_index = date_appointeds.index("Appointed Date:")
         end_index: int = start_index + 4
-        date_appointeds = [value for value in date_appointeds[start_index:end_index] if "Page" not in value and "of" not in value]
+        date_appointeds = [value for value in date_appointeds[start_index:end_index] if "Page" not in value and "of" not in value and "Computer Generated Document" not in value and "DISCLAIMER NOTICE" not in value]
         start_index = int(len(date_appointeds) / 2)
         date_appointeds = date_appointeds[start_index:]
         start_index = result_set.index("Administrators")
         end_index = result_set.index("Liquidators")
         result_set = result_set[start_index:end_index]
-        end_index = result_set.index("Appointed Date:")
-        result_set = result_set[:end_index]
+        start_index = result_set.index("Name:")
+        result_set = result_set[start_index:]
         administrator: Dict[str, Union[str, int]] = self._extractDataGlobalBusinessCompanyAdministrators(result_set, date_appointeds)
         start_index = result_set.index("Accounts of Administrator") + 1
         result_set = result_set[start_index:]
