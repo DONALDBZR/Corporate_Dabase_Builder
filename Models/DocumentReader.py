@@ -1187,10 +1187,14 @@ class Document_Reader:
         start_index: int = result_set.index("Receivers")
         end_index: int = result_set.index("Accounts of Administrator")
         result_set = result_set[start_index:end_index]
+        start_index = result_set.index("Name:")
+        result_set = result_set[start_index:]
         result_set = [value for value in result_set if "Page" not in value]
         result_set = [value for value in result_set if "Date Issued" not in value]
         result_set = [value for value in result_set if " of " not in value]
         receiver: Dict[str, Union[str, int]] = self.__extractDataDomesticCivilCivilReceivers(result_set)
+        print(f"{receiver=}")
+        exit()
         reports: List[Dict[str, int]] = self._extractDataDomesticCivilCivilReports(result_set)
         affidavits: List[Dict[str, int]] = self._extractDataDomesticCivilCivilAffidavits(result_set)
         if not receiver and len(reports) == 0 and len(affidavits) == 0:
@@ -1276,7 +1280,7 @@ class Document_Reader:
         Returns:
             {name: string, date_appointed: int, address: string}
         """
-        start_index: int = result_set.index("Receivers") + 1
+        start_index: int = result_set.index("Name:")
         end_index: int = result_set.index("Date Filed")
         result_set = result_set[start_index:end_index]
         result_set = [value for value in result_set if ":" not in value]
