@@ -62,7 +62,7 @@ class Company_Details(Database_Handler):
                 values="%s, %s, %s, %s, %s, %s"
             )
         except IntegrityError as relational_integrity_error:
-            self.handleAddCompany(relational_integrity_error)
+            self.handleAddCompany(relational_integrity_error, data)
 
     def handleAddCompany(self, error: Error) -> None:
         """
