@@ -3226,7 +3226,7 @@ class Document_Reader:
         operational_addresses: List[str] = self.extractBusinessDetailsOperationalAddresses(result_set)
         dataset: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and "Mauritius".upper() in value]
         result_set = [value for value in result_set if value not in dataset]
-        dataset = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == True]
+        dataset = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == True and "/" in value]
         natures: List[str] = self.extractBusinessDetailsNatures(result_set)
         names: List[str] = [value for value in result_set if value not in dataset]
         limitation: int = min([len(names), len(natures), len(operational_addresses)])
