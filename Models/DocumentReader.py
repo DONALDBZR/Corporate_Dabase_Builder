@@ -352,8 +352,6 @@ class Document_Reader:
         receiver: Dict[str, Union[str, int]] = self._extractDataGlobalBusinessCompanyReceivers(result_set, date_appointeds)
         reports: List[Dict[str, int]] = self.extractDataGlobalBusinessCompanyReceiversReports(result_set, date_tos)
         affidavits: List[Dict[str, int]] = self.extractDataGlobalBusinessCompanyReceiversAffidavits(result_set, date_tos)
-        print(f"{receiver=}\n{reports=}\n{affidavits=}")
-        exit()
         if not receiver and len(reports) == 0 and len(affidavits) == 0:
             response = {}
         else:
