@@ -273,15 +273,6 @@ class Document_Reader:
         start_index = result_set.index("Accounts of Administrator") + 1
         result_set = result_set[start_index:]
         accounts: List[Dict[str, int]] = self.extractDataGlobalBusinessCompanyAdministratorsAccounts(result_set)
-        print(f"{administrator=}\n{accounts=}")
-        exit()
-        start_index = result_set.index("Appointed Date:")
-        end_index = start_index + 4
-        date_appointeds: List[str] = [value for value in result_set[start_index:end_index] if ":" in value or "/" in value]
-        end_index = int(len(date_appointeds) / 2)
-        date_appointeds = date_appointeds[:end_index]
-        end_index = result_set.index("Liquidators")
-        result_set = result_set[:end_index]
         if not administrator and len(accounts) == 0:
             response = {}
         else:
