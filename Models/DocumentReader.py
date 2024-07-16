@@ -1193,8 +1193,6 @@ class Document_Reader:
         result_set = [value for value in result_set if "Date Issued" not in value]
         result_set = [value for value in result_set if " of " not in value]
         receiver: Dict[str, Union[str, int]] = self.__extractDataDomesticCivilCivilReceivers(result_set)
-        print(f"{receiver=}")
-        exit()
         reports: List[Dict[str, int]] = self._extractDataDomesticCivilCivilReports(result_set)
         affidavits: List[Dict[str, int]] = self._extractDataDomesticCivilCivilAffidavits(result_set)
         if not receiver and len(reports) == 0 and len(affidavits) == 0:
