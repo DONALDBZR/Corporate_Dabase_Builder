@@ -1267,7 +1267,8 @@ class Document_Reader:
 
     def __extractDataDomesticCivilCivilReceivers(self, result_set: List[str]) -> Dict[str, Union[str, int]]:
         """
-        Extracting the receiver that is related to the receivers of a société civile.
+        Extracting the receiver that is related to the receivers of
+        a société civile.
 
         Parameters:
             result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
@@ -1280,7 +1281,7 @@ class Document_Reader:
         result_set = result_set[start_index:end_index]
         result_set = [value for value in result_set if ":" not in value]
         if len(result_set) >= 3:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractReceivers()")
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.__extractDataDomesticCivilCivilReceivers()")
             exit()
         else:
             return {}
@@ -2275,8 +2276,10 @@ class Document_Reader:
         result_set.remove("Address:")
         result_set.remove("Reports of Receiver")
         result_set.remove("Date Filed")
+        print(f"{result_set=}")
+        exit()
         if len(result_set) > 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractReceivers()")
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 5000003\nFunction: Document_Reader._extractReceivers()")
             exit()
         else:
             return {}
