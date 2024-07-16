@@ -1957,7 +1957,7 @@ class Document_Reader:
         start_index: int = result_set.index("Partnership Details") + 1
         end_index: int = result_set.index("Business Details")
         result_set = result_set[start_index:end_index]
-        result_set.remove("Registrar of Companies")
+        result_set = [value for value in result_set if "Registrar of Companies" not in value]
         category: str = result_set[[index for index, value in enumerate(result_set) if "Category" in value][0]].split(": ")[-1]
         result_set = result_set + [category]
         result_set = [value for value in result_set if ":" not in value]
