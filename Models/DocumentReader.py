@@ -1326,14 +1326,14 @@ class Document_Reader:
         end_index: int = result_set.index("Reports of Receiver")
         result_set = result_set[start_index:end_index]
         amounts: List[int] = self._extractDataDomesticCivilCivilShareholdersAmount(result_set)
-        print(f"{amounts=}")
+        shareholders_types: Dict[str, List[str]] = self._extractDataDomesticCivilCivilShareholdersType(result_set)
+        types: List[str] = shareholders_types["types"]
+        result_set = shareholders_types["result_set"]
+        print(f"{amounts=}\n{types=}")
         exit()
         start_index = result_set.index("Currency") + 1
         end_index: int = result_set.index("Liquidators")
         result_set = result_set[start_index:end_index]
-        shareholders_types: Dict[str, List[str]] = self._extractDataDomesticCivilCivilShareholdersType(result_set)
-        types: List[str] = shareholders_types["types"]
-        result_set = shareholders_types["result_set"]
         names: List[str] = [value for value in result_set if bool(search(r"[A-Z\s]+", value)) == True and bool(search(r"[a-z]+", value)) == False]
         currencies: List[str] = [value for value in result_set if value not in names]
         limitation: int = min([len(amounts), len(types), len(names), len(currencies)])
@@ -1358,7 +1358,7 @@ class Document_Reader:
             {types: [string], result_set: [string]}
         """
         types: List[str] = []
-        dataset = [value for value in result_set if bool(search(r"[\d]+", value)) == True]
+        dataset = [value for value in result_set if bool(search(r"[\d]+", value)) == True and bool(search(r"[a-z]+", value)) == False and "/" not in value]
         for index in range(0, len(dataset), 1):
             type: str = " ".join([value for value in split(" ", dataset[index]) if bool(search(r"[\d]+", value)) == False])
             types.append(type)
