@@ -271,8 +271,11 @@ class Document_Reader:
         result_set = result_set[start_index:]
         administrator: Dict[str, Union[str, int]] = self._extractDataGlobalBusinessCompanyAdministrators(result_set, date_appointeds)
         start_index = result_set.index("Accounts of Administrator") + 1
-        result_set = result_set[start_index:]
+        end_index = start_index + 6
+        result_set = result_set[start_index:end_index]
         accounts: List[Dict[str, int]] = self.extractDataGlobalBusinessCompanyAdministratorsAccounts(result_set)
+        print(f"{date_appointeds=}\n{administrator=}\n{accounts=}")
+        exit()
         if not administrator and len(accounts) == 0:
             response = {}
         else:
@@ -292,8 +295,8 @@ class Document_Reader:
             [{date_filled: int, date_from: int, date_to: int}]
         """
         response: List[Dict[str, int]]
-        result_set = [value for value in result_set if "Date Filed" not in value and "From" not in value and "To" not in value]
-        if len(result_set) == 0:
+        result_set = [value for value in result_set if "Date Filed" not in value and "From" not in value and "To" not in value and "/" in value]
+        if len(result_set) <= 3:
             response = []
         else:
             self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractDataGlobalBusinessCompanyAdministratorsAccounts()")
