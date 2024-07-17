@@ -3301,6 +3301,7 @@ class Document_Reader:
         Returns:
             {business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}
         """
+        response: Dict[str, Union[str, int]]
         business_registration_number: str = portable_document_file_result_set[[index for index, value in enumerate(portable_document_file_result_set) if "Business Registration No.:" in value][0]].split(" ")[-1]
         start_index: int = portable_document_file_result_set.index("Company Details") + 1
         end_index: int = portable_document_file_result_set.index("Business Name")
@@ -3308,18 +3309,24 @@ class Document_Reader:
         result_set = [value for value in result_set if ":" not in value]
         result_set = [value for value in result_set if "Registrar of Companies" not in value]
         result_set = [value for value in result_set if "Business Details" not in value]
-        name: str = result_set[1]
         file_number: str = result_set[0]
-        category: str = result_set[3].title()
-        date_incorporation: int = int(datetime.strptime(result_set[4], "%d/%m/%Y").timestamp())
-        nature: str = result_set[5]
-        status: str = result_set[6]
-        return {
+        result_set = [value for value in result_set if file_number not in value]
+        name: str = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True][0]
+        result_set = [value for value in result_set if name not in value]
+        category: str = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == False and "Limited By".upper() not in value][0]
+        result_set = [value for value in result_set if category not in value]
+        date_incorporation: int = int(datetime.strptime([value for value in result_set if bool(search(r"[\d]", value)) == True and "/" in value][0], "%d/%m/%Y").timestamp())
+        nature: str = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == True and "Live" not in value and "Defunct" not in value][0]
+        status: str = [value for value in result_set if (bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == True) and ("Live" in value or "Defunct" in value)][0]
+        response = {
             "business_registration_number": business_registration_number,
-            "name": name,
+            "name": name.title(),
             "file_number": file_number,
-            "category": category,
+            "category": category.title(),
             "date_incorporation": date_incorporation,
-            "nature": nature,
-            "status": status
+            "nature": nature.title(),
+            "status": status.title()
         }
+        print(f"{response=}")
+        exit()
+        return response
