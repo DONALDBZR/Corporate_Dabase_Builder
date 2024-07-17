@@ -274,8 +274,6 @@ class Document_Reader:
         end_index = start_index + 6
         result_set = result_set[start_index:end_index]
         accounts: List[Dict[str, int]] = self.extractDataGlobalBusinessCompanyAdministratorsAccounts(result_set)
-        print(f"{date_appointeds=}\n{administrator=}\n{accounts=}")
-        exit()
         if not administrator and len(accounts) == 0:
             response = {}
         else:
