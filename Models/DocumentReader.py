@@ -1034,6 +1034,8 @@ class Document_Reader:
         business_details: Union[List[Dict[str, str]], Dict[str, str]] = self._extractDataDomesticCivilCivilBusinessDetails(result_set)
         state_capital: List[Dict[str, Union[str, int]]] = self._extractDataDomesticCivilCivilStateCapital(result_set)
         office_bearers: List[Dict[str, Union[str, int]]] = self._extractDataDomesticCivilCivilOfficeBearers(result_set)
+        print(f"{office_bearers=}")
+        exit()
         shareholders: List[Dict[str, Union[str, int]]] = self._extractDataDomesticCivilCivilShareholders(result_set)
         liquidators: Dict[str, Union[Dict[str, Union[str, int]], List[int]]] = self._extractDataDomesticCivilCivilLiquidators(result_set)
         receivers: Dict[str, Union[Dict[str, Union[str, int]], List[int]]] = self._extractDataDomesticCivilCivilReceivers(result_set)
@@ -1398,16 +1400,15 @@ class Document_Reader:
             [{position: string, name: string, address: string, date_appointed: int}]
         """
         response: List[Dict[str, Union[str, int]]] = []
-        start_index: int = result_set.index("Particulars of Stated Capital")
-        end_index: int = result_set.index("Associes")
+        start_index: int = result_set.index("Office Bearers")
+        end_index: int = result_set.index("Currency") - 1
         result_set = result_set[start_index:end_index]
-        start_index = result_set.index("Name")
-        result_set = result_set[start_index:]
         result_set = [value for value in result_set if "Name" not in value]
         result_set = [value for value in result_set if "Service Address" not in value]
         result_set = [value for value in result_set if "Appointed Date" not in value]
         result_set = [value for value in result_set if "Position" not in value]
         result_set = [value for value in result_set if "Office Bearers" not in value]
+        result_set = [value for value in result_set if "Associes" not in value]
         date_appointeds: List[str] = self._extractDataDomesticCivilCivilOfficeBearersDateAppointed(result_set)
         result_set = [value for value in result_set if value not in date_appointeds]
         office_bearers_addresses: Dict[str, List[str]] = self._extractDataDomesticCivilCivilOfficeBearersAddresses(result_set)
