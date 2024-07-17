@@ -365,7 +365,7 @@ class Builder:
         for index in range(0, len(data), 1):
             os.remove(f"{data_directory}{data[index]}")
 
-    def _extractCorporateData(self, document_files: List[DocumentFiles]) -> None:
+    def _extractCorporateData(self, document_files: List[DocumentFiles]) -> int:
         """
         Extracting the corporate data as well as storing it in the
         relational database server.
@@ -376,11 +376,21 @@ class Builder:
         Returns:
             void
         """
+        response: int
+        data_manipulations: List[int] = []
         for index in range(0, len(document_files), 1):
             company_detail: CompanyDetails = self.getCompanyDetails().getSpecificCompanyDetails(document_files[index].company_detail)
             file_generation_status: int = self.getDocumentReader().generatePortableDocumentFile(document_files[index])
             data_extraction: Union[Dict[str, Union[int, Dict[str, Union[str, int]], List[Dict[str, str]], List[Dict[str, Union[str, int]]], List[Dict[str, int]], Dict[str, Union[Dict[str, Union[int, str]], float]], Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]]], Dict[str, Union[int, Dict[str, Union[str, int]], Dict[str, str], List[Dict[str, Union[str, int]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]], Dict[str, Union[Dict[str, str], List[Dict[str, int]]]]]]] = self.getDocumentReader().extractData(file_generation_status, document_files[index], company_detail)
-            data_manipulation: int = self.storeCorporateData(data_extraction, document_files[index], company_detail)
+            data_manipulations.append(self.storeCorporateData(data_extraction, document_files[index], company_detail))
+        data_manipulations = list(set(data_manipulations))
+        if len(data_manipulations) == 1 and data_manipulations[0] == 201:
+            response = 201
+            self.getLogger().inform(f"The corporate data has been extracted successfully and stored into the relational database server.\nStatus: {response}")
+        else:
+            response = 503
+            self.getLogger().error(f"The corporate data has been extracted successfully and stored into the relational database server.\nStatus: {response}")
+        return response
 
     def storeCorporateData(self, dataset: Union[Dict[str, Union[int, Dict[str, Union[str, int]], List[Dict[str, str]], List[Dict[str, Union[str, int]]], List[Dict[str, int]], Dict[str, Union[Dict[str, Union[int, str]], float]], Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]]], Dict[str, Union[int, Dict[str, Union[str, int]], Dict[str, str], List[Dict[str, Union[str, int]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]], Dict[str, Union[Dict[str, str], List[Dict[str, int]]]]]]], document_file: DocumentFiles, company_detail: CompanyDetails) -> int:
         """
