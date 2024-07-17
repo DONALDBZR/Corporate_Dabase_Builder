@@ -671,11 +671,11 @@ class Document_Reader:
             [{date_filled: int, date_from: int, date_to: int}]
         """
         start_index: int = result_set.index("Accounts of Administrator") + 1
-        result_set = result_set[start_index:]
+        result_set = [value for value in result_set[start_index:] if ":" not in value and "Page" not in value and "of" not in value]
         result_set.remove("Date Filed")
         result_set.remove("From")
         result_set.remove("To")
-        if len(result_set) > 0:
+        if len(result_set) >= 3:
             self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractDataAuthorisedCompanyAdministratorsAccounts()")
             exit()
         else:
