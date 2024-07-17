@@ -3327,6 +3327,4 @@ class Document_Reader:
             "nature": nature.title(),
             "status": status.title()
         }
-        print(f"{response=}")
-        exit()
         return response
