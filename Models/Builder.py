@@ -349,7 +349,7 @@ class Builder:
                 amount_found
             )
             self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(logs) # type: ignore
-            self.cleanExtractionCacheDirectory()
+            # self.cleanExtractionCacheDirectory()
 
     def cleanExtractionCacheDirectory(self) -> None:
         """
@@ -1335,6 +1335,8 @@ class Builder:
         responses = list(set(responses))
         if len(responses) == 1 and responses[0] == 201:
             response = 201
+        elif len(responses) == 0:
+            response = 200
         else:
             response = 503
         return response
