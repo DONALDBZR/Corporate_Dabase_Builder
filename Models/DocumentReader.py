@@ -119,6 +119,8 @@ class Document_Reader:
             response = self.extractDataAuthorisedCompany(status, dataset)
         elif company_detail.category.upper() == "GLOBAL BUSINESS COMPANY":
             response = self.extractDataGlobalBusinessCompany(status, dataset)
+        elif company_detail.category.upper() == "FOREIGN(DOM BRANCH)":
+            response = self.extractDataForeignDomestic(status, dataset)
         else:
             self.getLogger().error(f"The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractData()\nCategory: {company_detail.category}")
             exit()
