@@ -479,11 +479,36 @@ class Builder:
         """
         response: int
         if status >= 200 and status <= 299:
-            response = self._storeCorporateDataDomesticOfficeBearers(office_bearers, document_file)
+            response = self._storeCorporateDataForeignDomesticOfficeBearers(office_bearers, document_file)
             self.getLogger().inform(f"The data has been successfully updated into the Office Bearers table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {office_bearers}")
         else:
             response = status
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
+        return response
+
+    def _storeCorporateDataForeignDomesticOfficeBearers(self, office_bearers: List[Dict[str, Union[str, int]]], document_file: DocumentFiles) -> int:
+        """
+        Storing the office bearers of a foreign domesic company in
+        its respective table in the correct form.
+
+        Parameters:
+            office_bearers: [{position: string, name: string, address: string, date_appointment: int}]: The data that has been extracted for the office bearers table.
+            document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
+
+        Returns:
+            int
+        """
+        response: int
+        responses: List[int] = []
+        for index in range(0, len(office_bearers), 1):
+            relational_database_response: int = self.__storeCorporateDataForeignDomesticOfficeBearers(office_bearers[index], document_file.company_detail)
+            # relational_database_response: int = self.getOfficeBearers().addDirectors(office_bearers[index], document_file.company_detail)
+            responses.append(relational_database_response)
+        responses = list(set(responses))
+        if len(responses) == 1 and responses[0] == 201:
+            response = 201
+        else:
+            response = 503
         return response
 
     def storeCorporateDataForeignDomesticBusinessDetails(self, status: int, business_details: List[Dict[str, str]], document_file: DocumentFiles) -> int:
