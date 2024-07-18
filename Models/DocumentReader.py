@@ -220,11 +220,11 @@ class Document_Reader:
         date_appointments: List[str] = self.extractOfficeBearersDateAppointments(result_set)
         result_set = [value for value in result_set if value not in date_appointments]
         positions: List[str] = self.extractDataForeignDomesticOfficeBearersPositions(result_set)
-        print(f"{date_appointments=}\n{positions=}\n{result_set=}")
         result_set = [value for value in result_set if value not in positions]
         names: List[str] = self.extractOfficeBearersNames(result_set)
         result_set = [value for value in result_set if value not in names]
-        addresses: List[str] = self.extractOfficeBearersAddresses(result_set)
+        addresses: List[str] = self.extractDataForeignDomesticOfficeBearersAddresses(result_set)
+        print(f"{date_appointments=}\n{positions=}\n{names=}\n{addresses=}")
         for index in range(0, min([len(date_appointments), len(positions), len(names), len(addresses)]), 1):
             position: str = positions[index].title()
             name: str = names[index].title()
@@ -238,6 +238,20 @@ class Document_Reader:
             }
             response.append(office_bearer)
         exit()
+        return response
+
+    def extractDataForeignDomesticOfficeBearersAddresses(self, result_set: List[str]) -> List[str]:
+        """
+        Extracting the addresses of the office bearers of a foreign
+        domestic company.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [string]
+        """
+        response: List[str] = [value for value in result_set if "Court" in value.title() or "Street" in value.title() or "Mauritius".upper() in value or "Rodrigues".upper() in value]
         return response
 
     def extractDataForeignDomesticOfficeBearersPositions(self, result_set: List[str]) -> List[str]:
