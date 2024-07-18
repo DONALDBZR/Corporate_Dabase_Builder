@@ -257,6 +257,30 @@ class Document_Reader:
             })
         return response
 
+    def _extractDataForeignDomesticOfficeBearersWithoutAddress(self, date_appointments: List[str], positions: List[str], names: List[str]) -> List[Dict[str, Union[str, int]]]:
+        """
+        Building the response needed for the data about the office
+        bearers of a foreign domestic company when there are no
+        addresses.
+
+        Parameters:
+            date_appointments: [string]: The date at which the office bearer was appointed.
+            positions: [string]: The position of the office bearer.
+            names: [string]: The name of the office bearer.
+
+        Returns:
+            [{position: string, name: string, date_appointment: int}]
+        """
+        response: List[Dict[str, Union[str, int]]] = []
+        limitation: int = min([len(date_appointments), len(positions), len(names)])
+        for index in range(0, limitation, 1):
+            response.append({
+                "position": positions[index].title(),
+                "name": names[index].title(),
+                "date_appointment": int(datetime.strptime(date_appointments[index], "%d/%m/%Y").timestamp())
+            })
+        return response
+
     def extractDataForeignDomesticOfficeBearersAddresses(self, result_set: List[str]) -> List[str]:
         """
         Extracting the addresses of the office bearers of a foreign
