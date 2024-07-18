@@ -441,10 +441,10 @@ class Builder:
         if data_extraction_status == 200:
             company_detail_response: int = self.storeCorporateDataDomesticPrivateCompanyDetails(data_extraction_status, dataset["company_details"], document_file) # type: ignore
             business_detail_response: int = self.storeCorporateDataForeignDomesticBusinessDetails(company_detail_response, dataset["business_details"], document_file) # type: ignore
-            print(f"{data_extraction_status=}\n{dataset['company_details']=}\n{company_detail_response=}\n{dataset['business_details']=}\n{business_detail_response=}")
-            exit()
             certificate_response: int = self.storeCorporateDataDomesticCertificate(business_detail_response, dataset["certificates"], document_file) # type: ignore
-            office_bearers_response: int = self.storeCorporateDataDomesticOfficeBearers(certificate_response, dataset["office_bearers"], document_file) # type: ignore
+            office_bearers_response: int = self.storeCorporateDataForeignDomesticOfficeBearers(certificate_response, dataset["office_bearers"], document_file) # type: ignore
+            print(f"{dataset=}\n{data_extraction_status=}\n{dataset['company_details']=}\n{company_detail_response=}\n{dataset['business_details']=}\n{business_detail_response=}\n{dataset['certificates']=}\n{dataset['office_bearers']=}\n{office_bearers_response=}")
+            exit()
             shareholder_response: int = self.storeCorporateDataDomesticShareholders(office_bearers_response, dataset["shareholders"], document_file) # type: ignore
             member_response: int = self.storeCorporateDataDomesticMembers(shareholder_response, dataset["members"], document_file) # type: ignore
             annual_return_response: int = self.storeCorporateDataDomesticAnnualReturn(member_response, dataset["annual_return"], document_file) # type: ignore
@@ -462,6 +462,28 @@ class Builder:
         else:
             response = 500
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {data_extraction_status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
+        return response
+
+    def storeCorporateDataForeignDomesticOfficeBearers(self, status: int, office_bearers: List[Dict[str, Union[str, int]]], document_file: DocumentFiles) -> int:
+        """
+        The data manipulation needed for the office bearers of a
+        foreign domestic company.
+
+        Parameters:
+            status: int: The status of the data manipulation.
+            office_bearers: [{position: string, name: string, address: string, date_appointment: int}]: The data that has been extracted for the office bearers table.
+            document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
+
+        Returns:
+            int
+        """
+        response: int
+        if status >= 200 and status <= 299:
+            response = self._storeCorporateDataDomesticOfficeBearers(office_bearers, document_file)
+            self.getLogger().inform(f"The data has been successfully updated into the Office Bearers table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {office_bearers}")
+        else:
+            response = status
+            self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
     def storeCorporateDataForeignDomesticBusinessDetails(self, status: int, business_details: List[Dict[str, str]], document_file: DocumentFiles) -> int:
