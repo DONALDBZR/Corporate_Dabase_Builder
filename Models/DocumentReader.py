@@ -742,6 +742,8 @@ class Document_Reader:
                 "address": addresses[index].title(),
                 "date_appointment": int(datetime.strptime(date_appointments[index], "%d/%m/%Y").timestamp())
             })
+        print(f"{positions=}\n{names=}\n{addresses=}\n{date_appointments=}\n{limitation=}")
+        exit()
         return response
 
     def _extractDataAuthorisedCompanyOfficeBearersAddresses(self, result_set: List[str]) -> List[str]:
@@ -756,7 +758,7 @@ class Document_Reader:
             [string]
         """
         response: List[str] = []
-        dataset: List[str] = [value for value in result_set if "Lane" in value or "Street" in value or "Road" in value or "Floor" in value or "Tower" in value]
+        dataset: List[str] = [value for value in result_set if "Lane" in value or "Street" in value or "Road" in value or "Floor" in value or "Tower" in value or "Lane".upper() in value or "Street".upper() in value or "Road".upper() in value or "Floor".upper() in value or "Tower".upper() in value]
         for index in range(0, len(dataset), 1):
             data: str = " ".join([value for value in dataset[index].replace("MAURITIUS", "").split(" ") if value != ""]) + " Mauritius"
             response.append(data)
