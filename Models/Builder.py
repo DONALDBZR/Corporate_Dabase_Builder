@@ -502,7 +502,6 @@ class Builder:
         responses: List[int] = []
         for index in range(0, len(office_bearers), 1):
             relational_database_response: int = self.__storeCorporateDataForeignDomesticOfficeBearers(office_bearers[index], document_file.company_detail)
-            # relational_database_response: int = self.getOfficeBearers().addDirectors(office_bearers[index], document_file.company_detail)
             responses.append(relational_database_response)
         responses = list(set(responses))
         if len(responses) == 1 and responses[0] == 201:
@@ -510,6 +509,23 @@ class Builder:
         else:
             response = 503
         return response
+
+    def __storeCorporateDataForeignDomesticOfficeBearers(self, office_bearer: Dict[str, Union[str, int]], company_detail: int) -> int:
+        """
+        Adding the business details of a foreign domestic company
+        into the relational database server.
+
+        Parameters:
+            office_bearer: {position: string, name: string, address: string, date_appointment: int}: The data that has been extracted for the business details table.
+            company_detail: int: The identifier of the company.
+
+        Returns:
+            int
+        """
+        if "address" in office_bearer:
+            return self.getOfficeBearers().addDirectors(office_bearer, company_detail)
+        else:
+            return self.getOfficeBearers().addDirectorsForeignDomestic(office_bearer, company_detail)
 
     def storeCorporateDataForeignDomesticBusinessDetails(self, status: int, business_details: List[Dict[str, str]], document_file: DocumentFiles) -> int:
         """
@@ -564,7 +580,7 @@ class Builder:
         into the relational database server.
 
         Parameters:
-            business_details: {name: string, nature: string, operational_address: string}: The data that has been extracted for the business details table.
+            business_detail: {name: string, nature: string, operational_address: string}: The data that has been extracted for the business details table.
             company_detail: int: The identifier of the company.
 
         Returns:
