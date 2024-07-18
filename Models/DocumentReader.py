@@ -205,7 +205,7 @@ class Document_Reader:
             result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
 
         Returns:
-            [{registered_address: string, name: string, nature: string, operational: string}]
+            [{name: string, nature: string, operational: string}]
         """
         response: List[Dict[str, str]] = []
         start_index: int = result_set.index("Business Details")
@@ -221,10 +221,8 @@ class Document_Reader:
         result_set = [value for value in result_set if "/" not in value]
         result_set = [value for value in result_set if "Private" not in value]
         result_set = [value for value in result_set if "Live" not in value]
+        dataset: List[str] = [value for value in result_set if "Court" in value.title() or "Street" in value.title() or "Mauritius".upper() in value or "Rodrigues".upper() in value]
         operational_addresses: List[str] = self.extractBusinessDetailsOperationalAddresses(result_set)
-        print(f"{operational_addresses=}")
-        exit()
-        dataset: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and "Mauritius".upper() in value]
         result_set = [value for value in result_set if value not in dataset]
         dataset = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == True and "/" in value]
         natures: List[str] = self.extractBusinessDetailsNatures(result_set)
@@ -232,7 +230,6 @@ class Document_Reader:
         limitation: int = min([len(names), len(natures), len(operational_addresses)])
         for index in range(0, limitation, 1):
             response.append({
-                "registered_address": registered_address.title(),
                 "name": names[index].title(),
                 "nature": natures[index].title(),
                 "operational_address": operational_addresses[index].title()
