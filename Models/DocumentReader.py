@@ -208,7 +208,6 @@ class Document_Reader:
             [{position: string, name: string, address: string, date_appointment: int}]
         """
         response: List[Dict[str, Union[str, int]]] = []
-        possible_positions: List[str] = self.getOfficeBearer().getPossiblePositions() + ["AUTHORISED AGENT"]
         start_index: int = result_set.index("Office Bearers") + 1
         end_index: int = result_set.index("Shareholders")
         result_set = result_set[start_index:end_index]
@@ -224,20 +223,38 @@ class Document_Reader:
         names: List[str] = self.extractOfficeBearersNames(result_set)
         result_set = [value for value in result_set if value not in names]
         addresses: List[str] = self.extractDataForeignDomesticOfficeBearersAddresses(result_set)
-        print(f"{date_appointments=}\n{positions=}\n{names=}\n{addresses=}")
-        for index in range(0, min([len(date_appointments), len(positions), len(names), len(addresses)]), 1):
-            position: str = positions[index].title()
-            name: str = names[index].title()
-            address: str = addresses[index].title()
-            date_appointment: int = int(datetime.strptime(date_appointments[index], "%d/%m/%Y").timestamp())
-            office_bearer: Dict[str, Union[str, int]] = {
-                "position": position,
-                "name": name,
-                "address": address,
-                "date_appointment": date_appointment
-            }
-            response.append(office_bearer)
+        if len(addresses) > 0:
+            response = self._extractDataForeignDomesticOfficeBearersWithAddress(date_appointments, positions, names, addresses)
+        else:
+            response = self._extractDataForeignDomesticOfficeBearersWithoutAddress(date_appointments, positions, names)
+        print(f"{response=}")
         exit()
+        return response
+
+    def _extractDataForeignDomesticOfficeBearersWithAddress(self, date_appointments: List[str], positions: List[str], names: List[str], addresses: List[str]) -> List[Dict[str, Union[str, int]]]:
+        """
+        Building the response needed for the data about the office
+        bearers of a foreign domestic company when there are
+        addresses.
+
+        Parameters:
+            date_appointments: [string]: The date at which the office bearer was appointed.
+            positions: [string]: The position of the office bearer.
+            names: [string]: The name of the office bearer.
+            addresses: [string]: The service address of the office bearer.
+
+        Returns:
+            [{position: string, name: string, address: string, date_appointment: int}]
+        """
+        response: List[Dict[str, Union[str, int]]] = []
+        limitation: int = min([len(date_appointments), len(positions), len(names), len(addresses)])
+        for index in range(0, limitation, 1):
+            response.append({
+                "position": positions[index].title(),
+                "name": names[index].title(),
+                "address": addresses[index].title(),
+                "date_appointment": int(datetime.strptime(date_appointments[index], "%d/%m/%Y").timestamp())
+            })
         return response
 
     def extractDataForeignDomesticOfficeBearersAddresses(self, result_set: List[str]) -> List[str]:
