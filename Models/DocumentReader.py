@@ -549,6 +549,8 @@ class Document_Reader:
             company_details: Dict[str, Union[str, int]] = self._extractDataAuthorisedCompanyCompanyDetails(portable_document_file_data_result_set)
             business_details: Dict[str, str] = self._extractDataAuthorisedCompanyBusinessDetails(portable_document_file_data_result_set)
             office_bearers: List[Dict[str, Union[str, int]]] = self._extractDataAuthorisedCompanyOfficeBearers(portable_document_file_data_result_set)
+            print(f"{office_bearers=}")
+            exit()
             receivers: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractReceivers(portable_document_file_data_result_set)
             administrators: Dict[str, Union[Dict[str, str], List[Dict[str, int]]]] = self._extractDataAuthorisedCompanyAdministrators(portable_document_file_data_result_set)
             liquidators: Dict[str, Union[Dict[str, str], List[Dict[str, int]]]] = self._extractDataAuthorisedCompanyLiquidators(portable_document_file_data_result_set)
@@ -729,6 +731,7 @@ class Document_Reader:
         result_set = [value for value in result_set if value not in positions]
         addresses: List[str] = self._extractDataAuthorisedCompanyOfficeBearersAddresses(result_set)
         names: List[str] = [value for value in result_set if value not in addresses]
+        print(f"{date_appointments=}\n{positions=}\n{addresses=}\n{names=}")
         for index in range(0, min([len(date_appointments), len(positions), len(addresses), len(names)]), 1):
             response.append({
                 "position": positions[index].title(),
@@ -736,6 +739,7 @@ class Document_Reader:
                 "address": addresses[index].title(),
                 "date_appointment": int(datetime.strptime(date_appointments[index], "%d/%m/%Y").timestamp())
             })
+        exit()
         return response
 
     def _extractDataAuthorisedCompanyOfficeBearersAddresses(self, result_set: List[str]) -> List[str]:
@@ -749,8 +753,11 @@ class Document_Reader:
         Returns:
             [string]
         """
-        dataset: str = " ".join(result_set)
-        response: List[str] = findall(r"\b\d.*?[A-Z]\b", dataset)
+        response: List[str] = []
+        dataset: List[str] = [value for value in result_set if "Lane" in value or "Street" in value or "Road" in value]
+        for index in range(0, len(dataset), 1):
+            data: str = " ".join([value for value in dataset[index].replace("MAURITIUS", "").split(" ") if value != ""])
+            response.append(data)
         return response
 
     def _extractDataAuthorisedCompanyBusinessDetails(self, portable_document_file_data: List[str]) -> Dict[str, str]:
