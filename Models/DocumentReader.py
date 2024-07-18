@@ -1020,7 +1020,7 @@ class Document_Reader:
         if business_registration_number == None:
             response = self._extractDataDomesticCivilCivil(result_set)
         else:
-            self.getLogger().error(f"The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractData()\nCivil Company Type: Société Commerciale")
+            self.getLogger().error(f"The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractDataDomesticCivil()\nCivil Company Type: Société Commerciale")
             exit()
         return response
 
