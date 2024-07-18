@@ -502,7 +502,6 @@ class Builder:
         responses: List[int] = []
         for index in range(0, len(business_details), 1):
             responses.append(self.__storeCorporateDataForeignDomesticBusinessDetails(business_details[index], company_detail))
-            # responses.append(self.getBusinessDetails().addBusinessDetailsDomestic(business_details[index], company_detail))
         responses = list(set(responses))
         if len(responses) == 1 and responses[0] == 201:
             response = 201
