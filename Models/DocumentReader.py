@@ -725,14 +725,16 @@ class Document_Reader:
         result_set = [value for value in result_set if "Name" not in value]
         result_set = [value for value in result_set if "Appointed Date" not in value]
         result_set = [value for value in result_set if "Service Address" not in value]
+        dataset: List[str] = [value for value in result_set if "/" in value]
         date_appointments: List[str] = self.extractOfficeBearersDateAppointments(result_set)
-        result_set = [value for value in result_set if value not in date_appointments]
+        result_set = [value for value in result_set if value not in dataset]
         positions: List[str] = self.extractOfficeBearersPositions(result_set)
         result_set = [value for value in result_set if value not in positions]
+        dataset = [value for value in result_set if "Lane" in value or "Street" in value or "Road" in value or "MAURITIUS" in value]
         addresses: List[str] = self._extractDataAuthorisedCompanyOfficeBearersAddresses(result_set)
+        result_set = [value for value in result_set if value not in dataset]
         names: List[str] = [value for value in result_set if value not in addresses]
         limitation: int = min([len(date_appointments), len(positions), len(addresses), len(names)])
-        print(f"{date_appointments=}\n{positions=}\n{addresses=}\n{names=}\n{limitation=}")
         for index in range(0, limitation, 1):
             response.append({
                 "position": positions[index].title(),
@@ -740,7 +742,6 @@ class Document_Reader:
                 "address": addresses[index].title(),
                 "date_appointment": int(datetime.strptime(date_appointments[index], "%d/%m/%Y").timestamp())
             })
-        exit()
         return response
 
     def _extractDataAuthorisedCompanyOfficeBearersAddresses(self, result_set: List[str]) -> List[str]:
