@@ -227,8 +227,6 @@ class Document_Reader:
             response = self._extractDataForeignDomesticOfficeBearersWithAddress(date_appointments, positions, names, addresses)
         else:
             response = self._extractDataForeignDomesticOfficeBearersWithoutAddress(date_appointments, positions, names)
-        print(f"{response=}")
-        exit()
         return response
 
     def _extractDataForeignDomesticOfficeBearersWithAddress(self, date_appointments: List[str], positions: List[str], names: List[str], addresses: List[str]) -> List[Dict[str, Union[str, int]]]:
