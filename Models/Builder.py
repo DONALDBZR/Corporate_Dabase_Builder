@@ -316,11 +316,14 @@ class Builder:
         else:
             return self.getDateExtractCorporateData(fin_corp_logs)
 
-    def extractCorporateData(self) -> None:
+    def extractCorporateData(self, status: int = 200) -> None:
         """
         The third run consists of extracting the data from the
         corporate document files that are stored in the corporate
         database.
+
+        Parameters:
+            status: int: The response status of the function.
 
         Returns:
             void
@@ -332,9 +335,9 @@ class Builder:
         amount: int = self.getDocumentFiles().getAmount(date)
         amount_found: int = self.getDocumentFiles().getAmountFound(date)
         self.getLogger().inform(f"The corporate registries have been retrieved from the relational database server and they will be used for the extracttion of the data about the companies.\nDate of Incorporation: {date}\nCorporate Registries Amount: {amount}\nAmount Downloaded: {amount_found}")
-        if len(document_files) > 0:
-            self._extractCorporateData(document_files)
-            self.extractCorporateData()
+        if status == 200:
+            response: int = self._extractCorporateData(document_files)
+            self.extractCorporateData(response)
         else:
             logs: Tuple[str, str, int, int, int, int, int] = (
                 "extractCorporateData",
