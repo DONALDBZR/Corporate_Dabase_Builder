@@ -119,3 +119,35 @@ class Office_Bearers(Database_Handler):
             "response": data
         }
         return response
+
+    def addDirectorsForeignDomestic(self, data: Dict[str, Union[str, int]], company_detail: int) -> int:
+        """
+        Adding the directors data of a foreign domestic company into
+        the relational database server.
+
+        Parameters:
+            data: {position: string, name: string, date_appointment: int}: The data that has been extracted for the office bearers table.
+            company_detail: int: The identifier of the company.
+
+        Returns:
+            int
+        """
+        response: int
+        try:
+            parameters: Tuple[str, str, int, int] = (
+                str(data["position"]),
+                str(data["name"]),
+                int(data["date_appointment"]),
+                company_detail
+            )
+            self.postData(
+                table=self.getTableName(),
+                columns="position, name, date_appointment, CompanyDetail",
+                values="%s, %s, %s, %s",
+                parameters=parameters # type: ignore
+            )
+            response = 201
+        except Error as error:
+            response = 503
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {response}\nError: {error}")
+        return response
