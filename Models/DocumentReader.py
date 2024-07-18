@@ -138,7 +138,7 @@ class Document_Reader:
             dataset: {identifier: int, file_data: bytes, company_detail: int}: The dataset of the corporate registry retrieved from the relational database server.
 
         Returns:
-            {status: int, company_details: {business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}}
+            {status: int, company_details: {business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}, business_details: [{name: string, nature: string, operational_address: string}], state_capital: [{type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}], certificates: [{certificate: string, type: str, date_effective: int, date_expiry: int}]}
         """
         response: Dict[str, Union[int, Dict[str, Union[str, int]], List[Dict[str, str]], List[Dict[str, Union[str, int]]], List[Dict[str, int]], Dict[str, Union[Dict[str, Union[int, str]], float]], Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]]]
         file_name: str = f"{self.ENV.getDirectory()}Cache/CorporateDocumentFile/Documents/{dataset.company_detail}.pdf"
@@ -149,16 +149,16 @@ class Document_Reader:
             portable_document_file_data_result_set: List[str] = list(filter(None, portable_document_file_data.split("\n")))
             company_details: Dict[str, Union[str, int]] = self.extractCompanyDetails(portable_document_file_data_result_set)
             business_details: List[Dict[str, str]] = self.extractDataForeignDomesticBusinessDetails(portable_document_file_data_result_set)
-            print(f"{company_details=}\n{business_details=}")
-            exit()
+            state_capital: List[Dict[str, Union[str, int]]] = self.extractStateCapital(portable_document_file_data_result_set)
             certificates: List[Dict[str, Union[str, int]]] = self.extractCertificates(portable_document_file_data_result_set)
-            office_bearers: List[Dict[str, Union[str, int]]] = self.extractOfficeBearers(portable_document_file_data_result_set)
+            office_bearers: List[Dict[str, Union[str, int]]] = self.extractDataForeignDomesticOfficeBearers(portable_document_file_data_result_set)
+            print(f"{company_details=}\n{business_details=}\n{state_capital=}\n{certificates=}\n{office_bearers=}")
+            exit()
             shareholders: List[Dict[str, Union[str, int]]] = self.extractShareholders(portable_document_file_data_result_set)
             members: List[Dict[str, Union[str, int]]] = self.extractMembers(portable_document_file_data_result_set)
             annual_return: List[Dict[str, int]] = self.extractAnnualReturns(portable_document_file_data_result_set)
             financial_summaries: List[Dict[str, Union[int, str]]] = self.extractFinancialSummaries(portable_document_file_data_result_set)
             profit_statement: Dict[str, Union[Dict[str, Union[int, str]], float]] = self.extractProfitStatements(portable_document_file_data_result_set)
-            state_capital: List[Dict[str, Union[str, int]]] = self.extractStateCapital(portable_document_file_data_result_set)
             balance_sheet: Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]] = self.extractBalanceSheet(portable_document_file_data_result_set)
             charges: List[Dict[str, Union[int, str]]] = self.extractCharges(portable_document_file_data_result_set)
             liquidators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractLiquidators(portable_document_file_data_result_set)
@@ -194,6 +194,65 @@ class Document_Reader:
                 "status": 404
             }
             self.getLogger().error(f"The portable document file has not been generated correctly!  The application will abort the extraction.\nStatus: {response['status']}\nFile Location: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
+        return response
+
+    def extractDataForeignDomesticOfficeBearers(self, result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
+        """
+        Extracting the data for the office bearers of a foreign
+        domestic company from the corporate registry.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [{position: string, name: string, address: string, date_appointment: int}]
+        """
+        response: List[Dict[str, Union[str, int]]] = []
+        possible_positions: List[str] = self.getOfficeBearer().getPossiblePositions() + ["AUTHORISED AGENT"]
+        start_index: int = result_set.index("Office Bearers") + 1
+        end_index: int = result_set.index("Shareholders")
+        result_set = result_set[start_index:end_index]
+        result_set = [value for value in result_set if "Position" not in value]
+        result_set = [value for value in result_set if "Name" not in value]
+        result_set = [value for value in result_set if "Service Address" not in value]
+        result_set = [value for value in result_set if "Appointed Date" not in value]
+        result_set = [value for value in result_set if "Shareholders" not in value]
+        date_appointments: List[str] = self.extractOfficeBearersDateAppointments(result_set)
+        result_set = [value for value in result_set if value not in date_appointments]
+        positions: List[str] = self.extractDataForeignDomesticOfficeBearersPositions(result_set)
+        print(f"{date_appointments=}\n{positions=}\n{result_set=}")
+        result_set = [value for value in result_set if value not in positions]
+        names: List[str] = self.extractOfficeBearersNames(result_set)
+        result_set = [value for value in result_set if value not in names]
+        addresses: List[str] = self.extractOfficeBearersAddresses(result_set)
+        for index in range(0, min([len(date_appointments), len(positions), len(names), len(addresses)]), 1):
+            position: str = positions[index].title()
+            name: str = names[index].title()
+            address: str = addresses[index].title()
+            date_appointment: int = int(datetime.strptime(date_appointments[index], "%d/%m/%Y").timestamp())
+            office_bearer: Dict[str, Union[str, int]] = {
+                "position": position,
+                "name": name,
+                "address": address,
+                "date_appointment": date_appointment
+            }
+            response.append(office_bearer)
+        exit()
+        return response
+
+    def extractDataForeignDomesticOfficeBearersPositions(self, result_set: List[str]) -> List[str]:
+        """
+        Extracting the positions of the office bearers of a foreign
+        domestic company.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [string]
+        """
+        possible_positions: List[str] = list(set(self.getOfficeBearer().getPossiblePositions() + ["AUTHORISED AGENT"]))
+        response: List[str] = [value for value in result_set if value in possible_positions]
         return response
 
     def extractDataForeignDomesticBusinessDetails(self, result_set: List[str]) -> List[Dict[str, str]]:
