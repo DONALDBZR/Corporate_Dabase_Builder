@@ -512,6 +512,23 @@ class Builder:
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {response}\nCompany Detail Identifier: {company_detail}")
         return response
 
+    def __storeCorporateDataForeignDomesticBusinessDetails(self, business_detail: Dict[str, str], company_detail: int) -> int:
+        """
+        Adding the business details of a foreign domestic company
+        into the relational database server.
+
+        Parameters:
+            business_details: {name: string, nature: string, operational_address: string}: The data that has been extracted for the business details table.
+            company_detail: int: The identifier of the company.
+
+        Returns:
+            int
+        """
+        if "registered_address" in business_detail:
+            return self.getBusinessDetails().addBusinessDetailsDomestic(business_detail, company_detail)
+        else:
+            return self.getBusinessDetails().addBusinessDetailsForeignDomestic(business_detail, company_detail)
+
     def storeCorporateDataGlobalBusinessCompany(self, dataset: Dict[str, Union[int, Dict[str, Union[str, int]], Dict[str, str], List[Dict[str, Union[str, int]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]], Dict[str, Union[Dict[str, str], List[Dict[str, int]]]]]], document_file: DocumentFiles) -> int:
         """
         Storing the corporate data that is extracted from the
