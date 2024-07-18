@@ -731,8 +731,9 @@ class Document_Reader:
         result_set = [value for value in result_set if value not in positions]
         addresses: List[str] = self._extractDataAuthorisedCompanyOfficeBearersAddresses(result_set)
         names: List[str] = [value for value in result_set if value not in addresses]
-        print(f"{date_appointments=}\n{positions=}\n{addresses=}\n{names=}")
-        for index in range(0, min([len(date_appointments), len(positions), len(addresses), len(names)]), 1):
+        limitation: int = min([len(date_appointments), len(positions), len(addresses), len(names)])
+        print(f"{date_appointments=}\n{positions=}\n{addresses=}\n{names=}\n{limitation=}")
+        for index in range(0, limitation, 1):
             response.append({
                 "position": positions[index].title(),
                 "name": names[index].title(),
@@ -756,7 +757,7 @@ class Document_Reader:
         response: List[str] = []
         dataset: List[str] = [value for value in result_set if "Lane" in value or "Street" in value or "Road" in value]
         for index in range(0, len(dataset), 1):
-            data: str = " ".join([value for value in dataset[index].replace("MAURITIUS", "").split(" ") if value != ""])
+            data: str = " ".join([value for value in dataset[index].replace("MAURITIUS", "").split(" ") if value != ""]) + " Mauritius"
             response.append(data)
         return response
 
