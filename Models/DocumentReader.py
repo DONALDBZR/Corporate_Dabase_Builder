@@ -549,8 +549,6 @@ class Document_Reader:
             company_details: Dict[str, Union[str, int]] = self._extractDataAuthorisedCompanyCompanyDetails(portable_document_file_data_result_set)
             business_details: Dict[str, str] = self._extractDataAuthorisedCompanyBusinessDetails(portable_document_file_data_result_set)
             office_bearers: List[Dict[str, Union[str, int]]] = self._extractDataAuthorisedCompanyOfficeBearers(portable_document_file_data_result_set)
-            print(f"{office_bearers=}")
-            exit()
             receivers: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractReceivers(portable_document_file_data_result_set)
             administrators: Dict[str, Union[Dict[str, str], List[Dict[str, int]]]] = self._extractDataAuthorisedCompanyAdministrators(portable_document_file_data_result_set)
             liquidators: Dict[str, Union[Dict[str, str], List[Dict[str, int]]]] = self._extractDataAuthorisedCompanyLiquidators(portable_document_file_data_result_set)
