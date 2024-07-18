@@ -1308,7 +1308,7 @@ class Builder:
             int
         """
         response: int
-        if status == 201:
+        if status >= 200 and status <= 299:
             response = self._storeCorporateDataDomesticShareholders(shareholders, document_file.company_detail)
             self.getLogger().inform(f"The data has been successfully updated into the Shareholders table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {shareholders}")
         else:
