@@ -37,13 +37,13 @@ class Member(Database_Handler):
     def setTableName(self, table_name: str) -> None:
         self.__table_name = table_name
 
-    def addShareholders(self, data: Dict[str, Union[str, int]], company_detail: int) -> int:
+    def addMember(self, data: Dict[str, Union[str, int]], company_detail: int) -> int:
         """
         Adding the shareholders data of the company into the
         relational database server.
 
         Parameters:
-            data: {name: string, amount_shares: int, type_shares: string, currency: string}: The data that has been extracted for the office bearers table.
+            data: {name: string, amount: int, date_start: int, currency: string}: The data that has been extracted for the members table.
             company_detail: int: The identifier of the company.
 
         Returns:
@@ -51,16 +51,16 @@ class Member(Database_Handler):
         """
         response: int
         try:
-            parameters: Tuple[str, int, str, str, int] = (
+            parameters: Tuple[str, int, int, str, int] = (
                 str(data["name"]),
-                int(data["amount_shares"]),
-                str(data["type_shares"]),
+                int(data["amount"]),
+                int(data["date_start"]),
                 str(data["currency"]),
                 company_detail
             )
             self.postData(
                 table=self.getTableName(),
-                columns="name, amount_shares, type_shares, currency, CompanyDetail",
+                columns="name, amount, date_start, currency, CompanyDetail",
                 values="%s, %s, %s, %s, %s",
                 parameters=parameters # type: ignore
             )
