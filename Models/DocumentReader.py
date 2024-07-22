@@ -2577,13 +2577,19 @@ class Document_Reader:
             {name: string, date_appointed: int, address: string}
         """
         start_index: int = result_set.index("Liquidators") + 1
-        end_index: int = result_set.index("From")
+        end_index: int = result_set.index("Affidavits of Liquidator")
         result_set = result_set[start_index:end_index]
-        result_set.remove("Affidavits of Liquidator")
-        result_set.remove("Name:")
-        result_set.remove("Address:")
-        result_set.remove("Date Filed")
-        if len(result_set) > 0:
+        start_index = result_set.index("Appointed Date:")
+        end_index = start_index + 2
+        date_appointed: List[str] = result_set[start_index:end_index]
+        start_index = result_set.index("Name:")
+        end_index = start_index + 2
+        name: List[str] = [value for value in result_set[start_index:end_index] if "Address:" not in value]
+        start_index = result_set.index("Address:")
+        end_index = start_index + 2
+        address: List[str] = [value for value in result_set[start_index:end_index] if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == False or "Address:" in value]
+        dataset: List[str] = [value for value in date_appointed + name + address if ":" not in value]
+        if len(dataset) > 0:
             self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractLiquidators()")
             exit()
         else:
