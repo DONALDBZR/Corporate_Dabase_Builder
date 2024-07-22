@@ -619,13 +619,10 @@ class Document_Reader:
         dataset = [value for value in dataset if "Administrators" not in value]
         dataset = [value for value in dataset if "To" not in value]
         administrator: Dict[str, Union[str, int]] = self._extractDataGlobalBusinessCompanyAdministrators(dataset)
-        print(f"{administrator=}")
-        exit()
-        start_index = result_set.index("Name:")
-        result_set = result_set[start_index:]
-        start_index = result_set.index("Accounts of Administrator") + 1
-        end_index = start_index + 6
+        start_index = result_set.index("Accounts of Administrator")
+        end_index = result_set.index("Winding Up Details")
         result_set = result_set[start_index:end_index]
+        result_set = [value for value in result_set if "Accounts of Administrator" not in value]
         accounts: List[Dict[str, int]] = self.extractDataGlobalBusinessCompanyAdministratorsAccounts(result_set)
         if not administrator and len(accounts) == 0:
             response = {}
