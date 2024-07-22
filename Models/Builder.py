@@ -1254,7 +1254,7 @@ class Builder:
 
         Parameters:
             status: int: The status of the data manipulation.
-            certificates: [{name: string, amount: int, date_start: int, currency: string}]: The data that has been extracted for the members table.
+            members: [{name: string, amount: int, date_start: int, currency: string}]: The data that has been extracted for the members table.
             document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
 
         Returns:
@@ -1262,8 +1262,8 @@ class Builder:
         """
         response: int
         if status == 201 and len(members) > 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataDomesticMembers()")
-            exit()
+            response = self._storeCorporateDataDomesticMembers(members, document_file.company_detail)
+            self.getLogger().inform(f"Data has been stored into the Members table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {members}")
         elif status == 201 and len(members) == 0:
             response = 200
             self.getLogger().inform(f"There is no data to be inserted into the Members table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {members}")
