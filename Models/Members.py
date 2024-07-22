@@ -13,10 +13,9 @@ from mysql.connector.errors import Error
 from mysql.connector.types import RowType
 
 
-class Shareholders(Database_Handler):
+class Member(Database_Handler):
     """
-    The model which will interact exclusively with the
-    Shareholders.
+    The model which will interact exclusively with the Members.
     """
     __table_name: str
     """
