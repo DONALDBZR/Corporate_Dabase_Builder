@@ -175,7 +175,7 @@ class Document_Reader:
                 "annual_return": annual_return,
                 "financial_summaries": financial_summaries,
                 "profit_statement": profit_statement,
-                "state_capital": state_capital,
+                "state_capital": state_capital, # type: ignore
                 "balance_sheet": balance_sheet,
                 "charges": charges,
                 "liquidators": liquidators,
@@ -1104,7 +1104,7 @@ class Document_Reader:
                 "annual_return": annual_return,
                 "financial_summaries": financial_summaries,
                 "profit_statement": profit_statement,
-                "state_capital": state_capital,
+                "state_capital": state_capital, # type: ignore
                 "balance_sheet": balance_sheet,
                 "charges": charges,
                 "liquidators": liquidators,
@@ -2276,7 +2276,7 @@ class Document_Reader:
                 "annual_return": annual_return,
                 "financial_summaries": financial_summaries,
                 "profit_statement": profit_statement,
-                "state_capital": state_capital,
+                "state_capital": state_capital, # type: ignore
                 "balance_sheet": balance_sheet,
                 "charges": charges,
                 "liquidators": liquidators,
