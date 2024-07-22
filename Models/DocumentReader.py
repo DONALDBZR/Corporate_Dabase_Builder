@@ -430,7 +430,7 @@ class Document_Reader:
                 "type": types[index],
                 "amount": amounts[index],
                 "currency": currencies[index],
-                "state_capital": stated_capital[index],
+                "stated_capital": stated_capital[index],
                 "amount_unpaid": amount_unpaid[index]
             })
         return response
