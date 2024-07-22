@@ -370,8 +370,6 @@ class Document_Reader:
             company_details: Dict[str, Union[str, int]] = self.extractDataGlobalBusinessCompanyCompanyDetails(portable_document_file_data_result_set)
             business_details: Dict[str, str] = self.extractDataGlobalBusinessCompanyBusinessDetails(portable_document_file_data_result_set)
             state_capital: List[Dict[str, Union[str, int, float]]] = self.extractDataGlobalBusinessCompanyStatedCapital(portable_document_file_data_result_set)
-            print(f"{state_capital=}")
-            exit()
             office_bearers: List[Dict[str, Union[str, int]]] = self.extractDataGlobalBusinessCompanyOfficeBearers(portable_document_file_data_result_set)
             receivers: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractDataGlobalBusinessCompanyReceivers(portable_document_file_data_result_set)
             administrators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractDataGlobalBusinessCompanyAdministrators(portable_document_file_data_result_set)
