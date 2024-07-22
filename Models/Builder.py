@@ -1272,6 +1272,29 @@ class Builder:
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
         return response
 
+    def _storeCorporateDataDomesticMembers(self, members: List[Dict[str, Union[str, int]]], company_detail: int) -> int:
+        """
+        Storing the members data of a private domestic company into
+        the relational database server.
+
+        Parameters:
+            members: [{name: string, amount: int, date_start: int, currency: string}]: The data that has been extracted for the members table.
+            company_detail: int: The identfier of the company.
+
+        Returns:
+            int
+        """
+        relational_database_responses: List[int] = []
+        response: int
+        for index in range(0, len(members), 1):
+            relational_database_responses.append(self.getMember().addMember(members[index]))
+        relational_database_responses = list(set(relational_database_responses))
+        if len(relational_database_responses) == 1 and relational_database_responses[0] == 201:
+            response = relational_database_responses[0]
+        else:
+            response = max(relational_database_responses)
+        return response
+
     def storeCorporateDataDomesticCertificate(self, status: int, certificates: List[Dict[str, Union[str, int]]], document_file: DocumentFiles) -> int:
         """
         Doing the data manipulation on the certificates result set.
