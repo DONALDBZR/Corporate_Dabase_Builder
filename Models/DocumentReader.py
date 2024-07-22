@@ -426,16 +426,36 @@ class Document_Reader:
             result_set = [value for value in result_set if value not in dataset]
             amount_unpaid: List[float] = self.extractDataGlobalBusinessCompanyStatedCapitalAmountUnpaid(result_set)
             limitation: int = min([len(types), len(amounts), len(currencies), len(stated_capital), len(amount_unpaid)])
-            for index in range(0, limitation, 1):
-                response.append({
-                    "type": types[index],
-                    "amount": amounts[index],
-                    "currency": currencies[index],
-                    "stated_capital": stated_capital[index],
-                    "amount_unpaid": amount_unpaid[index]
-                })
+            response = self._extractDataGlobalBusinessCompanyStatedCapital(types, amounts, currencies, stated_capital, amount_unpaid)
         else:
             response = []
+        return response
+
+    def _extractDataGlobalBusinessCompanyStatedCapital(self, types: List[str], amounts: List[int], currencies: List[str], stated_capitals: List[int], amount_unpaids: List[float]) -> List[Dict[str, Union[str, int, float]]]:
+        """
+        Building the response for the stated capital of a global
+        business company.
+
+        Parameters:
+            types: [string]: The types of the stated capital.
+            amounts: [int]: The amounts of shares of the stated capital.
+            currencies: [string]: The currencies of the stated capital.
+            stated_capitals: [int]: The capitals that have been stated.
+            amount_unpaids: [float]: The amount unpaids of the stated capital.
+
+        Returns:
+            [{type: string, amount: int, currency: string, state_capital: int, amount_unpaid: float}]
+        """
+        limitation: int = min([len(types), len(amounts), len(currencies), len(stated_capitals), len(amount_unpaids)])
+        response: List[Dict[str, Union[str, int, float]]] = []
+        for index in range(0, limitation, 1):
+            response.append({
+                "type": types[index],
+                "amount": amounts[index],
+                "currency": currencies[index],
+                "stated_capital": stated_capitals[index],
+                "amount_unpaid": amount_unpaids[index]
+            })
         return response
 
     def extractDataGlobalBusinessCompanyStatedCapitalAmountUnpaid(self, result_set: List[str]) -> List[float]:
