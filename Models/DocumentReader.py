@@ -3364,7 +3364,7 @@ class Document_Reader:
             response.append(office_bearer)
         return response
 
-    def extractStateCapital(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
+    def extractStateCapital(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[str, int, float]]]:
         """
         Extracting the data for the share capital from the result
         set.
@@ -3373,9 +3373,9 @@ class Document_Reader:
             portable_document_file_result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
 
         Returns:
-            [{type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}]
+            [{type: string, amount: int, currency: string, state_capital: int, amount_unpaid: float}]
         """
-        response: List[Dict[str, Union[str, int]]] = []
+        response: List[Dict[str, Union[str, int, float]]] = []
         start_index: int = portable_document_file_result_set.index("Type of Shares")
         end_index: int = portable_document_file_result_set.index("Certificate (Issued by Other Institutions)")
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
@@ -3393,17 +3393,15 @@ class Document_Reader:
         stated_capitals: List[int] = self.extractStateCapitalStatedCapital(result_set)
         dataset = [value for value in result_set if bool(search(r"[\d]+", value)) == True and "," in value]
         result_set = [value for value in result_set if value not in dataset]
-        amount_unpaids: List[int] = self.extractStateCapitalAmountUnpaid(result_set)
-        share_values: List[int] = self.extractStateCapitalShareValue(result_set)
-        limitation: int = min([len(types), len(amounts), len(currencies), len(stated_capitals), len(amount_unpaids), len(share_values)])
+        amount_unpaids: List[float] = self.extractStateCapitalAmountUnpaid(result_set)
+        limitation: int = min([len(types), len(amounts), len(currencies), len(stated_capitals), len(amount_unpaids)])
         for index in range(0, limitation, 1):
             response.append({
                 "type": types[index].title(),
                 "amount": amounts[index],
                 "currency": currencies[index].title(),
                 "stated_capital": stated_capitals[index],
-                "amount_unpaid": amount_unpaids[index],
-                "par_value": share_values[index]
+                "amount_unpaid": amount_unpaids[index]
             })
         return response
 
