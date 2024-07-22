@@ -425,8 +425,15 @@ class Document_Reader:
         stated_capital: List[int] = self.extractDataGlobalBusinessCompanyStatedCapitalStatedCapital(result_set)
         result_set = [value for value in result_set if value not in dataset]
         amount_unpaid: List[float] = self.extractDataGlobalBusinessCompanyStatedCapitalAmountUnpaid(result_set)
-        print(f"{types=}\n{amounts=}\n{currencies=}\n{stated_capital=}\n{result_set=}")
-        exit()
+        limitation: int = min([len(types), len(amounts), len(currencies), len(stated_capital), len(amount_unpaid)])
+        for index in range(0, limitation, 1):
+            response.append({
+                "type": types[index],
+                "amount": amounts[index],
+                "currency": currencies[index],
+                "state_capital": stated_capital[index],
+                "amount_unpaid": amount_unpaid[index]
+            })
         return response
 
     def extractDataGlobalBusinessCompanyStatedCapitalAmountUnpaid(self, result_set: List[str]) -> List[float]:
