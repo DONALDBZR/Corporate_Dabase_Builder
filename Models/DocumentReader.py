@@ -1085,7 +1085,7 @@ class Document_Reader:
             annual_return: List[Dict[str, int]] = self.extractAnnualReturns(portable_document_file_data_result_set)
             financial_summaries: List[Dict[str, Union[int, str]]] = self.extractFinancialSummaries(portable_document_file_data_result_set)
             profit_statement: Dict[str, Union[Dict[str, Union[int, str]], float]] = self.extractProfitStatements(portable_document_file_data_result_set)
-            state_capital: List[Dict[str, Union[str, int]]] = self.extractStateCapital(portable_document_file_data_result_set)
+            state_capital: List[Dict[str, Union[str, int, float]]] = self.extractStateCapital(portable_document_file_data_result_set)
             balance_sheet: Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]] = self.extractBalanceSheet(portable_document_file_data_result_set)
             charges: List[Dict[str, Union[int, str]]] = self.extractCharges(portable_document_file_data_result_set)
             liquidators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractLiquidators(portable_document_file_data_result_set)
