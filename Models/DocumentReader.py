@@ -2532,7 +2532,16 @@ class Document_Reader:
         start_index: int = portable_document_file_result_set.index("Liquidators")
         end_index: int = portable_document_file_result_set.index("Receivers")
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
-        liquidator: Dict[str, Union[str, int]] = self._extractLiquidators(result_set)
+        start_index = portable_document_file_result_set.index("Appointed Date:")
+        end_index = start_index + 6
+        date_appointeds = [value for value in portable_document_file_result_set[start_index:end_index] if "Appointed Date:" in value or "/" in value]
+        start_index = int(len(date_appointeds) * (2 / 3)) - 1
+        end_index = int(len(date_appointeds) / 3) + start_index
+        date_appointeds = date_appointeds[start_index:end_index]
+        start_index = result_set.index("Liquidators")
+        end_index = result_set.index("Affidavits of Liquidator") + 1
+        liquidator_dataset: List[str] = result_set[start_index:end_index] + date_appointeds
+        liquidator: Dict[str, Union[str, int]] = self._extractLiquidators(liquidator_dataset)
         affidavits: List[Dict[str, int]] = self.extractLiquidatorsAffidavits(result_set)
         if not liquidator and len(affidavits) == 0:
             return {}
@@ -2576,9 +2585,11 @@ class Document_Reader:
         Returns:
             {name: string, date_appointed: int, address: string}
         """
+        print(f"{result_set=}")
         start_index: int = result_set.index("Liquidators") + 1
         end_index: int = result_set.index("Affidavits of Liquidator")
         result_set = result_set[start_index:end_index]
+        exit()
         start_index = result_set.index("Appointed Date:")
         end_index = start_index + 2
         date_appointed: List[str] = result_set[start_index:end_index]
