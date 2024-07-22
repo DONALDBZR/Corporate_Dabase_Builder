@@ -28,7 +28,7 @@ class Member(Database_Handler):
         operate the application.
         """
         super().__init__()
-        self.setTableName("Shareholders")
+        self.setTableName("Members")
         self.getLogger().inform("The model has been successfully been initiated with its dependencies.")
 
     def getTableName(self) -> str:
@@ -68,102 +68,4 @@ class Member(Database_Handler):
         except Error as error:
             response = 503
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {response}\nError: {error}")
-        return response
-
-    def getPossibleShareTypes(self) -> List[str]:
-        """
-        Retrieving all of the possible share types that are stored
-        in the relational database server.
-        
-        Returns:
-            [string]
-        """
-        response: List[str] = []
-        try:
-            result_set: Union[List[RowType], List[Dict[str, str]]] = self.getData(
-                table_name=self.getTableName(),
-                parameters=None,
-                column_names="DISTINCT UPPER(type_shares) AS type_shares"
-            )
-            dataset: Dict[str, Union[int, List[str]]] = self._getPossibleShareTypes(result_set)
-            response = dataset["response"] # type: ignore
-            self.getLogger().inform(f"The data from the {self.getTableName()} table has been successfully retrieved.\nStatus: {dataset['status']}\nData: {dataset['response']}")
-        except Error as error:
-            status = 503
-            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {status}\nError: {error}")
-        return response
-
-    def _getPossibleShareTypes(self, result_set: Union[List[RowType], List[Dict[str, str]]]) -> Dict[str, Union[int, List[str]]]:
-        """
-        Formatting the result set data in the correct format for the
-        application.
-
-        Parameters:
-            result_set: [{position: string}]: The list of types of shares for the shareholders.
-
-        Returns:
-            {status: int, response: [string]}
-        """
-        response: Dict[str, Union[int, List[str]]]
-        status: int
-        data: List[str]
-        if len(result_set) > 0:
-            status = 200
-            data = [value["type_shares"] for value in result_set]  # type: ignore
-        else:
-            status = 204
-            data = []
-        response = {
-            "status": status,
-            "response": data
-        }
-        return response
-
-    def getPossibleCurrencies(self) -> List[str]:
-        """
-        Retrieving all of the possible currencies that are stored in
-        the relational database server.
-        
-        Returns:
-            [string]
-        """
-        response: List[str] = []
-        try:
-            result_set: Union[List[RowType], List[Dict[str, str]]] = self.getData(
-                table_name=self.getTableName(),
-                parameters=None,
-                column_names="DISTINCT currency AS currencies"
-            )
-            dataset: Dict[str, Union[int, List[str]]] = self._getPossibleCurrencies(result_set)
-            response = dataset["response"] # type: ignore
-            self.getLogger().inform(f"The data from the {self.getTableName()} table has been successfully retrieved.\nStatus: {dataset['status']}\nData: {dataset['response']}")
-        except Error as error:
-            status = 503
-            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {status}\nError: {error}")
-        return response
-
-    def _getPossibleCurrencies(self, result_set: Union[List[RowType], List[Dict[str, str]]]) -> Dict[str, Union[int, List[str]]]:
-        """
-        Formatting the result set data in the correct format for the
-        application.
-
-        Parameters:
-            result_set: [{currencies: string}]: The list of types of shares for the shareholders.
-
-        Returns:
-            {status: int, response: [string]}
-        """
-        response: Dict[str, Union[int, List[str]]]
-        status: int
-        data: List[str]
-        if len(result_set) > 0:
-            status = 200
-            data = [value["currencies"] for value in result_set]  # type: ignore
-        else:
-            status = 204
-            data = []
-        response = {
-            "status": status,
-            "response": data
-        }
         return response
