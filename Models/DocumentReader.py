@@ -2954,21 +2954,53 @@ class Document_Reader:
         Returns:
             [{name: string, amount: int, date_start: int, currency: string}]
         """
+        response: List[Dict[str, Union[str, int]]]
         start_index: int = portable_document_file_result_set.index("Members (Applicable for Company Limited by Guarantee or Shares and Guarantee)") + 1
         end_index: int = portable_document_file_result_set.index("Annual Return filed for last 3 years")
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
         result_set = [value for value in result_set if "Date" not in value]
-        result_set = [value for value in result_set if "/" not in value]
         result_set = [value for value in result_set if "Page" not in value]
         result_set = [value for value in result_set if " of " not in value]
-        result_set.remove("Name")
-        result_set.remove("Amount")
-        result_set.remove("Currency")
+        result_set = [value for value in result_set if "Name" not in value]
+        result_set = [value for value in result_set if "Amount" not in value]
+        result_set = [value for value in result_set if "Currency" not in value]
         if len(result_set) > 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractMembers()")
-            exit()
+            response = self._extractMembers(result_set)
         else:
-            return []
+            response = []
+        print(f"{response=}")
+        exit()
+        return response
+
+    def _extractMembers(self, result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
+        """
+        Extracting the members of a domestic private company when
+        there are listed in the corporate registry.
+
+        Parameters:
+            portable_document_file_result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [{name: string, amount: int, date_start: int, currency: string}]
+        """
+        response: List[Dict[str, Union[str, int]]] = []
+        possible_currencies: List[str] = self.getShareholder().getPossibleCurrencies()
+        dataset: List[str] = [value for value in result_set if bool(search(r"[\d]+", value)) == True and "/" not in value]
+        amounts: List[int] = [int(value.replace(",", "")) for value in result_set if bool(search(r"[\d]+", value)) == True and "/" not in value]
+        result_set = [value for value in result_set if value not in dataset]
+        date_starts: List[str] = [value for value in result_set if bool(search(r"[\d]+", value)) == True]
+        result_set = [value for value in result_set if value not in date_starts]
+        currencies: List[str] = [value for value in result_set if value in possible_currencies]
+        names: List[str] = [value for value in result_set if value not in currencies]
+        limitation: int = min([len(amounts), len(date_starts), len(currencies), len(names)])
+        for index in range(0, limitation, 1):
+            response.append({
+                "name": names[index].title(),
+                "amount": amounts[index],
+                "date_start": int(datetime.strptime(date_starts[index], "%d/%m/%Y").timestamp()),
+                "currency": currencies[index].title()
+            })
+        return response
 
     def extractCertificates(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
         """
