@@ -307,8 +307,25 @@ class Database_Handler:
         self.getLogger().inform(
             f"Query built for adding data!\nQuery: {self.getQuery()}\nParameters: {self.getParameters()}"
         )
-        self._query(self.getQuery(), self.getParameters())
-        self._execute()
+        try:
+            self._query(self.getQuery(), self.getParameters())
+            self._execute()
+        except Error as error:
+            self.__handlePostDataError(error)
+
+    def __handlePostDataError(self, error: Error) -> None:
+        """
+        Handling any error that is generated on the relational
+        database server's level.
+
+        Parameters:
+            error: mysql.connector.Error: The error object of MySQL
+
+        Returns:
+            void
+        """
+        print(f"An error occured while posting the data into the relational database server.\nError: {error}\nMySQL Error Number: {error.errno}\nSQL State: {error.sqlstate}\n{error=}")
+        exit()
 
     def updateData(self, table: str, values: str, parameters: Union[Tuple[Any], None], condition: str = "") -> None:
         """
