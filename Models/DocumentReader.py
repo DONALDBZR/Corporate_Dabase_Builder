@@ -2554,10 +2554,11 @@ class Document_Reader:
         start_index: int = result_set.index("Affidavits of Liquidator")
         end_index: int = result_set.index("To") + 2
         result_set = result_set[start_index:end_index]
-        result_set.remove("Affidavits of Liquidator")
-        result_set.remove("Date Filed")
-        result_set.remove("From")
-        result_set.remove("To")
+        result_set = [value for value in result_set if "Affidavits of Liquidator" not in value]
+        result_set = [value for value in result_set if "Date Filed" not in value]
+        result_set = [value for value in result_set if "From" not in value]
+        result_set = [value for value in result_set if "To" not in value]
+        result_set = [value for value in result_set if "Appointed Date:" not in value]
         if len(result_set) > 0:
             self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractLiquidatorsAffidavits()")
             exit()
