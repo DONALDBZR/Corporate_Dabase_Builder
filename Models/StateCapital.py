@@ -51,19 +51,18 @@ class State_Capital(Database_Handler):
         """
         response: int
         try:
-            parameters: Tuple[str, int, int, int, int, str, int] = (
+            parameters: Tuple[str, int, int, float, str, int] = (
                 str(data["type"]),
                 int(data["amount"]),
                 int(data["stated_capital"]),
-                int(data["amount_unpaid"]),
-                int(data["par_value"]),
+                float(data["amount_unpaid"]),
                 str(data["currency"]),
                 company_detail
             )
             self.postData(
                 table=self.getTableName(),
-                columns="type, amount, stated_capital, amount_unpaid, par_value, currency, CompanyDetail",
-                values="%s, %s, %s, %s, %s, %s, %s",
+                columns="type, amount, stated_capital, amount_unpaid, currency, CompanyDetail",
+                values="%s, %s, %s, %s, %s, %s",
                 parameters=parameters # type: ignore
             )
             response = 201
