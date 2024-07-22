@@ -2585,11 +2585,9 @@ class Document_Reader:
         Returns:
             {name: string, date_appointed: int, address: string}
         """
-        print(f"{result_set=}")
         start_index: int = result_set.index("Liquidators") + 1
-        end_index: int = result_set.index("Affidavits of Liquidator")
+        end_index: int = result_set.index("Affidavits of Liquidator") + 2
         result_set = result_set[start_index:end_index]
-        exit()
         start_index = result_set.index("Appointed Date:")
         end_index = start_index + 2
         date_appointed: List[str] = result_set[start_index:end_index]
