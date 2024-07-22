@@ -582,8 +582,9 @@ class Document_Reader:
         """
         response: List[Dict[str, int]]
         start_index: int = result_set.index("Affidavits of Liquidator") + 1
-        end_index: int = result_set.index("Receivers")
+        end_index: int = result_set.index("This is a Computer Generated Document.")
         result_set = result_set[start_index:end_index]
+        result_set = [value for value in result_set if "Appointed Date:" not in value]
         result_set = [value for value in result_set if "Date Filed" not in value]
         result_set = [value for value in result_set if "From" not in value]
         result_set = [value for value in result_set if "To" not in value]
