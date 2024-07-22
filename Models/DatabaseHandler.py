@@ -85,7 +85,7 @@ class Database_Handler:
                     database=self.__getDatabase(),
                     username=self.__getUsername(),
                     password=self.__getPassword()
-                )
+                ) # type: ignore
             )
             self.getLogger().inform(
                 "The application has been successfully connected to the database server!"
