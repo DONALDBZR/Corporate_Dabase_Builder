@@ -149,7 +149,7 @@ class Document_Reader:
             portable_document_file_data_result_set: List[str] = list(filter(None, portable_document_file_data.split("\n")))
             company_details: Dict[str, Union[str, int]] = self.extractCompanyDetails(portable_document_file_data_result_set)
             business_details: List[Dict[str, str]] = self.extractDataForeignDomesticBusinessDetails(portable_document_file_data_result_set)
-            state_capital: List[Dict[str, Union[str, int]]] = self.extractStateCapital(portable_document_file_data_result_set)
+            state_capital: List[Dict[str, Union[str, int, float]]] = self.extractStateCapital(portable_document_file_data_result_set)
             certificates: List[Dict[str, Union[str, int]]] = self.extractCertificates(portable_document_file_data_result_set)
             office_bearers: List[Dict[str, Union[str, int]]] = self.extractDataForeignDomesticOfficeBearers(portable_document_file_data_result_set)
             shareholders: List[Dict[str, Union[str, int]]] = self.extractShareholders(portable_document_file_data_result_set)
