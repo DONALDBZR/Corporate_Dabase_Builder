@@ -2584,7 +2584,7 @@ class Document_Reader:
         result_set.remove("Address:")
         result_set.remove("Date Filed")
         if len(result_set) > 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractCharges()")
+            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractLiquidators()")
             exit()
         else:
             return {}
