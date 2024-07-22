@@ -129,6 +129,7 @@ class Builder:
         self.setStateCapital(State_Capital())
         self.setOfficeBearers(Office_Bearers())
         self.setShareholders(Shareholders())
+        self.setMembers(Member())
         self.getLogger().inform("The builder has been initialized and all of its dependencies are injected!")
 
     def getCrawler(self) -> Crawler:
