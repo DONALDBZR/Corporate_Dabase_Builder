@@ -15,7 +15,7 @@ from Environment import Environment
 from Models.Logger import Corporate_Database_Builder_Logger
 from typing import List, Tuple, Union, Any
 from mysql.connector.types import RowType
-from mysql.connector import Error
+from mysql.connector import Error, errorcode
 import mysql.connector
 import logging
 
@@ -324,8 +324,11 @@ class Database_Handler:
         Returns:
             void
         """
-        print(f"An error occured while posting the data into the relational database server.\nError: {error}\nMySQL Error Number: {error.errno}\nSQL State: {error.sqlstate}\n{error=}")
-        exit()
+        if error.errno == errorcode.ER_DUP_ENTRY or "Duplicate entry" in str(error.msg):
+            self.getLogger().error(f"The application is trying to insert a duplicate entry, a SQLSTATE[{errorcode.ER_DUP_ENTRY}] will be generated so that the transaction will be ignored.\nError: {error.msg}\nMySQL Error Number: {errorcode.ER_DUP_ENTRY}\nSQL State: SQLSTATE[{errorcode.ER_DUP_ENTRY}]")
+        else:
+            self.getLogger().error(f"An error occured while trying to post data to the relational database server.\nError: {error.msg}\nMySQL Error Number: {error.errno}\nSQL State: {error.sqlstate}")
+            exit()
 
     def updateData(self, table: str, values: str, parameters: Union[Tuple[Any], None], condition: str = "") -> None:
         """
