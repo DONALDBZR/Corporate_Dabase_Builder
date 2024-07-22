@@ -1551,20 +1551,20 @@ class Document_Reader:
         """
         response: List[Dict[str, Union[str, int]]] = []
         start_index: int = result_set.index("Associes")
-        end_index: int = result_set.index("Reports of Receiver")
+        end_index: int = result_set.index("Liquidators")
+        dataset: List[str] = result_set[start_index:end_index]
+        dataset = [value for value in dataset if "Associes" not in value]
+        dataset = [value for value in dataset if "Name" not in value]
+        names: List[str] = dataset
+        result_set = result_set[start_index:]
+        start_index = result_set.index("Currency") + 1
+        end_index = result_set.index("Appointed Date:")
         result_set = result_set[start_index:end_index]
         amounts: List[int] = self._extractDataDomesticCivilCivilShareholdersAmount(result_set)
         shareholders_types: Dict[str, List[str]] = self._extractDataDomesticCivilCivilShareholdersType(result_set)
         types: List[str] = shareholders_types["types"]
         result_set = shareholders_types["result_set"]
-        names: List[str] = [value for value in result_set if bool(search(r"[A-Z\s]+", value)) == True and bool(search(r"[a-z]+", value)) == False]
-        currencies: List[str] = [value for value in result_set if value not in names]
-        start_index = currencies.index("Currency") + 1
-        currencies = currencies[start_index:]
-        currencies = [value for value in currencies if bool(search(r"[\d]+", value)) == False and bool(search(r"[A-Z]+", value)) == True and ":" not in value]
-        start_index = result_set.index("Currency") + 1
-        end_index: int = result_set.index("Liquidators")
-        result_set = result_set[start_index:end_index]
+        currencies: List[str] = result_set
         limitation: int = min([len(amounts), len(types), len(names), len(currencies)])
         for index in range(0, limitation, 1):
             response.append({
