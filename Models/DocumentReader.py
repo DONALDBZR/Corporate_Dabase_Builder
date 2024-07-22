@@ -419,9 +419,27 @@ class Document_Reader:
         result_set = [value for value in result_set if value not in dataset]
         dataset = [value for value in result_set if bool(search(r"[\d]+", value)) == True and bool(search(r"[A-z]+", value)) == True]
         amounts: List[int] = self.extractDataGlobalBusinessCompanyStatedCapitalAmounts(result_set)
+        currencies: List[str] = self.extractDataGlobalBusinessCompanyStatedCapitalCurrencies(result_set)
         result_set = [value for value in result_set if value not in dataset]
-        print(f"{types=}\n{amounts=}\n{result_set=}")
+        print(f"{types=}\n{amounts=}\n{currencies=}\n{result_set=}")
         exit()
+        return response
+
+    def extractDataGlobalBusinessCompanyStatedCapitalCurrencies(self, result_set: List[str]) -> List[str]:
+        """
+        Extracting the currencies of the stated capital of a global
+        business company.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [string]
+        """
+        response: List[str] = []
+        dataset: List[str] = [value for value in result_set if bool(search(r"[\d]+", value)) == True and bool(search(r"[A-z]+", value)) == True]
+        for index in range(0, len(dataset), 1):
+            response.append(" ".join([value for value in dataset[index].split(" ") if bool(search(r"[A-z]+", value)) == True]))
         return response
 
     def extractDataGlobalBusinessCompanyStatedCapitalAmounts(self, result_set: List[str]) -> List[int]:
