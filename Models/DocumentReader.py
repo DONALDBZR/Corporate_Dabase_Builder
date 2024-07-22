@@ -3423,7 +3423,7 @@ class Document_Reader:
             response.append(int(result_set[index].split(" ")[-1]))
         return response
 
-    def extractStateCapitalAmountUnpaid(self, result_set: List[str]) -> List[int]:
+    def extractStateCapitalAmountUnpaid(self, result_set: List[str]) -> List[float]:
         """
         Extracting the amount unpaid of the stated capital of a
         private domestic company.
@@ -3432,11 +3432,11 @@ class Document_Reader:
             result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
 
         Returns:
-            [int]
+            [float]
         """
-        response: List[int] = []
+        response: List[float] = []
         for index in range(0, len(result_set), 1):
-            response.append(int(result_set[index].split(" ")[0]))
+            response.append(float(result_set[index].split(" ")[0]))
         return response
 
     def extractStateCapitalStatedCapital(self, result_set: List[str]) -> List[int]:
