@@ -369,6 +369,9 @@ class Document_Reader:
             portable_document_file_data_result_set: List[str] = list(filter(None, portable_document_file_data.split("\n")))
             company_details: Dict[str, Union[str, int]] = self.extractDataGlobalBusinessCompanyCompanyDetails(portable_document_file_data_result_set)
             business_details: Dict[str, str] = self.extractDataGlobalBusinessCompanyBusinessDetails(portable_document_file_data_result_set)
+            state_capital: List[Dict[str, Union[str, int, float]]] = self.extractDataGlobalBusinessCompanyStatedCapital(portable_document_file_data_result_set)
+            print(f"{state_capital=}")
+            exit()
             office_bearers: List[Dict[str, Union[str, int]]] = self.extractDataGlobalBusinessCompanyOfficeBearers(portable_document_file_data_result_set)
             receivers: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractDataGlobalBusinessCompanyReceivers(portable_document_file_data_result_set)
             administrators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractDataGlobalBusinessCompanyAdministrators(portable_document_file_data_result_set)
@@ -390,6 +393,49 @@ class Document_Reader:
                 "status": 404
             }
             self.getLogger().error(f"The portable document file has not been generated correctly!  The application will abort the extraction.\nStatus: {response['status']}\nFile Location: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
+        return response
+
+    def extractDataGlobalBusinessCompanyStatedCapital(self, result_set: List[str]) -> List[Dict[str, Union[str, int, float]]]:
+        """
+        Extracting the stated capital of a global business company.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [{type: string, amount: int, currency: string, state_capital: int, amount_unpaid: float}]
+        """
+        response: List[Dict[str, Union[str, int, float]]] = []
+        start_index: int = result_set.index("Particulars of Stated Capital")
+        end_index: int = result_set.index("Certificate (Issued by Other Institutions)")
+        result_set = result_set[start_index:end_index]
+        result_set = [value for value in result_set if "Particulars of Stated Capital" not in value]
+        result_set = [value for value in result_set if "Type of Shares" not in value]
+        result_set = [value for value in result_set if "No. of Shares Currency" not in value]
+        result_set = [value for value in result_set if "Stated Capital" not in value]
+        result_set = [value for value in result_set if "Amount Unpaid Par Value" not in value]
+        dataset: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == False]
+        types: List[str] = self.extractDataGlobalBusinessCompanyStatedCapitalTypes(result_set)
+        result_set = [value for value in result_set if value not in dataset]
+        print(f"{types=}\n{result_set=}")
+        exit()
+        return response
+
+    def extractDataGlobalBusinessCompanyStatedCapitalTypes(self, result_set: List[str]) -> List[str]:
+        """
+        Extracting the types of the stated capital of a global
+        business company.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [string]
+        """
+        response: List[str] = []
+        dataset: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == False and "SHARES" not in value]
+        for index in range(0, len(dataset), 1):
+            response.append(f"{dataset[index].title()} Shares")
         return response
 
     def extractDataGlobalBusinessCompanyLiquidators(self, result_set: List[str]) -> Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]:
