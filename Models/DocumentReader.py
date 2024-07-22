@@ -425,7 +425,6 @@ class Document_Reader:
             stated_capital: List[int] = self.extractDataGlobalBusinessCompanyStatedCapitalStatedCapital(result_set)
             result_set = [value for value in result_set if value not in dataset]
             amount_unpaid: List[float] = self.extractDataGlobalBusinessCompanyStatedCapitalAmountUnpaid(result_set)
-            limitation: int = min([len(types), len(amounts), len(currencies), len(stated_capital), len(amount_unpaid)])
             response = self._extractDataGlobalBusinessCompanyStatedCapital(types, amounts, currencies, stated_capital, amount_unpaid)
         else:
             response = []
