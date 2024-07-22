@@ -378,6 +378,7 @@ class Document_Reader:
                 "status": 200,
                 "company_details": company_details,
                 "business_details": business_details, # type: ignore
+                "state_capital": state_capital,
                 "office_bearers": office_bearers,
                 "receivers": receivers,
                 "administrators": administrators,
