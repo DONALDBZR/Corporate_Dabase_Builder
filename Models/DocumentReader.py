@@ -686,8 +686,10 @@ class Document_Reader:
             {name: string, designation: string, address: string, date_appointed: int}
         """
         response: Dict[str, Union[str, int]]
-        result_set = [value for value in result_set if ":" not in value and "Administrators" not in value]
-        if len(result_set) == 0:
+        result_set = [value for value in result_set if ":" not in value]
+        result_set = [value for value in result_set if "Page" not in value]
+        result_set = [value for value in result_set if " of " not in value]
+        if len(result_set) < 4:
             response = {}
         else:
             self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractDataGlobalBusinessCompanyAdministrators()")
