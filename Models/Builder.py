@@ -1287,7 +1287,7 @@ class Builder:
         relational_database_responses: List[int] = []
         response: int
         for index in range(0, len(members), 1):
-            relational_database_responses.append(self.getMember().addMember(members[index]))
+            relational_database_responses.append(self.getMember().addMember(members[index], company_detail))
         relational_database_responses = list(set(relational_database_responses))
         if len(relational_database_responses) == 1 and relational_database_responses[0] == 201:
             response = relational_database_responses[0]
