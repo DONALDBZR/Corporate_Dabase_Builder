@@ -2968,8 +2968,6 @@ class Document_Reader:
             response = self._extractMembers(result_set)
         else:
             response = []
-        print(f"{response=}")
-        exit()
         return response
 
     def _extractMembers(self, result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
