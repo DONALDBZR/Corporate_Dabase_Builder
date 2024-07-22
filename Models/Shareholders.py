@@ -119,3 +119,26 @@ class Shareholders(Database_Handler):
             "response": data
         }
         return response
+
+    def getPossibleCurrencies(self) -> List[str]:
+        """
+        Retrieving all of the possible currencies that are stored in
+        the relational database server.
+        
+        Returns:
+            [string]
+        """
+        response: List[str] = []
+        try:
+            result_set: Union[List[RowType], List[Dict[str, str]]] = self.getData(
+                table_name=self.getTableName(),
+                parameters=None,
+                column_names="DISTINCT currency AS currencies"
+            )
+            dataset: Dict[str, Union[int, List[str]]] = self._getPossibleCurrencies(result_set)
+            response = dataset["response"] # type: ignore
+            self.getLogger().inform(f"The data from the {self.getTableName()} table has been successfully retrieved.\nStatus: {dataset['status']}\nData: {dataset['response']}")
+        except Error as error:
+            status = 503
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {status}\nError: {error}")
+        return response
