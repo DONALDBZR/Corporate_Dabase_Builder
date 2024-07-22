@@ -405,34 +405,37 @@ class Document_Reader:
             [{type: string, amount: int, currency: string, state_capital: int, amount_unpaid: float}]
         """
         response: List[Dict[str, Union[str, int, float]]] = []
-        start_index: int = result_set.index("Particulars of Stated Capital")
-        end_index: int = result_set.index("Certificate (Issued by Other Institutions)")
-        result_set = result_set[start_index:end_index]
-        result_set = [value for value in result_set if "Particulars of Stated Capital" not in value]
-        result_set = [value for value in result_set if "Type of Shares" not in value]
-        result_set = [value for value in result_set if "No. of Shares Currency" not in value]
-        result_set = [value for value in result_set if "Stated Capital" not in value]
-        result_set = [value for value in result_set if "Amount Unpaid Par Value" not in value]
-        dataset: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == False]
-        types: List[str] = self.extractDataGlobalBusinessCompanyStatedCapitalTypes(result_set)
-        result_set = [value for value in result_set if value not in dataset]
-        dataset = [value for value in result_set if bool(search(r"[\d]+", value)) == True and bool(search(r"[A-z]+", value)) == True]
-        amounts: List[int] = self.extractDataGlobalBusinessCompanyStatedCapitalAmounts(result_set)
-        currencies: List[str] = self.extractDataGlobalBusinessCompanyStatedCapitalCurrencies(result_set)
-        result_set = [value for value in result_set if value not in dataset]
-        dataset = [value for value in result_set if bool(search(r"[\d]+", value)) == True and " " not in value]
-        stated_capital: List[int] = self.extractDataGlobalBusinessCompanyStatedCapitalStatedCapital(result_set)
-        result_set = [value for value in result_set if value not in dataset]
-        amount_unpaid: List[float] = self.extractDataGlobalBusinessCompanyStatedCapitalAmountUnpaid(result_set)
-        limitation: int = min([len(types), len(amounts), len(currencies), len(stated_capital), len(amount_unpaid)])
-        for index in range(0, limitation, 1):
-            response.append({
-                "type": types[index],
-                "amount": amounts[index],
-                "currency": currencies[index],
-                "stated_capital": stated_capital[index],
-                "amount_unpaid": amount_unpaid[index]
-            })
+        if "Particulars of Stated Capital" in result_set:
+            start_index: int = result_set.index("Particulars of Stated Capital")
+            end_index: int = result_set.index("Certificate (Issued by Other Institutions)")
+            result_set = result_set[start_index:end_index]
+            result_set = [value for value in result_set if "Particulars of Stated Capital" not in value]
+            result_set = [value for value in result_set if "Type of Shares" not in value]
+            result_set = [value for value in result_set if "No. of Shares Currency" not in value]
+            result_set = [value for value in result_set if "Stated Capital" not in value]
+            result_set = [value for value in result_set if "Amount Unpaid Par Value" not in value]
+            dataset: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == False]
+            types: List[str] = self.extractDataGlobalBusinessCompanyStatedCapitalTypes(result_set)
+            result_set = [value for value in result_set if value not in dataset]
+            dataset = [value for value in result_set if bool(search(r"[\d]+", value)) == True and bool(search(r"[A-z]+", value)) == True]
+            amounts: List[int] = self.extractDataGlobalBusinessCompanyStatedCapitalAmounts(result_set)
+            currencies: List[str] = self.extractDataGlobalBusinessCompanyStatedCapitalCurrencies(result_set)
+            result_set = [value for value in result_set if value not in dataset]
+            dataset = [value for value in result_set if bool(search(r"[\d]+", value)) == True and " " not in value]
+            stated_capital: List[int] = self.extractDataGlobalBusinessCompanyStatedCapitalStatedCapital(result_set)
+            result_set = [value for value in result_set if value not in dataset]
+            amount_unpaid: List[float] = self.extractDataGlobalBusinessCompanyStatedCapitalAmountUnpaid(result_set)
+            limitation: int = min([len(types), len(amounts), len(currencies), len(stated_capital), len(amount_unpaid)])
+            for index in range(0, limitation, 1):
+                response.append({
+                    "type": types[index],
+                    "amount": amounts[index],
+                    "currency": currencies[index],
+                    "stated_capital": stated_capital[index],
+                    "amount_unpaid": amount_unpaid[index]
+                })
+        else:
+            response = []
         return response
 
     def extractDataGlobalBusinessCompanyStatedCapitalAmountUnpaid(self, result_set: List[str]) -> List[float]:
