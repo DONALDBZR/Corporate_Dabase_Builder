@@ -23,6 +23,7 @@ from Models.BusinessDetails import Business_Details
 from Models.StateCapital import State_Capital
 from Models.OfficeBearers import Office_Bearers
 from Models.Shareholders import Shareholders
+from Models.Members import Member
 from datetime import datetime, timedelta
 from Environment import Environment
 from typing import List, Tuple, Union, Dict
@@ -105,6 +106,10 @@ class Builder:
     """
     The model which will interact exclusively with the
     Shareholders.
+    """
+    __members: Member
+    """
+    The model which will interact exclusively with the Members.
     """
 
     def __init__(self) -> None:
@@ -203,6 +208,12 @@ class Builder:
 
     def setShareholders(self, shareholders: Shareholders) -> None:
         self.__shareholders = shareholders
+
+    def getMembers(self) -> Member:
+        return self.__members
+
+    def setMembers(self, members: Member) -> None:
+        self.__members = members
 
     def getDateDownloadCorporateFile(self, fin_corp_logs: List[FinCorpLogs]) -> str:
         """
@@ -1287,7 +1298,7 @@ class Builder:
         relational_database_responses: List[int] = []
         response: int
         for index in range(0, len(members), 1):
-            relational_database_responses.append(self.getMember().addMember(members[index], company_detail))
+            relational_database_responses.append(self.getMembers().addMember(members[index], company_detail))
         relational_database_responses = list(set(relational_database_responses))
         if len(relational_database_responses) == 1 and relational_database_responses[0] == 201:
             response = relational_database_responses[0]
