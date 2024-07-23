@@ -873,7 +873,8 @@ class Document_Reader:
             [string]
         """
         response: List[str] = []
-        addresses: List[str] = [value for value in result_set if bool(search(r"[\w]+", value)) == True and ("Street".upper() in value or "Court".upper() in value or "Avenue" in value)]
+        result_set = [value.upper() for value in result_set]
+        addresses: List[str] = [value for value in result_set if bool(search(r"[\w]+", value)) == True and ("Street".upper() in value or "Court".upper() in value or "Avenue".upper() in value)]
         for index in range(0, len(addresses), 1):
             response.append(f"{addresses[index]} MAURITIUS")
         return response
