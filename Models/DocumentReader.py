@@ -371,6 +371,8 @@ class Document_Reader:
             business_details: Dict[str, str] = self.extractDataGlobalBusinessCompanyBusinessDetails(portable_document_file_data_result_set)
             state_capital: List[Dict[str, Union[str, int, float]]] = self.extractDataGlobalBusinessCompanyStatedCapital(portable_document_file_data_result_set)
             office_bearers: List[Dict[str, Union[str, int]]] = self.extractDataGlobalBusinessCompanyOfficeBearers(portable_document_file_data_result_set)
+            print(f"{office_bearers=}")
+            exit()
             receivers: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractDataGlobalBusinessCompanyReceivers(portable_document_file_data_result_set)
             administrators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractDataGlobalBusinessCompanyAdministrators(portable_document_file_data_result_set)
             liquidators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractDataGlobalBusinessCompanyLiquidators(portable_document_file_data_result_set)
@@ -822,11 +824,32 @@ class Document_Reader:
         possible_positions: List[str] = self.getOfficeBearer().getPossiblePositions()
         start_index: int = result_set.index("Office Bearers") + 1
         end_index: int = result_set.index("Liquidators")
-        date_appointments: List[str] = [value for value in result_set[start_index:end_index] if "/" in value and bool(search(r"[A-Z]+", value)) == False]
-        positions: List[str] = [value for value in result_set[start_index:end_index] if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == False and value in possible_positions]
         result_set = result_set[start_index:end_index]
-        dataset: List[str] = [value for value in [value for value in result_set if value not in possible_positions and value not in positions] if (bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == True and bool(search(r"[\d]+", value)) == True and "Page" not in value) or (value == "MAURITIUS")]
-        addresses: List[str] = self.extractDataGlobalBusinessCompanyOfficeBearersAddress(dataset)
+        result_set = [value for value in result_set if "Position" not in value]
+        result_set = [value for value in result_set if "Name" not in value]
+        result_set = [value for value in result_set if "Service Address" not in value]
+        result_set = [value for value in result_set if "Appointed Date" not in value]
+        result_set = [value for value in result_set if "Receivers" not in value]
+        result_set = [value for value in result_set if ":" not in value]
+        result_set = [value for value in result_set if "Reports of Receiver" not in value]
+        result_set = [value for value in result_set if "Date Filed" not in value]
+        result_set = [value for value in result_set if "From" not in value]
+        result_set = [value for value in result_set if "Affidavits of Receiver" not in value]
+        result_set = [value for value in result_set if "Administrators" not in value]
+        result_set = [value for value in result_set if "To" not in value]
+        result_set = [value for value in result_set if "Page" not in value]
+        result_set = [value for value in result_set if " of " not in value]
+        result_set = [value for value in result_set if "Accounts of Administrator" not in value]
+        result_set = [value for value in result_set if "Date Filed" not in value]
+        date_appointments: List[str] = [value for value in result_set if "/" in value and bool(search(r"[\d]+", value)) == True and bool(search(r"[A-Z]+", value)) == False]
+        result_set = [value for value in result_set if value not in date_appointments]
+        positions: List[str] = [value for value in result_set if  value in possible_positions]
+        result_set = [value for value in result_set if value not in positions]
+        dataset: List[str] = [value for value in result_set if bool(search(r"[\W]+", value)) == True and "Street".upper() in value and "Court".upper() in value]
+        addresses: List[str] = self.extractDataGlobalBusinessCompanyOfficeBearersAddress(result_set)
+        result_set = [value for value in result_set if value not in dataset]
+        print(f"{date_appointments=}\n{positions=}\n{addresses=}")
+        exit()
         names: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and value not in possible_positions and "MAURITIUS" not in value and bool(search(r"[a-z]+", value)) == False]
         limit: int = min([len(date_appointments), len(positions), len(addresses), len(names)])
         for index in range(0, limit, 1):
@@ -850,9 +873,9 @@ class Document_Reader:
             [string]
         """
         response: List[str] = []
-        addresses: List[str] = [value for value in " ".join([value for value in " ".join(result_set).split(" ") if value != ""]).split("MAURITIUS") if value != ""]
+        addresses: List[str] = [value for value in result_set if bool(search(r"[\W]+", value)) == True and "Street".upper() in value and "Court".upper() in value]
         for index in range(0, len(addresses), 1):
-            response.append(f"{addresses[index]}MAURITIUS")
+            response.append(f"{addresses[index]} MAURITIUS")
         return response
 
     def extractDataGlobalBusinessCompanyBusinessDetails(self, result_set: List[str]) -> Dict[str, str]:
