@@ -834,7 +834,7 @@ class Document_Reader:
         result_set = [value for value in result_set if "From" not in value]
         result_set = [value for value in result_set if "Affidavits of Receiver" not in value]
         result_set = [value for value in result_set if "Administrators" not in value]
-        result_set = [value for value in result_set if "To" not in value]
+        result_set = [value for value in result_set if value != "To"]
         result_set = [value for value in result_set if "Page" not in value]
         result_set = [value for value in result_set if " of " not in value]
         result_set = [value for value in result_set if "Accounts of Administrator" not in value]
