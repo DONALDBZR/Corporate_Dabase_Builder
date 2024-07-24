@@ -3718,7 +3718,7 @@ class Document_Reader:
             [string]
         """
         response: List[str] = []
-        natures: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == True]
+        natures: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True]
         for index in range(0, len(natures), 1):
             response.append(natures[index])
         return response
