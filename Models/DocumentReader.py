@@ -3694,6 +3694,7 @@ class Document_Reader:
         natures: List[str] = self.extractBusinessDetailsNatures(result_set)
         names: List[str] = [value for value in result_set if value not in dataset]
         limitation: int = min([len(names), len(natures), len(operational_addresses)])
+        print(f"{registered_address=}\n{names=}\n{natures=}\n{operational_addresses=}\n{limitation=}")
         for index in range(0, limitation, 1):
             response.append({
                 "registered_address": registered_address.title(),
@@ -3701,6 +3702,8 @@ class Document_Reader:
                 "nature": natures[index].title(),
                 "operational_address": operational_addresses[index].title()
             })
+        print(f"{response=}")
+        exit()
         return response
 
     def extractBusinessDetailsNatures(self, result_set: List[str]) -> List[str]:
@@ -3735,7 +3738,7 @@ class Document_Reader:
         response: List[str] = []
         operational_addresses: List[str] = [value for value in result_set if "Court" in value.title() or "Street" in value.title() or "Mauritius".upper() in value or "Rodrigues".upper() in value]
         for index in range(0, len(operational_addresses), 1):
-            response.append(f"{' '.join([value for value in operational_addresses[index].split(' ') if value != ''])} Mauritius".title())
+            response.append(f"{' '.join([value for value in operational_addresses[index].split(' ') if value != '']).title().replace('Mauritius', '')} Mauritius".title())
         return response
 
     def extractCompanyDetails(self, portable_document_file_result_set: List[str]) -> Dict[str, Union[str, int]]:
