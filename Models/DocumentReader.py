@@ -3702,8 +3702,6 @@ class Document_Reader:
                 "nature": natures[index].title(),
                 "operational_address": operational_addresses[index].title()
             })
-        print(f"{response=}")
-        exit()
         return response
 
     def extractBusinessDetailsNatures(self, result_set: List[str]) -> List[str]:
