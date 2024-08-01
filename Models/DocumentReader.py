@@ -843,7 +843,8 @@ class Document_Reader:
         result_set = [value for value in result_set if value not in date_appointments]
         positions: List[str] = [value for value in result_set if  value in possible_positions]
         result_set = [value for value in result_set if value not in positions]
-        dataset: List[str] = [value for value in result_set if bool(search(r"[\w]+", value)) == True and ("Street".upper() in value or "Court".upper() in value or "Avenue" in value)]
+        dataset: List[str] = [value for value in result_set if bool(search(r"[\w]+", value)) == True and ("Street".upper() in value.upper() or "Court".upper() in value.upper() or "Avenue".upper() in value.upper() or "Tower".upper() in value.upper() or "Floor".upper() in value.upper())]
+        print(f"<<<<<<<<<<---------->>>>>>>>>>\n{dataset=}\n<<<<<<<<<<---------->>>>>>>>>>")
         addresses: List[str] = self.extractDataGlobalBusinessCompanyOfficeBearersAddress(result_set)
         result_set = [value for value in result_set if value not in dataset]
         names: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and "Mauritius".upper() not in value]
@@ -852,6 +853,7 @@ class Document_Reader:
             dataset = [value.replace("Mauritius".upper(), "") for value in addresses]
             addresses = [value_address + value_result_set for value_address, value_result_set in zip(dataset, result_set)]
         limit: int = min([len(date_appointments), len(positions), len(addresses), len(names)])
+        print(f"{date_appointments=}\n{positions=}\n{addresses=}\n{names=}\n{limit=}")
         for index in range(0, limit, 1):
             response.append({
                 "position": positions[index].title(),
@@ -859,6 +861,8 @@ class Document_Reader:
                 "address": addresses[index].title(),
                 "date_appointment": int(datetime.strptime(date_appointments[index], "%d/%m/%Y").timestamp())
             })
+        print(f"{response=}")
+        exit()
         return response
 
     def extractDataGlobalBusinessCompanyOfficeBearersAddress(self, result_set: List[str]) -> List[str]:
@@ -874,7 +878,7 @@ class Document_Reader:
         """
         response: List[str] = []
         result_set = [value.upper() for value in result_set]
-        addresses: List[str] = [value for value in result_set if bool(search(r"[\w]+", value)) == True and ("Street".upper() in value or "Court".upper() in value or "Avenue".upper() in value)]
+        addresses: List[str] = [value for value in result_set if bool(search(r"[\w]+", value)) == True and ("Street".upper() in value.upper() or "Court".upper() in value.upper() or "Avenue".upper() in value.upper() or "Tower".upper() in value.upper() or "Floor".upper() in value.upper())]
         for index in range(0, len(addresses), 1):
             response.append(f"{addresses[index]} MAURITIUS")
         return response
