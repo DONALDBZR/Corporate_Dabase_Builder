@@ -1119,7 +1119,7 @@ class Document_Reader:
         result_set = [value for value in result_set if "Name" not in value]
         result_set = [value for value in result_set if "Appointed Date" not in value]
         result_set = [value for value in result_set if "Service Address" not in value]
-        dataset: List[str] = [value for value in result_set if "/" in value]
+        dataset: List[str] = [value for value in result_set if "/" in value and bool(search(r"[\d]+", value)) == True and bool(search(r"[A-Z]+", value)) == False]
         date_appointments: List[str] = self.extractOfficeBearersDateAppointments(result_set)
         result_set = [value for value in result_set if value not in dataset]
         positions: List[str] = self.extractOfficeBearersPositions(result_set)
