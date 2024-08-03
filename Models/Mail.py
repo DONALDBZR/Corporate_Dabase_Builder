@@ -44,7 +44,17 @@ class Mail:
     """
 
     def __init__(self) -> None:
-        pass
+        """
+        Initializing the model which will set the data needed for
+        the model to communicate with the SMTP servers.
+        """
+        self.ENV = Environment()
+        self._Mailer = SMTP(
+            host=self.ENV.getSmtpHost(),
+            port=self.ENV.getSmtpPort()
+        )
+        self._Mailer.starttls()
+        self._Mailer.login(self.ENV.getMailUsername(), self.ENV.getMailPassword())
 
     def getRecipient(self) -> str:
         return self.__recipient
