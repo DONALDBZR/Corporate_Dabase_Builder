@@ -116,5 +116,9 @@ class Mail:
             destination = [self.getRecipient()]
         data.attach(MIMEText(self.getMessage(), "plain"))
         message_data: str = data.as_string()
-        self._Mailer.sendmail(self.ENV.getMailUsername(), destination, message_data)
-        self._Mailer.quit()
+        try:
+            self._Mailer.sendmail(self.ENV.getMailUsername(), destination, message_data)
+            self._Mailer.quit()
+            self.getLogger().inform("The mail has been successfully sent!")
+        except Exception as error:
+            self.getLogger().error(f"The Mailer has failed to send the mail!\nError: {error}")
