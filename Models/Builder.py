@@ -29,6 +29,7 @@ from Environment import Environment
 from typing import List, Tuple, Union, Dict
 from time import time
 from re import findall
+from Models.Mail import Mail
 import os
 
 
@@ -110,6 +111,11 @@ class Builder:
     __members: Member
     """
     The model which will interact exclusively with the Members.
+    """
+    __mailer: Mail
+    """
+    The model which will communicate to the mail servers for the
+    application for the sending of mail notifications.
     """
 
     def __init__(self) -> None:
@@ -215,6 +221,12 @@ class Builder:
 
     def setMembers(self, members: Member) -> None:
         self.__members = members
+
+    def getMailer(self) -> Mail:
+        return self.__mailer
+
+    def setMailer(self, mailer: Mail) -> None:
+        self.__mailer = mailer
 
     def getDateDownloadCorporateFile(self, fin_corp_logs: List[FinCorpLogs]) -> str:
         """
