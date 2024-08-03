@@ -1824,7 +1824,7 @@ class Builder:
             self.getCrawler().getDriver().quit()
             self.getLogger().inform("Storing the corporate metadata!")
             self.storeCorporateMetadata()
-            message = f"The Corporate Database Builder has indexed {response['amount']} companies from {request['start_date']} to {request['end_date']}.  Please note that it is a computer generated mail.  For any communication, contact the ones that are attached as carbon copies."
+            message = f"The Corporate Database Builder has indexed {len(self.getCrawler().getCorporateMetadata())} companies from {request['start_date']} to {request['end_date']}.  Please note that it is a computer generated mail.  For any communication, contact the ones that are attached as carbon copies."
             self.getMailer().send(recipient, subject, message, carbon_copy)
             self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(parameters)  # type: ignore
         else:
