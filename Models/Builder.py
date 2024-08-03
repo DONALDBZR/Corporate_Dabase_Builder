@@ -1809,6 +1809,7 @@ class Builder:
             str(request["end_date"]),
             "%m/%d/%Y"
         ).timestamp())
+        self.setMailer(Mail())
         if response["status"] == 200:
             parameters: Tuple[str, str, int, int, int, int, int] = (
                 method_name,
@@ -1824,6 +1825,7 @@ class Builder:
             self.getLogger().inform("Storing the corporate metadata!")
             self.storeCorporateMetadata()
             message = f"The Corporate Database Builder has indexed {response['amount']} companies from {request['start_date']} to {request['end_date']}.  Please note that it is a computer generated mail.  For any communication, contact the ones that are attached as carbon copies."
+            self.getMailer().send(recipient, subject, message, carbon_copy)
             self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(parameters)  # type: ignore
         else:
             parameters: Tuple[str, str, int, int, int, int, int] = (
@@ -1841,6 +1843,7 @@ class Builder:
                 f"The application has failed to collect the data!  Please check the logs!\nStatus: {response['status']}"
             )
             message = f"The Corporate Database Builder has failed to index companies from {request['start_date']} to {request['end_date']}.  Please extract and check the logs from the processing server.  Please note that it is a computer generated mail.  For any communication, contact the ones that are attached as carbon copies."
+            self.getMailer().send(recipient, subject, message, carbon_copy)
             raise Exception(
                 f"The application has failed to collect the data!  Please check the logs!\nStatus: {response['status']}"
             )
