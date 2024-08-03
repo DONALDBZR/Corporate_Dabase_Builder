@@ -10,6 +10,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from Environment import Environment
 from smtplib import SMTP
+from typing import Union, List
 import smtplib
 
 
@@ -73,3 +74,34 @@ class Mail:
 
     def setMessage(self, message: str) -> None:
         self.__message = message
+
+    def send(self, recipient: str, subject: str, message: str, carbon_copy: Union[str, None] = None) -> None:
+        """
+        Sending the mail after having configured model.
+
+        Parameters:
+            recipient: string: Receiver of the mail.
+            subject: string: Subject of the mail.
+            message: string: Body of the mail.
+            carbon_copy: string: The list of mail addresses where the mail should be forwarded.
+
+        Returns:
+            void
+        """
+        destination: List[str]
+        self.setRecipient(recipient)
+        self.setSubject(subject)
+        self.setMessage(message)
+        data: MIMEMultipart = MIMEMultipart()
+        data["From"] = self.ENV.getMailUsername()
+        data["To"] = self.getRecipient()
+        data["Subject"] = self.getSubject()
+        if carbon_copy:
+            data["Cc"] = carbon_copy
+            destination = [self.getRecipient()] + carbon_copy.split(",")
+        else:
+            destination = [self.getRecipient()]
+        data.attach(MIMEText(self.getMessage(), "plain"))
+        message_data: str = data.as_string()
+        self._Mailer.sendmail(self.ENV.getMailUsername(), destination, message_data)
+        self._Mailer.quit()
