@@ -11,6 +11,7 @@ from email.mime.text import MIMEText
 from Environment import Environment
 from smtplib import SMTP
 from typing import Union, List
+from Models.Logger import Corporate_Database_Builder_Logger
 import smtplib
 
 
@@ -43,6 +44,10 @@ class Mail:
     information which allows the application to operate
     smoothly.
     """
+    __logger: Corporate_Database_Builder_Logger
+    """
+    The logger that will all the action of the application.
+    """
 
     def __init__(self) -> None:
         """
@@ -74,6 +79,12 @@ class Mail:
 
     def setMessage(self, message: str) -> None:
         self.__message = message
+
+    def getLogger(self) -> Corporate_Database_Builder_Logger:
+        return self.__logger
+
+    def setLogger(self, logger: Corporate_Database_Builder_Logger) -> None:
+        self.__logger = logger
 
     def send(self, recipient: str, subject: str, message: str, carbon_copy: Union[str, None] = None) -> None:
         """
