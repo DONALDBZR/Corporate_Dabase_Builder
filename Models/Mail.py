@@ -21,6 +21,10 @@ class Mail:
     """
     The recipient of the mail
     """
+    __subject: str
+    """
+    Subject of the mail
+    """
 
     def __init__(self) -> None:
         pass
@@ -30,3 +34,9 @@ class Mail:
 
     def setRecipient(self, recipient: str) -> None:
         self.__recipient = recipient
+
+    def getSubject(self) -> str:
+        return self.__subject
+
+    def setSubject(self, subject: str) -> None:
+        self.__subject = subject
