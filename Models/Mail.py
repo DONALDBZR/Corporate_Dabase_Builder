@@ -36,6 +36,12 @@ class Mail:
     transmission as the mail servers and other message transfer
     agents use it to send and receive mail messages.
     """
+    ENV: Environment
+    """
+    The ENV file of the application which stores the important
+    information which allows the application to operate
+    smoothly.
+    """
 
     def __init__(self) -> None:
         pass
