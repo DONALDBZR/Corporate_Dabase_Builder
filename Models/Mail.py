@@ -30,6 +30,12 @@ class Mail:
     """
     Body of the mail
     """
+    _Mailer: SMTP
+    """
+    It is the communication protocol for electronic mail
+    transmission as the mail servers and other message transfer
+    agents use it to send and receive mail messages.
+    """
 
     def __init__(self) -> None:
         pass
