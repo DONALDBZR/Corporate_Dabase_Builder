@@ -17,3 +17,16 @@ class Mail:
     The model which will communicate to the mail servers for the
     application for the sending of mail notifications.
     """
+    __recipient: str
+    """
+    The recipient of the mail
+    """
+
+    def __init__(self) -> None:
+        pass
+
+    def getRecipient(self) -> str:
+        return self.__recipient
+
+    def setRecipient(self, recipient: str) -> None:
+        self.__recipient = recipient
