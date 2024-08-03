@@ -1785,6 +1785,10 @@ class Builder:
             void
         """
         method_name: str = "collectCorporateMetadata"
+        recipient: str = "jeromeb@finclub.mu"
+        carbon_copy: str = "andygaspard@hotmail.com, andyg@finclub.mu, navalonar@finclub.mu, haryr@finclub.mu"
+        subject: str = "Corporate Database Builder: Module 1: Indexation"
+        message: str
         date_start = int(datetime.strptime(
             str(request["start_date"]),
             "%m/%d/%Y"
@@ -1807,8 +1811,8 @@ class Builder:
             self.getCrawler().getDriver().quit()
             self.getLogger().inform("Storing the corporate metadata!")
             self.storeCorporateMetadata()
-            self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(
-                parameters)  # type: ignore
+            message = f"The Corporate Database Builder has indexed {response['amount']} companies from {request['start_date']} to {request['end_date']}.  Please note that it is a computer generated mail.  For any communication, contact the ones that are attached as carbon copies."
+            self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(parameters)  # type: ignore
         else:
             parameters: Tuple[str, str, int, int, int, int, int] = (
                 method_name,
@@ -1824,6 +1828,7 @@ class Builder:
             self.getLogger().error(
                 f"The application has failed to collect the data!  Please check the logs!\nStatus: {response['status']}"
             )
+            message = f"The Corporate Database Builder has failed to index companies from {request['start_date']} to {request['end_date']}.  Please extract and check the logs from the processing server.  Please note that it is a computer generated mail.  For any communication, contact the ones that are attached as carbon copies."
             raise Exception(
                 f"The application has failed to collect the data!  Please check the logs!\nStatus: {response['status']}"
             )
