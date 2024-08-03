@@ -55,12 +55,14 @@ class Mail:
         the model to communicate with the SMTP servers.
         """
         self.ENV = Environment()
+        self.setLogger(Corporate_Database_Builder_Logger())
         self._Mailer = SMTP(
             host=self.ENV.getSmtpHost(),
             port=self.ENV.getSmtpPort()
         )
         self._Mailer.starttls()
         self._Mailer.login(self.ENV.getMailUsername(), self.ENV.getMailPassword())
+        self.getLogger().inform("The mailer has been initialized and all of its dependencies are injected!")
 
     def getRecipient(self) -> str:
         return self.__recipient
