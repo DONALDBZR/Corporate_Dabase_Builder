@@ -9,6 +9,7 @@ Authors:
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from Environment import Environment
+from smtplib import SMTP
 import smtplib
 
 
@@ -25,6 +26,10 @@ class Mail:
     """
     Subject of the mail
     """
+    __message: str
+    """
+    Body of the mail
+    """
 
     def __init__(self) -> None:
         pass
@@ -40,3 +45,9 @@ class Mail:
 
     def setSubject(self, subject: str) -> None:
         self.__subject = subject
+
+    def getMessage(self) -> str:
+        return self.__message
+
+    def setMessage(self, message: str) -> None:
+        self.__message = message
