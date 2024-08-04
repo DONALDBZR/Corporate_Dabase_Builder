@@ -1588,6 +1588,10 @@ class Builder:
         Returns:
             void
         """
+        recipient: str = "jeromeb@finclub.mu"
+        carbon_copy: str = "andygaspard@hotmail.com, andyg@finclub.mu, navalonar@finclub.mu, haryr@finclub.mu"
+        subject: str = "Corporate Database Builder: Module 1: Indexation"
+        message: str
         quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
         successful_logs: List[FinCorpLogs] = self.getFinCorpLogs().getSuccessfulRunsLogs("downloadCorporateFile")
         date: str = self._getDateDownloadCorporateFile(successful_logs, quarter)
@@ -1612,6 +1616,8 @@ class Builder:
             amount_found
         )
         self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(logs) # type: ignore
+        message = f"The Corporate Database Builder has downloaded {amount_found} corporate registries for the {date}.  Please note that it is a computer generated mail.  For any communication, contact the ones that are attached as carbon copies."
+        self.getMailer().send(recipient, subject, message, carbon_copy)
 
     def collectCorporateMetadata(self) -> None:
         """
