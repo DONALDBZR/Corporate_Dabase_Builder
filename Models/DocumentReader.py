@@ -1703,7 +1703,7 @@ class Document_Reader:
             {liquidator: {name: string, appointed_date: int, address: string}, affidavits: [{date_filled: int, date_from: int, date_to: int}]}
         """
         start_index: int = result_set.index("Liquidators")
-        end_index: int = result_set.index("Receivers")
+        end_index: int = result_set.index("Reports of Receiver")
         result_set = result_set[start_index:end_index]
         liquidator: Dict[str, Union[str, int]] = self._extractLiquidators(result_set)
         affidavits: List[Dict[str, int]] = self.extractLiquidatorsAffidavits(result_set)
@@ -2759,6 +2759,8 @@ class Document_Reader:
         Returns:
             {name: string, date_appointed: int, address: string}
         """
+        print(f"{result_set=}")
+        exit()
         start_index: int = result_set.index("Liquidators") + 1
         end_index: int = result_set.index("Affidavits of Liquidator") + 2
         result_set = result_set[start_index:end_index]
