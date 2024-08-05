@@ -352,6 +352,11 @@ class Builder:
         Returns:
             void
         """
+        recipient: str = "jeromeb@finclub.mu"
+        carbon_copy: str = "andygaspard@hotmail.com, andyg@finclub.mu"
+        subject: str = "Corporate Database Builder: Module 3: Extraction"
+        message: str
+        self.setMailer(Mail())
         quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
         successful_logs: List[FinCorpLogs] = self.getFinCorpLogs().getSuccessfulRunsLogs("extractCorporateData")
         date: str = self._getDateExtractCorporateData(successful_logs, quarter)
@@ -373,6 +378,8 @@ class Builder:
                 amount_found
             )
             self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(logs) # type: ignore
+            message = f"The Corporate Database Builder has extracted {amount_found} corporate registries for {date}.  Please note that it is a computer generated mail.  For any communication, contact the ones that are attached as carbon copies."
+            self.getMailer().send(recipient, subject, message, carbon_copy)
             # self.cleanExtractionCacheDirectory()
 
     def cleanExtractionCacheDirectory(self) -> None:
