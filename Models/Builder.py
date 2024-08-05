@@ -1804,7 +1804,7 @@ class Builder:
         """
         method_name: str = "collectCorporateMetadata"
         recipient: str = "jeromeb@finclub.mu"
-        carbon_copy: str = "andygaspard@hotmail.com, andyg@finclub.mu, navalonar@finclub.mu, haryr@finclub.mu"
+        carbon_copy: str = "andygaspard@hotmail.com, andyg@finclub.mu"
         subject: str = "Corporate Database Builder: Module 1: Indexation"
         message: str
         date_start = int(datetime.strptime(
