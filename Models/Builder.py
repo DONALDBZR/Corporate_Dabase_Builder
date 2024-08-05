@@ -1597,8 +1597,9 @@ class Builder:
         """
         recipient: str = "jeromeb@finclub.mu"
         carbon_copy: str = "andygaspard@hotmail.com, andyg@finclub.mu, navalonar@finclub.mu, haryr@finclub.mu"
-        subject: str = "Corporate Database Builder: Module 1: Indexation"
+        subject: str = "Corporate Database Builder: Module 2: Downloading"
         message: str
+        self.setMailer(Mail())
         quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
         successful_logs: List[FinCorpLogs] = self.getFinCorpLogs().getSuccessfulRunsLogs("downloadCorporateFile")
         date: str = self._getDateDownloadCorporateFile(successful_logs, quarter)
