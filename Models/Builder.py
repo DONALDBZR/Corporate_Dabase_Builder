@@ -378,7 +378,7 @@ class Builder:
                 amount_found
             )
             self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(logs) # type: ignore
-            message = f"The Corporate Database Builder has extracted {amount_found} corporate registries for {date}.  Please note that it is a computer generated mail.  For any communication, contact the ones that are attached as carbon copies."
+            message = f"The Corporate Database Builder has extracted {amount_found} corporate registries for {date}.  Please verify the log file of the application to ensure that these files are correctly extracted or that there are any errors in the application.  Please note that it is a computer generated mail.  For any communication, contact the ones that are attached as carbon copies."
             self.getMailer().send(recipient, subject, message, carbon_copy)
             # self.cleanExtractionCacheDirectory()
 
