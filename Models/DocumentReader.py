@@ -2759,21 +2759,14 @@ class Document_Reader:
         Returns:
             {name: string, date_appointed: int, address: string}
         """
-        print(f"{result_set=}")
-        exit()
-        start_index: int = result_set.index("Liquidators") + 1
-        end_index: int = result_set.index("Affidavits of Liquidator") + 2
-        result_set = result_set[start_index:end_index]
-        start_index = result_set.index("Appointed Date:")
-        end_index = start_index + 2
+        start_index: int = result_set.index("Appointed Date:")
+        end_index: int = start_index + 2
         date_appointed: List[str] = result_set[start_index:end_index]
-        start_index = result_set.index("Name:")
-        end_index = start_index + 2
-        name: List[str] = [value for value in result_set[start_index:end_index] if "Address:" not in value]
-        start_index = result_set.index("Address:")
-        end_index = start_index + 2
-        address: List[str] = [value for value in result_set[start_index:end_index] if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == False or "Address:" in value]
-        dataset: List[str] = [value for value in date_appointed + name + address if ":" not in value]
+        date_appointed = [value for value in date_appointed if "Page" not in value]
+        start_index: int = result_set.index("Liquidators") + 1
+        end_index: int = result_set.index("Affidavits of Liquidator")
+        result_set = result_set[start_index:end_index] + date_appointed
+        dataset: List[str] = [value for value in result_set if ":" not in value]
         if len(dataset) > 0:
             self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractLiquidators()")
             exit()
