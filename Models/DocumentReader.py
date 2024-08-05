@@ -2734,8 +2734,8 @@ class Document_Reader:
         Returns:
             [{date_filled: int, date_from: int, date_to: int}]
         """
-        start_index: int = result_set.index("Affidavits of Liquidator")
-        end_index: int = result_set.index("To") + 2
+        start_index: int = result_set.index("Affidavits of Liquidator") + 1
+        end_index: int = result_set.index("Receivers")
         result_set = result_set[start_index:end_index]
         result_set = [value for value in result_set if "Affidavits of Liquidator" not in value]
         result_set = [value for value in result_set if "Date Filed" not in value]
