@@ -228,7 +228,7 @@ class Crawler:
             float
         """
         minimum_delay: float = delay
-        maximum_delay: float = delay * 4
+        maximum_delay: float = delay * 1.1
         return random.uniform(minimum_delay, maximum_delay)
 
     def __moveMouse(self, element: WebElement) -> None:
