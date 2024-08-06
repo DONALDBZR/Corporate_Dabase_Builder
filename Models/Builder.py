@@ -1623,10 +1623,10 @@ class Builder:
             amount,
             amount_found
         )
-        self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(logs) # type: ignore
         message = f"The Corporate Database Builder has downloaded {amount_found} corporate registries for the {date}.  Please note that it is a computer generated mail.  For any communication, contact the ones that are attached as carbon copies."
         self.getMailer().send(recipient, subject, message, carbon_copy)
-
+        self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(logs) # type: ignore
+        
     def collectCorporateMetadata(self) -> None:
         """
         The first run consists of retrieving the metadata needed of
