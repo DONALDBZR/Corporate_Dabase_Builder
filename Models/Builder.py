@@ -1596,7 +1596,7 @@ class Builder:
             void
         """
         recipient: str = "jeromeb@finclub.mu"
-        carbon_copy: str = "andygaspard@hotmail.com, andyg@finclub.mu, navalonar@finclub.mu, haryr@finclub.mu"
+        carbon_copy: str = "andygaspard@hotmail.com, andyg@finclub.mu"
         subject: str = "Corporate Database Builder: Module 2: Downloading"
         message: str
         self.setMailer(Mail())
