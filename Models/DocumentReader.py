@@ -3451,12 +3451,9 @@ class Document_Reader:
             [string]
         """
         response: List[str] = []
+        result_set = [value for value in result_set if bool(search(r"[A-Z]+", value.upper())) == True and "MAURITIUS" not in value.upper()]
         for index in range(0, len(result_set), 1):
-            names: List[str] = findall(r"\b[A-Z]+\b", result_set[index])
-            names = [value for value in names if value != "MAURITIUS"]
-            names = [value for value in names if len(value) > 1]
-            name: str = self._extractOfficeBearersNames(names)
-            response = self.__extractNames(response, name)
+            response.append(result_set[index])
         return response
 
     def _extractOfficeBearersAddresses(self, address: str) -> str:
@@ -3519,7 +3516,7 @@ class Document_Reader:
         result_set = [value for value in result_set if value not in names]
         addresses: List[str] = self.extractOfficeBearersAddresses(result_set)
         limitation: int = min([len(date_appointments), len(positions), len(names), len(addresses)])
-        print(f"{limitation=}")
+        print(f"{date_appointments=}\n{positions=}\n{names=}\n{addresses=}\n{limitation=}")
         for index in range(0, limitation, 1):
             position: str = positions[index].title()
             name: str = names[index].title()
