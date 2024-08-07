@@ -1599,7 +1599,6 @@ class Builder:
         carbon_copy: str = "andygaspard@hotmail.com, andyg@finclub.mu"
         subject: str = "Corporate Database Builder: Module 2: Downloading"
         message: str
-        self.setMailer(Mail())
         quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
         successful_logs: List[FinCorpLogs] = self.getFinCorpLogs().getSuccessfulRunsLogs("downloadCorporateFile")
         date: str = self._getDateDownloadCorporateFile(successful_logs, quarter)
@@ -1624,6 +1623,7 @@ class Builder:
             amount_found
         )
         message = f"The Corporate Database Builder has downloaded {amount_found} corporate registries for the {date}.  Please note that it is a computer generated mail.  For any communication, contact the ones that are attached as carbon copies."
+        self.setMailer(Mail())
         self.getMailer().send(recipient, subject, message, carbon_copy)
         self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(logs) # type: ignore
         
