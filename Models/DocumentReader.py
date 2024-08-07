@@ -3516,7 +3516,6 @@ class Document_Reader:
         result_set = [value for value in result_set if value not in names]
         addresses: List[str] = self.extractOfficeBearersAddresses(result_set)
         limitation: int = min([len(date_appointments), len(positions), len(names), len(addresses)])
-        print(f"{date_appointments=}\n{positions=}\n{names=}\n{addresses=}\n{limitation=}")
         for index in range(0, limitation, 1):
             position: str = positions[index].title()
             name: str = names[index].title()
@@ -3529,7 +3528,6 @@ class Document_Reader:
                 "date_appointment": date_appointment
             }
             response.append(office_bearer)
-        exit()
         return response
 
     def extractStateCapital(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[str, int, float]]]:
