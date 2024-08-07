@@ -3518,7 +3518,9 @@ class Document_Reader:
         names: List[str] = self.extractOfficeBearersNames(result_set)
         result_set = [value for value in result_set if value not in names]
         addresses: List[str] = self.extractOfficeBearersAddresses(result_set)
-        for index in range(0, min([len(date_appointments), len(positions), len(names), len(addresses)]), 1):
+        limitation: int = min([len(date_appointments), len(positions), len(names), len(addresses)])
+        print(f"{limitation=}")
+        for index in range(0, limitation, 1):
             position: str = positions[index].title()
             name: str = names[index].title()
             address: str = addresses[index].title()
@@ -3530,6 +3532,7 @@ class Document_Reader:
                 "date_appointment": date_appointment
             }
             response.append(office_bearer)
+        exit()
         return response
 
     def extractStateCapital(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[str, int, float]]]:
@@ -3692,7 +3695,6 @@ class Document_Reader:
         natures: List[str] = self.extractBusinessDetailsNatures(result_set)
         names: List[str] = [value for value in result_set if value not in dataset]
         limitation: int = min([len(names), len(natures), len(operational_addresses)])
-        print(f"{registered_address=}\n{names=}\n{natures=}\n{operational_addresses=}\n{limitation=}")
         for index in range(0, limitation, 1):
             response.append({
                 "registered_address": registered_address.title(),
