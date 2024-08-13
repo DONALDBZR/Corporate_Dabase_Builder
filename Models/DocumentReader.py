@@ -2626,14 +2626,19 @@ class Document_Reader:
         date_to: List[str] = result_set[start_index:end_index]
         start_index = int(len(date_to) / 2)
         date_to = date_to[start_index:]
+        date_to = [value for value in date_to if ":" not in value]
         start_index: int = result_set.index("Affidavits of Receiver") + 1
         end_index: int = result_set.index("Administrators")
         result_set = result_set[start_index:end_index]
+        result_set = [value for value in result_set if "Appointed" not in value]
+        result_set = [value for value in result_set if "Page" not in value]
+        result_set = [value for value in result_set if " of " not in value]
+        result_set = [value for value in result_set if "Date Issued" not in value]
         result_set = result_set + date_to
-        result_set.remove("Date Filed")
-        result_set.remove("From")
-        result_set.remove("To")
-        if len(result_set) > 0:
+        result_set = [value for value in result_set if "Date Filed" not in value]
+        result_set = [value for value in result_set if "From" not in value]
+        result_set = [value for value in result_set if "To" not in value]
+        if len(result_set) >= 3:
             self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractReceiversAffidavits()")
             exit()
         else:
