@@ -368,6 +368,7 @@ class Builder:
             response: int = self._extractCorporateData(document_files)
             self.extractCorporateData(response)
         else:
+            amount_found = self.getDocumentFiles().getAmountFound(date)
             logs: Tuple[str, str, int, int, int, int, int] = (
                 "extractCorporateData",
                 quarter.quarter,
