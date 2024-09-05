@@ -648,7 +648,7 @@ class Document_Reader:
         result_set = result_set[start_index:end_index]
         result_set = [value for value in result_set if "Accounts of Administrator" not in value]
         accounts: List[Dict[str, int]] = self.extractDataGlobalBusinessCompanyAdministratorsAccounts(result_set)
-        if not administrator and len(accounts) == 0:
+        if (not administrator and len(accounts) == 0) or (not administrator and len(accounts) > 0):
             response = {}
         else:
             self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractDataGlobalBusinessCompanyAdministrators()")
