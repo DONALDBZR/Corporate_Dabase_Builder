@@ -671,9 +671,32 @@ class Document_Reader:
         if len(result_set) <= 3:
             response = []
         else:
-            data: List[List[str]] = self._extractDataGlobalBusinessCompanyAdministratorsAccountsDataset(result_set)
-            print(f"{data=}")
+            response = self.__extractDataGlobalBusinessCompanyAdministratorsAccounts(
+                self._extractDataGlobalBusinessCompanyAdministratorsAccountsDataset(result_set)
+            )
+            print(f"{response=}")
             exit()
+        return response
+
+    def __extractDataGlobalBusinessCompanyAdministratorsAccounts(self, result_set: List[List[str]]) -> List[Dict[str, int]]:
+        """
+        Extracting the accounts of the administrators of a global
+        business company from the corporate registry based on the
+        dataset compiled.
+
+        Parameters:
+            result_set: [[string]]: The compiled result set to be used.
+
+        Returns:
+            [{date_filled: int, date_from: int, date_to: int}]
+        """
+        response: List[Dict[str, int]] = []
+        for index in range(0, len(result_set), 1):
+            response.append({
+                "date_filled": int(datetime.strptime(result_set[index][0], "%d/%m/%Y").timestamp()),
+                "date_from": int(datetime.strptime(result_set[index][1], "%d/%m/%Y").timestamp()),
+                "date_to": int(datetime.strptime(result_set[index][2], "%d/%m/%Y").timestamp())
+            })
         return response
 
     def _extractDataGlobalBusinessCompanyAdministratorsAccountsDataset(self, result_set: List[str]) -> List[List[str]]:
