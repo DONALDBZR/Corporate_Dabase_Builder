@@ -671,8 +671,27 @@ class Document_Reader:
         if len(result_set) <= 3:
             response = []
         else:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractDataGlobalBusinessCompanyAdministratorsAccounts()")
+            data: List[List[str]] = self._extractDataGlobalBusinessCompanyAdministratorsAccountsDataset(result_set)
+            print(f"{data=}")
             exit()
+        return response
+
+    def _extractDataGlobalBusinessCompanyAdministratorsAccountsDataset(self, result_set: List[str]) -> List[List[str]]:
+        """
+        Breaking down the result set into smaller chunks for the
+        extraction of the accounts of the administrators.
+
+        Parameters:
+            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+
+        Returns:
+            [[string]]
+        """
+        response: List[List[str]] = []
+        for index in range(0, len(result_set), 3):
+            start_index: int = index
+            end_index: int = start_index + 3
+            response.append(result_set[start_index:end_index])
         return response
 
     def _extractDataGlobalBusinessCompanyAdministrators(self, result_set: List[str]) -> Dict[str, Union[str, int]]:
