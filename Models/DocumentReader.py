@@ -674,8 +674,6 @@ class Document_Reader:
             response = self.__extractDataGlobalBusinessCompanyAdministratorsAccounts(
                 self._extractDataGlobalBusinessCompanyAdministratorsAccountsDataset(result_set)
             )
-            print(f"{response=}")
-            exit()
         return response
 
     def __extractDataGlobalBusinessCompanyAdministratorsAccounts(self, result_set: List[List[str]]) -> List[Dict[str, int]]:
