@@ -885,8 +885,6 @@ class Document_Reader:
         result_set = [value for value in result_set if value not in positions]
         dataset: List[str] = [value for value in result_set if bool(search(r"[\w]+", value)) == True and ("Street".upper() in value.upper() or "Court".upper() in value.upper() or "Avenue".upper() in value.upper() or "Tower".upper() in value.upper() or "Floor".upper() in value.upper())]
         addresses: List[str] = self.extractDataGlobalBusinessCompanyOfficeBearersAddress(result_set)
-        print(f"{date_appointments=}\n{positions=}\n{addresses=}")
-        exit()
         result_set = [value for value in result_set if value not in dataset]
         names: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and "Mauritius".upper() not in value]
         result_set = [value for value in result_set if value not in names]
