@@ -457,9 +457,8 @@ class Company_Details(Database_Handler):
             data: Union[List[RowType], List[Dict[str, int]]] = self.getData(
                 table_name=self.getTableName(),
                 parameters=parameters,
-                join_condition=f"CompanyDetails ON {self.getTableName()}.CompanyDetail = CompanyDetails.identifier",
-                filter_condition="DATE(FROM_UNIXTIME(CompanyDetails.date_incorporation)) = %s AND CompanyDetails.is_extracted = 1",
-                column_names=f"COUNT({self.getTableName()}.identifier) AS amount_found"
+                filter_condition="DATE(FROM_UNIXTIME(date_incorporation)) = %s AND is_extracted = 1",
+                column_names=f"COUNT(identifier) AS amount_found"
             )
             status: int = self.getAmountStatus(data)
             self.getLogger().inform(
