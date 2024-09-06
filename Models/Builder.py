@@ -27,7 +27,7 @@ from Models.Members import Member
 from datetime import datetime, timedelta
 from Environment import Environment
 from typing import List, Tuple, Union, Dict
-from time import time
+from time import time, sleep
 from re import findall
 from Models.Mail import Mail
 import os
@@ -352,8 +352,8 @@ class Builder:
         Returns:
             void
         """
-        recipient: str = "jeromeb@finclub.mu"
-        carbon_copy: str = "andygaspard@hotmail.com, andyg@finclub.mu"
+        recipient: str = "andyg@finclub.mu"
+        carbon_copy: str = "andygaspard@hotmail.com"
         subject: str = "Corporate Database Builder: Module 3: Extraction"
         message: str
         self.setMailer(Mail())
@@ -363,25 +363,28 @@ class Builder:
         document_files: List[DocumentFiles] = self.getDocumentFiles().getCorporateRegistries(date)
         amount: int = self.getDocumentFiles().getAmount(date)
         amount_found: int = self.getDocumentFiles().getAmountFound(date)
+        response: int = status
+        final_amount: int
         self.getLogger().inform(f"The corporate registries have been retrieved from the relational database server and they will be used for the extracttion of the data about the companies.\nDate of Incorporation: {date}\nCorporate Registries Amount: {amount}\nAmount Downloaded: {amount_found}")
         if status == 200:
-            response: int = self._extractCorporateData(document_files)
-            self.extractCorporateData(response)
+            response = self._extractCorporateData(document_files)
+            amount_extracted = self.getCompanyDetails().getAmountExtracted(date)
+            final_amount = amount_extracted
         else:
-            amount_found = self.getDocumentFiles().getAmountFound(date)
-            logs: Tuple[str, str, int, int, int, int, int] = (
-                "extractCorporateData",
-                quarter.quarter,
-                int(datetime.strptime(date, "%Y-%m-%d").timestamp()),
-                int(datetime.strptime(date, "%Y-%m-%d").timestamp()),
-                200,
-                amount,
-                amount_found
-            )
-            self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(logs) # type: ignore
-            message = f"The Corporate Database Builder has extracted {amount_found} corporate registries for {date}.  Please verify the log file of the application to ensure that these files are correctly extracted or that there are any errors in the application.  Please note that it is a computer generated mail.  For any communication, contact the ones that are attached as carbon copies."
-            self.getMailer().send(recipient, subject, message, carbon_copy)
-            # self.cleanExtractionCacheDirectory()
+            final_amount = amount_found
+        logs: Tuple[str, str, int, int, int, int, int] = (
+            "extractCorporateData",
+            quarter.quarter,
+            int(datetime.strptime(date, "%Y-%m-%d").timestamp()),
+            int(datetime.strptime(date, "%Y-%m-%d").timestamp()),
+            response,
+            amount,
+            final_amount
+        )
+        self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(logs) # type: ignore
+        message = f"The Corporate Database Builder has extracted {final_amount} corporate registries for {date}.  Please verify the log file of the application to ensure that these files are correctly extracted or that there are any errors in the application.  Please note that it is a computer generated mail.  For any communication, contact the ones that are attached as carbon copies."
+        self.getMailer().send(recipient, subject, message, carbon_copy)
+        # self.cleanExtractionCacheDirectory()
 
     def cleanExtractionCacheDirectory(self) -> None:
         """
