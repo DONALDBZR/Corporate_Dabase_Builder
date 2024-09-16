@@ -372,6 +372,7 @@ class Builder:
             final_amount = amount_extracted
         else:
             final_amount = amount_found
+            response = status
         logs: Tuple[str, str, int, int, int, int, int] = (
             "extractCorporateData",
             quarter.quarter,
@@ -423,7 +424,7 @@ class Builder:
             data_manipulations.append(self.storeCorporateData(data_extraction, document_files[index], company_detail))
         data_manipulations = list(set(data_manipulations))
         if len(data_manipulations) == 1 and data_manipulations[0] == 201:
-            response = 201
+            response = 200
             self.getLogger().inform(f"The corporate data has been extracted successfully and stored into the relational database server.\nStatus: {response}")
         else:
             response = 503
