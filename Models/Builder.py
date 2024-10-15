@@ -363,6 +363,7 @@ class Builder:
         document_files: List[DocumentFiles] = self.getDocumentFiles().getCorporateRegistries(date)
         amount: int = self.getDocumentFiles().getAmount(date)
         amount_found: int = self.getDocumentFiles().getAmountFound(date)
+        status = status if amount > 0 else 204
         response: int = status
         self.getLogger().inform(f"The corporate registries have been retrieved from the relational database server and they will be used for the extracttion of the data about the companies.\nDate of Incorporation: {date}\nCorporate Registries Amount: {amount}\nAmount Downloaded: {amount_found}")
         if status == 200:
@@ -371,7 +372,7 @@ class Builder:
             final_amount = amount_extracted
         else:
             final_amount = amount_found
-            response = status
+            response = status if amount_found > 0 else 200
         logs: Tuple[str, str, int, int, int, int, int] = ("extractCorporateData", quarter.quarter, int(datetime.strptime(date, "%Y-%m-%d").timestamp()), int(datetime.strptime(date, "%Y-%m-%d").timestamp()), response, amount, final_amount)
         self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(logs) # type: ignore
         # if response >= 200 and response <= 299:
