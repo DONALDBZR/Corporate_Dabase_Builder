@@ -1598,10 +1598,10 @@ class Builder:
         Returns:
             void
         """
-        recipient: str = "jeromeb@finclub.mu"
-        carbon_copy: str = "andygaspard@hotmail.com, andyg@finclub.mu"
-        subject: str = "Corporate Database Builder: Module 2: Downloading"
-        message: str
+        # recipient: str = "jeromeb@finclub.mu"
+        # carbon_copy: str = "andygaspard@hotmail.com, andyg@finclub.mu"
+        # subject: str = "Corporate Database Builder: Module 2: Downloading"
+        # message: str
         quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
         successful_logs: List[FinCorpLogs] = self.getFinCorpLogs().getSuccessfulRunsLogs("downloadCorporateFile")
         date: str = self._getDateDownloadCorporateFile(successful_logs, quarter)
@@ -1616,18 +1616,10 @@ class Builder:
             self.getLogger().inform(f"The portable document file has been downloaded as well as the company details has been verified!\nIdentifier: {company_details[index].identifier}\nName: {company_details[index].name}")
             self.getCompanyDetails().updateCompany(crawler_response["CompanyDetails"]) # type: ignore
             amount_found = self.getDocumentFiles().addDocumentFile(crawler_response, amount_found)
-        logs: Tuple[str, str, int, int, int, int, int] = (
-            "downloadCorporateFile",
-            quarter.quarter,
-            int(datetime.strptime(date, "%Y-%m-%d").timestamp()),
-            int(datetime.strptime(date, "%Y-%m-%d").timestamp()),
-            200,
-            amount,
-            amount_found
-        )
-        message = f"The Corporate Database Builder has downloaded {amount_found} corporate registries for the {date}.  Please note that it is a computer generated mail.  For any communication, contact the ones that are attached as carbon copies."
-        self.setMailer(Mail())
-        self.getMailer().send(recipient, subject, message, carbon_copy)
+        logs: Tuple[str, str, int, int, int, int, int] = ("downloadCorporateFile", quarter.quarter, int(datetime.strptime(date, "%Y-%m-%d").timestamp()), int(datetime.strptime(date, "%Y-%m-%d").timestamp()), 200, amount, amount_found)
+        # message = f"The Corporate Database Builder has downloaded {amount_found} corporate registries for the {date}.  Please note that it is a computer generated mail.  For any communication, contact the ones that are attached as carbon copies."
+        # self.setMailer(Mail())
+        # self.getMailer().send(recipient, subject, message, carbon_copy)
         self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(logs) # type: ignore
         
     def collectCorporateMetadata(self) -> None:
