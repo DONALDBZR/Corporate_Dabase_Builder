@@ -2,3 +2,4 @@ mysql-connector-python>=8.1.0
 selenium>=4.14.0
 webdriver-manager>=4.0.1
 pdfminer.six>=20231228
+msal>=1.31.0
