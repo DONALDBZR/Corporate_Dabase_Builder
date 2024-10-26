@@ -992,14 +992,9 @@ class Crawler:
         Returns:
             void
         """
-        files = os.listdir(
-            f"{self.ENV.getDirectory()}/Cache/CorporateDataCollection"
-        )
+        files: List[str] = os.listdir(f"{self.ENV.getDirectory()}/Cache/CorporateDataCollection")
         if len(files) > 0:
-            file = open(
-                f"{self.ENV.getDirectory()}/Cache/CorporateDataCollection/{max(files)}",
-                "r"
-            )
+            file = open(f"{self.ENV.getDirectory()}/Cache/CorporateDataCollection/{max(files)}", "r")
             self.setCorporateMetadata(json.load(file))
             file.close()
         else:
