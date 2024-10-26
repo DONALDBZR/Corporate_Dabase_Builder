@@ -20,7 +20,7 @@ from Data.CompanyDetails import CompanyDetails
 from Environment import Environment
 from Models.Logger import Corporate_Database_Builder_Logger
 from selenium.common.exceptions import ElementClickInterceptedException, NoSuchElementException, StaleElementReferenceException
-from typing import List, Dict, Union, Tuple
+from typing import Any, List, Dict, Union, Tuple
 from selenium.webdriver.common.action_chains import ActionChains
 from Models.CompanyDetails import Company_Details
 from datetime import datetime
@@ -1002,6 +1002,24 @@ class Crawler:
             return content
         except FileNotFoundError:
             self.getLogger().error(f"The file {file_name} does not exist!")
+            return None
+
+    def __loadData(self, content: Union[str, None]) -> Union[Dict[str, Any], List[Any], None]:
+        """
+        Loading the data from the content.
+
+        Parameters:
+            content: string: The content from the file.
+
+        Returns:
+            object|array|null
+        """
+        if content is None:
+            return None
+        try:
+            return json.loads(content)
+        except json.JSONDecodeError:
+            self.getLogger().error("The content is not a valid JSON!")
             return None
 
     def readCacheCorporateDataCollection(self) -> None:
