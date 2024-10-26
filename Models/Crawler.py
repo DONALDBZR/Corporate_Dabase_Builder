@@ -1030,12 +1030,7 @@ class Crawler:
             void
         """
         files: List[str] = os.listdir(f"{self.ENV.getDirectory()}/Cache/CorporateDataCollection")
-        if len(files) > 0:
-            file = open(f"{self.ENV.getDirectory()}/Cache/CorporateDataCollection/{max(files)}", "r")
-            self.setCorporateMetadata(json.load(file))
-            file.close()
-        else:
-            self.setCorporateMetadata([])
+        self.setCorporateMetadata(self.__loadData(self.__readFile(f"{self.ENV.getDirectory()}/Cache/CorporateDataCollection/{max(files)}"))) if len(files) > 0 else self.setCorporateMetadata([]) # type: ignore
         self.getLogger().inform("The data has been read from the cache!")
 
     def interceptCookie(self) -> None:
