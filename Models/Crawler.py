@@ -985,6 +985,25 @@ class Crawler:
         file.close()
         self.getLogger().inform("The data has been written to the cache.")
 
+    def __readFile(self, file_name: str) -> Union[str, None]:
+        """
+        Read the content of a file.
+
+        Parameters:
+            file_name: str: The name of the file.
+
+        Returns:
+            string or None
+        """
+        try:
+            file = open(file_name, "r")
+            content: str = file.read().strip()
+            file.close()
+            return content
+        except FileNotFoundError:
+            self.getLogger().error(f"The file {file_name} does not exist!")
+            return None
+
     def readCacheCorporateDataCollection(self) -> None:
         """
         Reading data from the cache directory.
