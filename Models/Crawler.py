@@ -19,7 +19,7 @@ from selenium.webdriver.chrome.options import Options
 from Data.CompanyDetails import CompanyDetails
 from Environment import Environment
 from Models.Logger import Corporate_Database_Builder_Logger
-from selenium.common.exceptions import ElementClickInterceptedException, NoSuchElementException, StaleElementReferenceException
+from selenium.common.exceptions import ElementClickInterceptedException, NoSuchElementException, StaleElementReferenceException, MoveTargetOutOfBoundsException
 from typing import Any, List, Dict, Union, Tuple
 from selenium.webdriver.common.action_chains import ActionChains
 from Models.CompanyDetails import Company_Details
@@ -243,16 +243,20 @@ class Crawler:
             void
         """
         range_limit: int = random.randint(8, 16)
-        delay: float = self.__randomDelay(
-            random.random() * 2
-        )
+        delay: float = self.__randomDelay(random.random() * 2)
         self.setActionChains(ActionChains(self.getDriver()))
         self.getActionChains().move_to_element(element)
         for index in range(range_limit):
             horizontal_offset: int = random.randint(-5, 5)
             vertical_offset: int = random.randint(-5, 5)
             self.getActionChains().move_by_offset(horizontal_offset, vertical_offset)
-        self.getActionChains().move_to_element(element).perform()
+        try:
+            self.getActionChains().move_to_element(element).perform()
+            self.getLogger().inform(f"Mouse moved to element.\nElement: {element}")
+        except MoveTargetOutOfBoundsException as error:
+            self.getLogger().error(f"An error occurred while moving the mouse.\nError: {error}")
+            time.sleep(delay)
+            self.__moveMouse(element)
         time.sleep(delay)
 
     def __typeCharacters(self, element: WebElement, payload: str) -> None:
