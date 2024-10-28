@@ -531,23 +531,30 @@ class Crawler:
             {status: int, CompanyDetails: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}, DocumentFiles: bytes | null}
         """
         if file_number_amount == 1:
-            self.setHtmlTags(
-                self.getHtmlTags()[0].find_elements(
-                    By.TAG_NAME,
-                    "td"
-                )
-            )
+            self.setHtmlTags(self.getHtmlTags()[0].find_elements(By.TAG_NAME, "td"))
             return self.__scrapeDocumentFileFoundResultSets(delay, company_detail)
-        else:
+        elif file_number_amount > 1:
             file_number_identifier: int = file_numbers.index(company_detail.file_number)
             self.addDifferentCorporateMetadata(file_number_identifier)
-            self.setHtmlTags(
-                self.getHtmlTags()[file_number_identifier].find_elements(
-                    By.TAG_NAME,
-                    "td"
-                )
-            )
+            self.setHtmlTags(self.getHtmlTags()[file_number_identifier].find_elements(By.TAG_NAME, "td"))
             return self.__scrapeDocumentFileFoundResultSets(delay, company_detail)
+        else:
+            self.getLogger().error("The identifier is not in the array.\nStatus: 403")
+            return {
+                "status": 403,
+                "CompanyDetails": {
+                    "identifier": company_detail.identifier,
+                    "business_registration_number": company_detail.business_registration_number,
+                    "name": company_detail.name,
+                    "file_number": company_detail.file_number,
+                    "category": company_detail.category,
+                    "date_incorporation": company_detail.date_incorporation,
+                    "nature": company_detail.nature,
+                    "status": company_detail.status,
+                    "date_verified": company_detail.date_verified
+                },
+                "DocumentFiles": None
+            }
 
     def _scrapeDocumentFileFoundResultSets(self, delay: float, company_detail: CompanyDetails) -> Dict[str, Union[int, Dict[str, Union[str, None, int]], bytes, None]]:
         """
