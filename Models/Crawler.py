@@ -530,11 +530,11 @@ class Crawler:
         Returns:
             {status: int, CompanyDetails: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}, DocumentFiles: bytes | null}
         """
+        file_number_identifier: int = file_numbers.index(company_detail.file_number)
         if file_number_amount == 1:
             self.setHtmlTags(self.getHtmlTags()[0].find_elements(By.TAG_NAME, "td"))
             return self.__scrapeDocumentFileFoundResultSets(delay, company_detail)
-        elif file_number_amount > 1:
-            file_number_identifier: int = file_numbers.index(company_detail.file_number)
+        elif file_number_amount > 1 and file_number_identifier < file_number_amount:
             self.addDifferentCorporateMetadata(file_number_identifier)
             self.setHtmlTags(self.getHtmlTags()[file_number_identifier].find_elements(By.TAG_NAME, "td"))
             return self.__scrapeDocumentFileFoundResultSets(delay, company_detail)
