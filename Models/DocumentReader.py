@@ -980,11 +980,12 @@ class Document_Reader:
         end_index: int = result_set.index("Office Bearers")
         result_set = result_set[start_index:end_index]
         result_set = [value for value in result_set if ":" not in value]
+        date_of_incorporation: str = [value for value in result_set if "/" in value][0]
         response = {
             "file_number": result_set[0],
             "name": result_set[1].title(),
             "category": result_set[3].title(),
-            "date_incorporation": int(datetime.strptime(result_set[4], "%d/%m/%Y").timestamp()),
+            "date_incorporation": int(datetime.strptime(date_of_incorporation, "%d/%m/%Y").timestamp()),
             "nature": result_set[5].title(),
             "status": result_set[6].title(),
         }
