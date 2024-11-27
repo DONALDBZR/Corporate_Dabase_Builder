@@ -3287,16 +3287,18 @@ class Document_Reader:
         start_index: int = portable_document_file_result_set.index("Certificate (Issued by Other Institutions)")
         end_index: int = portable_document_file_result_set.index("Office Bearers")
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
-        result_set.remove("Certificate (Issued by Other Institutions)")
-        result_set.remove("Certificate")
-        result_set.remove("Type")
-        result_set.remove("Effective Date")
-        result_set.remove("Expiry Date")
-        if len(result_set) > 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractCertificates()")
-            exit()
-        else:
+        if "Name" in result_set:
+            end_index = result_set.index("Name")
+        result_set = result_set[:end_index] if "Name" in result_set else result_set
+        result_set = [value for value in result_set if "Certificate (Issued by Other Institutions)" not in value]
+        result_set = [value for value in result_set if "Certificate" not in value]
+        result_set = [value for value in result_set if "Type" not in value]
+        result_set = [value for value in result_set if "Effective Date" not in value]
+        result_set = [value for value in result_set if "Expiry Date" not in value]
+        if len(result_set) == 0:
             return []
+        self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractCertificates()")
+        exit()
 
     def _extractShareholdersTypeShares(self, type_shares: List[str]) -> str:
         """
