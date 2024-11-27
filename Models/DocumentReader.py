@@ -1794,12 +1794,24 @@ class Document_Reader:
             [{name: string, amount: int, type: string, currency: string}]
         """
         response: List[Dict[str, Union[str, int]]] = []
-        start_index: int = result_set.index("Associes")
-        end_index: int = result_set.index("Liquidators")
-        dataset: List[str] = result_set[start_index:end_index]
-        dataset = [value for value in dataset if "Associes" not in value]
-        dataset = [value for value in dataset if "Name" not in value]
-        names: List[str] = dataset
+        names: List[str] = [name for name in result_set if ":" not in name]
+        names = [name for name in names if "/" not in name]
+        names = [name for name in names if bool(search(r"[0-9]", name)) == False]
+        start_index: int = names.index("Stated Capital")
+        end_index: int = names.index("Liquidators")
+        names = names[start_index:end_index]
+        names = [name for name in names if "Stated Capital" not in name]
+        names = [name for name in names if "Amount Unpaid" not in name]
+        names = [name for name in names if "Valeur" not in name]
+        names = [name for name in names if "Nominale" not in name]
+        names = [name for name in names if "PART SOCIALE" not in name]
+        names = [name for name in names if "Name" not in name]
+        names = [name for name in names if "Service Address" not in name]
+        names = [name for name in names if "QUATRE BORNES   MAURITIUS" not in name]
+        names = [name for name in names if "Appointed Date" not in name]
+        names = [name for name in names if "No. of Shares Type of Shares" not in name]
+        names = [name for name in names if "Currency" not in name]
+        names = [name for name in names if "Mauritius Rupee" not in name]
         result_set = result_set[start_index:]
         start_index = result_set.index("Currency") + 1
         end_index = result_set.index("Appointed Date:")
