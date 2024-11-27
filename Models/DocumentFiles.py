@@ -68,6 +68,31 @@ class Document_Files(Database_Handler):
             amount_downloaded = amount_found
         return amount_downloaded
 
+    def deleteDocumentFile(self, company_detail: int) -> int:
+        """
+        Deleting the document file.
+
+        Parameters:
+            company_detail: int: The identifier of the company.
+
+        Returns:
+            int
+        """
+        response: int
+        parameters: Tuple[int] = (company_detail,)
+        try:
+            self.deleteData(
+                table=self.getTableName(),
+                condition="CompanyDetail = %s",
+                parameters=parameters
+            )
+            response = 204
+            self.getLogger().inform(f"The document file has been deleted!\nCompany Detail: {company_detail}\nStatus: {response}")
+        except Error as error:
+            response = 503
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {response}\nError: {error}")
+        return response
+
     def getCorporateRegistries(self, date_incorporation: str) -> List[DocumentFiles]:
         """
         Retrieving the corporate registries based on the date of
