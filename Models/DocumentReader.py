@@ -694,53 +694,19 @@ class Document_Reader:
         Returns:
             [{date_filled: int, date_from: int, date_to: int}]
         """
-        response: List[Dict[str, int]]
-        result_set = [value for value in result_set if "Date Filed" not in value and "From" not in value and "To" not in value and "/" in value]
-        if len(result_set) <= 3:
-            response = []
-        else:
-            response = self.__extractDataGlobalBusinessCompanyAdministratorsAccounts(
-                self._extractDataGlobalBusinessCompanyAdministratorsAccountsDataset(result_set)
-            )
-        return response
-
-    def __extractDataGlobalBusinessCompanyAdministratorsAccounts(self, result_set: List[List[str]]) -> List[Dict[str, int]]:
-        """
-        Extracting the accounts of the administrators of a global
-        business company from the corporate registry based on the
-        dataset compiled.
-
-        Parameters:
-            result_set: [[string]]: The compiled result set to be used.
-
-        Returns:
-            [{date_filled: int, date_from: int, date_to: int}]
-        """
+        set_amount: int = 3
         response: List[Dict[str, int]] = []
-        for index in range(0, len(result_set), 1):
-            response.append({
-                "date_filled": int(datetime.strptime(result_set[index][0], "%d/%m/%Y").timestamp()),
-                "date_from": int(datetime.strptime(result_set[index][1], "%d/%m/%Y").timestamp()),
-                "date_to": int(datetime.strptime(result_set[index][2], "%d/%m/%Y").timestamp())
-            })
-        return response
-
-    def _extractDataGlobalBusinessCompanyAdministratorsAccountsDataset(self, result_set: List[str]) -> List[List[str]]:
-        """
-        Breaking down the result set into smaller chunks for the
-        extraction of the accounts of the administrators.
-
-        Parameters:
-            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
-
-        Returns:
-            [[string]]
-        """
-        response: List[List[str]] = []
-        for index in range(0, len(result_set), 3):
-            start_index: int = index
-            end_index: int = start_index + 3
-            response.append(result_set[start_index:end_index])
+        result_set = [value for value in result_set if "Date Filed" not in value and "From" not in value and "To" not in value and "/" in value]
+        if len(result_set) < 3:
+            return response
+        dates: List[List[str]] = [result_set[index:index+set_amount] for index in range(0, len(result_set), 3)]
+        for index in range(0, len(dates), 1):
+            if len(dates[index]) == 3:
+                response.append({
+                    "date_filled": int(datetime.strptime(dates[index][0], "%d/%m/%Y").timestamp()),
+                    "date_from": int(datetime.strptime(dates[index][1], "%d/%m/%Y").timestamp()),
+                    "date_to": int(datetime.strptime(dates[index][2], "%d/%m/%Y").timestamp())
+                })
         return response
 
     def _extractDataGlobalBusinessCompanyAdministrators(self, result_set: List[str]) -> Dict[str, Union[str, int]]:
