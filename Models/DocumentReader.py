@@ -730,11 +730,12 @@ class Document_Reader:
         result_set = [value for value in result_set if ":" not in value]
         result_set = [value for value in result_set if "Page" not in value]
         result_set = [value for value in result_set if " of " not in value]
-        if len(result_set) < 4:
-            response = {}
-        else:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractDataGlobalBusinessCompanyAdministrators()")
-            exit()
+        result_set = [value for value in result_set if "Appointed Date" not in value]
+        validateds: List[str] = [value for value in result_set if "/" not in value]
+        if len(result_set) < 4 and len(validateds) == 0:
+            return {}
+        self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractDataGlobalBusinessCompanyAdministrators()")
+        exit()
         return response
 
     def extractDataGlobalBusinessCompanyReceivers(self, result_set: List[str]) -> Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]:
