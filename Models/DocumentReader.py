@@ -1083,6 +1083,7 @@ class Document_Reader:
         result_set = [value for value in result_set if "/" not in value]
         result_set = [value for value in result_set if "Page" not in value]
         result_set = [value for value in result_set if "of" not in value]
+        result_set = [value for value in result_set if "Appointed Date" not in value]
         if len(result_set) == 0:
             return {}
         self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.__extractDataAuthorisedCompanyLiquidators()")
