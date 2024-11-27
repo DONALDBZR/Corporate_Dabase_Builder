@@ -1135,11 +1135,13 @@ class Document_Reader:
         result_set = result_set[start_index:end_index]
         result_set = [value for value in result_set if "To" not in value]
         result_set = [value for value in result_set if ":" not in value]
-        if len(result_set) > 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.__extractDataAuthorisedCompanyAdministrators()")
-            exit()
-        else:
+        result_set = [value for value in result_set if "/" not in value]
+        result_set = [value for value in result_set if "Page" not in value]
+        result_set = [value for value in result_set if "of" not in value]
+        if len(result_set) == 0:
             return {}
+        self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.__extractDataAuthorisedCompanyAdministrators()")
+        exit()
 
     def _extractDataAuthorisedCompanyOfficeBearers(self, portable_document_file_data: List[str]) -> List[Dict[str, Union[str, int]]]:
         """
