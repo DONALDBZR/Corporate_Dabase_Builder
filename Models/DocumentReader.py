@@ -2819,7 +2819,7 @@ class Document_Reader:
         dataset = [value for value in dataset if "No. of Shares Type of Shares" not in value]
         dataset = [value for value in dataset if "Currency" not in value]
         dataset = [value for value in dataset if "Mauritius Rupee" not in value]
-        if len(dataset) <= 2 or len(dataset) == 0:
+        if len(dataset) <= 2 or len(date_appointeds) == 0:
             return {}
         self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractLiquidators()")
         exit()
