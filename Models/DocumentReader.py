@@ -2788,11 +2788,11 @@ class Document_Reader:
         result_set = [value for value in result_set if "Page" not in value]
         result_set = [value for value in result_set if " of " not in value]
         result_set = [value for value in result_set if ":" not in value]
-        if len(result_set) > 3:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractLiquidatorsAffidavits()")
-            exit()
-        else:
+        result_set = [value for value in result_set if "/" in value]
+        if len(result_set) <= 3:
             return []
+        self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractLiquidatorsAffidavits()")
+        exit()
 
     def _extractLiquidators(self, result_set: List[str]) -> Dict[str, Union[str, int]]:
         """
