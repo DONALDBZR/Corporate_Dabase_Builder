@@ -2805,8 +2805,8 @@ class Document_Reader:
         Returns:
             {name: string, date_appointed: int, address: string}
         """
-        start_index: int = result_set.index("Appointed Date:")
-        end_index: int = start_index + 2
+        start_index: int = result_set.index("Appointed Date:") if "Appointed Date:" in result_set else 0
+        end_index: int = start_index + 2 if start_index != 0 else len(result_set) - 1
         date_appointeds: List[str] = [value for value in result_set[start_index:end_index] if "/" in value]
         start_index: int = result_set.index("Liquidators") + 1
         end_index: int = result_set.index("Affidavits of Liquidator")
