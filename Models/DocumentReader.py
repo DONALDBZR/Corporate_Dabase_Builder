@@ -1122,9 +1122,8 @@ class Document_Reader:
         accounts: List[Dict[str, int]] = self._extractDataAuthorisedCompanyAdministratorsAccounts(result_set)
         if not administrator and len(accounts) == 0:
             return {}
-        else:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractAdministrators()")
-            exit()
+        self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractAdministrators()")
+        exit()
 
     def _extractDataAuthorisedCompanyAdministratorsAccounts(self, result_set: List[str]) -> List[Dict[str, int]]:
         """
