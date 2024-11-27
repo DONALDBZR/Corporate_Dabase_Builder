@@ -1141,7 +1141,6 @@ class Document_Reader:
         start_index: int = result_set.index("Accounts of Administrator") + 1
         result_set = [value for value in result_set[start_index:] if ":" not in value and "Page" not in value and "of" not in value]
         result_set = [value for value in result_set if "/" in value]
-        print(f"{result_set=}\n{10 * '-'}")
         if len(result_set) < 3:
             return response
         dates: List[List[str]] = [result_set[index:index+set_amount] for index in range(0, len(result_set), set_amount)]
