@@ -1137,15 +1137,23 @@ class Document_Reader:
         Returns:
             [{date_filled: int, date_from: int, date_to: int}]
         """
+        set_amount: int = 3
+        response: List[Dict[str, int]] = []
         start_index: int = result_set.index("Accounts of Administrator") + 1
         result_set = [value for value in result_set[start_index:] if ":" not in value and "Page" not in value and "of" not in value]
-        result_set.remove("Date Filed")
-        result_set.remove("From")
-        result_set.remove("To")
+        result_set = [value for value in result_set if "/" in value]
+        print(f"{result_set=}\n{10 * '-'}")
         if len(result_set) < 3:
-            return []
-        self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractDataAuthorisedCompanyAdministratorsAccounts()")
-        exit()
+            return response
+        dates: List[List[str]] = [result_set[index:index+set_amount] for index in range(0, len(result_set), set_amount)]
+        for index in range(0, len(dates), 1):
+            if len(dates[index]) == 3:
+                response.append({
+                    "date_filled": int(datetime.strptime(dates[index][0], "%d/%m/%Y").timestamp()),
+                    "date_from": int(datetime.strptime(dates[index][1], "%d/%m/%Y").timestamp()),
+                    "date_to": int(datetime.strptime(dates[index][2], "%d/%m/%Y").timestamp())
+                })
+        return response
 
     def __extractDataAuthorisedCompanyAdministrators(self, result_set: List[str]) -> Dict[str, str]:
         """
