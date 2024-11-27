@@ -2162,44 +2162,14 @@ class Document_Reader:
         Returns:
             [int]
         """
-        response: List[int] = []
-        for index in range(0, len(result_set), 1):
-            amount_unpaid: str = " ".join(findall(r"[\d\sA-Z]+", result_set[index]))
-            amount_unpaid: str = self.__extractDataDomesticCivilCivilStateCapitalAmountUnpaid(amount_unpaid)
-            response = self.___extractDataDomesticCivilCivilStateCapitalAmountUnpaid(response, amount_unpaid)
+        processed_amount_unpaids: List[str] = []
+        amount_unpaids: List[str] = [" ".join(findall(r"[\d\sA-Z]+", amount_unpaid)) for amount_unpaid in result_set]
+        for index in range(0, len(amount_unpaids), 1):
+            processed_amount_unpaids.append(amount_unpaids[index].split(" ")[0] if bool(search(r"[A-z]+", amount_unpaids[index])) == False else "NaAU")
+        amount_unpaids = processed_amount_unpaids
+        amount_unpaids = [amount_unpaid for amount_unpaid in amount_unpaids if amount_unpaid != ""]
+        response: List[int] = [int(amount_unpaid) for amount_unpaid in amount_unpaids if amount_unpaid != "NaAU"]
         return response
-
-    def ___extractDataDomesticCivilCivilStateCapitalAmountUnpaid(self, response: List[int], amount_unpaid: str) -> List[int]:
-        """
-        Building the response needed for the amount unpaid of the
-        state capital of an authorised company.
-
-        Parameters:
-            response: [int]: The data to be returned.
-            amount_unpaid: string: The amount unpaid that has been processed.
-
-        Returns:
-            [int]
-        """
-        if amount_unpaid != "NaAU":
-            response.append(int(amount_unpaid))
-        return response
-
-    def __extractDataDomesticCivilCivilStateCapitalAmountUnpaid(self, amount_unpaid: str) -> str:
-        """
-        Sanitizing the Amount Unpaid of the state capital of an
-        authorised company.
-
-        Parameters:
-            amount_unpaid: string: The data to be processed/
-
-        Returns:
-            string
-        """
-        if bool(search(r"[A-z]+", amount_unpaid)) == False:
-            return amount_unpaid.split(" ")[0]
-        else:
-            return "NaAU"
 
     def _extractDataDomesticCivilCivilStateCapitalStatedCapital(self, result_set: List[str]) -> List[int]:
         """
