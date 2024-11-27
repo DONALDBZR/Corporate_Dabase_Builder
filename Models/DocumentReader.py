@@ -2212,43 +2212,18 @@ class Document_Reader:
         Returns:
             [int]
         """
-        response: List[int] = []
-        for index in range(0, len(result_set), 1):
-            stated_capital: str = " ".join(findall(r"[\d\sA-Z]+", result_set[index]))
-            stated_capital = self.__extractDataDomesticCivilCivilStateCapitalStatedCapital(stated_capital)
-            response = self.___extractDataDomesticCivilCivilStateCapitalStatedCapital(response, stated_capital)
+        stated_capitals: List[str]
+        processed_stated_capitals: List[str] = []
+        stated_capitals: List[str] = [" ".join(findall(r"[\d\sA-Z]+", state_capital)) for state_capital in result_set]
+        for index in range(0, len(stated_capitals), 1):
+            processed_stated_capitals.append(stated_capitals[index] if bool(search(r"[\s]", stated_capitals[index])) == False else "NaSC")
+        stated_capitals = processed_stated_capitals
+        processed_stated_capitals = []
+        for index in range(0, len(stated_capitals), 1):
+            processed_stated_capitals.append(stated_capitals[index] if bool(search(r"[A-Z]", stated_capitals[index])) == False else "NaSC")
+        stated_capitals = processed_stated_capitals
+        response: List[int] = [int(stated_capital) for stated_capital in stated_capitals if stated_capital != "NaSC"]
         return response
-
-    def ___extractDataDomesticCivilCivilStateCapitalStatedCapital(self, response: List[int], stated_capital: str) -> List[int]:
-        """
-        Bulding the response to be returned for processing.
-
-        Parameters:
-            response: [int]: The data to be returned.
-            stated_capital: string: The data to be verified.
-
-        Returns:
-            [int]
-        """
-        if stated_capital != "NaSC":
-            response.append(int(stated_capital))
-        return response
-
-    def __extractDataDomesticCivilCivilStateCapitalStatedCapital(self, stated_capital: str) -> str:
-        """
-        Retrieving the correct stated capital from the processed
-        dataset.
-
-        Parameters:
-            stated_capital: string: The stated capital that has been processed.
-
-        Returns:
-            string
-        """
-        if bool(search(r"[\s]", stated_capital)) == False:
-            return stated_capital
-        else:
-            return "NaSC"
 
     def _extractDataDomesticCivilCivilStateCapitalTypes(self, result_set: List[str]) -> List[str]:
         """
