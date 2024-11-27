@@ -2807,13 +2807,19 @@ class Document_Reader:
         """
         start_index: int = result_set.index("Appointed Date:")
         end_index: int = start_index + 2
-        date_appointed: List[str] = result_set[start_index:end_index]
-        date_appointed = [value for value in date_appointed if "Page" not in value]
+        date_appointeds: List[str] = [value for value in result_set[start_index:end_index] if "/" in value]
         start_index: int = result_set.index("Liquidators") + 1
         end_index: int = result_set.index("Affidavits of Liquidator")
-        result_set = result_set[start_index:end_index] + date_appointed
-        dataset: List[str] = [value for value in result_set if ":" not in value]
-        if len(dataset) == 0:
+        dataset = result_set[start_index:end_index]
+        dataset = [value for value in dataset if bool(search(r"[0-9]", value)) == False]
+        dataset = [value for value in dataset if ":" not in value]
+        dataset = [value for value in dataset if "Name" not in value]
+        dataset = [value for value in dataset if "Service Address" not in value]
+        dataset = [value for value in dataset if "Appointed Date" not in value]
+        dataset = [value for value in dataset if "No. of Shares Type of Shares" not in value]
+        dataset = [value for value in dataset if "Currency" not in value]
+        dataset = [value for value in dataset if "Mauritius Rupee" not in value]
+        if len(dataset) <= 2 or len(dataset) == 0:
             return {}
         self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractLiquidators()")
         exit()
