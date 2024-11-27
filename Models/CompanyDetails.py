@@ -441,6 +441,33 @@ class Company_Details(Database_Handler):
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {response}\nError: {error}")
         return response
 
+    def invalidateCompany(self, identifier: int) -> int:
+        """
+        Invalidating the company based on the file type of the
+        document file.
+
+        Parameters:
+            identifier: int: The identifier of the company.
+
+        Returns:
+            int
+        """
+        response: int
+        parameters: Tuple[int] = (identifier,)
+        try:
+            self.updateData(
+                table=self.getTableName(),
+                values="date_verified = NULL",
+                condition="identifier = %s",
+                parameters=parameters
+            )
+            response = 202
+            self.getLogger().inform(f"The company has been invalidated!\nIdentifier: {identifier}\nStatus: {response}")
+        except Error as error:
+            response = 503
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {response}\nError: {error}")
+        return response
+
     def getAmountExtracted(self, date_incorporation: str) -> int:
         """
         Retrieving the amount of corporate registries that are
