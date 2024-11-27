@@ -1142,11 +1142,10 @@ class Document_Reader:
         result_set.remove("Date Filed")
         result_set.remove("From")
         result_set.remove("To")
-        if len(result_set) >= 3:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractDataAuthorisedCompanyAdministratorsAccounts()")
-            exit()
-        else:
+        if len(result_set) < 3:
             return []
+        self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractDataAuthorisedCompanyAdministratorsAccounts()")
+        exit()
 
     def __extractDataAuthorisedCompanyAdministrators(self, result_set: List[str]) -> Dict[str, str]:
         """
