@@ -2813,11 +2813,10 @@ class Document_Reader:
         end_index: int = result_set.index("Affidavits of Liquidator")
         result_set = result_set[start_index:end_index] + date_appointed
         dataset: List[str] = [value for value in result_set if ":" not in value]
-        if len(dataset) > 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractLiquidators()")
-            exit()
-        else:
+        if len(dataset) == 0:
             return {}
+        self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractLiquidators()")
+        exit()
 
 
     def extractCharges(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[int, str]]]:
