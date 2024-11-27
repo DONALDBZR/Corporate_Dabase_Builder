@@ -788,14 +788,14 @@ class Document_Reader:
         response: List[Dict[str, int]]
         start_index: int = int(len(date_tos) / 2)
         date_tos = date_tos[start_index:]
+        date_tos = [value for value in date_tos if "Appointed Date" not in value]
         start_index = result_set.index("Affidavits of Receiver") + 1
         result_set = result_set[start_index:] + date_tos
         result_set = [value for value in result_set if "Date Filed" not in value and "From" not in value and "To" not in value]
-        if len(result_set) > 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractDataGlobalBusinessCompanyReceiversAffidavits()")
-            response = []
-        else:
-            response = []
+        if len(result_set) < 3:
+            return []
+        self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractDataGlobalBusinessCompanyReceiversAffidavits()")
+        response = []
         return response
 
     def extractDataGlobalBusinessCompanyReceiversReports(self, result_set: List[str], date_tos: List[str]) -> List[Dict[str, int]]:
