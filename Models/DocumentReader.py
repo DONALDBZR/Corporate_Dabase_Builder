@@ -20,6 +20,10 @@ from json import dumps
 from re import findall, search, split
 from Models.OfficeBearers import Office_Bearers
 from Models.Shareholders import Shareholders
+from pdfminer.pdfparser import PDFSyntaxError
+from Models.CompanyDetails import Company_Details
+from Models.DocumentFiles import Document_Files
+from os import remove
 
 
 class Document_Reader:
@@ -49,6 +53,16 @@ class Document_Reader:
     The model which will interact exclusively with the
     Shareholders.
     """
+    __company_details: Company_Details
+    """
+    The model which will interact exclusively with the Company
+    Details.
+    """
+    __document_files: Document_Files
+    """
+    The model which will interact exclusively with the Document
+    Files table.
+    """
 
     def __init__(self) -> None:
         """
@@ -59,7 +73,21 @@ class Document_Reader:
         self.setLogger(Corporate_Database_Builder_Logger())
         self.setOfficeBearer(Office_Bearers())
         self.setShareholder(Shareholders())
+        self.setCompanyDetails(Company_Details())
+        self.setDocumentFiles(Document_Files())
         self.getLogger().inform("The builder has been initialized and all of its dependencies are injected!")
+
+    def getDocumentFiles(self) -> Document_Files:
+        return self.__document_files
+
+    def setDocumentFiles(self, document_files: Document_Files) -> None:
+        self.__document_files = document_files
+
+    def getCompanyDetails(self) -> Company_Details:
+        return self.__company_details
+
+    def setCompanyDetails(self, company_details: Company_Details) -> None:
+        self.__company_details = company_details
 
     def getLogger(self) -> Corporate_Database_Builder_Logger:
         return self.__logger
@@ -2459,7 +2487,13 @@ class Document_Reader:
         response: Dict[str, Union[int, Dict[str, Union[str, int]], List[Dict[str, str]], List[Dict[str, Union[str, int]]], List[Dict[str, int]], Dict[str, Union[Dict[str, Union[int, str]], float]], Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]]]
         file_name: str = f"{self.ENV.getDirectory()}Cache/CorporateDocumentFile/Documents/{dataset.company_detail}.pdf"
         cache_data_file_name: str = f"{self.ENV.getDirectory()}Cache/CorporateDocumentFile/Metadata/{dataset.company_detail}.json"
-        if status == 201:
+        if status != 201:
+            status = 404
+            self.getLogger().error(f"The portable document file has not been generated correctly!  The application will abort the extraction.\nStatus: {status}\nFile Location: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
+            return {
+                "status": status
+            }
+        try:
             portable_document_file_data: str = extract_text(file_name)
             cache_file = open(cache_data_file_name, "w")
             portable_document_file_data_result_set: List[str] = list(filter(None, portable_document_file_data.split("\n")))
@@ -2480,8 +2514,9 @@ class Document_Reader:
             administrators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractAdministrators(portable_document_file_data_result_set)
             details: List[Dict[str, Union[str, int]]] = self.extractDetails(portable_document_file_data_result_set)
             objections: List[Dict[str, Union[int, str]]] = self.extractObjections(portable_document_file_data_result_set)
+            status = 200
             response = {
-                "status": 200,
+                "status": status,
                 "company_details": company_details,
                 "business_details": business_details,
                 "certificates": certificates,
@@ -2503,12 +2538,16 @@ class Document_Reader:
             cache_file.write(dumps(response, indent=4))
             cache_file.close()
             self.getLogger().inform(f"Data has been extracted from the portable document file version of the corporate registry.\nStatus: {response['status']}\nDocument File Identifier: {dataset.identifier}\nFile Location: {file_name}\nCompany Details Identifier: {dataset.company_detail}")
-        else:
-            response = {
-                "status": 404
+            return response
+        except PDFSyntaxError as error:
+            status = self.getCompanyDetails().invalidateCompany(dataset.company_detail)
+            status = self.getDocumentFiles().deleteDocumentFile(dataset.company_detail) if status == 202 else status
+            remove(file_name) if status == 204 else None
+            status = 403 if status == 204 else status
+            self.getLogger().error(f"Data cannot be extracted due to an error in the file type.\nStatus: {status}\nDocument File Identifier: {dataset.identifier}\nFile Location: {file_name}\nCompany Details Identifier: {dataset.company_detail}\nError: {error}")
+            return {
+                "status": status
             }
-            self.getLogger().error(f"The portable document file has not been generated correctly!  The application will abort the extraction.\nStatus: {response['status']}\nFile Location: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
-        return response
 
     def extractObjections(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[int, str]]]:
         """
