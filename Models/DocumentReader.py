@@ -3220,15 +3220,17 @@ class Document_Reader:
         start_index: int = portable_document_file_result_set.index("Certificate (Issued by Other Institutions)")
         end_index: int = portable_document_file_result_set.index("Office Bearers")
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
-        if "Name" in result_set:
-            end_index = result_set.index("Name")
+        end_index = result_set.index("Name") if "Name" in result_set else len(result_set)
         result_set = result_set[:end_index] if "Name" in result_set else result_set
         result_set = [value for value in result_set if "Certificate (Issued by Other Institutions)" not in value]
         result_set = [value for value in result_set if "Certificate" not in value]
         result_set = [value for value in result_set if "Type" not in value]
         result_set = [value for value in result_set if "Effective Date" not in value]
         result_set = [value for value in result_set if "Expiry Date" not in value]
-        if len(result_set) == 0:
+        result_set = [value for value in result_set if "Page" not in value]
+        result_set = [value for value in result_set if " of " not in value]
+        result_set = [value for value in result_set if "Date Issued" not in value]
+        if len(result_set) < 4:
             return []
         self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractCertificates()")
         exit()
