@@ -704,7 +704,8 @@ class Document_Reader:
         """
         set_amount: int = 3
         response: List[Dict[str, int]] = []
-        result_set = [value for value in result_set if "Date Filed" not in value and "From" not in value and "To" not in value and "/" in value]
+        result_set = [value for value in result_set if "/" in value]
+        result_set = [value for value in result_set if bool(search(r"[A-z]+", value)) == False]
         if len(result_set) < 3:
             return response
         dates: List[List[str]] = [result_set[index:index+set_amount] for index in range(0, len(result_set), 3)]
