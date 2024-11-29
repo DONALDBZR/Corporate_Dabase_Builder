@@ -1823,34 +1823,31 @@ class Document_Reader:
         Returns:
             [{name: string, amount: int, type: string, currency: string}]
         """
+        names: List[str]
+        start_header: str = "Associes"
+        end_header: str = "Winding Up Details"
         response: List[Dict[str, Union[str, int]]] = []
-        names: List[str] = [name for name in result_set if ":" not in name]
-        names = [name for name in names if "/" not in name]
-        names = [name for name in names if bool(search(r"[0-9]", name)) == False]
-        start_index: int = names.index("Stated Capital")
-        end_index: int = names.index("Liquidators")
-        names = names[start_index:end_index]
-        names = [name for name in names if "Stated Capital" not in name]
-        names = [name for name in names if "Amount Unpaid" not in name]
-        names = [name for name in names if "Valeur" not in name]
-        names = [name for name in names if "Nominale" not in name]
-        names = [name for name in names if "PART SOCIALE" not in name]
-        names = [name for name in names if "Name" not in name]
-        names = [name for name in names if "Service Address" not in name]
-        names = [name for name in names if "QUATRE BORNES   MAURITIUS" not in name]
-        names = [name for name in names if "Appointed Date" not in name]
-        names = [name for name in names if "No. of Shares Type of Shares" not in name]
-        names = [name for name in names if "Currency" not in name]
-        names = [name for name in names if "Mauritius Rupee" not in name]
-        result_set = result_set[start_index:]
-        start_index = result_set.index("Currency") + 1
-        end_index = result_set.index("Appointed Date:")
+        start_index: int = result_set.index(start_header)
+        end_index: int = result_set.index(end_header)
         result_set = result_set[start_index:end_index]
+        result_set = [value for value in result_set if start_header not in value]
+        result_set = [value for value in result_set if end_header not in value]
+        result_set = [value for value in result_set if "Name" not in value]
+        result_set = [value for value in result_set if "Service Address" not in value]
+        result_set = [value for value in result_set if "Appointed Date" not in value]
+        result_set = [value for value in result_set if "/" not in value]
+        result_set = [value for value in result_set if "Shares" not in value]
+        result_set = [value for value in result_set if "Currency" not in value]
+        result_set = [value for value in result_set if "REUNION" not in value]
+        result_set = [value for value in result_set if "MAURITIUS" not in value]
+        names = [name for name in result_set if bool(search(r"[\d]+", name)) == False]
+        names = [name for name in names if bool(search(r"[a-z]+", name)) == False]
+        result_set = [value for value in result_set if value not in names]
         amounts: List[int] = self._extractDataDomesticCivilCivilShareholdersAmount(result_set)
         shareholders_types: Dict[str, List[str]] = self._extractDataDomesticCivilCivilShareholdersType(result_set)
         types: List[str] = shareholders_types["types"]
         result_set = shareholders_types["result_set"]
-        currencies: List[str] = result_set
+        currencies: List[str] = [currency for currency in result_set if bool(search(r"[\d]+", currency)) == False]
         limitation: int = min([len(amounts), len(types), len(names), len(currencies)])
         for index in range(0, limitation, 1):
             response.append({
