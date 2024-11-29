@@ -617,19 +617,18 @@ class Document_Reader:
         Returns:
             [{date_filled: int, date_from: int, date_to: int}]
         """
-        response: List[Dict[str, int]]
+        response: List[Dict[str, int]] = []
         start_index: int = result_set.index("Affidavits of Liquidator") + 1
-        end_index: int = result_set.index("This is a Computer Generated Document.")
+        end_index: int = result_set.index("Receivers") if "Receivers" in result_set else result_set.index("This is a Computer Generated Document.")
         result_set = result_set[start_index:end_index]
         result_set = [value for value in result_set if "Appointed Date:" not in value]
         result_set = [value for value in result_set if "Date Filed" not in value]
         result_set = [value for value in result_set if "From" not in value]
         result_set = [value for value in result_set if "To" not in value]
-        if len(result_set) == 0:
-            response = []
-        else:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractDataGlobalBusinessCompanyLiquidatorsAffidavits()")
-            exit()
+        if len(result_set) < 3:
+            return response
+        self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractDataGlobalBusinessCompanyLiquidatorsAffidavits()")
+        exit()
         return response
 
     def _extractDataGlobalBusinessCompanyLiquidators(self, result_set: List[str], date_appointed: List[str]) -> Dict[str, Union[str, int]]:
