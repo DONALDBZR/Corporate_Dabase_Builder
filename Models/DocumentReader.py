@@ -1041,16 +1041,20 @@ class Document_Reader:
         Returns:
             {liquidator: {name: string, address: string}, affidavits: [{date_filled: int, date_from: int, date_to: int}]}
         """
-        start_index: int = portable_document_file_data.index("Liquidators")
-        end_index: int = portable_document_file_data.index("This is a Computer Generated Document.")
+        start_header: str = "Liquidators"
+        end_header: str = "This is a Computer Generated Document."
+        response: Dict[str, Union[Dict[str, str], List[Dict[str, int]]]] = {}
+        if start_header not in portable_document_file_data:
+            return response
+        start_index: int = portable_document_file_data.index(start_header)
+        end_index: int = portable_document_file_data.index(end_header)
         result_set: List[str] = portable_document_file_data[start_index:end_index]
         liquidator: Dict[str, str] = self.__extractDataAuthorisedCompanyLiquidators(result_set)
         affidavits: List[Dict[str, int]] = self._extractDataAuthorisedCompanyLiquidatorsAffidavits(result_set)
         if not liquidator and len(affidavits) == 0:
-            return {}
-        else:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractDataAuthorisedCompanyLiquidators()")
-            exit()
+            return response
+        self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractDataAuthorisedCompanyLiquidators()")
+        exit()
 
     def _extractDataAuthorisedCompanyLiquidatorsAffidavits(self, result_set: List[str]) -> List[Dict[str, int]]:
         """
