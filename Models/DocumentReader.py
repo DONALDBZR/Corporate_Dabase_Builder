@@ -1108,13 +1108,18 @@ class Document_Reader:
         Returns:
             {administrator: {name: string, designation: string, address: string}, accounts: [{date_filled: int, date_from: int, date_to: int}]}
         """
-        start_index: int = portable_document_file_data.index("Administrators")
-        end_index: int = portable_document_file_data.index("Liquidators")
+        start_header: str = "Administrators"
+        end_header: str = "Liquidators"
+        response: Dict[str, Union[Dict[str, str], List[Dict[str, int]]]] = {}
+        if start_header not in portable_document_file_data:
+            return response
+        start_index: int = portable_document_file_data.index(start_header)
+        end_index: int = portable_document_file_data.index(end_header)
         result_set: List[str] = portable_document_file_data[start_index:end_index]
         administrator: Dict[str, str] = self.__extractDataAuthorisedCompanyAdministrators(result_set)
         accounts: List[Dict[str, int]] = self._extractDataAuthorisedCompanyAdministratorsAccounts(result_set)
         if (not administrator and len(accounts) == 0) or (not administrator and len(accounts) != 0):
-            return {}
+            return response
         self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractDataAuthorisedCompanyAdministrators()")
         exit()
 
