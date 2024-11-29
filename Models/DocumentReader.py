@@ -1181,10 +1181,21 @@ class Document_Reader:
         Returns:
             [{position: string, name: string, address: string, date_appointment: int}]
         """
+        start_header: str = "Office Bearers"
+        end_header: str = "Receivers"
         response: List[Dict[str, Union[str, int]]] = []
-        start_index: int = portable_document_file_data.index("Office Bearers") + 1
-        end_index: int = portable_document_file_data.index("Receivers")
+        start_index: int = portable_document_file_data.index(start_header)
+        end_index: int = portable_document_file_data.index(end_header) if end_header in portable_document_file_data else len(portable_document_file_data)
         result_set: List[str] = portable_document_file_data[start_index:end_index]
+        result_set = [value for value in result_set if start_header not in value]
+        result_set = [value for value in result_set if end_header not in value]
+        result_set = [value for value in result_set if "Computer Generated Document" not in value]
+        result_set = [value for value in result_set if "DISCLAIMER NOTICE" not in value]
+        result_set = [value for value in result_set if "While we endeavour to keep the information up to date and as far as possible accurate, we cannot give any guarantee about the completeness, accuracy," not in value]
+        result_set = [value for value in result_set if "reliability of the information contained on the report." not in value]
+        result_set = [value for value in result_set if "Page" not in value]
+        result_set = [value for value in result_set if "of" not in value]
+        result_set = [value for value in result_set if "\x0c" not in value]
         result_set = [value for value in result_set if "Position" not in value]
         result_set = [value for value in result_set if "Name" not in value]
         result_set = [value for value in result_set if "Appointed Date" not in value]
