@@ -2845,21 +2845,42 @@ class Document_Reader:
         Returns:
             [{volume: int, property: string, nature: string, amount: int, date_charged: int, date_filled: int, currency: string}]
         """
-        start_index: int = portable_document_file_result_set.index("Charges")
-        end_index: int = portable_document_file_result_set.index("Liquidators")
+        start_header: str = "Charges"
+        end_header: str = "Liquidators"
+        response: List[Dict[str, Union[int, str]]] = []
+        line_break: str = "-" * 10
+        start_index: int = portable_document_file_result_set.index(start_header)
+        end_index: int = portable_document_file_result_set.index(end_header) if end_header in portable_document_file_result_set else len(portable_document_file_result_set)
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
-        result_set.remove("Charges")
-        result_set.remove("Volume")
-        result_set.remove("Property")
-        result_set.remove("Nature")
+        result_set = [value for value in result_set if "Winding Up Details" not in value]
+        result_set = [value for value in result_set if "Type" not in value]
+        result_set = [value for value in result_set if "Objections" not in value]
+        result_set = [value for value in result_set if "Objection Date" not in value]
+        result_set = [value for value in result_set if "Objector" not in value]
+        result_set = [value for value in result_set if ":" not in value]
+        result_set = [value for value in result_set if "Start Date" not in value]
+        result_set = [value for value in result_set if "End Date" not in value]
+        result_set = [value for value in result_set if "Status" not in value]
+        result_set = [value for value in result_set if "Computer Generated Document" not in value]
+        result_set = [value for value in result_set if "DISCLAIMER NOTICE" not in value]
+        result_set = [value for value in result_set if "While we endeavour to keep the information up to date and as far as possible accurate, we cannot give any guarantee about the completeness, accuracy," not in value]
+        result_set = [value for value in result_set if "reliability of the information contained on the report." not in value]
+        result_set = [value for value in result_set if "Page" not in value]
+        result_set = [value for value in result_set if "of" not in value]
+        result_set = [value for value in result_set if "\x0c" not in value]
+        result_set = [value for value in result_set if "Charges" not in value]
+        result_set = [value for value in result_set if "Volume" not in value]
+        result_set = [value for value in result_set if "Property" not in value]
+        result_set = [value for value in result_set if "Nature" not in value]
+        result_set = [value for value in result_set if "Amount Date Charged" not in value]
         result_set = [value for value in result_set if "Amount" not in value]
-        result_set.remove("Date Filed")
-        result_set.remove("Currency")
-        if len(result_set) > 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractCharges()")
-            exit()
-        else:
-            return []
+        result_set = [value for value in result_set if "Date Charged" not in value]
+        result_set = [value for value in result_set if "Date Filed" not in value]
+        result_set = [value for value in result_set if "Currency" not in value]
+        if len(result_set) == 0:
+            return response
+        self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractCharges()")
+        exit()
 
     def extractBalanceSheet(self, portable_document_file_result_set: List[str]) -> Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]]:
         """
