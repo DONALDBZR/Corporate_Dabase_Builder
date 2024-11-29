@@ -459,7 +459,7 @@ class Document_Reader:
             currencies: List[str] = self.extractDataGlobalBusinessCompanyStatedCapitalCurrencies(result_set)
             result_set = [value for value in result_set if value not in dataset]
             dataset = [value for value in result_set if bool(search(r"[\d]+", value)) == True and " " not in value]
-            stated_capital: List[int] = self.extractDataGlobalBusinessCompanyStatedCapitalStatedCapital(result_set)
+            stated_capital: List[float] = self.extractDataGlobalBusinessCompanyStatedCapitalStatedCapital(result_set)
             result_set = [value for value in result_set if value not in dataset]
             amount_unpaid: List[float] = self.extractDataGlobalBusinessCompanyStatedCapitalAmountUnpaid(result_set)
             response = self._extractDataGlobalBusinessCompanyStatedCapital(types, amounts, currencies, stated_capital, amount_unpaid)
