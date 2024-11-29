@@ -1688,8 +1688,13 @@ class Document_Reader:
         Returns:
             {receiver: {name: string, date_appointed: int, address: string}, reports: [{date_filled: int, date_from: int, date_to: int}], affidavits: [{date_filled: int, date_from: int, date_to: int}]}
         """
-        start_index: int = result_set.index("Receivers")
-        end_index: int = result_set.index("Accounts of Administrator")
+        start_header: str = "Receivers"
+        end_header: str = "Accounts of Administrator"
+        response: Dict[str, Union[Dict[str, Union[str, int]], List[int]]] = {}
+        if start_header not in result_set:
+            return response
+        start_index: int = result_set.index(start_header)
+        end_index: int = result_set.index(end_header)
         result_set = result_set[start_index:end_index]
         start_index = result_set.index("Name:")
         result_set = result_set[start_index:]
@@ -1700,10 +1705,9 @@ class Document_Reader:
         reports: List[Dict[str, int]] = self._extractDataDomesticCivilCivilReports(result_set)
         affidavits: List[Dict[str, int]] = self._extractDataDomesticCivilCivilAffidavits(result_set)
         if not receiver and len(reports) == 0 and len(affidavits) == 0:
-            return {}
-        else:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractDataDomesticCivilCivilReceivers()")
-            exit()
+            return response
+        self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractDataDomesticCivilCivilReceivers()")
+        exit()
 
     def _extractDataDomesticCivilCivilAffidavits(self, result_set: List[str]) -> List[Dict[str, int]]:
         """
