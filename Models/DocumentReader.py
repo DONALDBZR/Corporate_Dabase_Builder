@@ -510,7 +510,7 @@ class Document_Reader:
             response.append(float(result_set[index].split(" ")[0]))
         return response
 
-    def extractDataGlobalBusinessCompanyStatedCapitalStatedCapital(self, result_set: List[str]) -> List[int]:
+    def extractDataGlobalBusinessCompanyStatedCapitalStatedCapital(self, result_set: List[str]) -> List[float]:
         """
         Extracting the stated capital of the stated capital of a
         global business company.
@@ -519,12 +519,12 @@ class Document_Reader:
             result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
 
         Returns:
-            [int]
+            [float]
         """
-        response: List[int] = []
         dataset: List[str] = [value for value in result_set if bool(search(r"[\d]+", value)) == True and " " not in value]
+        response: List[float] = []
         for index in range(0, len(dataset), 1):
-            response.append(int(dataset[index]))
+            response.append(float(dataset[index]))
         return response
 
     def extractDataGlobalBusinessCompanyStatedCapitalCurrencies(self, result_set: List[str]) -> List[str]:
