@@ -467,7 +467,7 @@ class Document_Reader:
             response = []
         return response
 
-    def _extractDataGlobalBusinessCompanyStatedCapital(self, types: List[str], amounts: List[int], currencies: List[str], stated_capitals: List[int], amount_unpaids: List[float]) -> List[Dict[str, Union[str, int, float]]]:
+    def _extractDataGlobalBusinessCompanyStatedCapital(self, types: List[str], amounts: List[int], currencies: List[str], stated_capitals: List[float], amount_unpaids: List[float]) -> List[Dict[str, Union[str, int, float]]]:
         """
         Building the response for the stated capital of a global
         business company.
@@ -476,7 +476,7 @@ class Document_Reader:
             types: [string]: The types of the stated capital.
             amounts: [int]: The amounts of shares of the stated capital.
             currencies: [string]: The currencies of the stated capital.
-            stated_capitals: [int]: The capitals that have been stated.
+            stated_capitals: [float]: The capitals that have been stated.
             amount_unpaids: [float]: The amount unpaids of the stated capital.
 
         Returns:
