@@ -1802,16 +1802,20 @@ class Document_Reader:
         Returns:
             {liquidator: {name: string, appointed_date: int, address: string}, affidavits: [{date_filled: int, date_from: int, date_to: int}]}
         """
-        start_index: int = result_set.index("Liquidators")
-        end_index: int = result_set.index("Reports of Receiver")
+        start_header: str = "Liquidators"
+        end_header: str = "Reports of Receiver"
+        response: Dict[str, Union[Dict[str, Union[str, int]], List[int]]] = {}
+        if start_header not in result_set:
+            return response
+        start_index: int = result_set.index(start_header)
+        end_index: int = result_set.index(end_header)
         result_set = result_set[start_index:end_index]
         liquidator: Dict[str, Union[str, int]] = self._extractLiquidators(result_set)
         affidavits: List[Dict[str, int]] = self.extractLiquidatorsAffidavits(result_set)
         if not liquidator and len(affidavits) == 0:
-            return {}
-        else:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractDataDomesticCivilCivilLiquidators()")
-            exit()
+            return response
+        self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractDataDomesticCivilCivilLiquidators()")
+        exit()
 
     def _extractDataDomesticCivilCivilShareholders(self, result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
         """
