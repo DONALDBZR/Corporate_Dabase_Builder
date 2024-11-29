@@ -1588,24 +1588,22 @@ class Document_Reader:
         Returns:
             [{type: string, date_start: int, date_end: int, status: string}]
         """
-        start_index: int = result_set.index("Winding Up Details") + 1
-        end_index: int = result_set.index("This is a Computer Generated Document.")
+        start_header: str = "Winding Up Details"
+        end_header: str = "Objections"
+        response: List[Dict[str, Union[str, int]]] = []
+        start_index: int = result_set.index(start_header)
+        end_index: int = result_set.index(end_header)
         result_set = result_set[start_index:end_index]
-        end_index = result_set.index("Type") + 2
-        dataset: List[str] = result_set[:end_index]
-        dataset = [value for value in dataset if "Objections" not in value]
-        start_index = result_set.index("Start Date")
-        result_set = result_set[start_index:]
-        result_set = dataset + result_set
+        result_set = [value for value in result_set if start_header not in value]
+        result_set = [value for value in result_set if end_header not in value]
         result_set = [value for value in result_set if "Type" not in value]
         result_set = [value for value in result_set if "Start Date" not in value]
         result_set = [value for value in result_set if "End Date" not in value]
         result_set = [value for value in result_set if "Status" not in value]
-        if len(result_set) > 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractDataDomesticCivilCivilDetails()")
-            exit()
-        else:
-            return []
+        if len(result_set) == 0:
+            return response
+        self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractDataDomesticCivilCivilDetails()")
+        exit()
 
     def _extractDataDomesticCivilCivilAdministrators(self, result_set: List[str]) -> Dict[str, Union[Dict[str, Union[str, int]], List[int]]]:
         """
