@@ -171,7 +171,12 @@ class Document_Reader:
         response: Dict[str, Union[int, Dict[str, Union[str, int]], List[Dict[str, str]], List[Dict[str, Union[str, int]]], List[Dict[str, int]], Dict[str, Union[Dict[str, Union[int, str]], float]], Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]]]
         file_name: str = f"{self.ENV.getDirectory()}Cache/CorporateDocumentFile/Documents/{dataset.company_detail}.pdf"
         cache_data_file_name: str = f"{self.ENV.getDirectory()}Cache/CorporateDocumentFile/Metadata/{dataset.company_detail}.json"
-        if status == 201:
+        if status != 201:
+            self.getLogger().error(f"The portable document file has not been generated correctly!  The application will abort the extraction.\nStatus: {status}\nFile Location: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
+            return {
+                "status": 404
+            }
+        try:
             portable_document_file_data: str = extract_text(file_name)
             cache_file = open(cache_data_file_name, "w")
             portable_document_file_data_result_set: List[str] = list(filter(None, portable_document_file_data.split("\n")))
@@ -215,12 +220,16 @@ class Document_Reader:
             cache_file.write(dumps(response, indent=4))
             cache_file.close()
             self.getLogger().inform(f"Data has been extracted from the portable document file version of the corporate registry.\nStatus: {response['status']}\nDocument File Identifier: {dataset.identifier}\nFile Location: {file_name}\nCompany Details Identifier: {dataset.company_detail}")
-        else:
-            response = {
-                "status": 404
+            return response
+        except PDFSyntaxError as error:
+            status = self.getCompanyDetails().invalidateCompany(dataset.company_detail)
+            status = self.getDocumentFiles().deleteDocumentFile(dataset.company_detail) if status == 202 else status
+            remove(file_name) if status == 204 else None
+            status = 403 if status == 204 else status
+            self.getLogger().error(f"Data cannot be extracted due to an error in the file type.\nStatus: {status}\nDocument File Identifier: {dataset.identifier}\nFile Location: {file_name}\nCompany Details Identifier: {dataset.company_detail}\nError: {error}")
+            return {
+                "status": status
             }
-            self.getLogger().error(f"The portable document file has not been generated correctly!  The application will abort the extraction.\nStatus: {response['status']}\nFile Location: {file_name}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}")
-        return response
 
     def extractDataForeignDomesticOfficeBearers(self, result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
         """
