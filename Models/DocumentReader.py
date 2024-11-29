@@ -2644,17 +2644,21 @@ class Document_Reader:
         Returns:
             {receiver: {name: string, date_appointed: int, address: string}, reports: [{date_filled: int, date_from: int, date_to: int}], affidavits: [{date_filled: int, date_from: int, date_to: int}]}
         """
-        start_index: int = portable_document_file_result_set.index("Receivers")
-        end_index: int = portable_document_file_result_set.index("Accounts of Administrator") + 1
+        start_header: str = "Receivers"
+        end_header: str = "Accounts of Administrator"
+        response: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = {}
+        if start_header not in portable_document_file_result_set:
+            return response
+        start_index: int = portable_document_file_result_set.index(start_header)
+        end_index: int = portable_document_file_result_set.index(end_header) + 1
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
         receiver: Dict[str, Union[str, int]] = self._extractReceivers(result_set)
         reports: List[Dict[str, int]] = self.extractReceiversReports(result_set)
         affidavits: List[Dict[str, int]] = self.extractReceiversAffidavits(result_set)
         if not receiver and len(reports) == 0 and len(affidavits) == 0:
-            return {}
-        else:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractReceivers()")
-            exit()
+            return response
+        self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractReceivers()")
+        exit()
 
     def extractReceiversAffidavits(self, result_set: List[str]) -> List[Dict[str, int]]:
         """
