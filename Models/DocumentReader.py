@@ -752,7 +752,9 @@ class Document_Reader:
         Returns:
             {receiver: {name: string, date_appointed: int, address: string}, reports: [{date_filled: int, date_from: int, date_to: int}], affidavits: [{date_filled: int, date_from: int, date_to: int}]}
         """
-        response: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]
+        response: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = {}
+        if "Receivers" not in result_set:
+            return response
         start_index: int = result_set.index("Receivers")
         date_appointeds: List[str] = result_set[start_index:]
         start_index = date_appointeds.index("Appointed Date:")
@@ -770,11 +772,9 @@ class Document_Reader:
         reports: List[Dict[str, int]] = self.extractDataGlobalBusinessCompanyReceiversReports(result_set, date_tos)
         affidavits: List[Dict[str, int]] = self.extractDataGlobalBusinessCompanyReceiversAffidavits(result_set, date_tos)
         if not receiver and len(reports) == 0 and len(affidavits) == 0:
-            response = {}
-        else:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractDataGlobalBusinessCompanyReceivers()")
-            exit()
-        return response
+            return response
+        self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractDataGlobalBusinessCompanyReceivers()")
+        exit()
 
     def extractDataGlobalBusinessCompanyReceiversAffidavits(self, result_set: List[str], date_tos: List[str]) -> List[Dict[str, int]]:
         """
