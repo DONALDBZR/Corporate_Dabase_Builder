@@ -3184,30 +3184,35 @@ class Document_Reader:
         Returns:
             {financial_summary: {financial_year: int, currency: string, date_approved: int, unit: int}, turnover: float, cost_of_sales: float, gross_profit: float, other_income: float, distribution_cost: float, administration_cost: float, expenses: float, finance_cost: float, net_profit_before_taxation: float, taxation: float, net_profit: float}
         """
-        start_index: int = portable_document_file_result_set.index("Last Financial Summary Filed")
-        end_index: int = portable_document_file_result_set.index("BALANCE SHEET")
+        response: Dict[str, Union[Dict[str, Union[int, str]], float]] = {}
+        start_header: str = "Last Financial Summary Filed"
+        end_header: str = "BALANCE SHEET"
+        start_index: int = portable_document_file_result_set.index(start_header)
+        end_index: int = portable_document_file_result_set.index(end_header)
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
         financial_summary: Dict[str, Union[int, str]] = self._extractProfitStatements(result_set)
-        start_index = result_set.index("Turnover")
-        end_index = result_set.index("PROFIT/(LOSS) FOR THE PERIOD") + 2
+        start_header = "Turnover"
+        end_header = "PROFIT/(LOSS) FOR THE PERIOD"
+        start_index = result_set.index(start_header)
+        end_index = result_set.index(end_header) + 2
         result_set = result_set[start_index:end_index]
         result_set = [value for value in result_set if "Page" not in value]
-        result_set.remove("Turnover")
-        result_set.remove("Less Cost of Sales")
-        result_set.remove("GROSS PROFIT")
-        result_set.remove("Add Other Income")
-        result_set.remove("Less: Distribution Costs")
-        result_set.remove("Administration Costs")
-        result_set.remove("Finance Costs")
-        result_set.remove("PROFIT/(LOSS) BEFORE TAX")
-        result_set.remove("Tax Expense")
-        result_set.remove("Other Expenses")
-        result_set.remove("PROFIT/(LOSS) FOR THE PERIOD")
-        if len(result_set) > 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractProfitStatements()")
-            exit()
-        else:
-            return {}
+        result_set = [value for value in result_set if start_header not in value]
+        result_set = [value for value in result_set if end_header not in value]
+        result_set = [value for value in result_set if "Less Cost of Sales" not in value]
+        result_set = [value for value in result_set if "GROSS PROFIT" not in value]
+        result_set = [value for value in result_set if "Add Other Income" not in value]
+        result_set = [value for value in result_set if "Less: Distribution Costs" not in value]
+        result_set = [value for value in result_set if "Administration Costs" not in value]
+        result_set = [value for value in result_set if "Finance Costs" not in value]
+        result_set = [value for value in result_set if "PROFIT/(LOSS) BEFORE TAX" not in value]
+        result_set = [value for value in result_set if "Tax Expense" not in value]
+        result_set = [value for value in result_set if "Other Expenses" not in value]
+        result_set = [value for value in result_set if "Total Comprehensive Income" not in value]
+        if not financial_summary and len(result_set) == 0:
+            return response
+        self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractProfitStatements()")
+        exit()
 
     def extractFinancialSummaries(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[int, str]]]:
         """
