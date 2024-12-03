@@ -1614,12 +1614,12 @@ class Builder:
             self.getLogger().inform(f"The portable document file has been downloaded as well as the company details has been verified!\nIdentifier: {company_details[index].identifier}\nName: {company_details[index].name}")
             self.getCompanyDetails().updateCompany(crawler_response["CompanyDetails"]) # type: ignore
             amount_found = self.getDocumentFiles().addDocumentFile(crawler_response, amount_found)
-        if amount_found == 0:
-            status = 429
-        if amount == 0:
-            status = 404
-        if amount_found / amount >= 0.5:
+        if amount != 0 and amount_found / amount >= 0.5:
             status = 200
+        elif amount_found == 0:
+            status = 429
+        elif amount == 0:
+            status = 404
         else:
             status = 409
         logs: Tuple[str, str, int, int, int, int, int] = ("downloadCorporateFile", quarter.quarter, int(datetime.strptime(date, "%Y-%m-%d").timestamp()), int(datetime.strptime(date, "%Y-%m-%d").timestamp()), status, amount, amount_found)
