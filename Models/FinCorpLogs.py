@@ -57,17 +57,13 @@ class FinCorp_Logs(Database_Handler):
             data: Union[List[RowType], List[Dict[str, Union[int, str]]]] = self.getData(
                 table_name=self.getTableName(),
                 parameters=parameters,
-                filter_condition="status = 200 AND method_name = %s"
+                filter_condition="status <= 499 AND method_name = %s"
             )
             response: Dict[str, Union[int, List[FinCorpLogs]]] = self._getSuccessfulLogs(data)
-            self.getLogger().inform(
-                f"The data from {self.getTableName()} has been retrieved!\nStatus: {response['status']}\nData: {data}"
-            )
+            self.getLogger().inform(f"The data from {self.getTableName()} has been retrieved!\nStatus: {response['status']}\nData: {data}")
             return response["data"]  # type: ignore
         except Error as error:
-            self.getLogger().error(
-                f"An error occurred in {self.getTableName()}\nStatus: 503\nError: {error}"
-            )
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: 503\nError: {error}")
             return []
 
     def _getSuccessfulLogs(self, dataset: Union[List[RowType], List[Dict[str, Union[int, str]]]]) -> Dict[str, Union[int, List[FinCorpLogs]]]:
