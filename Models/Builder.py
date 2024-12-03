@@ -1599,10 +1599,7 @@ class Builder:
         Returns:
             void
         """
-        # recipient: str = "jeromeb@finclub.mu"
-        # carbon_copy: str = "andygaspard@hotmail.com, andyg@finclub.mu"
-        # subject: str = "Corporate Database Builder: Module 2: Downloading"
-        # message: str
+        status: int
         quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
         successful_logs: List[FinCorpLogs] = self.getFinCorpLogs().getSuccessfulRunsLogs("downloadCorporateFile")
         date: str = self._getDateDownloadCorporateFile(successful_logs, quarter)
@@ -1617,12 +1614,17 @@ class Builder:
             self.getLogger().inform(f"The portable document file has been downloaded as well as the company details has been verified!\nIdentifier: {company_details[index].identifier}\nName: {company_details[index].name}")
             self.getCompanyDetails().updateCompany(crawler_response["CompanyDetails"]) # type: ignore
             amount_found = self.getDocumentFiles().addDocumentFile(crawler_response, amount_found)
-        logs: Tuple[str, str, int, int, int, int, int] = ("downloadCorporateFile", quarter.quarter, int(datetime.strptime(date, "%Y-%m-%d").timestamp()), int(datetime.strptime(date, "%Y-%m-%d").timestamp()), 200, amount, amount_found)
-        # message = f"The Corporate Database Builder has downloaded {amount_found} corporate registries for the {date}.  Please note that it is a computer generated mail.  For any communication, contact the ones that are attached as carbon copies."
-        # self.setMailer(Mail())
-        # self.getMailer().send(recipient, subject, message, carbon_copy)
+        if amount_found == 0:
+            status = 429
+        if amount == 0:
+            status = 404
+        if amount_found / amount >= 0.5:
+            status = 200
+        else:
+            status = 409
+        logs: Tuple[str, str, int, int, int, int, int] = ("downloadCorporateFile", quarter.quarter, int(datetime.strptime(date, "%Y-%m-%d").timestamp()), int(datetime.strptime(date, "%Y-%m-%d").timestamp()), status, amount, amount_found)
         self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(logs) # type: ignore
-        
+
     def collectCorporateMetadata(self) -> None:
         """
         The first run consists of retrieving the metadata needed of
