@@ -3748,7 +3748,7 @@ class Document_Reader:
             response.append(float(result_set[index].split(" ")[0]))
         return response
 
-    def extractStateCapitalStatedCapital(self, result_set: List[str]) -> List[int]:
+    def extractStateCapitalStatedCapital(self, result_set: List[str]) -> List[float]:
         """
         Extracting the stated capital of the stated capital of a
         private domestic company.
@@ -3757,12 +3757,12 @@ class Document_Reader:
             result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
 
         Returns:
-            [int]
+            [float]
         """
-        response: List[int] = []
+        response: List[float] = []
         stated_capitals: List[str] = [value for value in result_set if bool(search(r"[\d]+", value)) == True and "," in value]
         for index in range(0, len(stated_capitals), 1):
-            stated_capital: int = int(stated_capitals[index].replace(",", ""))
+            stated_capital: float = float(stated_capitals[index].replace(",", ""))
             response.append(stated_capital)
         return response
 
