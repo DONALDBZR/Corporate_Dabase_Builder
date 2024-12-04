@@ -3701,7 +3701,7 @@ class Document_Reader:
         currencies: List[str] = self.extractStateCapitalCurrency(result_set)
         dataset = [value for value in result_set if bool(search(r"[\d]+", value)) == True and bool(search(r"[A-z]+", value)) == True]
         result_set = [value for value in result_set if value not in dataset]
-        stated_capitals: List[int] = self.extractStateCapitalStatedCapital(result_set)
+        stated_capitals: List[float] = self.extractStateCapitalStatedCapital(result_set)
         dataset = [value for value in result_set if bool(search(r"[\d]+", value)) == True and "," in value]
         result_set = [value for value in result_set if value not in dataset]
         amount_unpaids: List[float] = self.extractStateCapitalAmountUnpaid(result_set)
