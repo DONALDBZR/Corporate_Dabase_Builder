@@ -3343,6 +3343,7 @@ class Document_Reader:
         result_set = [value for value in result_set if "Page" not in value]
         result_set = [value for value in result_set if " of " not in value]
         result_set = [value for value in result_set if "Date Issued" not in value]
+        result_set = [value for value in result_set if bool(search(r"[A-z]+", value)) == True]
         if len(result_set) < 4:
             return []
         self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractCertificates()")
