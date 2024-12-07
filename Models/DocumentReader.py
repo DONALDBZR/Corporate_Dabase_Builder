@@ -531,9 +531,8 @@ class Document_Reader:
             [float]
         """
         dataset: List[str] = [value for value in result_set if bool(search(r"[\d]+", value)) == True and " " not in value]
-        response: List[float] = []
-        for index in range(0, len(dataset), 1):
-            response.append(float(dataset[index]))
+        dataset = ["".join(value.split(",")) for value in dataset if "," in value]
+        response: List[float] = [float(value) for value in dataset]
         return response
 
     def extractDataGlobalBusinessCompanyStatedCapitalCurrencies(self, result_set: List[str]) -> List[str]:
