@@ -2149,10 +2149,10 @@ class Document_Reader:
         result_set = [value for value in result_set if "Status" not in value]
         types: List[str] = self._extractDataDomesticCivilCivilStateCapitalTypes(result_set)
         result_set = [value for value in result_set if value not in types]
-        print(f"{'-' * 10}\n{types=}\n{'-' * 10}\n{result_set=}\n{'-' * 10}")
-        exit()
         amounts: List[int] = self._extractDataDomesticCivilCivilStateCapitalAmount(result_set)
         currencies: List[str] = self._extractDataDomesticCivilCivilStateCapitalCurrency(result_set)
+        print(f"{'-' * 10}\n{types=}\n{'-' * 10}\n{amounts=}\n{'-' * 10}\n{currencies=}\n{'-' * 10}")
+        exit()
         result_set = [value for value in result_set if value not in currencies]
         stated_capitals: List[int] = self._extractDataDomesticCivilCivilStateCapitalStatedCapital(result_set)
         result_set = [value for value in result_set if value not in str(amounts)]
@@ -2340,44 +2340,12 @@ class Document_Reader:
         Returns:
             [int]
         """
-        response: List[int] = []
-        for index in range(0, len(result_set), 1):
-            amounts: str = " ".join(findall(r"[\d\sA-Z]+", result_set[index]))
-            amount: str = self.__extractDataDomesticCivilCivilStateCapitalAmount(amounts)
-            response = self.___extractDataDomesticCivilCivilStateCapitalAmount(response, amount)
+        result_set = [value for value in result_set if bool(search(r"[\d\sA-z]+", value)) == True]
+        result_set = [value for value in result_set if "/" not in value]
+        result_set = [value for value in result_set if bool(search(r"[\d]+", value)) == True]
+        result_set = [value for value in result_set if bool(search(r"[a-z]+", value)) == True]
+        response: List[int] = [int(value.split(" ")[0]) for value in result_set if bool(search(r"[\d]+", value)) == True]
         return response
-
-    def ___extractDataDomesticCivilCivilStateCapitalAmount(self, response: List[int], amount: str) -> List[int]:
-        """
-        Building the array which contains the amount of shares of
-        the stated capital for a société civile.
-
-        Parameters:
-            response: [int]: The array to be returned.
-            amount: str: The amount to be processed.
-
-        Returns:
-            [int]
-        """
-        if amount != "NaA":
-            response.append(int(amount))
-        return response
-
-    def __extractDataDomesticCivilCivilStateCapitalAmount(self, amount: str) -> str:
-        """
-        Retrieving the correct value for the amount of shares for a
-        stated capital for a société civile.
-
-        Parameters:
-            amount: string: The value to be processed.
-
-        Returns:
-            string
-        """
-        if bool(search(r"[\d]+", amount)) and bool(search(r"[A-Z]+", amount)):
-            return " ".join(findall(r"[\d]+", amount))
-        else:
-            return "NaA"
 
     def _extractDataDomesticCivilCivilBusinessDetails(self, result_set: List[str]) -> Union[List[Dict[str, str]], Dict[str, str]]:
         """
