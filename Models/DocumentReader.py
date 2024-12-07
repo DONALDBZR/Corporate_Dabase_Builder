@@ -2151,8 +2151,6 @@ class Document_Reader:
         result_set = [value for value in result_set if value not in types]
         amounts: List[int] = self._extractDataDomesticCivilCivilStateCapitalAmount(result_set)
         currencies: List[str] = self._extractDataDomesticCivilCivilStateCapitalCurrency(result_set)
-        print(f"{'-' * 10}\n{types=}\n{'-' * 10}\n{amounts=}\n{'-' * 10}\n{currencies=}\n{'-' * 10}")
-        exit()
         result_set = [value for value in result_set if value not in currencies]
         stated_capitals: List[int] = self._extractDataDomesticCivilCivilStateCapitalStatedCapital(result_set)
         result_set = [value for value in result_set if value not in str(amounts)]
