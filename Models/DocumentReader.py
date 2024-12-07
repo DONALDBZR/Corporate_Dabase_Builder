@@ -2129,8 +2129,10 @@ class Document_Reader:
             [{type: string, amount: int, currency: string, state_capital: int, amount_unpaid: int, par_value: int}]
         """
         response: List[Dict[str, Union[str, int]]] = []
-        start_index: int = result_set.index("Particulars of Stated Capital") + 1
-        end_index: int = result_set.index("Office Bearers")
+        start_header: str = "Particulars of Stated Capital"
+        end_header: str = "Office Bearers"
+        start_index: int = result_set.index(start_header) + 1
+        end_index: int = result_set.index(end_header)
         result_set = result_set[start_index:end_index]
         result_set = [value for value in result_set if "Type of Shares" not in value]
         result_set = [value for value in result_set if "No. of Shares Currency" not in value]
@@ -2138,8 +2140,17 @@ class Document_Reader:
         result_set = [value for value in result_set if "Amount Unpaid" not in value]
         result_set = [value for value in result_set if "Valeur" not in value]
         result_set = [value for value in result_set if "Nominale" not in value]
+        result_set = [value for value in result_set if "Name" not in value]
+        result_set = [value for value in result_set if "Service Address" not in value]
+        result_set = [value for value in result_set if "Appointed Date" not in value]
+        result_set = [value for value in result_set if "Currency" not in value]
+        result_set = [value for value in result_set if "Start Date" not in value]
+        result_set = [value for value in result_set if "End Date" not in value]
+        result_set = [value for value in result_set if "Status" not in value]
         types: List[str] = self._extractDataDomesticCivilCivilStateCapitalTypes(result_set)
         result_set = [value for value in result_set if value not in types]
+        print(f"{'-' * 10}\n{types=}\n{'-' * 10}\n{result_set=}\n{'-' * 10}")
+        exit()
         amounts: List[int] = self._extractDataDomesticCivilCivilStateCapitalAmount(result_set)
         currencies: List[str] = self._extractDataDomesticCivilCivilStateCapitalCurrency(result_set)
         result_set = [value for value in result_set if value not in currencies]
@@ -2263,44 +2274,10 @@ class Document_Reader:
         Returns:
             [string]
         """
-        response: List[str] = []
-        for index in range(0, len(result_set), 1):
-            types: str = " ".join(findall(r"^[A-z\s]+", result_set[index]))
-            type: str = self.__extractDataDomesticCivilCivilStateCapitalTypes(types)
-            response = self.___extractDataDomesticCivilCivilStateCapitalTypes(response, type)
+        result_set = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True]
+        result_set = [value for value in result_set if bool(search(r"[\d]", value)) == False]
+        response: List[str] = [value for value in result_set if bool(search(r"[a-z]+", value)) == False]
         return response
-
-    def ___extractDataDomesticCivilCivilStateCapitalTypes(self, response: List[str], type: str) -> List[str]:
-        """
-        Building the response to be returned with the types of
-        shares.
-
-        Parameters:
-            response: [string]: The data to be returned.
-            type: string: The type of shares.
-
-        Returns:
-            [string]
-        """
-        if type != "NaT":
-            response.append(type)
-        return response
-
-    def __extractDataDomesticCivilCivilStateCapitalTypes(self, types: str) -> str:
-        """
-        Processing the types of shares to be returned for
-        processing.
-
-        Parameters:
-            types: string: The data to be processed.
-
-        Returns:
-            string
-        """
-        if types != "":
-            return types
-        else:
-            return "NaT"
 
     def _extractDataDomesticCivilCivilStateCapitalCurrency(self, result_set: List[str]) -> List[str]:
         """
