@@ -1708,15 +1708,7 @@ class Builder:
         date_end: int = 0
         for index in range(0, len(logs), 1):
             date_end = self._getDateEndFinCorpLogs(logs[index], date_end)
-        return datetime.strftime(
-            datetime.strptime(
-                datetime.fromtimestamp(date_end).strftime("%m/%d/%Y"),
-                "%m/%d/%Y"
-            ) + timedelta(
-                days=1
-            ),
-            "%m/%d/%Y"
-        )
+        return datetime.strftime(datetime.strptime(datetime.fromtimestamp(date_end).strftime("%m/%d/%Y"), "%m/%d/%Y") + timedelta(days=1), "%m/%d/%Y")
 
     def _getDateStartFinCorpLogs(self, log: FinCorpLogs, date_start: int) -> int:
         """
