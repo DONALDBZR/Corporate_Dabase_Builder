@@ -1637,10 +1637,7 @@ class Builder:
         quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
         successful_logs: List[FinCorpLogs] = self.getFinCorpLogs().getSuccessfulRunsLogs("collectCorporateMetadata")
         if len(successful_logs) == 1 and successful_logs[0].status == 204:
-            date_to = datetime.strftime(
-                datetime.strptime(quarter.start_date, "%m/%d/%Y") + timedelta(weeks=1),
-                "%m/%d/%Y"
-            )
+            date_to: str = datetime.strftime(datetime.strptime(quarter.start_date, "%m/%d/%Y") + timedelta(weeks=2), "%m/%d/%Y")
             request = {
                 "start_date": quarter.start_date,
                 "end_date": date_to
