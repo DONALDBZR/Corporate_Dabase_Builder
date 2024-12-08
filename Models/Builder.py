@@ -1693,23 +1693,6 @@ class Builder:
             date_end = logs[index].date_to if logs[index].date_to > date_end else date_end
         return datetime.strftime(datetime.strptime(datetime.fromtimestamp(date_end).strftime("%m/%d/%Y"), "%m/%d/%Y") + timedelta(days=1), "%m/%d/%Y")
 
-    def _getDateStartFinCorpLogs(self, log: FinCorpLogs, date_start: int) -> int:
-        """
-        Retrieving the date start from the log data and comparing to
-        retrieve the earliest one.
-
-        Parameters:
-            log: FinCorpLogs
-            date_start: int
-
-        Returns:
-            int
-        """
-        if log.date_start < date_start:
-            return log.date_start
-        else:
-            return date_start
-
     def getDateEnd(self, logs: List[FinCorpLogs]) -> str:
         """
         Retrieving the next end date for the data collection which
@@ -1724,16 +1707,8 @@ class Builder:
         """
         date_start: int = int(time())
         for index in range(0, len(logs), 1):
-            date_start = self._getDateStartFinCorpLogs(logs[index], date_start)
-        return datetime.strftime(
-            datetime.strptime(
-                datetime.fromtimestamp(date_start).strftime("%m/%d/%Y"),
-                "%m/%d/%Y"
-            ) - timedelta(
-                days=1
-            ),
-            "%m/%d/%Y"
-        )
+            date_start = logs[index].date_start if logs[index].date_start < date_start else date_start
+        return datetime.strftime(datetime.strptime(datetime.fromtimestamp(date_start).strftime("%m/%d/%Y"), "%m/%d/%Y") - timedelta(days=1), "%m/%d/%Y")
 
     def handleRequestCollectCorporateMetadata(self, logs: List[FinCorpLogs]) -> Dict[str, str]:
         """
