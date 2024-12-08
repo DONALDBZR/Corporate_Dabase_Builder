@@ -1677,23 +1677,6 @@ class Builder:
                 f"{self.ENV.getDirectory()}/Cache/CorporateDataCollection/{files[index]}"
             )
 
-    def _getDateEndFinCorpLogs(self, log: FinCorpLogs, date_end: int) -> int:
-        """
-        Retrieving the date end from the log data and comparing to
-        retrieve the latest one.
-
-        Parameters:
-            log: FinCorpLogs
-            date_end: int
-
-        Returns:
-            int
-        """
-        if log.date_to > date_end:
-            return log.date_to
-        else:
-            return date_end
-
     def getDateStart(self, logs: List[FinCorpLogs]) -> str:
         """
         Retrieving the next start date for the data collection which
@@ -1707,7 +1690,7 @@ class Builder:
         """
         date_end: int = 0
         for index in range(0, len(logs), 1):
-            date_end = self._getDateEndFinCorpLogs(logs[index], date_end)
+            date_end = logs[index].date_to if logs[index].date_to > date_end else date_end
         return datetime.strftime(datetime.strptime(datetime.fromtimestamp(date_end).strftime("%m/%d/%Y"), "%m/%d/%Y") + timedelta(days=1), "%m/%d/%Y")
 
     def _getDateStartFinCorpLogs(self, log: FinCorpLogs, date_start: int) -> int:
