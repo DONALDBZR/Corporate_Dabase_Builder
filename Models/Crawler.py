@@ -24,6 +24,7 @@ from typing import Any, List, Dict, Union, Tuple
 from selenium.webdriver.common.action_chains import ActionChains
 from Models.CompanyDetails import Company_Details
 from datetime import datetime
+from time import sleep
 import time
 import logging
 import os
@@ -736,82 +737,37 @@ class Crawler:
         Returns:
             {status: int, amount: int}
         """
-        delay: float = (
-            (
-                self.ENV.calculateDelay(date_from) +
-                self.ENV.calculateDelay(date_to)
-            ) / 2
-        ) * (
-            1.1 ** coefficient
-        )
-        delay = self.__randomDelay(
-            delay
-        )
-        amount: int
-        response: Dict[str, int] = {}
-        self.setHtmlTag(
-            self.getDriver().find_element(
-                By.XPATH,
-                f"{self.ENV.getTargetApplicationRootXpath()}/cbris-header/div/div/form/div/div[2]/div[2]/div[1]/input"
-            )
-        )
-        self.__moveMouse(
-            self.getHtmlTag()
-        )
+        delay: float = ((self.ENV.calculateDelay(date_from) + self.ENV.calculateDelay(date_to)) / 2) * (1.1 ** coefficient)
+        delay = self.__randomDelay(delay)
+        self.setHtmlTag(self.getDriver().find_element(By.XPATH, f"{self.ENV.getTargetApplicationRootXpath()}/cbris-header/div/div/form/div/div[2]/div[2]/div[1]/input"))
+        self.__moveMouse(self.getHtmlTag())
         self.getHtmlTag().send_keys(date_from)
-        time.sleep(delay)
-        self.getLogger().inform(
-            f"The start date has been injected.\nDate From: {date_from}\nDelay: {delay} s"
-        )
-        self.setHtmlTag(
-            self.getDriver().find_element(
-                By.XPATH,
-                f"{self.ENV.getTargetApplicationRootXpath()}/cbris-header/div/div/form/div/div[2]/div[2]/div[2]/input"
-            )
-        )
-        self.__moveMouse(
-            self.getHtmlTag()
-        )
+        sleep(delay)
+        self.getLogger().inform(f"The start date has been injected.\nDate From: {date_from}\nDelay: {delay} s")
+        self.setHtmlTag(self.getDriver().find_element(By.XPATH, f"{self.ENV.getTargetApplicationRootXpath()}/cbris-header/div/div/form/div/div[2]/div[2]/div[2]/input"))
+        self.__moveMouse(self.getHtmlTag())
         self.getHtmlTag().send_keys(date_to)
-        time.sleep(delay)
-        self.getLogger().inform(
-            f"The end date has been injected.\nDate To: {date_to}\nDelay: {delay} s"
-        )
-        self.setHtmlTag(
-            self.getDriver().find_element(
-                By.XPATH,
-                f"{self.ENV.getTargetApplicationRootXpath()}/cbris-header/div/div/form/div/div[2]/div[3]/div[2]/button"
-            )
-        )
-        self.__moveMouse(
-            self.getHtmlTag()
-        )
+        sleep(delay)
+        self.getLogger().inform(f"The end date has been injected.\nDate To: {date_to}\nDelay: {delay} s")
+        self.setHtmlTag(self.getDriver().find_element(By.XPATH, f"{self.ENV.getTargetApplicationRootXpath()}/cbris-header/div/div/form/div/div[2]/div[3]/div[2]/button"))
+        self.__moveMouse(self.getHtmlTag())
         self.handleSearch()
-        time.sleep(delay)
+        sleep(delay)
         data_amount: str = self.getDataAmountRetrieveCorporateMetadata(delay, coefficient)
-        amount = int(data_amount)
-        self.getLogger().inform(
-            f"Search completed for corporate metadata between {date_from} and {date_to}\nDate From: {date_from}\nDate To: {date_to}\nAmount: {amount}"
-        )
-        self.setHtmlTag(
-            self.getDriver().find_element(
-                By.XPATH,
-                f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[1]/table/tbody"
-            )
-        )
-        table_body = self.getHtmlTag()
+        amount: int = int(data_amount)
+        self.getLogger().inform(f"Search completed for corporate metadata between {date_from} and {date_to}\nDate From: {date_from}\nDate To: {date_to}\nAmount: {amount}")
+        self.setHtmlTag(self.getDriver().find_element(By.XPATH, f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[1]/table/tbody"))
+        table_body: WebElement = self.getHtmlTag()
         self.interceptCookie()
         self.setHtmlTag(table_body)
         self.readCacheCorporateDataCollection()
-        amount_data_found = len(self.getCorporateMetadata())
+        amount_data_found: int = len(self.getCorporateMetadata())
         self.scrapeMetadata(amount_data_found, 10, amount, delay)
-        response = {
+        response: Dict[str, int] = {
             "status": 200,
             "amount": amount
         }
-        self.getLogger().inform(
-            f"The metadata has been retrieved and stored in the cache database.\nStatus: {response['status']}\nAmount: {response['amount']}"
-        )
+        self.getLogger().inform(f"The metadata has been retrieved and stored in the cache database.\nStatus: {response['status']}\nAmount: {response['amount']}")
         return response
 
     def getDataAmountRetrieveCorporateMetadata(self, delay: float, coefficient: int) -> str:
