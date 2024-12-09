@@ -1724,7 +1724,7 @@ class Builder:
         date_start: str
         date_end: str
         date_start = self.getDateStart(logs)
-        date_end = datetime.strftime(datetime.strptime(date_start, "%m/%d/%Y") + timedelta(weeks=2), "%m/%d/%Y")
+        date_end = datetime.strftime(datetime.strptime(date_start, "%m/%d/%Y") + timedelta(weeks=4), "%m/%d/%Y")
         date_end_unixtime: float = datetime.strptime(date_end, "%m/%d/%Y").timestamp()
         current_date: datetime = datetime.now() - timedelta(days=1)
         current_time: float = current_date.timestamp()
