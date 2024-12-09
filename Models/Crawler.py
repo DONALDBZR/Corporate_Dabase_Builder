@@ -763,8 +763,13 @@ class Crawler:
         self.readCacheCorporateDataCollection()
         amount_data_found: int = len(self.getCorporateMetadata())
         self.scrapeMetadata(amount_data_found, 10, amount, delay)
+        status: int = 0
+        status = 404 if amount == 0 else status
+        status = 429 if amount_data_found == 0 and amount != 0 else status
+        status = 200 if (amount_data_found / amount) >= 0.5 else status
+        status = 409 if (amount_data_found / amount) < 0.5 else status
         response: Dict[str, int] = {
-            "status": 200,
+            "status": status,
             "amount": amount
         }
         self.getLogger().inform(f"The metadata has been retrieved and stored in the cache database.\nStatus: {response['status']}\nAmount: {response['amount']}")
