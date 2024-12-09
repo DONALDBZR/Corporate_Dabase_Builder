@@ -782,41 +782,28 @@ class Crawler:
         Returns:
             string
         """
-        data_amount_element: WebElement = self.getDriver().find_element(
-            By.XPATH,
-            f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[2]/mat-paginator/div/div/div[2]/div"
-        )
-        search_button: WebElement = self.getDriver().find_element(
-            By.XPATH,
-            f"{self.ENV.getTargetApplicationRootXpath()}/cbris-header/div/div/form/div/div[2]/div[3]/div[2]/button"
-        )
+        data_amount_element: WebElement = self.getDriver().find_element(By.XPATH, f"{self.ENV.getTargetApplicationRootXpath()}/cbris-search-results/lib-mns-universal-table/div/div[2]/mat-paginator/div/div/div[2]/div")
+        search_button: WebElement = self.getDriver().find_element(By.XPATH, f"{self.ENV.getTargetApplicationRootXpath()}/cbris-header/div/div/form/div/div[2]/div[3]/div[2]/button")
         dataset: str = data_amount_element.text
         loading_icon: WebElement
+        condition: bool = "1 – 10 of " in dataset
         if "1 – 10 of " in dataset:
-            self.getLogger().inform(
-                f"Search in progress!\nDataset Amount: {dataset.replace('1 – 10 of ', '')}\nDelay: {delay} s\nCo-efficient: {coefficient}"
-            )
+            self.getLogger().inform(f"Search in progress!\nDataset Amount: {dataset.replace('1 – 10 of ', '')}\nDelay: {delay} s\nCo-efficient: {coefficient}")
             return dataset.replace("1 – 10 of ", "")
-        else:
-            coefficient += 1
-            delay = delay * (1.1 ** coefficient)
-            self.getLogger().error(
-                f"The search has failed and the dataset amount cannot be recovered!  The application will try again.\nDelay: {delay} s\nCo-efficient: {coefficient}"
-            )
-            loading_icon = self.getDriver().find_element(
-                By.TAG_NAME,
-                "cbris-spinner"
-            )
-            self.setHtmlTag(loading_icon)
-            self.getDriver().execute_script(
-                "arguments[0].style.display = 'none';",
-                self.getHtmlTag()
-            )
-            self.interceptCookie()
-            self.setHtmlTag(search_button)
-            self.handleSearch()
-            time.sleep(delay)
-            return self.getDataAmountRetrieveCorporateMetadata(delay, coefficient)
+        if int(dataset.split(" of ")[-1]) > 0:
+            self.getLogger().inform(f"Search in progress!\nDataset Amount: {dataset.split(' of ')[-1]}\nDelay: {delay} s\nCo-efficient: {coefficient}")
+            return dataset.split(" of ")[-1]
+        coefficient += 1
+        delay = delay * (1.1 ** coefficient)
+        self.getLogger().error(f"The search has failed and the dataset amount cannot be recovered!  The application will try again.\nDelay: {delay} s\nCo-efficient: {coefficient}")
+        loading_icon = self.getDriver().find_element(By.TAG_NAME, "cbris-spinner")
+        self.setHtmlTag(loading_icon)
+        self.getDriver().execute_script("arguments[0].style.display = 'none';", self.getHtmlTag())
+        self.interceptCookie()
+        self.setHtmlTag(search_button)
+        self.handleSearch()
+        sleep(delay)
+        return self.getDataAmountRetrieveCorporateMetadata(delay, coefficient)
 
     def scrapeMetadata(self, amount_data_found: int, amount_data_per_page: int, amount: int, delay: float) -> None:
         """
