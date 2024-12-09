@@ -1742,38 +1742,22 @@ class Builder:
         into the database server.
 
         Parameters:
-            response: object
-            request: object
+            response: {status: int, amount: int}: The response from the crawler.
+            request: {start_date: string, end_date: string}: The request for the crawler.
             quarter: FinancialCalendar
 
         Returns:
             void
         """
         method_name: str = "collectCorporateMetadata"
-        # recipient: str = "jeromeb@finclub.mu"
-        # carbon_copy: str = "andygaspard@hotmail.com, andyg@finclub.mu"
-        # subject: str = "Corporate Database Builder: Module 1: Indexation"
-        # message: str
         date_start = int(datetime.strptime(str(request["start_date"]), "%m/%d/%Y").timestamp())
         date_end = int(datetime.strptime(str(request["end_date"]), "%m/%d/%Y").timestamp())
-        # self.setMailer(Mail())
-        if response["status"] == 200:
-            parameters: Tuple[str, str, int, int, int, int, int] = (method_name, quarter.quarter, date_start, date_end, int(response["status"]), int(response["amount"]), len(self.getCrawler().getCorporateMetadata()))
-            self.setData(self.getCrawler().getCorporateMetadata())
-            self.getCrawler().getDriver().quit()
-            self.getLogger().inform("Storing the corporate metadata!")
-            self.storeCorporateMetadata()
-            # message = f"The Corporate Database Builder has indexed {len(self.getCrawler().getCorporateMetadata())} companies from {request['start_date']} to {request['end_date']}.  Please note that it is a computer generated mail.  For any communication, contact the ones that are attached as carbon copies."
-            # self.getMailer().send(recipient, subject, message, carbon_copy)
-            self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(parameters)  # type: ignore
-        else:
-            parameters: Tuple[str, str, int, int, int, int, int] = (method_name, quarter.quarter, date_start, date_end, int(response["status"]), 0, 0)
-            self.getCrawler().getDriver().quit()
-            self.getFinCorpLogs().postFailedCorporateDataCollectionRun(parameters)  # type: ignore
-            self.getLogger().error(f"The application has failed to collect the data!  Please check the logs!\nStatus: {response['status']}")
-            # message = f"The Corporate Database Builder has failed to index companies from {request['start_date']} to {request['end_date']}.  Please extract and check the logs from the processing server.  Please note that it is a computer generated mail.  For any communication, contact the ones that are attached as carbon copies."
-            # self.getMailer().send(recipient, subject, message, carbon_copy)
-            raise Exception(f"The application has failed to collect the data!  Please check the logs!\nStatus: {response['status']}")
+        parameters: Tuple[str, str, int, int, int, int, int] = (method_name, quarter.quarter, date_start, date_end, int(response["status"]), int(response["amount"]), len(self.getCrawler().getCorporateMetadata()))
+        self.setData(self.getCrawler().getCorporateMetadata())
+        self.getCrawler().getDriver().quit()
+        self.getLogger().inform("Storing the corporate metadata!")
+        self.storeCorporateMetadata()
+        self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(parameters)  # type: ignore
 
     def storeCorporateMetadata(self) -> None:
         """
