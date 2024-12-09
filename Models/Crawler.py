@@ -824,27 +824,15 @@ class Crawler:
         table_body = self.getHtmlTag()
         for index in range(0, amount_page, 1):
             self.readCacheCorporateDataCollection()
-            self.setHtmlTags(
-                table_body.find_elements(
-                    By.TAG_NAME,
-                    "tr"
-                )
-            )
+            self.setHtmlTags(table_body.find_elements(By.TAG_NAME, "tr"))
             amount = data_amount
             self.getPageTableData(amount_data_found, amount)
             amount_data_found += amount_data_per_page
             done: float = (amount_data_found / amount) * 100
-            self.getLogger().debug(
-                f"The extraction of corporate metadata is in progress.\nAmount of data found: {amount_data_found}\nIteration: {index}\nDone: {done}%"
-            )
+            self.getLogger().debug(f"The extraction of corporate metadata is in progress.\nAmount of data found: {amount_data_found}\nIteration: {index}\nDone: {done}%")
             self.writeCacheCorporateDataCollection()
             self.nextPage(delay)
-            self.setHtmlTag(
-                self.getDriver().find_element(
-                    By.XPATH,
-                    self.ENV.getTargetApplicationRootXpath()
-                )
-            )
+            self.setHtmlTag(self.getDriver().find_element(By.XPATH, self.ENV.getTargetApplicationRootXpath()))
 
     def elementInViewport(self) -> bool:
         """
