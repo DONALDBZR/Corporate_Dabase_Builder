@@ -182,3 +182,21 @@ class Business_Details(Database_Handler):
         except Error as error:
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: 503\nError: {error}")
             return []
+
+    def _getBusinessDetailsData(self, dataset: Union[List[RowType], List[Dict[str, Union[int, str, None]]]]) -> Dict[str, Union[int, List[BusinessDetails]]]:
+        """
+        Retrieving the data into the correct data type for the
+        application.
+
+        Parameters:
+            dataset: [{identifier: int, CompanyDetail: int, registered_address: string|null, name: string|null, nature: string|null, operational_address: string|null}]: The data from the relational database server.
+
+        Returns:
+            {status: int, data: [{identifier: int, CompanyDetail: int, registered_address: string|null, name: string|null, nature: string|null, operational_address: string|null}]}
+        """
+        status: int = 200 if len(dataset) > 0 else 204
+        data: List[BusinessDetails] = [BusinessDetails(business_detail) for business_detail in dataset] if len(dataset) > 0 else []
+        return {
+            "status": status,
+            "data": data
+        }
