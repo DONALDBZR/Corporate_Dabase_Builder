@@ -4,12 +4,15 @@ Details table.
 
 Authors:
     Andy Ewen Gaspard
+    Darkness4869
 """
 
 
 from Models.DatabaseHandler import Database_Handler
-from typing import Dict, Tuple
+from typing import Dict, Tuple, List, Union
 from mysql.connector.errors import Error
+from Data.BusinessDetails import BusinessDetails
+from mysql.connector.types import RowType
 
 
 class Business_Details(Database_Handler):
@@ -161,3 +164,21 @@ class Business_Details(Database_Handler):
             response = 503
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {response}\nError: {error}")
         return response
+
+    def getBusinessDetails(self) -> List[BusinessDetails]:
+        """
+        Retrieving the data from the Business Details for curation.
+
+        Returns:
+            [{identifier: int, CompanyDetail: int, registered_address: string|null, name: string|null, nature: string|null, operational_address: string|null}]
+        """
+        try:
+            data: Union[List[RowType], List[Dict[str, Union[int, str, None]]]] = self.getData(
+                table_name=self.getTableName()
+            )
+            response: Dict[str, Union[int, List[BusinessDetails]]] = self._getBusinessDetailsData(data)
+            self.getLogger().inform(f"The data from {self.getTableName()} has been retrieved!\nStatus: {response['status']}\nData: {response['data']}")
+            return response['data']  # type: ignore
+        except Error as error:
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: 503\nError: {error}")
+            return []
