@@ -512,3 +512,29 @@ class Company_Details(Database_Handler):
             return 204
         else:
             return 200
+
+    def getCompanyDetailsInIdentifiers(self, identifiers: List[int]) -> List[CompanyDetails]:
+        """
+        Retrieving the list of companies that are within a specific
+        range of identifiers.
+
+        Parameters:
+            identifiers: [int]: The list of the identifiers of the companies.
+
+        Returns:
+            [{identifier: int, business_registration_number: string|null, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int|null, is_extracted: int, company_type: string|null, company_identifier: int|null}]
+        """
+        range: str = ", ".join(map(str, identifiers))
+        parameters: Tuple[str] = (range,)
+        try:
+            data: Union[List[RowType], List[Dict[str, Union[int, str, None]]]] = self.getData(
+                table_name=self.getTableName(),
+                parameters=parameters,
+                filter_condition="identifier IN (%s)"
+            )
+            response: Dict[str, Union[int, List[CompanyDetails]]] = self._getCompanyDetailsInIdentifiers(data)
+            self.getLogger().inform(f"The data from {self.getTableName()} has been retrieved!\nStatus: {response['status']}\nData: {response['data']}")
+            return response["data"] # type: ignore
+        except Error as error:
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: 503\nError: {error}")
+            return []
