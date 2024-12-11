@@ -1808,7 +1808,9 @@ class Builder:
         The erroneous registered addresses have to be sanitized for
         the geographical information system to be able to process it
         afterwards.  The names have to be sanitized to reflect the
-        companies they are affliated with.
+        companies they are affliated with.  The natures have to be
+        sanitized to be processed afterwards to obtain the sector of
+        activity of the company by doing a sentiment analysis.
 
         Returns:
             void
@@ -1819,6 +1821,7 @@ class Builder:
         self.setCompanyDetailsData([self.getCompanyDetails().getSpecificCompanyDetails(identifier) for identifier in list(set([business_detail.CompanyDetail for business_detail in self.getBusinessDetailsData()]))])
         self.sanitizeBusinessDetailsErroneousRegisteredAddresses()
         self.sanitizeBusinessDetailsName()
+        self.sanitizeBusinessDetailsNature()
         print(f"{line_break}\n{quarter=}\n{line_break}\nBusiness Details (Amount): {len(self.getBusinessDetailsData())}\n{line_break}\nCompanies (Amount): {len(self.getCompanyDetailsData())}\n{line_break}")
         exit()
 
@@ -1959,3 +1962,20 @@ class Builder:
         self.sanitizeBusinessDetailsNameNoNameDomesticCompanies()
         self.sanitizeBusinessDetailsNameAddressesAsNames()
         self.sanitizeBusinessDetailsNameNamesAsNatures()
+
+    def sanitizeBusinessDetailsNature(self) -> None:
+        """
+        The natures have to be sanitized to be processed afterwards
+        to obtain the sector of activity of the company by doing a
+        sentiment analysis.
+
+        Returns:
+            void
+        """
+        general_retailers: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "general retailer" in business_detail.nature.lower()]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail not in general_retailers]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the natures for the general retailers.\nAmount: {len(general_retailers)}")
+        for index in range(0, len(general_retailers), 1):
+            general_retailers[index].nature = "General Retailer"
+        self.setBusinessDetailsData(general_retailers + filtered_business_details)
