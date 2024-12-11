@@ -1816,9 +1816,22 @@ class Builder:
         quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
         self.setBusinessDetailsData(self.getBusinessDetails().getBusinessDetails())
         self.setCompanyDetailsData([self.getCompanyDetails().getSpecificCompanyDetails(identifier) for identifier in list(set([business_detail.CompanyDetail for business_detail in self.getBusinessDetailsData()]))])
-        # Filtering errorneous registered addresses. (START)
+        self.sanitizeErroneousRegisteredAddresses()
+        print(f"{line_break}\n{quarter=}\n{line_break}\nBusiness Details (Amount): {len(self.getBusinessDetailsData())}\n{line_break}\nCompanies (Amount): {len(self.getCompanyDetailsData())}\n{line_break}")
+        exit()
+
+    def sanitizeErroneousRegisteredAddresses(self) -> None:
+        """
+        Sanitizing the registered addresses that are going to be
+        used by the geographical information system to be able to
+        process it afterwards.
+
+        Returns:
+            void
+        """
         erroneous_registered_addresses: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.registered_address != None and bool(search(r"\d", business_detail.registered_address)) == True]
         filtered_business_details: List[BusinessDetails] = [business_details for business_details in self.getBusinessDetailsData()if business_details not in erroneous_registered_addresses]
+        self.setBusinessDetailsData([])
         for index in range(0, len(erroneous_registered_addresses), 1):
             registered_addresses: List[str] = erroneous_registered_addresses[index].registered_address.split(" ") # type: ignore
             registered_addresses = [address for address in registered_addresses if address != ""]
@@ -1845,6 +1858,4 @@ class Builder:
             registered_addresses = [address.capitalize() for address in registered_addresses]
             registered_address: str = " ".join(registered_addresses)
             erroneous_registered_addresses[index].registered_address = registered_address
-        # Filtering errorneous registered addresses. (END)
-        print(f"{line_break}\n{quarter=}\n{line_break}\nBusiness Details (Amount): {len(self.getBusinessDetailsData())}\n{line_break}\nCompanies (Amount): {len(self.getCompanyDetailsData())}\n{line_break}\nErroneous Registered Addresses (Amount): {len(erroneous_registered_addresses)}\n{line_break}\nFiltered Business Details (Amount): {len(filtered_business_details)}\n{line_break}")
-        exit()
+        self.setBusinessDetailsData(filtered_business_details + erroneous_registered_addresses)
