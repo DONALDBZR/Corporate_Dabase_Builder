@@ -1974,6 +1974,7 @@ class Builder:
         """
         self.sanitizeBusinessDetailsNatureGeneralRetailers()
         self.sanitizeBusinessDetailsNatureOtherBusinessSupportServiceActivities()
+        self.sanitizeBusinessDetailsNatureFirms()
 
     def sanitizeBusinessDetailsNatureGeneralRetailers(self) -> None:
         """
@@ -2005,3 +2006,18 @@ class Builder:
         for index in range(0, len(other_business_support_service_activities), 1):
             other_business_support_service_activities[index].nature = "Other Business Support Service Activities"
         self.setBusinessDetailsData(other_business_support_service_activities + filtered_business_details)
+
+    def sanitizeBusinessDetailsNatureFirms(self) -> None:
+        """
+        Sanitizing the natures there are firms in the nature.
+
+        Returns:
+            void
+        """
+        firms: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "(firm)" in business_detail.nature.lower()]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail not in firms]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the natures there are firms in the nature.\nAmount: {len(firms)}")
+        for index in range(0, len(firms), 1):
+            firms[index].nature.replace("(Firm)", "") # type: ignore
+        self.setBusinessDetailsData(firms + filtered_business_details)
