@@ -1978,6 +1978,7 @@ class Builder:
         self.sanitizeBusinessDetailsNatureGeneralRetailers()
         self.sanitizeBusinessDetailsNatureOtherBusinessSupportServiceActivities()
         self.sanitizeBusinessDetailsNatureFirms()
+        self.sanitizeBusinessDetailsNatureNotElsewhereClassified()
 
     def sanitizeBusinessDetailsNatureGeneralRetailers(self) -> None:
         """
@@ -2025,3 +2026,18 @@ class Builder:
             nature: str = firms[index].nature.replace("(Firm)", "") # type: ignore
             firms[index].nature = nature
         self.setBusinessDetailsData(firms + filtered_business_details)
+
+    def sanitizeBusinessDetailsNatureNotElsewhereClassified(self) -> None:
+        """
+        Sanitizing the natures there are NEC.
+
+        Returns:
+            void
+        """
+        others: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "N.E.C" in business_detail.nature.upper()]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail not in others]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the natures there are NEC.\nAmount: {len(others)}")
+        for index in range(0, len(others), 1):
+            others[index].nature = "Other Business Support Service Activities"
+        self.setBusinessDetailsData(others + filtered_business_details)
