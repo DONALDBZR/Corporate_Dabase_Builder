@@ -1930,6 +1930,22 @@ class Builder:
             addresses_as_names[index].name = company_detail.name
         self.setBusinessDetailsData(addresses_as_names + filtered_business_data)
 
+    def sanitizeBusinessDetailsNameNamesAsNatures(self) -> None:
+        """
+        Sanitizing the names where they are the natures.
+
+        Returns:
+            void
+        """
+        names_as_natures: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.name != None and business_detail.name == business_detail.nature]
+        filtered_business_data: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail not in names_as_natures]
+        self.getLogger().inform(f"Business Details: Name: The names are being sanitized where the business name are the business natures which are the country names will be replaced by their company names.\nAmount: {len(names_as_natures)}")
+        self.setBusinessDetailsData([])
+        for index in range(0, len(names_as_natures), 1):
+            company_detail: CompanyDetails = [company_detail for company_detail in self.getCompanyDetailsData() if company_detail.identifier == names_as_natures[index].CompanyDetail][0]
+            names_as_natures[index].name = company_detail.name
+        self.setBusinessDetailsData(names_as_natures + filtered_business_data)
+
     def sanitizeBusinessDetailsName(self) -> None:
         """
         Sanitizing the names to reflect the companies they are
@@ -1942,11 +1958,4 @@ class Builder:
         self.sanitizeBusinessDetailsNameCountriesNames()
         self.sanitizeBusinessDetailsNameNoNameDomesticCompanies()
         self.sanitizeBusinessDetailsNameAddressesAsNames()
-        names_as_natures: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.name != None and business_detail.name == business_detail.nature]
-        filtered_business_data: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail not in names_as_natures]
-        self.getLogger().inform(f"Business Details: Name: The names are being sanitized where the business name are the business natures which are the country names will be replaced by their company names.\nAmount: {len(names_as_natures)}")
-        self.setBusinessDetailsData([])
-        for index in range(0, len(names_as_natures), 1):
-            company_detail: CompanyDetails = [company_detail for company_detail in self.getCompanyDetailsData() if company_detail.identifier == names_as_natures[index].CompanyDetail][0]
-            names_as_natures[index].name = company_detail.name
-        self.setBusinessDetailsData(names_as_natures + filtered_business_data)
+        self.sanitizeBusinessDetailsNameNamesAsNatures()
