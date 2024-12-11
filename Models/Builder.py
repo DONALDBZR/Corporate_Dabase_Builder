@@ -1973,6 +1973,7 @@ class Builder:
             void
         """
         self.sanitizeBusinessDetailsNatureGeneralRetailers()
+        self.sanitizeBusinessDetailsNatureOtherBusinessSupportServiceActivities()
 
     def sanitizeBusinessDetailsNatureGeneralRetailers(self) -> None:
         """
@@ -1988,3 +1989,19 @@ class Builder:
         for index in range(0, len(general_retailers), 1):
             general_retailers[index].nature = "General Retailer"
         self.setBusinessDetailsData(general_retailers + filtered_business_details)
+
+    def sanitizeBusinessDetailsNatureOtherBusinessSupportServiceActivities(self) -> None:
+        """
+        Sanitizing the natures for Other Business Support Service
+        Activities.
+
+        Returns:
+            void
+        """
+        other_business_support_service_activities: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "other" in business_detail.nature.lower() and "support" in business_detail.nature.lower()]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail not in other_business_support_service_activities]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the natures for other business support service activities.\nAmount: {len(other_business_support_service_activities)}")
+        for index in range(0, len(other_business_support_service_activities), 1):
+            other_business_support_service_activities[index].nature = "Other Business Support Service Activities"
+        self.setBusinessDetailsData(other_business_support_service_activities + filtered_business_details)
