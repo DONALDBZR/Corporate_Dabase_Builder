@@ -1863,10 +1863,9 @@ class Builder:
             erroneous_registered_addresses[index].registered_address = registered_address
         self.setBusinessDetailsData(filtered_business_details + erroneous_registered_addresses)
 
-    def sanitizeBusinessDetailsName(self) -> None:
+    def sanitizeBusinessDetailsNameSameNames(self) -> None:
         """
-        Sanitizing the names to reflect the companies they are
-        affliated with.
+        Sanitizing the names which are equal to ".".
 
         Returns:
             void
@@ -1879,6 +1878,16 @@ class Builder:
             company_detail: CompanyDetails = [company_detail for company_detail in self.getCompanyDetailsData() if company_detail.identifier == same_names[index].CompanyDetail][0]
             same_names[index].name = company_detail.name
         self.setBusinessDetailsData(same_names + filtered_business_data)
+
+    def sanitizeBusinessDetailsName(self) -> None:
+        """
+        Sanitizing the names to reflect the companies they are
+        affliated with.
+
+        Returns:
+            void
+        """
+        self.sanitizeBusinessDetailsNameSameNames()
         countries_names: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.name != None and "MAURITIUS" in business_detail.name.upper()]
         filtered_business_data: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail not in countries_names]
         self.getLogger().inform(f"Business Details: Name: The names are being sanitized where the values which are the country names will be replaced by their company names.\nAmount: {len(countries_names)}")
