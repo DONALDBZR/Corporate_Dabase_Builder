@@ -1823,6 +1823,9 @@ class Builder:
         self.sanitizeBusinessDetailsName()
         self.sanitizeBusinessDetailsNature()
         print(f"{line_break}\n{quarter=}\n{line_break}\nBusiness Details (Amount): {len(self.getBusinessDetailsData())}\n{line_break}\nCompanies (Amount): {len(self.getCompanyDetailsData())}\n{line_break}")
+        for index in range(0, len(self.getBusinessDetailsData()), 1):
+            iteration: int = index + 1
+            self.getLogger().debug(f"{iteration=}\n{self.getBusinessDetailsData()[index]}")
         exit()
 
     def sanitizeBusinessDetailsErroneousRegisteredAddresses(self) -> None:
@@ -1975,7 +1978,6 @@ class Builder:
         self.sanitizeBusinessDetailsNatureGeneralRetailers()
         self.sanitizeBusinessDetailsNatureOtherBusinessSupportServiceActivities()
         self.sanitizeBusinessDetailsNatureFirms()
-        self.sanitizeBusinessDetailsNatureRegisteredOffices()
 
     def sanitizeBusinessDetailsNatureGeneralRetailers(self) -> None:
         """
@@ -2020,21 +2022,6 @@ class Builder:
         self.setBusinessDetailsData([])
         self.getLogger().inform(f"Business Details: Nature: Sanitizing the natures there are firms in the nature.\nAmount: {len(firms)}")
         for index in range(0, len(firms), 1):
-            firms[index].nature.replace("(Firm)", "") # type: ignore
+            nature: str = firms[index].nature.replace("(Firm)", "") # type: ignore
+            firms[index].nature = nature
         self.setBusinessDetailsData(firms + filtered_business_details)
-
-    def sanitizeBusinessDetailsNatureRegisteredOffices(self) -> None:
-        """
-        Sanitizing the natures there are registered office in the
-        nature.
-
-        Returns:
-            void
-        """
-        registered_offices: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "registered office" in business_detail.nature.lower()]
-        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail not in registered_offices]
-        self.setBusinessDetailsData([])
-        self.getLogger().inform(f"Business Details: Nature: Sanitizing the natures there are registered office in the nature.\nAmount: {len(registered_offices)}")
-        for index in range(0, len(registered_offices), 1):
-            registered_offices[index].nature.replace(".", "").replace("(", "").replace("Registered Office", "").replace(")", "") # type: ignore
-        self.setBusinessDetailsData(registered_offices + filtered_business_details)
