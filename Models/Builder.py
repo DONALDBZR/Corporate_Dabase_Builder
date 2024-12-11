@@ -1972,6 +1972,15 @@ class Builder:
         Returns:
             void
         """
+        self.sanitizeBusinessDetailsNatureGeneralRetailers()
+
+    def sanitizeBusinessDetailsNatureGeneralRetailers(self) -> None:
+        """
+        Sanitizing the natures for the general retailers.
+
+        Returns:
+            void
+        """
         general_retailers: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "general retailer" in business_detail.nature.lower()]
         filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail not in general_retailers]
         self.setBusinessDetailsData([])
