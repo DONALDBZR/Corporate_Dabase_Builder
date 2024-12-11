@@ -7,6 +7,7 @@ Authors:
 """
 
 
+from Data.BusinessDetails import BusinessDetails
 from Data.CompanyDetails import CompanyDetails
 from Data.FinancialCalendar import FinancialCalendar
 from Data.FinCorpLogs import FinCorpLogs
@@ -28,7 +29,7 @@ from datetime import datetime, timedelta
 from Environment import Environment
 from typing import List, Tuple, Union, Dict
 from time import time, sleep
-from re import findall
+from re import findall, search
 from Models.Mail import Mail
 import os
 
@@ -117,6 +118,14 @@ class Builder:
     The model which will communicate to the mail servers for the
     application for the sending of mail notifications.
     """
+    __business_details_data: List[BusinessDetails]
+    """
+    The data of the Business Details.
+    """
+    __company_details_data: List[CompanyDetails]
+    """
+    The data of the Company Details.
+    """
 
     def __init__(self) -> None:
         """
@@ -137,6 +146,18 @@ class Builder:
         self.setShareholders(Shareholders())
         self.setMembers(Member())
         self.getLogger().inform("The builder has been initialized and all of its dependencies are injected!")
+
+    def getCompanyDetailsData(self) -> List[CompanyDetails]:
+        return self.__company_details_data
+
+    def setCompanyDetailsData(self, company_details_data: List[CompanyDetails]) -> None:
+        self.__company_details_data = company_details_data
+
+    def getBusinessDetailsData(self) -> List[BusinessDetails]:
+        return self.__business_details_data
+
+    def setBusinessDetailsData(self, business_details_data: List[BusinessDetails]) -> None:
+        self.__business_details_data = business_details_data
 
     def getCrawler(self) -> Crawler:
         return self.__crawler
@@ -1780,3 +1801,50 @@ class Builder:
                 str(CompanyDetails["status"])
             )
             self.getCompanyDetails().addCompany(parameters)  # type: ignore
+
+    def curateBusinessDetails(self) -> None:
+        """
+        Curating the data that is in the Business Details table.
+        The erroneous registered addresses have to be sanitized for
+        the geographical information system to be able to process it
+        afterwards.
+
+        Returns:
+            void
+        """
+        line_break: str = "-" * 10
+        quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
+        self.setBusinessDetailsData(self.getBusinessDetails().getBusinessDetails())
+        self.setCompanyDetailsData([self.getCompanyDetails().getSpecificCompanyDetails(identifier) for identifier in list(set([business_detail.CompanyDetail for business_detail in self.getBusinessDetailsData()]))])
+        # Filtering errorneous registered addresses. (START)
+        erroneous_registered_addresses: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.registered_address != None and bool(search(r"\d", business_detail.registered_address)) == True]
+        filtered_business_details: List[BusinessDetails] = [business_details for business_details in self.getBusinessDetailsData()if business_details not in erroneous_registered_addresses]
+        for index in range(0, len(erroneous_registered_addresses), 1):
+            registered_addresses: List[str] = erroneous_registered_addresses[index].registered_address.split(" ") # type: ignore
+            registered_addresses = [address for address in registered_addresses if address != ""]
+            registered_addresses = [address for address in registered_addresses if bool(search(r"\d", address)) == False]
+            registered_addresses = [address for address in registered_addresses if address != "No"]
+            registered_addresses = [address for address in registered_addresses if address != "No."]
+            registered_addresses = [address for address in registered_addresses if address != "Floor"]
+            registered_addresses = [address for address in registered_addresses if address != "Lot"]
+            registered_addresses = [address for address in registered_addresses if address != "Plot"]
+            registered_addresses = [address for address in registered_addresses if address != "Suite"]
+            registered_addresses = [address for address in registered_addresses if address != "Level"]
+            registered_addresses = [address for address in registered_addresses if address != "Effective"]
+            registered_addresses = [address for address in registered_addresses if address != "Date"]
+            registered_addresses = [address for address in registered_addresses if address != "For"]
+            registered_addresses = [address for address in registered_addresses if address != "Registered"]
+            registered_addresses = [address for address in registered_addresses if address != "Office"]
+            registered_addresses = [address for address in registered_addresses if address != "Address:"]
+            registered_addresses = [address for address in registered_addresses if address != "(Ex"]
+            registered_addresses = [address for address in registered_addresses if address != "Office"]
+            registered_addresses = [address for address in registered_addresses if address != "Gds"]
+            registered_addresses = [address for address in registered_addresses if address != "-"]
+            registered_addresses = [address for address in registered_addresses if address != "Apt."]
+            registered_addresses = [address for address in registered_addresses if address != "Hse"]
+            registered_addresses = [address.capitalize() for address in registered_addresses]
+            registered_address: str = " ".join(registered_addresses)
+            erroneous_registered_addresses[index].registered_address = registered_address
+        # Filtering errorneous registered addresses. (END)
+        print(f"{line_break}\n{quarter=}\n{line_break}\nBusiness Details (Amount): {len(self.getBusinessDetailsData())}\n{line_break}\nCompanies (Amount): {len(self.getCompanyDetailsData())}\n{line_break}\nErroneous Registered Addresses (Amount): {len(erroneous_registered_addresses)}\n{line_break}\nFiltered Business Details (Amount): {len(filtered_business_details)}\n{line_break}")
+        exit()
