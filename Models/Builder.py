@@ -1896,6 +1896,23 @@ class Builder:
             countries_names[index].name = company_detail.name
         self.setBusinessDetailsData(countries_names + filtered_business_data)
 
+    def sanitizeBusinessDetailsNameNoNameDomesticCompanies(self) -> None:
+        """
+        Sanitizing the names where there is no name for the domestic
+        companies.
+
+        Returns:
+            void
+        """
+        no_name_domestic_companies: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.name == None and business_detail.operational_address != None]
+        filtered_business_data: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail not in no_name_domestic_companies]
+        self.getLogger().inform(f"Business Details: Name: The names are being sanitized where there is no business name given that they are domestic companies which are the country names will be replaced by their company names.\nAmount: {len(no_name_domestic_companies)}")
+        self.setBusinessDetailsData([])
+        for index in range(0, len(no_name_domestic_companies), 1):
+            company_detail: CompanyDetails = [company_detail for company_detail in self.getCompanyDetailsData() if company_detail.identifier == no_name_domestic_companies[index].CompanyDetail][0]
+            no_name_domestic_companies[index].name = company_detail.name
+        self.setBusinessDetailsData(no_name_domestic_companies + filtered_business_data)
+
     def sanitizeBusinessDetailsName(self) -> None:
         """
         Sanitizing the names to reflect the companies they are
@@ -1906,14 +1923,7 @@ class Builder:
         """
         self.sanitizeBusinessDetailsNameSameNames()
         self.sanitizeBusinessDetailsNameCountriesNames()
-        no_name_domestic_companies: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.name == None and business_detail.operational_address != None]
-        filtered_business_data: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail not in no_name_domestic_companies]
-        self.getLogger().inform(f"Business Details: Name: The names are being sanitized where there is no business name given that they are domestic companies which are the country names will be replaced by their company names.\nAmount: {len(no_name_domestic_companies)}")
-        self.setBusinessDetailsData([])
-        for index in range(0, len(no_name_domestic_companies), 1):
-            company_detail: CompanyDetails = [company_detail for company_detail in self.getCompanyDetailsData() if company_detail.identifier == no_name_domestic_companies[index].CompanyDetail][0]
-            no_name_domestic_companies[index].name = company_detail.name
-        self.setBusinessDetailsData(no_name_domestic_companies + filtered_business_data)
+        self.sanitizeBusinessDetailsNameNoNameDomesticCompanies()
         addresses_as_names: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.name != None and "road" in business_detail.name.lower()]
         filtered_business_data: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail not in addresses_as_names]
         self.getLogger().inform(f"Business Details: Name: The names are being sanitized where they are the addresses in the names which are the country names will be replaced by their company names.\nAmount: {len(addresses_as_names)}")
