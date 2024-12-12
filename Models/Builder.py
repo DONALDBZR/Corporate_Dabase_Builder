@@ -2372,7 +2372,7 @@ class Builder:
         Returns:
             void
         """
-        head_offices: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "Head Offices" in business_detail.nature]
+        head_offices: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "head offices" in business_detail.nature.lower()]
         filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in head_offices]
         self.setBusinessDetailsData([])
         self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are head offices.\nAmount: {len(head_offices)}")
