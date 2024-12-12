@@ -1983,6 +1983,22 @@ class Builder:
         self.sanitizeBusinessDetailsNatureGeneralRetailers()
         self.sanitizeBusinessDetailsNatureWholesalers()
         self.sanitizeBusinessDetailsNatureHeadOffices()
+        self.sanitizeBusinessDetailsNatureWebPortals()
+
+    def sanitizeBusinessDetailsNatureWebPortals(self) -> None:
+        """
+        Sanitizing the nature where they are web portals.
+
+        Returns:
+            void
+        """
+        web_portals: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "Web Portals" in business_detail.nature]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in web_portals]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are web portals.\nAmount: {len(web_portals)}")
+        for index in range(0, len(web_portals), 1):
+            web_portals[index].nature = "Activities Of Head Offices"
+        self.setBusinessDetailsData(web_portals + filtered_business_details)
 
     def sanitizeBusinessDetailsNatureHeadOffices(self) -> None:
         """
