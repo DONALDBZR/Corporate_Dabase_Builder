@@ -1992,6 +1992,22 @@ class Builder:
         self.sanitizeBusinessDetailsNatureFreightTransportation()
         self.sanitizeBusinessDetailsNatureMotorVehicleRental()
         self.sanitizeBusinessDetailsNatureRentingOfPassengerCar()
+        self.sanitizeBusinessDetailsNaturePrePrimaryEducation()
+
+    def sanitizeBusinessDetailsNaturePrePrimaryEducation(self) -> None:
+        """
+        Sanitizing the nature where they are pre-primary schools.
+
+        Returns:
+            void
+        """
+        pre_primary_school: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("Pre" in business_detail.nature and "Primary" in business_detail.nature)]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in pre_primary_school]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are pre-primary schools.\nAmount: {len(pre_primary_school)}")
+        for index in range(0, len(pre_primary_school), 1):
+            pre_primary_school[index].nature = "Pre-Primary Education"
+        self.setBusinessDetailsData(pre_primary_school + filtered_business_details)
 
     def sanitizeBusinessDetailsNatureRentingOfPassengerCar(self) -> None:
         """
