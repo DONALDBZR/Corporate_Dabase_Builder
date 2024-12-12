@@ -2002,8 +2002,7 @@ class Builder:
         freight_transportations: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "Freight Transport" in business_detail.nature]
         filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in freight_transportations]
         self.setBusinessDetailsData([])
-        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are freight transportation
-        companies.\nAmount: {len(freight_transportations)}")
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are freight transportation companies.\nAmount: {len(freight_transportations)}")
         for index in range(0, len(freight_transportations), 1):
             freight_transportations[index].nature = "Freight Transport"
         self.setBusinessDetailsData(freight_transportations + filtered_business_details)
