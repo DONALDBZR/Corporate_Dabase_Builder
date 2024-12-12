@@ -1988,6 +1988,23 @@ class Builder:
         self.sanitizeBusinessDetailsNatureInvestmentCompanies()
         self.sanitizeBusinessDetailsNatureRealEstate()
         self.sanitizeBusinessDetailsNatureManagementCompanies()
+        self.sanitizeBusinessDetailsNatureOtherBusinessSupportActivites()
+
+    def sanitizeBusinessDetailsNatureOtherBusinessSupportActivites(self) -> None:
+        """
+        Sanitizing the nature where they are classified as Other
+        Business Support Activities.
+
+        Returns:
+            void
+        """
+        other_business_support_activities: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "Other Business Support Service Activities" in business_detail.nature]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in other_business_support_activities]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are classified as Other Business Support Activities.\nAmount: {len(other_business_support_activities)}")
+        for index in range(0, len(other_business_support_activities), 1):
+            other_business_support_activities[index].nature = "Other Business Support Service Activities"
+        self.setBusinessDetailsData(other_business_support_activities + filtered_business_details)
 
     def sanitizeBusinessDetailsNatureManagementCompanies(self) -> None:
         """
