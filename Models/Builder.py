@@ -1994,6 +1994,23 @@ class Builder:
         self.sanitizeBusinessDetailsNatureRentingOfPassengerCar()
         self.sanitizeBusinessDetailsNaturePrePrimaryEducation()
         self.sanitizeBusinessDetailsNatureFrozenProductsRetailers()
+        self.sanitizeBusinessDetailsNatureOtherTourismReservationActivities()
+
+    def sanitizeBusinessDetailsNatureOtherTourismReservationActivities(self) -> None:
+        """
+        Sanitizing the nature where they are clasified as other
+        tourism reservation activities.
+
+        Returns:
+            void
+        """
+        other_tourism_reservation_activities: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("Other" in business_detail.nature and "Tourism" in business_detail.nature)]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in other_tourism_reservation_activities]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are clasified as other tourism reservation activities.\nAmount: {len(other_tourism_reservation_activities)}")
+        for index in range(0, len(other_tourism_reservation_activities), 1):
+            other_tourism_reservation_activities[index].nature = "Other Tourism Reservation Services"
+        self.setBusinessDetailsData(other_tourism_reservation_activities + filtered_business_details)
 
     def sanitizeBusinessDetailsNatureFrozenProductsRetailers(self) -> None:
         """
