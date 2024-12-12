@@ -2300,7 +2300,7 @@ class Builder:
         Returns:
             void
         """
-        job_contractors: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "job contractor" in business_detail.nature.lower()]
+        job_contractors: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("job contractor" in business_detail.nature.lower() or "A," in business_detail.nature)]
         filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in job_contractors]
         self.setBusinessDetailsData([])
         self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where it is the 'Job Contractor' but it will be changed to 'Other Business Support Activities'.\nAmount: {len(job_contractors)}")
