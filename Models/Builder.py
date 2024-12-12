@@ -1997,6 +1997,22 @@ class Builder:
         self.sanitizeBusinessDetailsNatureOtherTourismReservationActivities()
         self.sanitizeBusinessDetailsNatureClothingRetailers()
         self.sanitizeBusinessDetailsNatureHardwareRetailers()
+        self.sanitizeBusinessDetailsNatureBreadManufacturers()
+
+    def sanitizeBusinessDetailsNatureBreadManufacturers(self) -> None:
+        """
+        Sanitizing the nature where they are bread manufacturers.
+
+        Returns:
+            void
+        """
+        bread_manufacturers: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("Manufacture" in business_detail.nature and "Bread" in business_detail.nature)]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in bread_manufacturers]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are bread manufacturers.\nAmount: {len(bread_manufacturers)}")
+        for index in range(0, len(bread_manufacturers), 1):
+            bread_manufacturers[index].nature = "Manufacture Of Bread"
+        self.setBusinessDetailsData(bread_manufacturers + filtered_business_details)
 
     def sanitizeBusinessDetailsNatureHardwareRetailers(self) -> None:
         """
