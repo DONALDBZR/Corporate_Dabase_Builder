@@ -1998,6 +1998,23 @@ class Builder:
         self.sanitizeBusinessDetailsNatureClothingRetailers()
         self.sanitizeBusinessDetailsNatureHardwareRetailers()
         self.sanitizeBusinessDetailsNatureBreadManufacturers()
+        self.sanitizeBusinessDetailsNatureRepairElectricalEquipment()
+
+    def sanitizeBusinessDetailsNatureRepairElectricalEquipment(self) -> None:
+        """
+        Sanitizing the nature where they are repairers of electrical
+        equipment.
+
+        Returns:
+            void
+        """
+        electrical_repairers: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("Repair" in business_detail.nature and "Electrical" in business_detail.nature and "Equipment" in business_detail.nature)]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in electrical_repairers]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are repairers of electrical equipment.\nAmount: {len(electrical_repairers)}")
+        for index in range(0, len(electrical_repairers), 1):
+            electrical_repairers[index].nature = "Repair Of Electrical Equipment"
+        self.setBusinessDetailsData(electrical_repairers + filtered_business_details)
 
     def sanitizeBusinessDetailsNatureBreadManufacturers(self) -> None:
         """
