@@ -2003,6 +2003,23 @@ class Builder:
         self.sanitizeBusinessDetailsNatureResidentialNursingCareActivities()
         self.sanitizeBusinessDetailsNatureConstructionOfBuildings()
         self.sanitizeBusinessDetailsNatureDevelopmentOfBuildings()
+        self.sanitizeBusinessDetailsNaturePlantingAndEstablishingOfCrops()
+
+    def sanitizeBusinessDetailsNaturePlantingAndEstablishingOfCrops(self) -> None:
+        """
+        Sanitizing the nature where they are classified as
+        planting and establishing crops.
+
+        Returns:
+            void
+        """
+        planting_and_establishing_of_crops: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("planting" in business_detail.nature.lower() and "crops" in business_detail.nature.lower())]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in planting_and_establishing_of_crops]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are classified as planting and establishing crops.\nAmount: {len(planting_and_establishing_of_crops)}")
+        for index in range(0, len(planting_and_establishing_of_crops), 1):
+            planting_and_establishing_of_crops[index].nature = "Planting And Establishing Of Crops"
+        self.setBusinessDetailsData(planting_and_establishing_of_crops + filtered_business_details)
 
     def sanitizeBusinessDetailsNatureDevelopmentOfBuildings(self) -> None:
         """
