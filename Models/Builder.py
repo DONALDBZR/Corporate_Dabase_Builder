@@ -2004,6 +2004,23 @@ class Builder:
         self.sanitizeBusinessDetailsNatureConstructionOfBuildings()
         self.sanitizeBusinessDetailsNatureDevelopmentOfBuildings()
         self.sanitizeBusinessDetailsNaturePlantingAndEstablishingOfCrops()
+        self.sanitizeBusinessDetailsNaturePackagingActivities()
+
+    def sanitizeBusinessDetailsNaturePackagingActivities(self) -> None:
+        """
+        Sanitizing the nature where they are classified as packaging
+        activities.
+
+        Returns:
+            void
+        """
+        packaging_activities: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "packaging" in business_detail.nature.lower()]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in packaging_activities]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are classified as packaging activities.\nAmount: {len(packaging_activities)}")
+        for index in range(0, len(packaging_activities), 1):
+            packaging_activities[index].nature = "Packaging Activities"
+        self.setBusinessDetailsData(packaging_activities + filtered_business_details)
 
     def sanitizeBusinessDetailsNaturePlantingAndEstablishingOfCrops(self) -> None:
         """
