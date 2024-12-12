@@ -2255,7 +2255,7 @@ class Builder:
         Returns:
             void
         """
-        web_portals: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "Web Portals" in business_detail.nature]
+        web_portals: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "web portals" in business_detail.nature.lower()]
         filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in web_portals]
         self.setBusinessDetailsData([])
         self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are web portals.\nAmount: {len(web_portals)}")
