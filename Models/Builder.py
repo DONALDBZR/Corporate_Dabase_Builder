@@ -1991,6 +1991,23 @@ class Builder:
         self.sanitizeBusinessDetailsNatureOtherBusinessSupportActivites()
         self.sanitizeBusinessDetailsNatureFreightTransportation()
         self.sanitizeBusinessDetailsNatureMotorVehicleRental()
+        self.sanitizeBusinessDetailsNatureRentingOfPassengerCar()
+
+    def sanitizeBusinessDetailsNatureRentingOfPassengerCar(self) -> None:
+        """
+        Sanitizing the nature where they are motor vehicles rental
+        companies.
+
+        Returns:
+            void
+        """
+        motor_vehicle_rentals: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("Renting" in business_detail.nature and "Car" in business_detail.nature)]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in motor_vehicle_rentals]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are motor vehicles rental companies.\nAmount: {len(motor_vehicle_rentals)}")
+        for index in range(0, len(motor_vehicle_rentals), 1):
+            motor_vehicle_rentals[index].nature = "Motor Vehicles Rental"
+        self.setBusinessDetailsData(motor_vehicle_rentals + filtered_business_details)
 
     def sanitizeBusinessDetailsNatureMotorVehicleRental(self) -> None:
         """
