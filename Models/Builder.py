@@ -2402,7 +2402,7 @@ class Builder:
         Returns:
             void
         """
-        general_retailers: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("General Retailer" in business_detail.nature or "Foodstuff" in business_detail.nature)]
+        general_retailers: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("general retailer" in business_detail.nature.lower() or "foodstuff" in business_detail.nature.lower())]
         filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in general_retailers]
         self.setBusinessDetailsData([])
         self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are general retailers.\nAmount: {len(general_retailers)}")
