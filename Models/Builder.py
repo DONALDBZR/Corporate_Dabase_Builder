@@ -1981,6 +1981,22 @@ class Builder:
         self.sanitizeBusinessDetailsNatureOtherProfessionalScientificTechnicalActivities()
         self.sanitizeBusinessDetailsNatureFirms()
         self.sanitizeBusinessDetailsNatureGeneralRetailers()
+        self.sanitizeBusinessDetailsNatureWholesalers()
+
+    def sanitizeBusinessDetailsNatureWholesalers(self) -> None:
+        """
+        Sanitizing the nature where they are wholesalers.
+
+        Returns:
+            void
+        """
+        wholesalers: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "Non-Specialised Wholesale Trade" in business_detail.nature]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in wholesalers]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are wholesalers.\nAmount: {len(wholesalers)}")
+        for index in range(0, len(wholesalers), 1):
+            wholesalers[index].nature = "Non-Specialised Wholesale Trade"
+        self.setBusinessDetailsData(wholesalers + filtered_business_details)
 
     def sanitizeBusinessDetailsNatureGeneralRetailers(self) -> None:
         """
