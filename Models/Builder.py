@@ -1977,6 +1977,24 @@ class Builder:
         """
         self.sanitizeBusinessDetailsNatureSameAsName()
         self.sanitizeBusinessDetailsNatureJobContractors()
+        self.sanitizeBusinessDetailsNatureNotElsewhereClassified()
+
+    def sanitizeBusinessDetailsNatureNotElsewhereClassified(self) -> None:
+        """
+        Sanitizing the nature where it is the "Not Elsewhere
+        Classfied" but it will be changed to "Other Business Support
+        Activities".
+
+        Returns:
+            void
+        """
+        not_elsewhere_classified: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "N.E.C" in business_detail.nature]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in not_elsewhere_classified]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where it is the 'Not Elsewhere Classfied' but it will be changed to 'Other Business Support Activities'.\nAmount: {len(not_elsewhere_classified)}")
+        for index in range(0, len(not_elsewhere_classified), 1):
+            not_elsewhere_classified[index].nature = "Other Business Support Activities"
+        self.setBusinessDetailsData(not_elsewhere_classified + filtered_business_details)
 
     def sanitizeBusinessDetailsNatureJobContractors(self) -> None:
         """
