@@ -2327,7 +2327,7 @@ class Builder:
         Returns:
             void
         """
-        investment_companies: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("Investment" in business_detail.nature and "Companies" in business_detail.nature)]
+        investment_companies: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("investment" in business_detail.nature.lower() and "companies" in business_detail.nature.lower())]
         filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in investment_companies]
         self.setBusinessDetailsData([])
         self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are investment companies.\nAmount: {len(investment_companies)}")
