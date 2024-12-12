@@ -2285,7 +2285,7 @@ class Builder:
         Returns:
             void
         """
-        wholesalers: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "Non-Specialised Wholesale Trade" in business_detail.nature]
+        wholesalers: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "non-specialised wholesale trade" in business_detail.nature.lower()]
         filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in wholesalers]
         self.setBusinessDetailsData([])
         self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are wholesalers.\nAmount: {len(wholesalers)}")
