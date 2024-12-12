@@ -1993,6 +1993,23 @@ class Builder:
         self.sanitizeBusinessDetailsNatureMotorVehicleRental()
         self.sanitizeBusinessDetailsNatureRentingOfPassengerCar()
         self.sanitizeBusinessDetailsNaturePrePrimaryEducation()
+        self.sanitizeBusinessDetailsNatureFrozenProductsRetailers()
+
+    def sanitizeBusinessDetailsNatureFrozenProductsRetailers(self) -> None:
+        """
+        Sanitizing the nature where they are frozen products
+        retailers.
+
+        Returns:
+            void
+        """
+        frozen_product_retailers: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("Retail" in business_detail.nature and "Poultry" in business_detail.nature)]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in frozen_product_retailers]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are frozen products retailers.\nAmount: {len(frozen_product_retailers)}")
+        for index in range(0, len(frozen_product_retailers), 1):
+            frozen_product_retailers[index].nature = "Retail Sale of Frozen Products"
+        self.setBusinessDetailsData(frozen_product_retailers + filtered_business_details)
 
     def sanitizeBusinessDetailsNaturePrePrimaryEducation(self) -> None:
         """
