@@ -1980,6 +1980,22 @@ class Builder:
         self.sanitizeBusinessDetailsNatureNotElsewhereClassified()
         self.sanitizeBusinessDetailsNatureOtherProfessionalScientificTechnicalActivities()
         self.sanitizeBusinessDetailsNatureFirms()
+        self.sanitizeBusinessDetailsNatureGeneralRetailers()
+
+    def sanitizeBusinessDetailsNatureGeneralRetailers(self) -> None:
+        """
+        Sanitizing the nature where they are general retailers.
+
+        Returns:
+            void
+        """
+        general_retailers: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "General Retailer" in business_detail.nature]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in general_retailers]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are general retailers.\nAmount: {len(general_retailers)}")
+        for index in range(0, len(general_retailers), 1):
+            general_retailers[index].nature = "General Retailer"
+        self.setBusinessDetailsData(general_retailers + filtered_business_details)
 
     def sanitizeBusinessDetailsNatureFirms(self) -> None:
         """
@@ -2022,7 +2038,7 @@ class Builder:
         Returns:
             void
         """
-        not_elsewhere_classified: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "N.E.C" in business_detail.nature]
+        not_elsewhere_classified: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("N.E.C" in business_detail.nature or "n.e.c" in business_detail.nature)]
         filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in not_elsewhere_classified]
         self.setBusinessDetailsData([])
         self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where it is the 'Not Elsewhere Classfied' but it will be changed to 'Other Business Support Activities'.\nAmount: {len(not_elsewhere_classified)}")
