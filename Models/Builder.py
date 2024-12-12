@@ -1985,6 +1985,22 @@ class Builder:
         self.sanitizeBusinessDetailsNatureHeadOffices()
         self.sanitizeBusinessDetailsNatureWebPortals()
         self.sanitizeBusinessDetailsNatureRestaurants()
+        self.sanitizeBusinessDetailsNatureInvestmentCompanies()
+
+    def sanitizeBusinessDetailsNatureInvestmentCompanies(self) -> None:
+        """
+        Sanitizing the nature where they are investment companies.
+
+        Returns:
+            void
+        """
+        investment_companies: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("Investment" in business_detail.nature and "Companies" in business_detail.nature)]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in investment_companies]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are investment companies.\nAmount: {len(investment_companies)}")
+        for index in range(0, len(investment_companies), 1):
+            investment_companies[index].nature = "Investment Companies"
+        self.setBusinessDetailsData(investment_companies + filtered_business_details)
 
     def sanitizeBusinessDetailsNatureRestaurants(self) -> None:
         """
