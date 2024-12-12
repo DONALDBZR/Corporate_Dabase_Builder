@@ -1978,6 +1978,23 @@ class Builder:
         self.sanitizeBusinessDetailsNatureSameAsName()
         self.sanitizeBusinessDetailsNatureJobContractors()
         self.sanitizeBusinessDetailsNatureNotElsewhereClassified()
+        self.sanitizeBusinessDetailsNatureOtherProfessionalScientificTechnicalActivities()
+
+    def sanitizeBusinessDetailsNatureOtherProfessionalScientificTechnicalActivities(self) -> None:
+        """
+        Sanitizing the nature where it is 'Other Professional,
+        Scientific And Technical Activities'.
+
+        Returns:
+            void
+        """
+        other_professional_scientific_technical_activities: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("other" in business_detail.nature.lower() and "professional" in business_detail.nature.lower())]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in other_professional_scientific_technical_activities]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where it is 'Other Professional, Scientific And Technical Activities'.\nAmount: {len(other_professional_scientific_technical_activities)}")
+        for index in range(0, len(other_professional_scientific_technical_activities), 1):
+            other_professional_scientific_technical_activities[index].nature = "Other Professional, Scientific And Technical Activities"
+        self.setBusinessDetailsData(other_professional_scientific_technical_activities + filtered_business_details)
 
     def sanitizeBusinessDetailsNatureNotElsewhereClassified(self) -> None:
         """
