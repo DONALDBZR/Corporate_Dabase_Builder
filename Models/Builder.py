@@ -1999,6 +1999,22 @@ class Builder:
         self.sanitizeBusinessDetailsNatureHardwareRetailers()
         self.sanitizeBusinessDetailsNatureBreadManufacturers()
         self.sanitizeBusinessDetailsNatureRepairElectricalEquipment()
+        self.sanitizeBusinessDetailsNaturePhotoAndVideoEditing()
+
+    def sanitizeBusinessDetailsNaturePhotoAndVideoEditing(self) -> None:
+        """
+        Sanitizing the nature where they are photographers.
+
+        Returns:
+            void
+        """
+        content_creators: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "Photograph" in business_detail.nature]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in content_creators]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are photographers.\nAmount: {len(content_creators)}")
+        for index in range(0, len(content_creators), 1):
+            content_creators[index].nature = "Photo And Video Editing"
+        self.setBusinessDetailsData(content_creators + filtered_business_details)
 
     def sanitizeBusinessDetailsNatureRepairElectricalEquipment(self) -> None:
         """
