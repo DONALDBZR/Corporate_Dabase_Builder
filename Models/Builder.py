@@ -1979,6 +1979,23 @@ class Builder:
         self.sanitizeBusinessDetailsNatureJobContractors()
         self.sanitizeBusinessDetailsNatureNotElsewhereClassified()
         self.sanitizeBusinessDetailsNatureOtherProfessionalScientificTechnicalActivities()
+        self.sanitizeBusinessDetailsNatureFirms()
+
+    def sanitizeBusinessDetailsNatureFirms(self) -> None:
+        """
+        Sanitizing the nature where '(Firm)' are removed.
+
+        Returns:
+            void
+        """
+        firms: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "(Firm)" in business_detail.nature]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in firms]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where it is 'Other Professional, Scientific And Technical Activities'.\nAmount: {len(firms)}")
+        for index in range(0, len(firms), 1):
+            nature: str = str(firms[index].nature).replace("(Firm)", "")
+            firms[index].nature = nature
+        self.setBusinessDetailsData(firms + filtered_business_details)
 
     def sanitizeBusinessDetailsNatureOtherProfessionalScientificTechnicalActivities(self) -> None:
         """
