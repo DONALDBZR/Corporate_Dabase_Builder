@@ -2005,6 +2005,23 @@ class Builder:
         self.sanitizeBusinessDetailsNatureDevelopmentOfBuildings()
         self.sanitizeBusinessDetailsNaturePlantingAndEstablishingOfCrops()
         self.sanitizeBusinessDetailsNaturePackagingActivities()
+        self.sanitizeBusinessDetailsNatureEventCatering()
+
+    def sanitizeBusinessDetailsNatureEventCatering(self) -> None:
+        """
+        Sanitizing the nature where they are classified as event
+        catering.
+
+        Returns:
+            void
+        """
+        event_catering: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "event catering" in business_detail.nature.lower()]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in event_catering]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are classified as event catering.\nAmount: {len(event_catering)}")
+        for index in range(0, len(event_catering), 1):
+            event_catering[index].nature = "Event Catering"
+        self.setBusinessDetailsData(event_catering + filtered_business_details)
 
     def sanitizeBusinessDetailsNaturePackagingActivities(self) -> None:
         """
