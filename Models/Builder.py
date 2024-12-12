@@ -1822,10 +1822,10 @@ class Builder:
         self.sanitizeBusinessDetailsErroneousRegisteredAddresses()
         self.sanitizeBusinessDetailsName()
         self.sanitizeBusinessDetailsNature()
-        print(f"{line_break}\n{quarter=}\n{line_break}\nBusiness Details (Amount): {len(self.getBusinessDetailsData())}\n{line_break}\nCompanies (Amount): {len(self.getCompanyDetailsData())}\n{line_break}")
         for index in range(0, len(self.getBusinessDetailsData()), 1):
             iteration: int = index + 1
             self.getLogger().debug(f"{iteration=}\n{self.getBusinessDetailsData()[index]}")
+        print(f"{line_break}\n{quarter=}\n{line_break}\nBusiness Details (Amount): {len(self.getBusinessDetailsData())}\n{line_break}\nCompanies (Amount): {len(self.getCompanyDetailsData())}\n{line_break}")
         exit()
 
     def sanitizeBusinessDetailsErroneousRegisteredAddresses(self) -> None:
@@ -1975,9 +1975,26 @@ class Builder:
         Returns:
             void
         """
-        self.sanitizeBusinessDetailsNatureOtherBusinessSupportActivities()
+        self.sanitizeBusinessDetailsNatureSameAsName()
+        self.sanitizeBusinessDetailsNatureJobContractors()
 
-    def sanitizeBusinessDetailsNatureOtherBusinessSupportActivities(self) -> None:
+    def sanitizeBusinessDetailsNatureJobContractors(self) -> None:
+        """
+        Sanitizing the nature where it is the "Job Contractor" but
+        it will be changed to "Other Business Support Activities".
+
+        Returns:
+            void
+        """
+        job_contractors: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "job contractor" in business_detail.nature.lower()]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in job_contractors]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where it is the 'Job Contractor' but it will be changed to 'Other Business Support Activities'.\nAmount: {len(job_contractors)}")
+        for index in range(0, len(job_contractors), 1):
+            job_contractors[index].nature = "Other Business Support Activities"
+        self.setBusinessDetailsData(job_contractors + filtered_business_details)
+
+    def sanitizeBusinessDetailsNatureSameAsName(self) -> None:
         """
         Sanitizing the nature where it is the same as the name but
         it will be changed to "Other Business Support Activities".
