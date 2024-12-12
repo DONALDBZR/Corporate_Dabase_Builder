@@ -2000,6 +2000,23 @@ class Builder:
         self.sanitizeBusinessDetailsNatureBreadManufacturers()
         self.sanitizeBusinessDetailsNatureRepairElectricalEquipment()
         self.sanitizeBusinessDetailsNaturePhotoAndVideoEditing()
+        self.sanitizeBusinessDetailsNatureResidentialNursingCareActivities()
+
+    def sanitizeBusinessDetailsNatureResidentialNursingCareActivities(self) -> None:
+        """
+        Sanitizing the nature where they are classified as
+        residential nursing care activities.
+
+        Returns:
+            void
+        """
+        residential_nursing_care_activities: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("Residential" in business_detail.nature and "Nursing" in business_detail.nature)]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in residential_nursing_care_activities]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are classified as residential nursing care activities.\nAmount: {len(residential_nursing_care_activities)}")
+        for index in range(0, len(residential_nursing_care_activities), 1):
+            residential_nursing_care_activities[index].nature = "Residential Nursing Care Activities"
+        self.setBusinessDetailsData(residential_nursing_care_activities + filtered_business_details)
 
     def sanitizeBusinessDetailsNaturePhotoAndVideoEditing(self) -> None:
         """
