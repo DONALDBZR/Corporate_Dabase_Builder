@@ -2069,7 +2069,7 @@ class Builder:
         Returns:
             void
         """
-        clothing_retailers: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("Retail" in business_detail.nature and "Clothing" in business_detail.nature)]
+        clothing_retailers: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("retail" in business_detail.nature.lower() and "clothing" in business_detail.nature.lower())]
         filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in clothing_retailers]
         self.setBusinessDetailsData([])
         self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are clothing retailers.\nAmount: {len(clothing_retailers)}")
