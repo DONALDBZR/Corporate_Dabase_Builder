@@ -1822,11 +1822,40 @@ class Builder:
         self.sanitizeBusinessDetailsErroneousRegisteredAddresses()
         self.sanitizeBusinessDetailsName()
         self.sanitizeBusinessDetailsNature()
+        self.sanitizeBusinessDetailOperationalAddress()
         for index in range(0, len(self.getBusinessDetailsData()), 1):
             iteration: int = index + 1
             self.getLogger().debug(f"{iteration=}\n{self.getBusinessDetailsData()[index]}")
         print(f"{line_break}\n{quarter=}\n{line_break}\nBusiness Details (Amount): {len(self.getBusinessDetailsData())}\n{line_break}\nCompanies (Amount): {len(self.getCompanyDetailsData())}\n{line_break}")
         exit()
+
+    def sanitizeBusinessDetailOperationalAddress(self) -> None:
+        """
+        Sanitizing the operational addresses which are going to be
+        used by the geographical information system to be able to
+        process it afterwards.
+
+        Returns:
+            void
+        """
+        self.sanitizeBusinessDetailOperationalAddressFormat()
+
+    def sanitizeBusinessDetailOperationalAddressFormat(self) -> None:
+        """
+        Formating the operational addresses into the correct format
+        for processing.
+
+        Returns:
+            void
+        """
+        business_details: List[BusinessDetails] = []
+        self.getLogger().inform(f"Business Details: Operational Address: Formating the operational addresses into the correct format for processing.\nAmount: {len(self.getBusinessDetailsData())}")
+        for index in range(0, len(self.getBusinessDetailsData()), 1):
+            business_detail: BusinessDetails = self.getBusinessDetailsData()[index]
+            operational_address: Union[str, None] = " ".join([address for address in business_detail.operational_address.split(" ") if address != ""]) if business_detail.operational_address != None else business_detail.operational_address
+            business_detail.operational_address = operational_address
+            business_details.append(business_detail)
+        self.setBusinessDetailsData(business_details)
 
     def sanitizeBusinessDetailsErroneousRegisteredAddresses(self) -> None:
         """
