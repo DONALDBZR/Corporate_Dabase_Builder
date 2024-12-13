@@ -1840,6 +1840,7 @@ class Builder:
             void
         """
         self.sanitizeBusinessDetailsRegisteredAddressesFormat()
+        self.sanitizeBusinessDetailsRegisteredAddressesErroneous()
 
     def sanitizeBusinessDetailsRegisteredAddressesFormat(self)-> None:
         """
@@ -1920,7 +1921,7 @@ class Builder:
             business_details.append(business_detail)
         self.setBusinessDetailsData(business_details)
 
-    def sanitizeBusinessDetailsErroneousRegisteredAddresses(self) -> None:
+    def sanitizeBusinessDetailsRegisteredAddressesErroneous(self) -> None:
         """
         Sanitizing the registered addresses that are going to be
         used by the geographical information system to be able to
@@ -1930,7 +1931,7 @@ class Builder:
             void
         """
         erroneous_registered_addresses: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.registered_address != None and bool(search(r"\d", business_detail.registered_address)) == True]
-        self.getLogger().inform(f"Business Details: The registered addresses are being sanitized!\nAmount: {len(erroneous_registered_addresses)}")
+        self.getLogger().inform(f"Business Details: Registered Address: Sanitizing the registered addresses that are going to be used by the geographical information system to be able to process it afterwards.\nAmount: {len(erroneous_registered_addresses)}")
         filtered_business_details: List[BusinessDetails] = [business_details for business_details in self.getBusinessDetailsData()if business_details not in erroneous_registered_addresses]
         self.setBusinessDetailsData([])
         for index in range(0, len(erroneous_registered_addresses), 1):
