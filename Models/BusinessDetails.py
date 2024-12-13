@@ -217,7 +217,7 @@ class Business_Details(Database_Handler):
             self.updateData(
                 table=self.getTableName(),
                 values="registered_address = %s, name = %s, nature = %s, operational_address = %s",
-                condition="identifier = %s, CompanyDetail = %s",
+                condition="identifier = %s AND CompanyDetail = %s",
                 parameters=parameters # type: ignore
             )
             return 202
