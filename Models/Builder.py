@@ -1839,6 +1839,23 @@ class Builder:
             void
         """
         self.sanitizeBusinessDetailOperationalAddressFormat()
+        self.sanitizeBusinessDetailOperationalAddressMissingAddress()
+
+    def sanitizeBusinessDetailOperationalAddressMissingAddress(self) -> None:
+        """
+        Setting the data operational address to be the one of the
+        registered address for the ones missing data.
+
+        Returns:
+            void
+        """
+        missing_addresses: List[BusinessDetails] = [business_details for business_details in self.getBusinessDetailsData() if business_details.operational_address == "Mauritius"]
+        filtered_business_details: List[BusinessDetails] = [business_details for business_details in self.getBusinessDetailsData()if business_details not in missing_addresses]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Operational Address: Setting the data operational address to be the one of the registered address for the ones missing data.\nAmount: {len(missing_addresses)}")
+        for index in range(0, len(missing_addresses), 1):
+            missing_addresses[index].operational_address = missing_addresses[index].registered_address
+        self.setBusinessDetailsData(missing_addresses + filtered_business_details)
 
     def sanitizeBusinessDetailOperationalAddressFormat(self) -> None:
         """
