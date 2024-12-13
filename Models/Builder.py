@@ -1818,19 +1818,17 @@ class Builder:
         Returns:
             void
         """
-        line_break: str = "-" * 10
         quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
+        current_time: int = int(time())
         self.setBusinessDetailsData(self.getBusinessDetails().getBusinessDetails())
         self.setCompanyDetailsData([self.getCompanyDetails().getSpecificCompanyDetails(identifier) for identifier in list(set([business_detail.CompanyDetail for business_detail in self.getBusinessDetailsData()]))])
         self.sanitizeBusinessDetailsRegisteredAddresses()
         self.sanitizeBusinessDetailsName()
         self.sanitizeBusinessDetailsNature()
         self.sanitizeBusinessDetailOperationalAddress()
-        for index in range(0, len(self.getBusinessDetailsData()), 1):
-            iteration: int = index + 1
-            self.getLogger().debug(f"{iteration=}\n{self.getBusinessDetailsData()[index]}")
-        print(f"{line_break}\n{quarter=}\n{line_break}\nBusiness Details (Amount): {len(self.getBusinessDetailsData())}\n{line_break}\nCompanies (Amount): {len(self.getCompanyDetailsData())}\n{line_break}")
-        exit()
+        response: int = self.updateCuratedBusinessDetails()
+        log: Tuple[str, str, int, int, int, int, int] = ("curateBusinessDetails", quarter.quarter, current_time, current_time, response, len(self.getBusinessDetailsData()), len(self.getBusinessDetailsData()))
+        self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(log) # type: ignore
 
     def sanitizeBusinessDetailsRegisteredAddresses(self) -> None:
         """
