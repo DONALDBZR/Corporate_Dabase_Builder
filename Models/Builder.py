@@ -1830,6 +1830,19 @@ class Builder:
         log: Tuple[str, str, int, int, int, int, int] = ("curateBusinessDetails", quarter.quarter, current_time, current_time, response, len(self.getBusinessDetailsData()), len(self.getBusinessDetailsData()))
         self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(log) # type: ignore
 
+    def updateCuratedBusinessDetails(self) -> int:
+        """
+        Storing the curated business details data that are in the
+        cache memory into the relational database server.
+
+        Returns:
+            int
+        """
+        good: int = 202
+        bad: int = 503
+        statuses: List[int] = list(set([self.getBusinessDetails().updateBusinessDetail(business_detail) for business_detail in self.getBusinessDetailsData()]))
+        return good if len(statuses) == 1 and statuses[0] == good else bad
+
     def sanitizeBusinessDetailsRegisteredAddresses(self) -> None:
         """
         Sanitizing the registered addresses which are going to be
