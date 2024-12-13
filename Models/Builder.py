@@ -1804,13 +1804,16 @@ class Builder:
 
     def curateBusinessDetails(self) -> None:
         """
-        Curating the data that is in the Business Details table.
-        The erroneous registered addresses have to be sanitized for
-        the geographical information system to be able to process it
+        Curating the data that is in the Business Details table. The
+        registered addresses have to be sanitized for the
+        geographical information system to be able to process it
         afterwards.  The names have to be sanitized to reflect the
         companies they are affliated with.  The natures have to be
         sanitized to be processed afterwards to obtain the sector of
-        activity of the company by doing a sentiment analysis.
+        activity of the company by doing a sentiment analysis.  The
+        operational addresses have to be sanitized for the
+        geographical information system to be able to process it
+        afterwards.
 
         Returns:
             void
@@ -1820,7 +1823,6 @@ class Builder:
         self.setBusinessDetailsData(self.getBusinessDetails().getBusinessDetails())
         self.setCompanyDetailsData([self.getCompanyDetails().getSpecificCompanyDetails(identifier) for identifier in list(set([business_detail.CompanyDetail for business_detail in self.getBusinessDetailsData()]))])
         self.sanitizeBusinessDetailsRegisteredAddresses()
-        self.sanitizeBusinessDetailsErroneousRegisteredAddresses()
         self.sanitizeBusinessDetailsName()
         self.sanitizeBusinessDetailsNature()
         self.sanitizeBusinessDetailOperationalAddress()
