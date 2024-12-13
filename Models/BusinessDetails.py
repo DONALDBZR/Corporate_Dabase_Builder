@@ -200,3 +200,27 @@ class Business_Details(Database_Handler):
             "status": status,
             "data": data
         }
+
+    def updateBusinessDetail(self, business_detail: BusinessDetails) -> int:
+        """
+        Updating the data that is stored in the relational database
+        server.
+
+        Parameters:
+            business_detail: {identifier: int, CompanyDetail: int, registered_address: string|null, name: string|null, nature: string|null, operational_address: string|null}: The business detail data.
+
+        Returns:
+            int
+        """
+        parameters: Tuple[Union[str, None], Union[str, None], Union[str, None], Union[str, None], int, int] = (business_detail.registered_address, business_detail.name, business_detail.nature, business_detail.operational_address, business_detail.identifier, business_detail.CompanyDetail)
+        try:
+            self.updateData(
+                table=self.getTableName(),
+                values="registered_address = %s, name = %s, nature = %s, operational_address = %s",
+                condition="identifier = %s, CompanyDetail = %s",
+                parameters=parameters # type: ignore
+            )
+            return 202
+        except Error as error:
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: 503\nError: {error}")
+            return 503
