@@ -1840,6 +1840,23 @@ class Builder:
         """
         self.sanitizeBusinessDetailOperationalAddressFormat()
         self.sanitizeBusinessDetailOperationalAddressMissingAddress()
+        self.sanitizeBusinessDetailOperationalAddressTruncatedAddress()
+
+    def sanitizeBusinessDetailOperationalAddressTruncatedAddress(self) -> None:
+        """
+        Setting the data of the operational address to be the one of
+        the registered for the ones that have truncated data.
+
+        Returns:
+            void
+        """
+        truncated_data: List[BusinessDetails] = [business_details for business_details in self.getBusinessDetailsData() if business_details.operational_address != None and business_details.registered_address != None and business_details.operational_address in business_details.registered_address]
+        filtered_business_details: List[BusinessDetails] = [business_details for business_details in self.getBusinessDetailsData()if business_details not in truncated_data]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Operational Address: Setting the data of the operational address to be the one of the registered for the ones that have truncated data.\nAmount: {len(truncated_data)}")
+        for index in range(0, len(truncated_data), 1):
+            truncated_data[index].operational_address = truncated_data[index].registered_address
+        self.setBusinessDetailsData(truncated_data + filtered_business_details)
 
     def sanitizeBusinessDetailOperationalAddressMissingAddress(self) -> None:
         """
