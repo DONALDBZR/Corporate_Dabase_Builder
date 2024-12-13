@@ -1819,6 +1819,7 @@ class Builder:
         quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
         self.setBusinessDetailsData(self.getBusinessDetails().getBusinessDetails())
         self.setCompanyDetailsData([self.getCompanyDetails().getSpecificCompanyDetails(identifier) for identifier in list(set([business_detail.CompanyDetail for business_detail in self.getBusinessDetailsData()]))])
+        self.sanitizeBusinessDetailsRegisteredAddresses()
         self.sanitizeBusinessDetailsErroneousRegisteredAddresses()
         self.sanitizeBusinessDetailsName()
         self.sanitizeBusinessDetailsNature()
@@ -1828,6 +1829,34 @@ class Builder:
             self.getLogger().debug(f"{iteration=}\n{self.getBusinessDetailsData()[index]}")
         print(f"{line_break}\n{quarter=}\n{line_break}\nBusiness Details (Amount): {len(self.getBusinessDetailsData())}\n{line_break}\nCompanies (Amount): {len(self.getCompanyDetailsData())}\n{line_break}")
         exit()
+
+    def sanitizeBusinessDetailsRegisteredAddresses(self) -> None:
+        """
+        Sanitizing the registered addresses which are going to be
+        used by the geographical information system to be able to
+        process it afterwards.
+
+        Returns:
+            void
+        """
+        self.sanitizeBusinessDetailsRegisteredAddressesFormat()
+
+    def sanitizeBusinessDetailsRegisteredAddressesFormat(self)-> None:
+        """
+        Formating the registered addresses into the correct format
+        for processing.
+
+        Returns:
+            void
+        """
+        business_details: List[BusinessDetails] = []
+        self.getLogger().inform(f"Business Details: Registered Address: Formating the registered addresses into the correct format for processing.\nAmount: {len(self.getBusinessDetailsData())}")
+        for index in range(0, len(self.getBusinessDetailsData()), 1):
+            business_detail: BusinessDetails = self.getBusinessDetailsData()[index]
+            registered_address: Union[str, None] = " ".join([address for address in business_detail.registered_address.split(" ") if address != ""]).title() if business_detail.registered_address != None else business_detail.registered_address
+            business_detail.registered_address = registered_address
+            business_details.append(business_detail)
+        self.setBusinessDetailsData(business_details)
 
     def sanitizeBusinessDetailOperationalAddress(self) -> None:
         """
