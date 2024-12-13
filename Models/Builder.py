@@ -1898,7 +1898,7 @@ class Builder:
         Returns:
             void
         """
-        missing_addresses: List[BusinessDetails] = [business_details for business_details in self.getBusinessDetailsData() if business_details.operational_address == "Mauritius" or business_details.operational_address == "() Mauritius"]
+        missing_addresses: List[BusinessDetails] = [business_details for business_details in self.getBusinessDetailsData() if business_details.operational_address == "Mauritius" or business_details.operational_address == "() Mauritius" or business_details.operational_address == "Mauritius Mauritius"]
         filtered_business_details: List[BusinessDetails] = [business_details for business_details in self.getBusinessDetailsData()if business_details not in missing_addresses]
         self.setBusinessDetailsData([])
         self.getLogger().inform(f"Business Details: Operational Address: Setting the data operational address to be the one of the registered address for the ones missing data.\nAmount: {len(missing_addresses)}")
