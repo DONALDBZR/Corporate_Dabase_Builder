@@ -766,8 +766,8 @@ class Crawler:
         status: int = 0
         status = 404 if amount == 0 else status
         status = 429 if amount_data_found == 0 and amount != 0 else status
-        status = 200 if (amount_data_found / amount) >= 0.5 else status
-        status = 409 if (amount_data_found / amount) < 0.5 else status
+        status = 200 if amount != 0 and (amount_data_found / amount) >= 0.5 else status
+        status = 409 if amount != 0 and (amount_data_found / amount) < 0.5 else status
         response: Dict[str, int] = {
             "status": status,
             "amount": amount
