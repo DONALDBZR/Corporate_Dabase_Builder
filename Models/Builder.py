@@ -1841,7 +1841,7 @@ class Builder:
         self.getLogger().inform(f"Stated Capital: Type: Filtering the data for the ordinary type.\nAmount: {len(ordinary)}")
         for index in range(0, len(ordinary), 1):
             ordinary[index].type = "Ordinary"
-        self.setStateCapitalData(filtered_data + ordinary)
+        self.setStateCapitalData(ordinary + filtered_data)
 
     def curateBusinessDetails(self) -> None:
         """
