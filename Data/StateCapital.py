@@ -33,7 +33,6 @@ class StateCapital:
         Returns:
             void
         """
-        print(f"{dataset=}")
         self.identifier = int(dataset["identifier"]) # type: ignore
         self.CompanyDetail = int(dataset["CompanyDetail"]) # type: ignore
         self.type = dataset["type"] # type: ignore
