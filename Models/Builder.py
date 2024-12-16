@@ -904,7 +904,7 @@ class Builder:
         response: int
         if company_detail.nature.upper() == "PRIVATE":
             response = self.storeCorporateDataDomesticPrivate(dataset, document_file)
-        elif company_detail.nature.upper() == "CIVIL":
+        elif company_detail.nature.upper() == "CIVIL" or company_detail.nature.upper() == "COMMERCIAL":
             response = self.storeCorporateDataDomesticCivil(dataset, document_file)
         elif company_detail.nature.upper() == "PUBLIC":
             response = self.storeCorporateDataDomesticPublic(dataset, document_file)
