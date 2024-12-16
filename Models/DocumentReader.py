@@ -5,7 +5,7 @@ well as extracting the data from it before deleting it from
 the cache of the server of the application.
 
 Authors:
-    Andy Ewen Gaspard
+    Darkness4869
 """
 
 
@@ -1322,6 +1322,8 @@ class Document_Reader:
             response = self.extractDataDomesticCivil(status, dataset)
         elif company_detail.nature.upper() == "PUBLIC":
             response = self.extractDataDomesticPublic(status, dataset)
+        elif company_detail.nature.upper() == "COMMERCIAL":
+            response = self.extractDataDomesticCommercial(status, dataset)
         else:
             self.getLogger().error(f"The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractDataDomestic()\nNature: {company_detail.nature}")
             exit()
