@@ -1851,7 +1851,7 @@ class Builder:
         Returns:
             void
         """
-        ordinary: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital.type != None and "ordinary" in stated_capital.type.lower()]
+        ordinary: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital.type != None and "ordinary" in stated_capital.type.lower() and "class" not in stated_capital.type.lower()]
         filtered_data: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital not in ordinary]
         self.setStateCapitalData([])
         self.getLogger().inform(f"Stated Capital: Type: Filtering the data for the ordinary type.\nAmount: {len(ordinary)}")
