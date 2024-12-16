@@ -7,6 +7,7 @@ Authors:
 """
 
 
+from Data.StateCapital import StateCapital
 from Data.BusinessDetails import BusinessDetails
 from Data.CompanyDetails import CompanyDetails
 from Data.FinancialCalendar import FinancialCalendar
@@ -126,6 +127,10 @@ class Builder:
     """
     The data of the Company Details.
     """
+    __state_capital_data: List[StateCapital]
+    """
+    The Data Transfer Object for the State Capital.
+    """
 
     def __init__(self) -> None:
         """
@@ -146,6 +151,12 @@ class Builder:
         self.setShareholders(Shareholders())
         self.setMembers(Member())
         self.getLogger().inform("The builder has been initialized and all of its dependencies are injected!")
+
+    def getStateCapitalData(self) -> List[StateCapital]:
+        return self.__state_capital_data
+
+    def setStateCapitalData(self, state_capital_data: List[StateCapital]) -> None:
+        self.__state_capital_data = state_capital_data
 
     def getCompanyDetailsData(self) -> List[CompanyDetails]:
         return self.__company_details_data
@@ -1788,6 +1799,49 @@ class Builder:
                 str(CompanyDetails["status"])
             )
             self.getCompanyDetails().addCompany(parameters)  # type: ignore
+
+    def curateStateCapital(self) -> None:
+        """
+        Curating the data that is in the State Capital table.  Santizing the type of the stated capital for a better filtering of the data.
+
+        Returns:
+            void
+        """
+        line_break: str = "-" * 10
+        quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
+        current_time: int = int(time())
+        self.setStateCapitalData(self.getStateCapital().get())
+        self.curateStateCapitalType()
+        for index in range(0, len(self.getStateCapitalData()), 1):
+            iteration: int = index + 1
+            self.getLogger().debug(f"{iteration=}\n{self.getStateCapitalData()[index]}")
+        print(f"{line_break}\nStated Capital (Amount): {len(self.getStateCapitalData())}\n{line_break}")
+        exit()
+
+    def curateStateCapitalType(self) -> None:
+        """
+        Santizing the type of the stated capital for a better
+        filtering of the data.
+
+        Returns:
+            void
+        """
+        self.curateStateCapitalTypeOrdinary()
+
+    def curateStateCapitalTypeOrdinary(self) -> None:
+        """
+        Filtering the data for the ordinary type.
+
+        Returns:
+            void
+        """
+        ordinary: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital.type != None and "ordinary" in stated_capital.type.lower()]
+        filtered_data: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital not in ordinary]
+        self.setStateCapitalData([])
+        self.getLogger().inform(f"Stated Capital: Type: Filtering the data for the ordinary type.\nAmount: {len(ordinary)}")
+        for index in range(0, len(ordinary), 1):
+            ordinary[index].type = "Ordinary"
+        self.setStateCapitalData(filtered_data + ordinary)
 
     def curateBusinessDetails(self) -> None:
         """
