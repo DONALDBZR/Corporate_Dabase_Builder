@@ -766,8 +766,8 @@ class Crawler:
         status: int = 0
         status = 404 if amount == 0 else status
         status = 429 if amount_data_found == 0 and amount != 0 else status
-        status = 200 if (amount_data_found / amount) >= 0.5 else status
-        status = 409 if (amount_data_found / amount) < 0.5 else status
+        status = 200 if amount != 0 and (amount_data_found / amount) >= 0.5 else status
+        status = 409 if amount != 0 and (amount_data_found / amount) < 0.5 else status
         response: Dict[str, int] = {
             "status": status,
             "amount": amount
@@ -791,13 +791,15 @@ class Crawler:
         search_button: WebElement = self.getDriver().find_element(By.XPATH, f"{self.ENV.getTargetApplicationRootXpath()}/cbris-header/div/div/form/div/div[2]/div[3]/div[2]/button")
         dataset: str = data_amount_element.text
         loading_icon: WebElement
-        condition: bool = "1 – 10 of " in dataset
         if "1 – 10 of " in dataset:
             self.getLogger().inform(f"Search in progress!\nDataset Amount: {dataset.replace('1 – 10 of ', '')}\nDelay: {delay} s\nCo-efficient: {coefficient}")
             return dataset.replace("1 – 10 of ", "")
         if int(dataset.split(" of ")[-1]) > 0:
             self.getLogger().inform(f"Search in progress!\nDataset Amount: {dataset.split(' of ')[-1]}\nDelay: {delay} s\nCo-efficient: {coefficient}")
             return dataset.split(" of ")[-1]
+        if coefficient > 3:
+            self.getLogger().error(f"The search has failed and the dataset amount is 0!")
+            return "0"
         coefficient += 1
         delay = delay * (1.1 ** coefficient)
         self.getLogger().error(f"The search has failed and the dataset amount cannot be recovered!  The application will try again.\nDelay: {delay} s\nCo-efficient: {coefficient}")

@@ -4,12 +4,15 @@ Details table.
 
 Authors:
     Andy Ewen Gaspard
+    Darkness4869
 """
 
 
 from Models.DatabaseHandler import Database_Handler
-from typing import Dict, Tuple
+from typing import Dict, Tuple, List, Union
 from mysql.connector.errors import Error
+from Data.BusinessDetails import BusinessDetails
+from mysql.connector.types import RowType
 
 
 class Business_Details(Database_Handler):
@@ -161,3 +164,63 @@ class Business_Details(Database_Handler):
             response = 503
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {response}\nError: {error}")
         return response
+
+    def getBusinessDetails(self) -> List[BusinessDetails]:
+        """
+        Retrieving the data from the Business Details for curation.
+
+        Returns:
+            [{identifier: int, CompanyDetail: int, registered_address: string|null, name: string|null, nature: string|null, operational_address: string|null}]
+        """
+        try:
+            data: Union[List[RowType], List[Dict[str, Union[int, str, None]]]] = self.getData(
+                table_name=self.getTableName()
+            )
+            response: Dict[str, Union[int, List[BusinessDetails]]] = self._getBusinessDetailsData(data)
+            self.getLogger().inform(f"The data from {self.getTableName()} has been retrieved!\nStatus: {response['status']}\nData: {response['data']}")
+            return response['data']  # type: ignore
+        except Error as error:
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: 503\nError: {error}")
+            return []
+
+    def _getBusinessDetailsData(self, dataset: Union[List[RowType], List[Dict[str, Union[int, str, None]]]]) -> Dict[str, Union[int, List[BusinessDetails]]]:
+        """
+        Retrieving the data into the correct data type for the
+        application.
+
+        Parameters:
+            dataset: [{identifier: int, CompanyDetail: int, registered_address: string|null, name: string|null, nature: string|null, operational_address: string|null}]: The data from the relational database server.
+
+        Returns:
+            {status: int, data: [{identifier: int, CompanyDetail: int, registered_address: string|null, name: string|null, nature: string|null, operational_address: string|null}]}
+        """
+        status: int = 200 if len(dataset) > 0 else 204
+        data: List[BusinessDetails] = [BusinessDetails(business_detail) for business_detail in dataset] if len(dataset) > 0 else []
+        return {
+            "status": status,
+            "data": data
+        }
+
+    def updateBusinessDetail(self, business_detail: BusinessDetails) -> int:
+        """
+        Updating the data that is stored in the relational database
+        server.
+
+        Parameters:
+            business_detail: {identifier: int, CompanyDetail: int, registered_address: string|null, name: string|null, nature: string|null, operational_address: string|null}: The business detail data.
+
+        Returns:
+            int
+        """
+        parameters: Tuple[Union[str, None], Union[str, None], Union[str, None], Union[str, None], int, int] = (business_detail.registered_address, business_detail.name, business_detail.nature, business_detail.operational_address, business_detail.identifier, business_detail.CompanyDetail)
+        try:
+            self.updateData(
+                table=self.getTableName(),
+                values="registered_address = %s, name = %s, nature = %s, operational_address = %s",
+                condition="identifier = %s AND CompanyDetail = %s",
+                parameters=parameters # type: ignore
+            )
+            return 202
+        except Error as error:
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: 503\nError: {error}")
+            return 503

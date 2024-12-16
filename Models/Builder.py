@@ -7,6 +7,7 @@ Authors:
 """
 
 
+from Data.BusinessDetails import BusinessDetails
 from Data.CompanyDetails import CompanyDetails
 from Data.FinancialCalendar import FinancialCalendar
 from Data.FinCorpLogs import FinCorpLogs
@@ -28,7 +29,7 @@ from datetime import datetime, timedelta
 from Environment import Environment
 from typing import List, Tuple, Union, Dict
 from time import time, sleep
-from re import findall
+from re import findall, search
 from Models.Mail import Mail
 import os
 
@@ -117,6 +118,14 @@ class Builder:
     The model which will communicate to the mail servers for the
     application for the sending of mail notifications.
     """
+    __business_details_data: List[BusinessDetails]
+    """
+    The data of the Business Details.
+    """
+    __company_details_data: List[CompanyDetails]
+    """
+    The data of the Company Details.
+    """
 
     def __init__(self) -> None:
         """
@@ -137,6 +146,18 @@ class Builder:
         self.setShareholders(Shareholders())
         self.setMembers(Member())
         self.getLogger().inform("The builder has been initialized and all of its dependencies are injected!")
+
+    def getCompanyDetailsData(self) -> List[CompanyDetails]:
+        return self.__company_details_data
+
+    def setCompanyDetailsData(self, company_details_data: List[CompanyDetails]) -> None:
+        self.__company_details_data = company_details_data
+
+    def getBusinessDetailsData(self) -> List[BusinessDetails]:
+        return self.__business_details_data
+
+    def setBusinessDetailsData(self, business_details_data: List[BusinessDetails]) -> None:
+        self.__business_details_data = business_details_data
 
     def getCrawler(self) -> Crawler:
         return self.__crawler
@@ -352,11 +373,6 @@ class Builder:
         Returns:
             void
         """
-        # recipient: str = "andyg@finclub.mu"
-        # carbon_copy: str = "andygaspard@hotmail.com"
-        # subject: str = "Corporate Database Builder: Module 3: Extraction"
-        # message: str
-        # self.setMailer(Mail())
         quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
         successful_logs: List[FinCorpLogs] = self.getFinCorpLogs().getSuccessfulRunsLogs("extractCorporateData")
         date: str = self._getDateExtractCorporateData(successful_logs, quarter)
@@ -375,16 +391,8 @@ class Builder:
             response = status if amount_found > 0 else 200
         logs: Tuple[str, str, int, int, int, int, int] = ("extractCorporateData", quarter.quarter, int(datetime.strptime(date, "%Y-%m-%d").timestamp()), int(datetime.strptime(date, "%Y-%m-%d").timestamp()), response, amount, final_amount)
         self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(logs) # type: ignore
-        # if response >= 200 and response <= 299:
-        #     message = f"The Corporate Database Builder has extracted {final_amount} corporate registries for {date}.  Please verify the log file of the application to ensure that these files are correctly extracted or that there are any errors in the application.  Please note that it is a computer generated mail.  For any communication, contact the ones that are attached as carbon copies."
-        #     subject = "Corporate Database Builder: Module 3: Extraction"
-        # else:
-        #     message = f"The Corporate Database Builder has extracted {final_amount} corporate registries for {date} but there should be some data that are missing.  Please verify the log file of the application to ensure that these files are correctly extracted or that there are any errors in the application.  Please note that it is a computer generated mail.  For any communication, contact the ones that are attached as carbon copies."
-        #     subject = "Corporate Database Builder: Module 3: Extraction - Failed"
-        # self.getMailer().send(recipient, subject, message, carbon_copy)
         if response >= 500 and response <= 599:
             exit()
-        # self.cleanExtractionCacheDirectory()
 
     def cleanExtractionCacheDirectory(self) -> None:
         """
@@ -896,7 +904,7 @@ class Builder:
         response: int
         if company_detail.nature.upper() == "PRIVATE":
             response = self.storeCorporateDataDomesticPrivate(dataset, document_file)
-        elif company_detail.nature.upper() == "CIVIL":
+        elif company_detail.nature.upper() == "CIVIL" or company_detail.nature.upper() == "COMMERCIAL":
             response = self.storeCorporateDataDomesticCivil(dataset, document_file)
         elif company_detail.nature.upper() == "PUBLIC":
             response = self.storeCorporateDataDomesticPublic(dataset, document_file)
@@ -1780,3 +1788,798 @@ class Builder:
                 str(CompanyDetails["status"])
             )
             self.getCompanyDetails().addCompany(parameters)  # type: ignore
+
+    def curateBusinessDetails(self) -> None:
+        """
+        Curating the data that is in the Business Details table. The
+        registered addresses have to be sanitized for the
+        geographical information system to be able to process it
+        afterwards.  The names have to be sanitized to reflect the
+        companies they are affliated with.  The natures have to be
+        sanitized to be processed afterwards to obtain the sector of
+        activity of the company by doing a sentiment analysis.  The
+        operational addresses have to be sanitized for the
+        geographical information system to be able to process it
+        afterwards.
+
+        Returns:
+            void
+        """
+        quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
+        current_time: int = int(time())
+        self.setBusinessDetailsData(self.getBusinessDetails().getBusinessDetails())
+        self.setCompanyDetailsData([self.getCompanyDetails().getSpecificCompanyDetails(identifier) for identifier in list(set([business_detail.CompanyDetail for business_detail in self.getBusinessDetailsData()]))])
+        self.sanitizeBusinessDetailsRegisteredAddresses()
+        self.sanitizeBusinessDetailsName()
+        self.sanitizeBusinessDetailsNature()
+        self.sanitizeBusinessDetailOperationalAddress()
+        response: int = self.updateCuratedBusinessDetails()
+        log: Tuple[str, str, int, int, int, int, int] = ("curateBusinessDetails", quarter.quarter, current_time, current_time, response, len(self.getBusinessDetailsData()), len(self.getBusinessDetailsData()))
+        self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(log) # type: ignore
+
+    def updateCuratedBusinessDetails(self) -> int:
+        """
+        Storing the curated business details data that are in the
+        cache memory into the relational database server.
+
+        Returns:
+            int
+        """
+        good: int = 202
+        bad: int = 503
+        statuses: List[int] = list(set([self.getBusinessDetails().updateBusinessDetail(business_detail) for business_detail in self.getBusinessDetailsData()]))
+        return good if len(statuses) == 1 and statuses[0] == good else bad
+
+    def sanitizeBusinessDetailsRegisteredAddresses(self) -> None:
+        """
+        Sanitizing the registered addresses which are going to be
+        used by the geographical information system to be able to
+        process it afterwards.
+
+        Returns:
+            void
+        """
+        self.sanitizeBusinessDetailsRegisteredAddressesFormat()
+        self.sanitizeBusinessDetailsRegisteredAddressesErroneous()
+
+    def sanitizeBusinessDetailsRegisteredAddressesFormat(self)-> None:
+        """
+        Formating the registered addresses into the correct format
+        for processing.
+
+        Returns:
+            void
+        """
+        business_details: List[BusinessDetails] = []
+        self.getLogger().inform(f"Business Details: Registered Address: Formating the registered addresses into the correct format for processing.\nAmount: {len(self.getBusinessDetailsData())}")
+        for index in range(0, len(self.getBusinessDetailsData()), 1):
+            business_detail: BusinessDetails = self.getBusinessDetailsData()[index]
+            registered_address: Union[str, None] = " ".join([address for address in business_detail.registered_address.split(" ") if address != ""]).title() if business_detail.registered_address != None else business_detail.registered_address
+            business_detail.registered_address = registered_address
+            business_details.append(business_detail)
+        self.setBusinessDetailsData(business_details)
+
+    def sanitizeBusinessDetailOperationalAddress(self) -> None:
+        """
+        Sanitizing the operational addresses which are going to be
+        used by the geographical information system to be able to
+        process it afterwards.
+
+        Returns:
+            void
+        """
+        self.sanitizeBusinessDetailOperationalAddressFormat()
+        self.sanitizeBusinessDetailOperationalAddressMissingAddress()
+        self.sanitizeBusinessDetailOperationalAddressTruncatedAddress()
+
+    def sanitizeBusinessDetailOperationalAddressTruncatedAddress(self) -> None:
+        """
+        Setting the data of the operational address to be the one of
+        the registered for the ones that have truncated data.
+
+        Returns:
+            void
+        """
+        truncated_data: List[BusinessDetails] = [business_details for business_details in self.getBusinessDetailsData() if business_details.operational_address != None and business_details.registered_address != None and business_details.operational_address in business_details.registered_address]
+        filtered_business_details: List[BusinessDetails] = [business_details for business_details in self.getBusinessDetailsData()if business_details not in truncated_data]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Operational Address: Setting the data of the operational address to be the one of the registered for the ones that have truncated data.\nAmount: {len(truncated_data)}")
+        for index in range(0, len(truncated_data), 1):
+            truncated_data[index].operational_address = truncated_data[index].registered_address
+        self.setBusinessDetailsData(truncated_data + filtered_business_details)
+
+    def sanitizeBusinessDetailOperationalAddressMissingAddress(self) -> None:
+        """
+        Setting the data operational address to be the one of the
+        registered address for the ones missing data.
+
+        Returns:
+            void
+        """
+        missing_addresses: List[BusinessDetails] = [business_details for business_details in self.getBusinessDetailsData() if business_details.operational_address == "Mauritius" or business_details.operational_address == "() Mauritius" or business_details.operational_address == "Mauritius Mauritius"]
+        filtered_business_details: List[BusinessDetails] = [business_details for business_details in self.getBusinessDetailsData()if business_details not in missing_addresses]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Operational Address: Setting the data operational address to be the one of the registered address for the ones missing data.\nAmount: {len(missing_addresses)}")
+        for index in range(0, len(missing_addresses), 1):
+            missing_addresses[index].operational_address = missing_addresses[index].registered_address
+        self.setBusinessDetailsData(missing_addresses + filtered_business_details)
+
+    def sanitizeBusinessDetailOperationalAddressFormat(self) -> None:
+        """
+        Formating the operational addresses into the correct format
+        for processing.
+
+        Returns:
+            void
+        """
+        business_details: List[BusinessDetails] = []
+        self.getLogger().inform(f"Business Details: Operational Address: Formating the operational addresses into the correct format for processing.\nAmount: {len(self.getBusinessDetailsData())}")
+        for index in range(0, len(self.getBusinessDetailsData()), 1):
+            business_detail: BusinessDetails = self.getBusinessDetailsData()[index]
+            operational_address: Union[str, None] = " ".join([address for address in business_detail.operational_address.split(" ") if address != ""]).title() if business_detail.operational_address != None else business_detail.operational_address
+            business_detail.operational_address = operational_address
+            business_details.append(business_detail)
+        self.setBusinessDetailsData(business_details)
+
+    def sanitizeBusinessDetailsRegisteredAddressesErroneous(self) -> None:
+        """
+        Sanitizing the registered addresses that are going to be
+        used by the geographical information system to be able to
+        process it afterwards.
+
+        Returns:
+            void
+        """
+        erroneous_registered_addresses: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.registered_address != None and bool(search(r"\d", business_detail.registered_address)) == True]
+        self.getLogger().inform(f"Business Details: Registered Address: Sanitizing the registered addresses that are going to be used by the geographical information system to be able to process it afterwards.\nAmount: {len(erroneous_registered_addresses)}")
+        filtered_business_details: List[BusinessDetails] = [business_details for business_details in self.getBusinessDetailsData()if business_details not in erroneous_registered_addresses]
+        self.setBusinessDetailsData([])
+        for index in range(0, len(erroneous_registered_addresses), 1):
+            registered_addresses: List[str] = erroneous_registered_addresses[index].registered_address.split(" ") # type: ignore
+            registered_addresses = [address for address in registered_addresses if address != ""]
+            registered_addresses = [address for address in registered_addresses if bool(search(r"\d", address)) == False]
+            registered_addresses = [address for address in registered_addresses if address != "No"]
+            registered_addresses = [address for address in registered_addresses if address != "No."]
+            registered_addresses = [address for address in registered_addresses if address != "Floor"]
+            registered_addresses = [address for address in registered_addresses if address != "Lot"]
+            registered_addresses = [address for address in registered_addresses if address != "Plot"]
+            registered_addresses = [address for address in registered_addresses if address != "Suite"]
+            registered_addresses = [address for address in registered_addresses if address != "Level"]
+            registered_addresses = [address for address in registered_addresses if address != "Effective"]
+            registered_addresses = [address for address in registered_addresses if address != "Date"]
+            registered_addresses = [address for address in registered_addresses if address != "For"]
+            registered_addresses = [address for address in registered_addresses if address != "Registered"]
+            registered_addresses = [address for address in registered_addresses if address != "Office"]
+            registered_addresses = [address for address in registered_addresses if address != "Address:"]
+            registered_addresses = [address for address in registered_addresses if address != "(Ex"]
+            registered_addresses = [address for address in registered_addresses if address != "Office"]
+            registered_addresses = [address for address in registered_addresses if address != "Gds"]
+            registered_addresses = [address for address in registered_addresses if address != "-"]
+            registered_addresses = [address for address in registered_addresses if address != "Apt."]
+            registered_addresses = [address for address in registered_addresses if address != "Hse"]
+            registered_addresses = [address.capitalize() for address in registered_addresses]
+            registered_address: str = " ".join(registered_addresses)
+            erroneous_registered_addresses[index].registered_address = registered_address
+        self.setBusinessDetailsData(filtered_business_details + erroneous_registered_addresses)
+
+    def sanitizeBusinessDetailsNameSameNames(self) -> None:
+        """
+        Sanitizing the names which are equal to ".".
+
+        Returns:
+            void
+        """
+        same_names: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.name == "."]
+        filtered_business_data: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail not in same_names]
+        self.getLogger().inform(f"Business Details: Name: The names are being sanitized where '.' will be replaced by their company names.\nAmount: {len(same_names)}")
+        self.setBusinessDetailsData([])
+        for index in range(0, len(same_names), 1):
+            company_detail: CompanyDetails = [company_detail for company_detail in self.getCompanyDetailsData() if company_detail.identifier == same_names[index].CompanyDetail][0]
+            same_names[index].name = company_detail.name.title()
+        self.setBusinessDetailsData(same_names + filtered_business_data)
+
+    def sanitizeBusinessDetailsNameCountriesNames(self) -> None:
+        """
+        Sanitizing the names where the country names are in the
+        business names.
+
+        Returns:
+            void
+        """
+        countries_names: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.name != None and "MAURITIUS" in business_detail.name.upper()]
+        filtered_business_data: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail not in countries_names]
+        self.getLogger().inform(f"Business Details: Name: The names are being sanitized where the values which are the country names will be replaced by their company names.\nAmount: {len(countries_names)}")
+        self.setBusinessDetailsData([])
+        for index in range(0, len(countries_names), 1):
+            company_detail: CompanyDetails = [company_detail for company_detail in self.getCompanyDetailsData() if company_detail.identifier == countries_names[index].CompanyDetail][0]
+            countries_names[index].name = company_detail.name.title()
+        self.setBusinessDetailsData(countries_names + filtered_business_data)
+
+    def sanitizeBusinessDetailsNameNoNameDomesticCompanies(self) -> None:
+        """
+        Sanitizing the names where there is no name for the domestic
+        companies.
+
+        Returns:
+            void
+        """
+        no_name_domestic_companies: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.name == None and business_detail.operational_address != None]
+        filtered_business_data: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail not in no_name_domestic_companies]
+        self.getLogger().inform(f"Business Details: Name: The names are being sanitized where there is no business name given that they are domestic companies which are the country names will be replaced by their company names.\nAmount: {len(no_name_domestic_companies)}")
+        self.setBusinessDetailsData([])
+        for index in range(0, len(no_name_domestic_companies), 1):
+            company_detail: CompanyDetails = [company_detail for company_detail in self.getCompanyDetailsData() if company_detail.identifier == no_name_domestic_companies[index].CompanyDetail][0]
+            no_name_domestic_companies[index].name = company_detail.name.title()
+        self.setBusinessDetailsData(no_name_domestic_companies + filtered_business_data)
+
+    def sanitizeBusinessDetailsNameAddressesAsNames(self) -> None:
+        """
+        Sanitizing the names where there is the addresses in the
+        name.
+
+        Returns:
+            void
+        """
+        addresses_as_names: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.name != None and "road" in business_detail.name.lower()]
+        filtered_business_data: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail not in addresses_as_names]
+        self.getLogger().inform(f"Business Details: Name: The names are being sanitized where they are the addresses in the names which are the country names will be replaced by their company names.\nAmount: {len(addresses_as_names)}")
+        self.setBusinessDetailsData([])
+        for index in range(0, len(addresses_as_names), 1):
+            company_detail: CompanyDetails = [company_detail for company_detail in self.getCompanyDetailsData() if company_detail.identifier == addresses_as_names[index].CompanyDetail][0]
+            addresses_as_names[index].name = company_detail.name.title()
+        self.setBusinessDetailsData(addresses_as_names + filtered_business_data)
+
+    def sanitizeBusinessDetailsNameNamesAsNatures(self) -> None:
+        """
+        Sanitizing the names where they are the natures.
+
+        Returns:
+            void
+        """
+        names_as_natures: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.name != None and business_detail.name == business_detail.nature]
+        filtered_business_data: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail not in names_as_natures]
+        self.getLogger().inform(f"Business Details: Name: The names are being sanitized where the business name are the business natures which are the country names will be replaced by their company names.\nAmount: {len(names_as_natures)}")
+        self.setBusinessDetailsData([])
+        for index in range(0, len(names_as_natures), 1):
+            company_detail: CompanyDetails = [company_detail for company_detail in self.getCompanyDetailsData() if company_detail.identifier == names_as_natures[index].CompanyDetail][0]
+            names_as_natures[index].name = company_detail.name.title()
+        self.setBusinessDetailsData(names_as_natures + filtered_business_data)
+
+    def sanitizeBusinessDetailsName(self) -> None:
+        """
+        Sanitizing the names to reflect the companies they are
+        affliated with.
+
+        Returns:
+            void
+        """
+        self.sanitizeBusinessDetailsNameSameNames()
+        self.sanitizeBusinessDetailsNameCountriesNames()
+        self.sanitizeBusinessDetailsNameNoNameDomesticCompanies()
+        self.sanitizeBusinessDetailsNameAddressesAsNames()
+        self.sanitizeBusinessDetailsNameNamesAsNatures()
+
+    def sanitizeBusinessDetailsNature(self) -> None:
+        """
+        The natures have to be sanitized to be processed afterwards
+        to obtain the sector of activity of the company by doing a
+        sentiment analysis.
+
+        Returns:
+            void
+        """
+        self.sanitizeBusinessDetailsNatureSameAsName()
+        self.sanitizeBusinessDetailsNatureJobContractors()
+        self.sanitizeBusinessDetailsNatureNotElsewhereClassified()
+        self.sanitizeBusinessDetailsNatureOtherProfessionalScientificTechnicalActivities()
+        self.sanitizeBusinessDetailsNatureFirms()
+        self.sanitizeBusinessDetailsNatureGeneralRetailers()
+        self.sanitizeBusinessDetailsNatureWholesalers()
+        self.sanitizeBusinessDetailsNatureHeadOffices()
+        self.sanitizeBusinessDetailsNatureWebPortals()
+        self.sanitizeBusinessDetailsNatureRestaurants()
+        self.sanitizeBusinessDetailsNatureInvestmentCompanies()
+        self.sanitizeBusinessDetailsNatureRealEstate()
+        self.sanitizeBusinessDetailsNatureManagementCompanies()
+        self.sanitizeBusinessDetailsNatureOtherBusinessSupportActivites()
+        self.sanitizeBusinessDetailsNatureFreightTransportation()
+        self.sanitizeBusinessDetailsNatureMotorVehicleRental()
+        self.sanitizeBusinessDetailsNatureRentingOfPassengerCar()
+        self.sanitizeBusinessDetailsNaturePrePrimaryEducation()
+        self.sanitizeBusinessDetailsNatureFrozenProductsRetailers()
+        self.sanitizeBusinessDetailsNatureOtherTourismReservationActivities()
+        self.sanitizeBusinessDetailsNatureClothingRetailers()
+        self.sanitizeBusinessDetailsNatureHardwareRetailers()
+        self.sanitizeBusinessDetailsNatureBreadManufacturers()
+        self.sanitizeBusinessDetailsNatureRepairElectricalEquipment()
+        self.sanitizeBusinessDetailsNaturePhotoAndVideoEditing()
+        self.sanitizeBusinessDetailsNatureResidentialNursingCareActivities()
+        self.sanitizeBusinessDetailsNatureConstructionOfBuildings()
+        self.sanitizeBusinessDetailsNatureDevelopmentOfBuildings()
+        self.sanitizeBusinessDetailsNaturePlantingAndEstablishingOfCrops()
+        self.sanitizeBusinessDetailsNaturePackagingActivities()
+        self.sanitizeBusinessDetailsNatureEventCatering()
+
+    def sanitizeBusinessDetailsNatureEventCatering(self) -> None:
+        """
+        Sanitizing the nature where they are classified as event
+        catering.
+
+        Returns:
+            void
+        """
+        event_catering: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "event catering" in business_detail.nature.lower()]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in event_catering]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are classified as event catering.\nAmount: {len(event_catering)}")
+        for index in range(0, len(event_catering), 1):
+            event_catering[index].nature = "Event Catering"
+        self.setBusinessDetailsData(event_catering + filtered_business_details)
+
+    def sanitizeBusinessDetailsNaturePackagingActivities(self) -> None:
+        """
+        Sanitizing the nature where they are classified as packaging
+        activities.
+
+        Returns:
+            void
+        """
+        packaging_activities: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "packaging" in business_detail.nature.lower()]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in packaging_activities]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are classified as packaging activities.\nAmount: {len(packaging_activities)}")
+        for index in range(0, len(packaging_activities), 1):
+            packaging_activities[index].nature = "Packaging Activities"
+        self.setBusinessDetailsData(packaging_activities + filtered_business_details)
+
+    def sanitizeBusinessDetailsNaturePlantingAndEstablishingOfCrops(self) -> None:
+        """
+        Sanitizing the nature where they are classified as
+        planting and establishing crops.
+
+        Returns:
+            void
+        """
+        planting_and_establishing_of_crops: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("planting" in business_detail.nature.lower() and "crops" in business_detail.nature.lower())]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in planting_and_establishing_of_crops]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are classified as planting and establishing crops.\nAmount: {len(planting_and_establishing_of_crops)}")
+        for index in range(0, len(planting_and_establishing_of_crops), 1):
+            planting_and_establishing_of_crops[index].nature = "Planting And Establishing Of Crops"
+        self.setBusinessDetailsData(planting_and_establishing_of_crops + filtered_business_details)
+
+    def sanitizeBusinessDetailsNatureDevelopmentOfBuildings(self) -> None:
+        """
+        Sanitizing the nature where they are classified as
+        development of buildings.
+
+        Returns:
+            void
+        """
+        development_of_buildings: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("development" in business_detail.nature.lower() and "building" in business_detail.nature.lower())]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in development_of_buildings]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are classified as development of buildings.\nAmount: {len(development_of_buildings)}")
+        for index in range(0, len(development_of_buildings), 1):
+            development_of_buildings[index].nature = "Construction Of Buildings"
+        self.setBusinessDetailsData(development_of_buildings + filtered_business_details)
+
+    def sanitizeBusinessDetailsNatureConstructionOfBuildings(self) -> None:
+        """
+        Sanitizing the nature where they are classified as
+        construction of buildings.
+
+        Returns:
+            void
+        """
+        construction_of_buildings: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("construction" in business_detail.nature.lower() and "building" in business_detail.nature.lower())]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in construction_of_buildings]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are classified as construction of buildings.\nAmount: {len(construction_of_buildings)}")
+        for index in range(0, len(construction_of_buildings), 1):
+            construction_of_buildings[index].nature = "Construction Of Buildings"
+        self.setBusinessDetailsData(construction_of_buildings + filtered_business_details)
+
+    def sanitizeBusinessDetailsNatureResidentialNursingCareActivities(self) -> None:
+        """
+        Sanitizing the nature where they are classified as
+        residential nursing care activities.
+
+        Returns:
+            void
+        """
+        residential_nursing_care_activities: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("Residential" in business_detail.nature and "Nursing" in business_detail.nature)]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in residential_nursing_care_activities]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are classified as residential nursing care activities.\nAmount: {len(residential_nursing_care_activities)}")
+        for index in range(0, len(residential_nursing_care_activities), 1):
+            residential_nursing_care_activities[index].nature = "Residential Nursing Care Activities"
+        self.setBusinessDetailsData(residential_nursing_care_activities + filtered_business_details)
+
+    def sanitizeBusinessDetailsNaturePhotoAndVideoEditing(self) -> None:
+        """
+        Sanitizing the nature where they are photographers.
+
+        Returns:
+            void
+        """
+        content_creators: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "Photograph" in business_detail.nature]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in content_creators]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are photographers.\nAmount: {len(content_creators)}")
+        for index in range(0, len(content_creators), 1):
+            content_creators[index].nature = "Photo And Video Editing"
+        self.setBusinessDetailsData(content_creators + filtered_business_details)
+
+    def sanitizeBusinessDetailsNatureRepairElectricalEquipment(self) -> None:
+        """
+        Sanitizing the nature where they are repairers of electrical
+        equipment.
+
+        Returns:
+            void
+        """
+        electrical_repairers: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("Repair" in business_detail.nature and "Electrical" in business_detail.nature and "Equipment" in business_detail.nature)]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in electrical_repairers]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are repairers of electrical equipment.\nAmount: {len(electrical_repairers)}")
+        for index in range(0, len(electrical_repairers), 1):
+            electrical_repairers[index].nature = "Repair Of Electrical Equipment"
+        self.setBusinessDetailsData(electrical_repairers + filtered_business_details)
+
+    def sanitizeBusinessDetailsNatureBreadManufacturers(self) -> None:
+        """
+        Sanitizing the nature where they are bread manufacturers.
+
+        Returns:
+            void
+        """
+        bread_manufacturers: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("Manufacture" in business_detail.nature and "Bread" in business_detail.nature)]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in bread_manufacturers]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are bread manufacturers.\nAmount: {len(bread_manufacturers)}")
+        for index in range(0, len(bread_manufacturers), 1):
+            bread_manufacturers[index].nature = "Manufacture Of Bread"
+        self.setBusinessDetailsData(bread_manufacturers + filtered_business_details)
+
+    def sanitizeBusinessDetailsNatureHardwareRetailers(self) -> None:
+        """
+        Sanitizing the nature where they are hardware retailers.
+
+        Returns:
+            void
+        """
+        hardware_retailers: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("Retail" in business_detail.nature and "Hardware" in business_detail.nature)]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in hardware_retailers]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are hardware retailers.\nAmount: {len(hardware_retailers)}")
+        for index in range(0, len(hardware_retailers), 1):
+            hardware_retailers[index].nature = "Retail Sale Of Hardware"
+        self.setBusinessDetailsData(hardware_retailers + filtered_business_details)
+
+    def sanitizeBusinessDetailsNatureClothingRetailers(self) -> None:
+        """
+        Sanitizing the nature where they are clothing retailers.
+
+        Returns:
+            void
+        """
+        clothing_retailers: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("retail" in business_detail.nature.lower() and "clothing" in business_detail.nature.lower())]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in clothing_retailers]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are clothing retailers.\nAmount: {len(clothing_retailers)}")
+        for index in range(0, len(clothing_retailers), 1):
+            clothing_retailers[index].nature = "Retail Sale Of Clothing"
+        self.setBusinessDetailsData(clothing_retailers + filtered_business_details)
+
+    def sanitizeBusinessDetailsNatureOtherTourismReservationActivities(self) -> None:
+        """
+        Sanitizing the nature where they are clasified as other
+        tourism reservation activities.
+
+        Returns:
+            void
+        """
+        other_tourism_reservation_activities: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("Other" in business_detail.nature and "Tourism" in business_detail.nature)]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in other_tourism_reservation_activities]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are clasified as other tourism reservation activities.\nAmount: {len(other_tourism_reservation_activities)}")
+        for index in range(0, len(other_tourism_reservation_activities), 1):
+            other_tourism_reservation_activities[index].nature = "Other Tourism Reservation Services"
+        self.setBusinessDetailsData(other_tourism_reservation_activities + filtered_business_details)
+
+    def sanitizeBusinessDetailsNatureFrozenProductsRetailers(self) -> None:
+        """
+        Sanitizing the nature where they are frozen products
+        retailers.
+
+        Returns:
+            void
+        """
+        frozen_product_retailers: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("Retail" in business_detail.nature and "Poultry" in business_detail.nature)]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in frozen_product_retailers]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are frozen products retailers.\nAmount: {len(frozen_product_retailers)}")
+        for index in range(0, len(frozen_product_retailers), 1):
+            frozen_product_retailers[index].nature = "Retail Sale of Frozen Products"
+        self.setBusinessDetailsData(frozen_product_retailers + filtered_business_details)
+
+    def sanitizeBusinessDetailsNaturePrePrimaryEducation(self) -> None:
+        """
+        Sanitizing the nature where they are pre-primary schools.
+
+        Returns:
+            void
+        """
+        pre_primary_school: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("Pre" in business_detail.nature and "Primary" in business_detail.nature)]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in pre_primary_school]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are pre-primary schools.\nAmount: {len(pre_primary_school)}")
+        for index in range(0, len(pre_primary_school), 1):
+            pre_primary_school[index].nature = "Pre-Primary Education"
+        self.setBusinessDetailsData(pre_primary_school + filtered_business_details)
+
+    def sanitizeBusinessDetailsNatureRentingOfPassengerCar(self) -> None:
+        """
+        Sanitizing the nature where they are motor vehicles rental
+        companies.
+
+        Returns:
+            void
+        """
+        motor_vehicle_rentals: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("Renting" in business_detail.nature and "Car" in business_detail.nature)]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in motor_vehicle_rentals]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are motor vehicles rental companies.\nAmount: {len(motor_vehicle_rentals)}")
+        for index in range(0, len(motor_vehicle_rentals), 1):
+            motor_vehicle_rentals[index].nature = "Motor Vehicles Rental"
+        self.setBusinessDetailsData(motor_vehicle_rentals + filtered_business_details)
+
+    def sanitizeBusinessDetailsNatureMotorVehicleRental(self) -> None:
+        """
+        Sanitizing the nature where they are motor vehicles rental
+        companies.
+
+        Returns:
+            void
+        """
+        motor_vehicle_rentals: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("Contractor" in business_detail.nature and "Motor" in business_detail.nature)]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in motor_vehicle_rentals]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are motor vehicles rental companies.\nAmount: {len(motor_vehicle_rentals)}")
+        for index in range(0, len(motor_vehicle_rentals), 1):
+            motor_vehicle_rentals[index].nature = "Motor Vehicles Rental"
+        self.setBusinessDetailsData(motor_vehicle_rentals + filtered_business_details)
+
+    def sanitizeBusinessDetailsNatureFreightTransportation(self) -> None:
+        """
+        Sanitizing the nature where they are freight transportation
+        companies.
+
+        Returns:
+            void
+        """
+        freight_transportations: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "Freight Transport" in business_detail.nature]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in freight_transportations]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are freight transportation companies.\nAmount: {len(freight_transportations)}")
+        for index in range(0, len(freight_transportations), 1):
+            freight_transportations[index].nature = "Freight Transport"
+        self.setBusinessDetailsData(freight_transportations + filtered_business_details)
+
+    def sanitizeBusinessDetailsNatureOtherBusinessSupportActivites(self) -> None:
+        """
+        Sanitizing the nature where they are classified as Other
+        Business Support Activities.
+
+        Returns:
+            void
+        """
+        other_business_support_activities: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "Other Business Support Service Activities" in business_detail.nature]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in other_business_support_activities]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are classified as Other Business Support Activities.\nAmount: {len(other_business_support_activities)}")
+        for index in range(0, len(other_business_support_activities), 1):
+            other_business_support_activities[index].nature = "Other Business Support Service Activities"
+        self.setBusinessDetailsData(other_business_support_activities + filtered_business_details)
+
+    def sanitizeBusinessDetailsNatureManagementCompanies(self) -> None:
+        """
+        Sanitizing the nature where they are management companies.
+
+        Returns:
+            void
+        """
+        management_companies: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "Holding" in business_detail.nature]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in management_companies]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are management companies.\nAmount: {len(management_companies)}")
+        for index in range(0, len(management_companies), 1):
+            management_companies[index].nature = "Management Companies"
+        self.setBusinessDetailsData(management_companies + filtered_business_details)
+
+    def sanitizeBusinessDetailsNatureRealEstate(self) -> None:
+        """
+        Sanitizing the nature where they are real estate.
+
+        Returns:
+            void
+        """
+        real_estate: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "real estate" in business_detail.nature.lower()]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in real_estate]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are real estate.\nAmount: {len(real_estate)}")
+        for index in range(0, len(real_estate), 1):
+            real_estate[index].nature = "Real Estate Activities"
+        self.setBusinessDetailsData(real_estate + filtered_business_details)
+
+    def sanitizeBusinessDetailsNatureInvestmentCompanies(self) -> None:
+        """
+        Sanitizing the nature where they are investment companies.
+
+        Returns:
+            void
+        """
+        investment_companies: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("investment" in business_detail.nature.lower() and "companies" in business_detail.nature.lower())]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in investment_companies]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are investment companies.\nAmount: {len(investment_companies)}")
+        for index in range(0, len(investment_companies), 1):
+            investment_companies[index].nature = "Investment Companies"
+        self.setBusinessDetailsData(investment_companies + filtered_business_details)
+
+    def sanitizeBusinessDetailsNatureRestaurants(self) -> None:
+        """
+        Sanitizing the nature where they are restaurants.
+
+        Returns:
+            void
+        """
+        restaurants: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("Restaurants" in business_detail.nature or "Restaurant" in business_detail.nature)]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in restaurants]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are restaurants.\nAmount: {len(restaurants)}")
+        for index in range(0, len(restaurants), 1):
+            restaurants[index].nature = "Restaurants"
+        self.setBusinessDetailsData(restaurants + filtered_business_details)
+
+    def sanitizeBusinessDetailsNatureWebPortals(self) -> None:
+        """
+        Sanitizing the nature where they are web portals.
+
+        Returns:
+            void
+        """
+        web_portals: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "web portals" in business_detail.nature.lower()]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in web_portals]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are web portals.\nAmount: {len(web_portals)}")
+        for index in range(0, len(web_portals), 1):
+            web_portals[index].nature = "Activities Of Head Offices"
+        self.setBusinessDetailsData(web_portals + filtered_business_details)
+
+    def sanitizeBusinessDetailsNatureHeadOffices(self) -> None:
+        """
+        Sanitizing the nature where they are head offices.
+
+        Returns:
+            void
+        """
+        head_offices: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "head offices" in business_detail.nature.lower()]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in head_offices]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are head offices.\nAmount: {len(head_offices)}")
+        for index in range(0, len(head_offices), 1):
+            head_offices[index].nature = "Activities Of Head Offices"
+        self.setBusinessDetailsData(head_offices + filtered_business_details)
+
+    def sanitizeBusinessDetailsNatureWholesalers(self) -> None:
+        """
+        Sanitizing the nature where they are wholesalers.
+
+        Returns:
+            void
+        """
+        wholesalers: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "non-specialised wholesale trade" in business_detail.nature.lower()]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in wholesalers]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are wholesalers.\nAmount: {len(wholesalers)}")
+        for index in range(0, len(wholesalers), 1):
+            wholesalers[index].nature = "Non-Specialised Wholesale Trade"
+        self.setBusinessDetailsData(wholesalers + filtered_business_details)
+
+    def sanitizeBusinessDetailsNatureGeneralRetailers(self) -> None:
+        """
+        Sanitizing the nature where they are general retailers.
+
+        Returns:
+            void
+        """
+        general_retailers: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("general retailer" in business_detail.nature.lower() or "foodstuff" in business_detail.nature.lower())]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in general_retailers]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where they are general retailers.\nAmount: {len(general_retailers)}")
+        for index in range(0, len(general_retailers), 1):
+            general_retailers[index].nature = "General Retailer"
+        self.setBusinessDetailsData(general_retailers + filtered_business_details)
+
+    def sanitizeBusinessDetailsNatureFirms(self) -> None:
+        """
+        Sanitizing the nature where '(Firm)' are removed.
+
+        Returns:
+            void
+        """
+        firms: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and "(Firm)" in business_detail.nature]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in firms]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where it is 'Other Professional, Scientific And Technical Activities'.\nAmount: {len(firms)}")
+        for index in range(0, len(firms), 1):
+            nature: str = str(firms[index].nature).replace("(Firm)", "")
+            firms[index].nature = nature
+        self.setBusinessDetailsData(firms + filtered_business_details)
+
+    def sanitizeBusinessDetailsNatureOtherProfessionalScientificTechnicalActivities(self) -> None:
+        """
+        Sanitizing the nature where it is 'Other Professional,
+        Scientific And Technical Activities'.
+
+        Returns:
+            void
+        """
+        other_professional_scientific_technical_activities: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("other" in business_detail.nature.lower() and "professional" in business_detail.nature.lower())]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in other_professional_scientific_technical_activities]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where it is 'Other Professional, Scientific And Technical Activities'.\nAmount: {len(other_professional_scientific_technical_activities)}")
+        for index in range(0, len(other_professional_scientific_technical_activities), 1):
+            other_professional_scientific_technical_activities[index].nature = "Other Professional, Scientific And Technical Activities"
+        self.setBusinessDetailsData(other_professional_scientific_technical_activities + filtered_business_details)
+
+    def sanitizeBusinessDetailsNatureNotElsewhereClassified(self) -> None:
+        """
+        Sanitizing the nature where it is the "Not Elsewhere
+        Classfied" but it will be changed to "Other Business Support
+        Activities".
+
+        Returns:
+            void
+        """
+        not_elsewhere_classified: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("N.E.C" in business_detail.nature or "n.e.c" in business_detail.nature)]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in not_elsewhere_classified]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where it is the 'Not Elsewhere Classfied' but it will be changed to 'Other Business Support Activities'.\nAmount: {len(not_elsewhere_classified)}")
+        for index in range(0, len(not_elsewhere_classified), 1):
+            not_elsewhere_classified[index].nature = "Other Business Support Activities"
+        self.setBusinessDetailsData(not_elsewhere_classified + filtered_business_details)
+
+    def sanitizeBusinessDetailsNatureJobContractors(self) -> None:
+        """
+        Sanitizing the nature where it is the "Job Contractor" but
+        it will be changed to "Other Business Support Activities".
+
+        Returns:
+            void
+        """
+        job_contractors: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and ("job contractor" in business_detail.nature.lower() or "A," in business_detail.nature or "grade" in business_detail.nature.lower())]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in job_contractors]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where it is the 'Job Contractor' but it will be changed to 'Other Business Support Activities'.\nAmount: {len(job_contractors)}")
+        for index in range(0, len(job_contractors), 1):
+            job_contractors[index].nature = "Other Business Support Activities"
+        self.setBusinessDetailsData(job_contractors + filtered_business_details)
+
+    def sanitizeBusinessDetailsNatureSameAsName(self) -> None:
+        """
+        Sanitizing the nature where it is the same as the name but
+        it will be changed to "Other Business Support Activities".
+
+        Returns:
+            void
+        """
+        same_as_name: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.nature != None and business_detail.name != None and (business_detail.nature == business_detail.name or business_detail.nature in business_detail.name)]
+        filtered_business_details: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData()if business_detail not in same_as_name]
+        self.setBusinessDetailsData([])
+        self.getLogger().inform(f"Business Details: Nature: Sanitizing the nature where it is the same as the name but it will be changed to 'Other Business Support Activities'.\nAmount: {len(same_as_name)}")
+        for index in range(0, len(same_as_name), 1):
+            same_as_name[index].nature = "Other Business Support Activities"
+        self.setBusinessDetailsData(same_as_name + filtered_business_details)
