@@ -373,11 +373,6 @@ class Builder:
         Returns:
             void
         """
-        # recipient: str = "andyg@finclub.mu"
-        # carbon_copy: str = "andygaspard@hotmail.com"
-        # subject: str = "Corporate Database Builder: Module 3: Extraction"
-        # message: str
-        # self.setMailer(Mail())
         quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
         successful_logs: List[FinCorpLogs] = self.getFinCorpLogs().getSuccessfulRunsLogs("extractCorporateData")
         date: str = self._getDateExtractCorporateData(successful_logs, quarter)
@@ -396,16 +391,8 @@ class Builder:
             response = status if amount_found > 0 else 200
         logs: Tuple[str, str, int, int, int, int, int] = ("extractCorporateData", quarter.quarter, int(datetime.strptime(date, "%Y-%m-%d").timestamp()), int(datetime.strptime(date, "%Y-%m-%d").timestamp()), response, amount, final_amount)
         self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(logs) # type: ignore
-        # if response >= 200 and response <= 299:
-        #     message = f"The Corporate Database Builder has extracted {final_amount} corporate registries for {date}.  Please verify the log file of the application to ensure that these files are correctly extracted or that there are any errors in the application.  Please note that it is a computer generated mail.  For any communication, contact the ones that are attached as carbon copies."
-        #     subject = "Corporate Database Builder: Module 3: Extraction"
-        # else:
-        #     message = f"The Corporate Database Builder has extracted {final_amount} corporate registries for {date} but there should be some data that are missing.  Please verify the log file of the application to ensure that these files are correctly extracted or that there are any errors in the application.  Please note that it is a computer generated mail.  For any communication, contact the ones that are attached as carbon copies."
-        #     subject = "Corporate Database Builder: Module 3: Extraction - Failed"
-        # self.getMailer().send(recipient, subject, message, carbon_copy)
         if response >= 500 and response <= 599:
             exit()
-        # self.cleanExtractionCacheDirectory()
 
     def cleanExtractionCacheDirectory(self) -> None:
         """
