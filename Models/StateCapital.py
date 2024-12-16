@@ -91,20 +91,20 @@ class State_Capital(Database_Handler):
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: 503\nError: {error}")
             return []
 
-    # def _get(self, dataset: Union[List[RowType], List[Dict[str, Union[int, str, None, float]]]]) -> Dict[str, Union[int, List[StateCapital]]]:
-    #     """
-    #     Formatting the result set data in the correct format for the
-    #     State Capital model.
+    def _get(self, dataset: Union[List[RowType], List[Dict[str, Union[int, str, None, float]]]]) -> Dict[str, Union[int, List[StateCapital]]]:
+        """
+        Formatting the result set data in the correct format for the
+        State Capital model.
 
-    #     Parameters:
-    #         dataset: The result set data that needs to be formatted.
+        Parameters:
+            dataset: The result set data that needs to be formatted.
 
-    #     Returns:
-    #         {status: int, data: [{identifier: int, CompanyDetail: int, type: string|null, amount: int|null, state_capital: float|null, amount_unpaid: float|null, currency: string|null}]}
-    #     """
-    #     status: int = 200 if len(dataset) > 0 else 204
-    #     data: List[StateCapital] = [StateCapital(state_capital) for state_capital in dataset] if len(dataset) > 0 else []
-    #     return {
-    #         "status": status,
-    #         "data": data
-    #     }
+        Returns:
+            {status: int, data: [{identifier: int, CompanyDetail: int, type: string|null, amount: int|null, state_capital: float|null, amount_unpaid: float|null, currency: string|null}]}
+        """
+        status: int = 200 if len(dataset) > 0 else 204
+        data: List[StateCapital] = [StateCapital(state_capital) for state_capital in dataset] if len(dataset) > 0 else []
+        return {
+            "status": status,
+            "data": data
+        }
