@@ -1828,6 +1828,22 @@ class Builder:
         """
         self.curateStateCapitalTypeOrdinary()
         self.curateStateCapitalTypeSociale()
+        self.curateStateCapitalTypeD()
+
+    def curateStateCapitalTypeD(self) -> None:
+        """
+        Filtering the data for the D type.
+
+        Returns:
+            void
+        """
+        class_d: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital.type != None and ("class" in stated_capital.type.lower() or "d" in stated_capital.type.lower())]
+        filtered_data: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital not in class_d]
+        self.setStateCapitalData([])
+        self.getLogger().inform(f"Stated Capital: Type: Filtering the data for the D type.\nAmount: {len(class_d)}")
+        for index in range(0, len(class_d), 1):
+            class_d[index].type = "Class D"
+        self.setStateCapitalData(class_d + filtered_data)
 
     def curateStateCapitalTypeSociale(self) -> None:
         """
