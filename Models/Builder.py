@@ -1802,7 +1802,7 @@ class Builder:
 
     def curateStateCapital(self) -> None:
         """
-        Curating the data that is in the State Capital table.  Santizing the type of the stated capital for a better filtering of the data.
+        Curating the data that is in the State Capital table.  Santizing the type of the stated capital for a better filtering of the data.  Sanitizing the current of the stated capital for a better filtering and conversion of the data.
 
         Returns:
             void
@@ -1812,11 +1812,37 @@ class Builder:
         current_time: int = int(time())
         self.setStateCapitalData(self.getStateCapital().get())
         self.curateStateCapitalType()
+        self.curateStateCapitalCurrency()
         for index in range(0, len(self.getStateCapitalData()), 1):
             iteration: int = index + 1
             self.getLogger().debug(f"{iteration=}\n{self.getStateCapitalData()[index]}")
         print(f"{line_break}\nStated Capital (Amount): {len(self.getStateCapitalData())}\n{line_break}")
         exit()
+
+    def curateStateCapitalCurrency(self) -> None:
+        """
+        Sanitizing the current of the stated capital for a better
+        filtering and conversion of the data.
+
+        Returns:
+            void
+        """
+        self.curateStateCapitalCurrencyMur()
+
+    def curateStateCapitalCurrencyMur(self) -> None:
+        """
+        Filtering the data for the Mauritian Rupee currency.
+
+        Returns:
+            void
+        """
+        mauritian_rupee: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital.type != None and ("mauritius" in stated_capital.type.lower() or "rupee" in stated_capital.type.lower())]
+        filtered_data: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital not in mauritian_rupee]
+        self.setStateCapitalData([])
+        self.getLogger().inform(f"Stated Capital: Currency: Filtering the data for the Mauritian Rupee currency.\nAmount: {len(mauritian_rupee)}")
+        for index in range(0, len(mauritian_rupee), 1):
+            mauritian_rupee[index].type = "Mauritian Rupee"
+        self.setStateCapitalData(mauritian_rupee + filtered_data)
 
     def curateStateCapitalType(self) -> None:
         """
