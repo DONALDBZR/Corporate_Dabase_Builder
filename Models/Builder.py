@@ -1820,6 +1820,19 @@ class Builder:
         log: Tuple[str, str, int, int, int, int] = ("curateStateCapital", quarter.quarter, current_time, current_time, response, len(self.getStateCapitalData()), len(self.getStateCapitalData()))
         self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(log)
 
+    def updateCuratedStateCapital(self) -> int:
+        """
+        Storing the curated stated capital data that are in the
+        cache memory into the relational database server.
+
+        Returns:
+            int
+        """
+        good: int = 202
+        bad: int = 503
+        statuses: List[int] = list(set([self.getStateCapital().updateStatedCapital(stated_capital) for stated_capital in self.getStateCapitalData()]))
+        return good if len(statuses) == 1 and statuses[0] == good else bad
+
     def curateStateCapitalCurrency(self) -> None:
         """
         Sanitizing the current of the stated capital for a better
