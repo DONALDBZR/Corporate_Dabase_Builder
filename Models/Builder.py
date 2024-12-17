@@ -1837,7 +1837,7 @@ class Builder:
         Returns:
             void
         """
-        class_d: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital.type != None and ("class" in stated_capital.type.lower() and "d" in stated_capital.type.lower())]
+        class_d: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital.type != None and ("class d" in stated_capital.type.lower())]
         filtered_data: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital not in class_d]
         self.setStateCapitalData([])
         self.getLogger().inform(f"Stated Capital: Type: Filtering the data for the D type.\nAmount: {len(class_d)}")
