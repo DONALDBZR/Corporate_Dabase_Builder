@@ -1841,7 +1841,7 @@ class Builder:
         self.setStateCapitalData([])
         self.getLogger().inform(f"Stated Capital: Currency: Filtering the data for the Mauritian Rupee currency.\nAmount: {len(mauritian_rupee)}")
         for index in range(0, len(mauritian_rupee), 1):
-            mauritian_rupee[index].type = "Mauritian Rupee"
+            mauritian_rupee[index].currency = "Mauritian Rupee"
         self.setStateCapitalData(mauritian_rupee + filtered_data)
 
     def curateStateCapitalType(self) -> None:
