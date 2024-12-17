@@ -1831,6 +1831,22 @@ class Builder:
         self.curateStateCapitalTypeD()
         self.curateStateCapitalTypeB()
         self.curateStateCapitalTypeA()
+        self.curateStateCapitalTypeManagement()
+
+    def curateStateCapitalTypeManagement(self) -> None:
+        """
+        Filtering the data for the management type.
+
+        Returns:
+            void
+        """
+        management: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital.type != None and ("management" in stated_capital.type.lower())]
+        filtered_data: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital not in management]
+        self.setStateCapitalData([])
+        self.getLogger().inform(f"Stated Capital: Type: Filtering the data for the management type.\nAmount: {len(management)}")
+        for index in range(0, len(management), 1):
+            management[index].type = "Management"
+        self.setStateCapitalData(management + filtered_data)
 
     def curateStateCapitalTypeA(self) -> None:
         """
