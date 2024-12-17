@@ -1813,6 +1813,7 @@ class Builder:
         self.setStateCapitalData(self.getStateCapital().get())
         self.curateStateCapitalType()
         self.curateStateCapitalCurrency()
+        self.getStateCapitalData().sort(key=lambda stated_capital: stated_capital.identifier)
         for index in range(0, len(self.getStateCapitalData()), 1):
             iteration: int = index + 1
             self.getLogger().debug(f"{iteration=}\n{self.getStateCapitalData()[index]}")
@@ -1890,7 +1891,6 @@ class Builder:
         self.curateStateCapitalTypeB()
         self.curateStateCapitalTypeA()
         self.curateStateCapitalTypeManagement()
-        self.getStateCapitalData().sort(key=lambda stated_capital: stated_capital.identifier)
 
     def curateStateCapitalTypeManagement(self) -> None:
         """
