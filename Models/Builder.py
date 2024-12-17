@@ -7,6 +7,7 @@ Authors:
 """
 
 
+from Data.StateCapital import StateCapital
 from Data.BusinessDetails import BusinessDetails
 from Data.CompanyDetails import CompanyDetails
 from Data.FinancialCalendar import FinancialCalendar
@@ -126,6 +127,10 @@ class Builder:
     """
     The data of the Company Details.
     """
+    __state_capital_data: List[StateCapital]
+    """
+    The Data Transfer Object for the State Capital.
+    """
 
     def __init__(self) -> None:
         """
@@ -146,6 +151,12 @@ class Builder:
         self.setShareholders(Shareholders())
         self.setMembers(Member())
         self.getLogger().inform("The builder has been initialized and all of its dependencies are injected!")
+
+    def getStateCapitalData(self) -> List[StateCapital]:
+        return self.__state_capital_data
+
+    def setStateCapitalData(self, state_capital_data: List[StateCapital]) -> None:
+        self.__state_capital_data = state_capital_data
 
     def getCompanyDetailsData(self) -> List[CompanyDetails]:
         return self.__company_details_data
@@ -1788,6 +1799,201 @@ class Builder:
                 str(CompanyDetails["status"])
             )
             self.getCompanyDetails().addCompany(parameters)  # type: ignore
+
+    def curateStateCapital(self) -> None:
+        """
+        Curating the data that is in the State Capital table.
+        Santizing the type of the stated capital for a better
+        filtering of the data.  Sanitizing the current of the stated
+        capital for a better filtering and conversion of the data.
+
+        Returns:
+            void
+        """
+        quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
+        current_time: int = int(time())
+        self.setStateCapitalData(self.getStateCapital().get())
+        self.curateStateCapitalType()
+        self.curateStateCapitalCurrency()
+        self.getStateCapitalData().sort(key=lambda stated_capital: stated_capital.identifier)
+        response: int = self.updateCuratedStateCapital()
+        log: Tuple[str, str, int, int, int, int, int] = ("curateStateCapital", quarter.quarter, current_time, current_time, response, len(self.getStateCapitalData()), len(self.getStateCapitalData()))
+        self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(log) # type: ignore
+
+    def updateCuratedStateCapital(self) -> int:
+        """
+        Storing the curated stated capital data that are in the
+        cache memory into the relational database server.
+
+        Returns:
+            int
+        """
+        good: int = 202
+        bad: int = 503
+        statuses: List[int] = list(set([self.getStateCapital().updateStatedCapital(stated_capital) for stated_capital in self.getStateCapitalData()]))
+        return good if len(statuses) == 1 and statuses[0] == good else bad
+
+    def curateStateCapitalCurrency(self) -> None:
+        """
+        Sanitizing the current of the stated capital for a better
+        filtering and conversion of the data.
+
+        Returns:
+            void
+        """
+        self.curateStateCapitalCurrencyMur()
+        self.curateStateCapitalCurrencyUsd()
+        self.curateStateCapitalCurrencySd()
+
+    def curateStateCapitalCurrencySd(self) -> None:
+        """
+        Filtering the data for the Singapore Dollar currency.
+
+        Returns:
+            void
+        """
+        singapore_dollar: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital.currency != None and "singapore" in stated_capital.currency.lower()]
+        filtered_data: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital not in singapore_dollar]
+        self.setStateCapitalData([])
+        self.getLogger().inform(f"Stated Capital: Currency: Filtering the data for the Singapore Dollar currency.\nAmount: {len(singapore_dollar)}")
+        for index in range(0, len(singapore_dollar), 1):
+            singapore_dollar[index].currency = "Singapore Dollar"
+        self.setStateCapitalData(singapore_dollar + filtered_data)
+
+    def curateStateCapitalCurrencyUsd(self) -> None:
+        """
+        Filtering the data for the United States Dollar currency.
+
+        Returns:
+            void
+        """
+        united_states_dollar: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital.currency != None and "us" in stated_capital.currency.lower()]
+        filtered_data: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital not in united_states_dollar]
+        self.setStateCapitalData([])
+        self.getLogger().inform(f"Stated Capital: Currency: Filtering the data for the United States Dollar currency.\nAmount: {len(united_states_dollar)}")
+        for index in range(0, len(united_states_dollar), 1):
+            united_states_dollar[index].currency = "United States Dollar"
+        self.setStateCapitalData(united_states_dollar + filtered_data)
+
+    def curateStateCapitalCurrencyMur(self) -> None:
+        """
+        Filtering the data for the Mauritian Rupee currency.
+
+        Returns:
+            void
+        """
+        mauritian_rupee: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital.currency != None and ("mauritius" in stated_capital.currency.lower() or "rupee" in stated_capital.currency.lower())]
+        filtered_data: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital not in mauritian_rupee]
+        self.setStateCapitalData([])
+        self.getLogger().inform(f"Stated Capital: Currency: Filtering the data for the Mauritian Rupee currency.\nAmount: {len(mauritian_rupee)}")
+        for index in range(0, len(mauritian_rupee), 1):
+            mauritian_rupee[index].currency = "Mauritian Rupee"
+        self.setStateCapitalData(mauritian_rupee + filtered_data)
+
+    def curateStateCapitalType(self) -> None:
+        """
+        Santizing the type of the stated capital for a better
+        filtering of the data.
+
+        Returns:
+            void
+        """
+        self.curateStateCapitalTypeOrdinary()
+        self.curateStateCapitalTypeSociale()
+        self.curateStateCapitalTypeD()
+        self.curateStateCapitalTypeB()
+        self.curateStateCapitalTypeA()
+        self.curateStateCapitalTypeManagement()
+
+    def curateStateCapitalTypeManagement(self) -> None:
+        """
+        Filtering the data for the management type.
+
+        Returns:
+            void
+        """
+        management: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital.type != None and ("management" in stated_capital.type.lower())]
+        filtered_data: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital not in management]
+        self.setStateCapitalData([])
+        self.getLogger().inform(f"Stated Capital: Type: Filtering the data for the management type.\nAmount: {len(management)}")
+        for index in range(0, len(management), 1):
+            management[index].type = "Management"
+        self.setStateCapitalData(management + filtered_data)
+
+    def curateStateCapitalTypeA(self) -> None:
+        """
+        Filtering the data for the A type.
+
+        Returns:
+            void
+        """
+        class_a: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital.type != None and ("class a" in stated_capital.type.lower())]
+        filtered_data: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital not in class_a]
+        self.setStateCapitalData([])
+        self.getLogger().inform(f"Stated Capital: Type: Filtering the data for the A type.\nAmount: {len(class_a)}")
+        for index in range(0, len(class_a), 1):
+            class_a[index].type = "Class A"
+        self.setStateCapitalData(class_a + filtered_data)
+
+    def curateStateCapitalTypeB(self) -> None:
+        """
+        Filtering the data for the B type.
+
+        Returns:
+            void
+        """
+        class_b: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital.type != None and ("class b" in stated_capital.type.lower())]
+        filtered_data: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital not in class_b]
+        self.setStateCapitalData([])
+        self.getLogger().inform(f"Stated Capital: Type: Filtering the data for the B type.\nAmount: {len(class_b)}")
+        for index in range(0, len(class_b), 1):
+            class_b[index].type = "Class B"
+        self.setStateCapitalData(class_b + filtered_data)
+
+    def curateStateCapitalTypeD(self) -> None:
+        """
+        Filtering the data for the D type.
+
+        Returns:
+            void
+        """
+        class_d: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital.type != None and ("class d" in stated_capital.type.lower())]
+        filtered_data: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital not in class_d]
+        self.setStateCapitalData([])
+        self.getLogger().inform(f"Stated Capital: Type: Filtering the data for the D type.\nAmount: {len(class_d)}")
+        for index in range(0, len(class_d), 1):
+            class_d[index].type = "Class D"
+        self.setStateCapitalData(class_d + filtered_data)
+
+    def curateStateCapitalTypeSociale(self) -> None:
+        """
+        Filtering the data for the sociale type.
+
+        Returns:
+            void
+        """
+        sociale: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital.type != None and ("social" in stated_capital.type.lower() or "interet" in stated_capital.type.lower())]
+        filtered_data: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital not in sociale]
+        self.setStateCapitalData([])
+        self.getLogger().inform(f"Stated Capital: Type: Filtering the data for the sociale type.\nAmount: {len(sociale)}")
+        for index in range(0, len(sociale), 1):
+            sociale[index].type = "Part Sociale"
+        self.setStateCapitalData(sociale + filtered_data)
+
+    def curateStateCapitalTypeOrdinary(self) -> None:
+        """
+        Filtering the data for the ordinary type.
+
+        Returns:
+            void
+        """
+        ordinary: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital.type != None and "ordinary" in stated_capital.type.lower() and "class" not in stated_capital.type.lower()]
+        filtered_data: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital not in ordinary]
+        self.setStateCapitalData([])
+        self.getLogger().inform(f"Stated Capital: Type: Filtering the data for the ordinary type.\nAmount: {len(ordinary)}")
+        for index in range(0, len(ordinary), 1):
+            ordinary[index].type = "Ordinary"
+        self.setStateCapitalData(ordinary + filtered_data)
 
     def curateBusinessDetails(self) -> None:
         """

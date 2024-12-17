@@ -7,9 +7,11 @@ Authors:
 """
 
 
+from Data.StateCapital import StateCapital
 from Models.DatabaseHandler import Database_Handler
-from typing import Union, Dict, Tuple
+from typing import Union, Dict, Tuple, List
 from mysql.connector.errors import Error
+from mysql.connector.types import RowType
 
 
 class State_Capital(Database_Handler):
@@ -70,3 +72,62 @@ class State_Capital(Database_Handler):
             response = 503
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {response}\nError: {error}")
         return response
+
+    def get(self) -> List[StateCapital]:
+        """
+        Retrieving all of the data from the State Capital tables.
+
+        Returns:
+            [{identifier: int, CompanyDetail: int, type: string|null, amount: int|null, state_capital: float|null, amount_unpaid: float|null, currency: string|null}]
+        """
+        try:
+            data: Union[List[RowType], List[Dict[str, Union[int, str, None, float]]]] = self.getData(
+                table_name=self.getTableName()
+            )
+            response: Dict[str, Union[int, List[StateCapital]]] = self._get(data)
+            self.getLogger().inform(f"The data from {self.getTableName()} has been retrieved!\nStatus: {response['status']}\nData: {response['data']}")
+            return response["data"]  # type: ignore
+        except Error as error:
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: 503\nError: {error}")
+            return []
+
+    def _get(self, dataset: Union[List[RowType], List[Dict[str, Union[int, str, None, float]]]]) -> Dict[str, Union[int, List[StateCapital]]]:
+        """
+        Formatting the result set data in the correct format for the
+        State Capital model.
+
+        Parameters:
+            dataset: The result set data that needs to be formatted.
+
+        Returns:
+            {status: int, data: [{identifier: int, CompanyDetail: int, type: string|null, amount: int|null, state_capital: float|null, amount_unpaid: float|null, currency: string|null}]}
+        """
+        status: int = 200 if len(dataset) > 0 else 204
+        data: List[StateCapital] = [StateCapital(state_capital) for state_capital in dataset] if len(dataset) > 0 else []
+        return {
+            "status": status,
+            "data": data
+        }
+
+    def updateStatedCapital(self, stated_capital: StateCapital) -> int:
+        """
+        Updating the data that is stored in the relational database
+        server.
+
+        Parameters: {identifier: int, CompanyDetail: int, type: string|null, amount: int|null, state_capital: float|null, amount_unpaid: float|null, currency: string|null}: The stated capital data.
+
+        Returns:
+            int
+        """
+        parameters: Tuple[str, str, int, int] = (str(stated_capital.type), str(stated_capital.currency), stated_capital.identifier, stated_capital.CompanyDetail)
+        try:
+            self.updateData(
+                table=self.getTableName(),
+                values="type = %s, currency = %s",
+                condition="identifier = %s AND CompanyDetail = %s",
+                parameters=parameters # type: ignore
+            )
+            return 202
+        except Error as error:
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: 503\nError: {error}")
+            return 503
