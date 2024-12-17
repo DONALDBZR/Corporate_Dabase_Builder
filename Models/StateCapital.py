@@ -108,3 +108,26 @@ class State_Capital(Database_Handler):
             "status": status,
             "data": data
         }
+
+    def updateStatedCapital(self, stated_capital: StateCapital) -> int:
+        """
+        Updating the data that is stored in the relational database
+        server.
+
+        Parameters: {identifier: int, CompanyDetail: int, type: string|null, amount: int|null, state_capital: float|null, amount_unpaid: float|null, currency: string|null}: The stated capital data.
+
+        Returns:
+            int
+        """
+        parameters: Tuple[str, str, int, int] = (str(stated_capital.type), str(stated_capital.currency), stated_capital.identifier, stated_capital.CompanyDetail)
+        try:
+            self.updateData(
+                table=self.getTableName(),
+                values="type = %s, currency = %s",
+                condition="identifier = %s AND CompanyDetail = %s",
+                parameters=parameters # type: ignore
+            )
+            return 202
+        except Error as error:
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: 503\nError: {error}")
+            return 503
