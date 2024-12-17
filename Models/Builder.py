@@ -1802,23 +1802,23 @@ class Builder:
 
     def curateStateCapital(self) -> None:
         """
-        Curating the data that is in the State Capital table.  Santizing the type of the stated capital for a better filtering of the data.  Sanitizing the current of the stated capital for a better filtering and conversion of the data.
+        Curating the data that is in the State Capital table.
+        Santizing the type of the stated capital for a better
+        filtering of the data.  Sanitizing the current of the stated
+        capital for a better filtering and conversion of the data.
 
         Returns:
             void
         """
-        line_break: str = "-" * 10
         quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
         current_time: int = int(time())
         self.setStateCapitalData(self.getStateCapital().get())
         self.curateStateCapitalType()
         self.curateStateCapitalCurrency()
         self.getStateCapitalData().sort(key=lambda stated_capital: stated_capital.identifier)
-        for index in range(0, len(self.getStateCapitalData()), 1):
-            iteration: int = index + 1
-            self.getLogger().debug(f"{iteration=}\n{self.getStateCapitalData()[index]}")
-        print(f"{line_break}\nStated Capital (Amount): {len(self.getStateCapitalData())}\n{line_break}")
-        exit()
+        response: int = self.updateCuratedStateCapital()
+        log: Tuple[str, str, int, int, int, int] = ("curateStateCapital", quarter.quarter, current_time, current_time, response, len(self.getStateCapitalData()), len(self.getStateCapitalData()))
+        self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(log)
 
     def curateStateCapitalCurrency(self) -> None:
         """
