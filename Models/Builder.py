@@ -1817,7 +1817,7 @@ class Builder:
         self.curateStateCapitalCurrency()
         self.getStateCapitalData().sort(key=lambda stated_capital: stated_capital.identifier)
         response: int = self.updateCuratedStateCapital()
-        log: Tuple[str, str, int, int, int, int] = ("curateStateCapital", quarter.quarter, current_time, current_time, response, len(self.getStateCapitalData()), len(self.getStateCapitalData()))
+        log: Tuple[str, str, int, int, int, int, int] = ("curateStateCapital", quarter.quarter, current_time, current_time, response, len(self.getStateCapitalData()), len(self.getStateCapitalData()))
         self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(log)
 
     def updateCuratedStateCapital(self) -> int:
