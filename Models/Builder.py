@@ -1828,6 +1828,22 @@ class Builder:
             void
         """
         self.curateStateCapitalCurrencyMur()
+        self.curateStateCapitalCurrencyUsd()
+
+    def curateStateCapitalCurrencyUsd(self) -> None:
+        """
+        Filtering the data for the United States Dollar currency.
+
+        Returns:
+            void
+        """
+        united_states_dollar: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital.currency != None and "us" in stated_capital.currency.lower()]
+        filtered_data: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital not in united_states_dollar]
+        self.setStateCapitalData([])
+        self.getLogger().inform(f"Stated Capital: Currency: Filtering the data for the United States Dollar currency.\nAmount: {len(united_states_dollar)}")
+        for index in range(0, len(united_states_dollar), 1):
+            united_states_dollar[index].currency = "United States Dollar"
+        self.setStateCapitalData(united_states_dollar + filtered_data)
 
     def curateStateCapitalCurrencyMur(self) -> None:
         """
