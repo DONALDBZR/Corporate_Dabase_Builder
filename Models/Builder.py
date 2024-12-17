@@ -1832,6 +1832,7 @@ class Builder:
         self.curateStateCapitalTypeB()
         self.curateStateCapitalTypeA()
         self.curateStateCapitalTypeManagement()
+        self.getStateCapitalData().sort(key=lambda stated_capital: stated_capital.identifier)
 
     def curateStateCapitalTypeManagement(self) -> None:
         """
