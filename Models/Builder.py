@@ -1836,7 +1836,7 @@ class Builder:
         Returns:
             void
         """
-        mauritian_rupee: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital.type != None and ("mauritius" in stated_capital.type.lower() or "rupee" in stated_capital.type.lower())]
+        mauritian_rupee: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital.currency != None and ("mauritius" in stated_capital.currency.lower() or "rupee" in stated_capital.currency.lower())]
         filtered_data: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital not in mauritian_rupee]
         self.setStateCapitalData([])
         self.getLogger().inform(f"Stated Capital: Currency: Filtering the data for the Mauritian Rupee currency.\nAmount: {len(mauritian_rupee)}")
