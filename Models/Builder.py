@@ -1829,6 +1829,22 @@ class Builder:
         """
         self.curateStateCapitalCurrencyMur()
         self.curateStateCapitalCurrencyUsd()
+        self.curateStateCapitalCurrencySd()
+
+    def curateStateCapitalCurrencySd(self) -> None:
+        """
+        Filtering the data for the Singapore Dollar currency.
+
+        Returns:
+            void
+        """
+        singapore_dollar: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital.currency != None and "singapore" in stated_capital.currency.lower()]
+        filtered_data: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital not in singapore_dollar]
+        self.setStateCapitalData([])
+        self.getLogger().inform(f"Stated Capital: Currency: Filtering the data for the Singapore Dollar currency.\nAmount: {len(singapore_dollar)}")
+        for index in range(0, len(singapore_dollar), 1):
+            singapore_dollar[index].currency = "Singapore Dollar"
+        self.setStateCapitalData(singapore_dollar + filtered_data)
 
     def curateStateCapitalCurrencyUsd(self) -> None:
         """
