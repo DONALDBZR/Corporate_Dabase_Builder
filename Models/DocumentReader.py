@@ -2550,15 +2550,14 @@ class Document_Reader:
         Returns:
             [{date_objection: int, objector: string}]
         """
-        start_index: int = portable_document_file_result_set.index("Objection Date")
-        end_index: int = portable_document_file_result_set.index("Last Annual Registration Fee Paid:")
+        start_index: int = portable_document_file_result_set.index("Objections")
+        end_index: int = next((index for index, value in enumerate(portable_document_file_result_set) if value.startswith("Last Annual Registration Fee Paid:")), len(portable_document_file_result_set))
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
         result_set = [value for value in result_set if "Object" not in value]
         if len(result_set) > 0:
             self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractObjections()")
             exit()
-        else:
-            return []
+        return []
 
     def extractDetails(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
         """
