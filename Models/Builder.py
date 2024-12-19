@@ -32,6 +32,7 @@ from typing import List, Tuple, Union, Dict
 from time import time, sleep
 from re import findall, search
 from Models.Mail import Mail
+from Models.FinancialSummaries import Financial_Summaries
 import os
 
 
@@ -131,6 +132,11 @@ class Builder:
     """
     The Data Transfer Object for the State Capital.
     """
+    __financial_summaries: Financial_Summaries
+    """
+    The model which will interact exclusively with the Financial
+    Summaries table.
+    """
 
     def __init__(self) -> None:
         """
@@ -150,7 +156,14 @@ class Builder:
         self.setOfficeBearers(Office_Bearers())
         self.setShareholders(Shareholders())
         self.setMembers(Member())
+        self.setFinancialSummaries(Financial_Summaries())
         self.getLogger().inform("The builder has been initialized and all of its dependencies are injected!")
+
+    def getFinancialSummaries(self) -> Financial_Summaries:
+        return self.__financial_summaries
+
+    def setFinancialSummaries(self, financial_summaries: Financial_Summaries) -> None:
+        self.__financial_summaries = financial_summaries
 
     def getStateCapitalData(self) -> List[StateCapital]:
         return self.__state_capital_data
@@ -1250,7 +1263,7 @@ class Builder:
         if status >= 200 and status <= 299 and len(financial_summaries) == 0:
             self.getLogger().inform(f"There is no data to be inserted into the Financial Summaries table.\nStatus: {ok}\nIdentifier: {document_file.company_detail}\nData: {financial_summaries}")
             return ok
-        statuses: List[int] = list(set([self.getFinancialSummary().addFinancialSummary(financial_summary, document_file.company_detail) for financial_summary in financial_summaries]))
+        statuses: List[int] = list(set([self.getFinancialSummaries().addFinancialSummary(financial_summary, document_file.company_detail) for financial_summary in financial_summaries]))
         response: int = created if len(statuses) == 1 and statuses[0] == created else service_unavailable
         self.getLogger().inform(f"Data has been stored into the Financial Summaries table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {financial_summaries}")
         return response
