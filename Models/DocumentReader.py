@@ -2891,19 +2891,19 @@ class Document_Reader:
         """
         start_header: str = "BALANCE SHEET"
         end_header: str = "Charges"
-        line_break: str = "-" * 10
         start_index: int = portable_document_file_result_set.index(start_header)
         end_index: int = portable_document_file_result_set.index(end_header)
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
         balance_sheet: Dict[str, Union[int, str]] = self._extractBalanceSheet(result_set)
         assets: Dict[str, Union[Dict[str, float], float]] = self.extractBalanceSheetAssets(result_set)
         liabilities: Dict[str, Union[Dict[str, float], float]] = self.extractBalanceSheetLiabilities(result_set)
-        print(f"{line_break}\n{balance_sheet=}\n{assets=}\n{liabilities=}")
-        exit()
         if not balance_sheet and not assets and not liabilities:
             return {}
-        self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractBalanceSheet()")
-        exit()
+        return {
+            "balance_sheet": balance_sheet,
+            "assets": assets,
+            "liabilities": liabilities
+        }
 
     def extractBalanceSheetLiabilities(self, result_set: List[str]) -> Dict[str, Union[Dict[str, float], float]]:
         """
