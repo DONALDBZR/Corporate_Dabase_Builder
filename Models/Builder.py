@@ -1230,15 +1230,19 @@ class Builder:
             int
         """
         response: int
+        ok: int = 200
+        accepted: int = 202
+        service_unavailable: int = 503
+        if status < 200 and status > 299:
+            self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {status}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
+            return status
         if status >= 200 and status <= 299 and not profit_statement:
-            response = 200
-            self.getLogger().inform(f"There is no data to be inserted into the Profit Statement table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {profit_statement}")
-        elif status >= 200 and status <= 299 and len(profit_statement) != 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataDomesticProfitStatement()")
-            exit()
-        else:
-            response = status
-            self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
+            self.getLogger().inform(f"There is no data to be inserted into the Profit Statement table.\nStatus: {ok}\nIdentifier: {document_file.company_detail}\nData: {profit_statement}")
+            return ok
+        financial_summary_id: int = self.getFinancialSummaries().getIdentifier(document_file.company_detail)
+        response = self.getFinancialSummaries().addUnit(profit_statement["financial_summary"]["unit"], financial_summary_id)
+        response = self.getProfitStatements().addProfitStatement(profit_statement, financial_summary_id) if response == accepted else service_unavailable
+        self.getLogger().inform(f"The data has been successfully inserted into the Profit Statements table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {profit_statement}")
         return response
 
     def storeCorporateDataDomesticFinancialSummary(self, status: int, financial_summaries: List[Dict[str, Union[int, str]]], document_file: DocumentFiles) -> int:
