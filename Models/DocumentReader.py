@@ -2889,10 +2889,15 @@ class Document_Reader:
         Returns:
             {balance_sheet: {financial_year: int, currency: string, unit: int}, assets: {non_current_assets: {property_plant_equipment: float, investment_properties: float, intangible_assets: float, other_investments: float, subsidiaries_investments: float, biological_assets: float, others: float, total: float}, current_assets: {inventories: float, trade: float, cash: float, others: float, total: float}, total: float}, liabilities: {equity_and_liabilities: {share_capital: float, other_reserves: float, retained_earnings: float, others: float, total: float}, non_current: {long_term_borrowings: float, deferred_tax: float, long_term_provisions: float, others: float, total: float}, current: {trade: float, short_term_borrowings: float, current_tax_payable: float, short_term_provisions: float, others: float, total: float}, total_liabilities: float, total_equity_and_liabilities: float}}
         """
-        start_index: int = portable_document_file_result_set.index("BALANCE SHEET")
-        end_index: int = portable_document_file_result_set.index("Charges")
+        start_header: str = "BALANCE SHEET"
+        end_header: str = "Charges"
+        line_break: str = "-" * 10
+        start_index: int = portable_document_file_result_set.index(start_header)
+        end_index: int = portable_document_file_result_set.index(end_header)
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
         balance_sheet: Dict[str, Union[int, str]] = self._extractBalanceSheet(result_set)
+        print(f"{line_break}\n{result_set=}")
+        exit()
         assets: Dict[str, Union[Dict[str, float], float]] = self.extractBalanceSheetAssets(result_set)
         liabilities: Dict[str, Union[Dict[str, float], float]] = self.extractBalanceSheetLiabilities(result_set)
         if not balance_sheet and not assets and not liabilities:
@@ -3084,17 +3089,29 @@ class Document_Reader:
         Returns:
             {financial_year: int, currency: string, unit: int}
         """
-        start_index: int = result_set.index("BALANCE SHEET") + 1
-        end_index: int = result_set.index("NON-CURRENT ASSETS")
+        start_header: str = "BALANCE SHEET"
+        end_header: str = "NON-CURRENT ASSETS"
+        start_index: int = result_set.index(start_header)
+        end_index: int = result_set.index(end_header)
         result_set = result_set[start_index:end_index]
-        result_set.remove("Financial Year Ended:")
-        result_set.remove("Currency:")
-        result_set.remove("Unit:")
-        if len(result_set) > 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractBalanceSheet()")
-            exit()
-        else:
+        result_set = [value for value in result_set if start_header not in value]
+        result_set = [value for value in result_set if end_header not in value]
+        result_set = [value for value in result_set if ":" not in value]
+        if len(result_set) == 0:
             return {}
+        if len(result_set) > 0 and len(result_set) < 3:
+            result_set.append("1")
+        financial_year_end_date: str = [date for date in result_set if bool(search(r"[\d]+", date)) == True and "/" in date][0]
+        financial_year: int = datetime.strptime(financial_year_end_date, "%d/%m/%Y").year - 1
+        result_set = [value for value in result_set if financial_year_end_date not in value]
+        currency: str = [currency for currency in result_set if bool(search(r"[A-z]+", currency)) == True][0]
+        result_set = [value for value in result_set if currency not in value]
+        unit: int = int([unit for unit in result_set if bool(search(r"[\d]+", unit)) == True][0])
+        return {
+            "financial_year": financial_year,
+            "currency": currency,
+            "unit": unit
+        }
 
     def _extractProfitStatements(self, result_set: List[str]) -> Dict[str, Union[int, str]]:
         """
