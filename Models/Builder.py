@@ -364,13 +364,7 @@ class Builder:
         Returns:
             string
         """
-        if len(fin_corp_logs) == 1 and fin_corp_logs[0].status == 204:
-            return datetime.strftime(
-                datetime.strptime(quarter.start_date, "%m/%d/%Y"),
-                "%Y-%m-%d"
-            )
-        else:
-            return self.getDateExtractCorporateData(fin_corp_logs)
+        return datetime.strftime(datetime.strptime(quarter.start_date, "%m/%d/%Y"), "%Y-%m-%d") if len(fin_corp_logs) == 1 and fin_corp_logs[0].status == 204 else self.getDateExtractCorporateData(fin_corp_logs)
 
     def extractCorporateData(self, status: int = 200) -> None:
         """
@@ -387,6 +381,8 @@ class Builder:
         quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
         successful_logs: List[FinCorpLogs] = self.getFinCorpLogs().getSuccessfulRunsLogs("extractCorporateData")
         date: str = self._getDateExtractCorporateData(successful_logs, quarter)
+        print(f"{date=}")
+        exit()
         document_files: List[DocumentFiles] = self.getDocumentFiles().getCorporateRegistries(date)
         amount: int = self.getDocumentFiles().getAmount(date)
         amount_found: int = self.getDocumentFiles().getAmountFound(date)
