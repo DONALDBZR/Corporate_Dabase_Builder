@@ -1975,7 +1975,7 @@ class Document_Reader:
         """
         response: List[Dict[str, Union[str, int]]] = []
         start_index: int = result_set.index("Office Bearers")
-        end_index: int = result_set.index("Currency") - 1
+        end_index: int = result_set.index("Associes") - 1
         result_set = result_set[start_index:end_index]
         result_set = [value for value in result_set if "Name" not in value]
         result_set = [value for value in result_set if "Service Address" not in value]
@@ -2124,44 +2124,7 @@ class Document_Reader:
         Returns:
             [string]
         """
-        response: List[str] = []
-        for index in range(0, len(result_set), 1):
-            date_appointed: str = " ".join(findall(r"[\d/]+", result_set[index]))
-            date_appointed = self.__extractDataDomesticCivilCivilOfficeBearersDateAppointed(date_appointed)
-            response = self.___extractDataDomesticCivilCivilOfficeBearersDateAppointed(response, date_appointed)
-        return response
-
-    def ___extractDataDomesticCivilCivilOfficeBearersDateAppointed(self, response: List[str], date_appointed: str) -> List[str]:
-        """
-        Building the response needed for the date appointed of an
-        office bearer.
-
-        Parameters:
-            response: [string]: The data to be returned
-            date_appointed: string: The date of appointment of the office bearer.
-
-        Returns:
-            [string]
-        """
-        if date_appointed != "NaDA":
-            response.append(date_appointed)
-        return response
-
-    def __extractDataDomesticCivilCivilOfficeBearersDateAppointed(self, date_appointed: str) -> str:
-        """
-        Ensuring that the date appointed is retrieved from the
-        result set.
-
-        Parameters:
-            date_appointed: string: The date at which the office bearer has been appointed.
-
-        Returns:
-            string
-        """
-        if "/" in date_appointed:
-            return date_appointed
-        else:
-            return "NaDA"
+        return [date_appointed for date_appointed in result_set if bool(search(r"[\d/]+", date_appointed)) == True and bool(search(r"[A-z]+", date_appointed)) == False]
 
     def _extractDataDomesticCivilCivilStateCapital(self, result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
         """
