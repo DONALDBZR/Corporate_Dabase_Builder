@@ -1241,17 +1241,19 @@ class Builder:
         Returns:
             int
         """
-        success_read: int = 200
-        success_write: int = 201
+        ok: int = 200
+        created: int = 201
         service_unavailable: int = 503
         if status <= 200 and status >= 299:
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {status}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
             return status
         if status >= 200 and status <= 299 and len(financial_summaries) == 0:
-            self.getLogger().inform(f"There is no data to be inserted into the Financial Summaries table.\nStatus: {success_read}\nIdentifier: {document_file.company_detail}\nData: {financial_summaries}")
-            return success_read
-        self.getLogger().error(f"The application will abort the extraction as the function has not been implemented!\nStatus: {service_unavailable}\nFunction: Builder.storeCorporateDataDomesticFinancialSummary()")
-        exit()
+            self.getLogger().inform(f"There is no data to be inserted into the Financial Summaries table.\nStatus: {ok}\nIdentifier: {document_file.company_detail}\nData: {financial_summaries}")
+            return ok
+        statuses: List[int] = list(set([self.getFinancialSummary().addFinancialSummary(financial_summary, document_file.company_detail) for financial_summary in financial_summaries]))
+        response: int = created if len(statuses) == 1 and statuses[0] == created else service_unavailable
+        self.getLogger().inform(f"Data has been stored into the Financial Summaries table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {financial_summaries}")
+        return response
 
     def storeCorporateDataDomesticAnnualReturn(self, status: int, annual_return: List[Dict[str, int]], document_file: DocumentFiles) -> int:
         """
