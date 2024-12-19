@@ -2843,9 +2843,8 @@ class Document_Reader:
             [{volume: int, property: string, nature: string, amount: int, date_charged: int, date_filled: int, currency: string}]
         """
         start_header: str = "Charges"
-        end_header: str = "Liquidators"
+        end_header: str = "Liquidators" if "Liquidators" in portable_document_file_result_set else "Winding Up Details"
         response: List[Dict[str, Union[int, str]]] = []
-        line_break: str = "-" * 10
         start_index: int = portable_document_file_result_set.index(start_header)
         end_index: int = portable_document_file_result_set.index(end_header) if end_header in portable_document_file_result_set else len(portable_document_file_result_set)
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
