@@ -3021,9 +3021,9 @@ class Document_Reader:
         result_set = [value for value in result_set if start_header not in value]
         result_set = [value for value in result_set if end_header not in value]
         non_current: Dict[str, float] = self.extractBalanceSheetAssetsNonCurrent(result_set)
-        print(f"{line_break}\n{non_current=}\n{result_set=}")
-        exit()
         current: Dict[str, float] = self.extractBalanceSheetAssetsCurrent(result_set)
+        print(f"{line_break}\n{non_current=}\n{current=}")
+        exit()
         if not non_current and not current:
             return {}
         self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractBalanceSheetAssets()")
@@ -3039,21 +3039,21 @@ class Document_Reader:
         Returns:
             {inventories: float, trade: float, cash: float, others: float, total: float}
         """
-        start_index: int = result_set.index("CURRENT ASSETS") + 1
-        end_index: int = result_set.index("TOTAL ASSETS") + 2
-        result_set = result_set[start_index:end_index]
-        result_set = [value for value in result_set if "Page" not in value]
-        result_set.remove("Inventories")
-        result_set.remove("Trade and Other Receivables")
-        result_set.remove("Cash and Cash Equivalents")
-        result_set.remove("Others")
-        result_set.remove("TOTAL")
-        result_set.remove("TOTAL ASSETS")
-        if len(result_set) > 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractBalanceSheetAssetsCurrent()")
-            exit()
-        else:
+        start_index: int = 8
+        result_set = [value for value in result_set if bool(search(r"[A-z]+", value)) == False]
+        result_set = [value for value in result_set if "/" not in value]
+        if len(result_set) == 0:
             return {}
+        result_set.pop(0)
+        result_set = [value.replace(",", "") for value in result_set]
+        data: List[float] = [float(data) for data in result_set][start_index:]
+        return {
+            "inventories": data[0],
+            "trade": data[1],
+            "cash": data[2],
+            "others": data[3],
+            "total": data[4]
+        }
 
     def extractBalanceSheetAssetsNonCurrent(self, result_set: List[str]) -> Dict[str, float]:
         """
