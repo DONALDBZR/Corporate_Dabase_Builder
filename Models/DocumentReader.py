@@ -3173,17 +3173,35 @@ class Document_Reader:
         Returns:
             [{financial_year: int, currency: string, date_approved: int, unit: int}]
         """
-        start_index: int = portable_document_file_result_set.index("Financial Summary/Statements filed for last 3 years") + 1
-        end_index: int = portable_document_file_result_set.index("Last Financial Summary Filed") - 4
+        response: List[Dict[str, Union[int, str]]] = []
+        start_header: str = "Financial Summary/Statements filed for last 3 years"
+        end_header: str = "Last Financial Summary Filed"
+        start_index: int = portable_document_file_result_set.index(start_header)
+        end_index: int = portable_document_file_result_set.index(end_header)
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
-        result_set.remove("Financial Year Ended")
-        result_set.remove("Currency")
-        result_set.remove("Date Approved")
-        if len(result_set) > 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractFinancialSummaries()")
-            exit()
-        else:
-            return []
+        result_set = [value for value in result_set if start_header not in value]
+        result_set = [value for value in result_set if end_header not in value]
+        result_set = [value for value in result_set if "Page" not in value]
+        result_set = [value for value in result_set if " of " not in value]
+        result_set = [value for value in result_set if "Date Issued" not in value]
+        result_set = [value for value in result_set if "Financial Year Ended" not in value]
+        result_set = [value for value in result_set if "Currency" not in value]
+        result_set = [value for value in result_set if "Date Approved" not in value]
+        if len(result_set) < 3:
+            return response
+        financial_year_end_dates: List[str] = [date for date in result_set if bool(search(r"[\d/]+", date)) == True and "/06/" in date]
+        result_set = [value for value in result_set if value not in financial_year_end_dates]
+        currencies: List[str] = [currency for currency in result_set if bool(search(r"[\d/]+", currency)) == False]
+        result_set = [value for value in result_set if value not in currencies]
+        date_approveds: List[str] = [date for date in result_set if bool(search(r"[\d/]+", date)) == True]
+        limitation: int = min(len(financial_year_end_dates), len(currencies), len(date_approveds))
+        for index in range(0, limitation, 1):
+            response.append({
+                "financial_year": int(datetime.strptime(financial_year_end_dates[index], "%d/%m/%Y").year - 1),
+                "currency": str(currencies[index]),
+                "date_approved": int(datetime.strptime(date_approveds[index], "%d/%m/%Y").timestamp())
+            })
+        return response
 
     def extractAnnualReturns(self, portable_document_file_result_set: List[str]) -> List[Dict[str, int]]:
         """
