@@ -2907,7 +2907,8 @@ class Document_Reader:
 
     def extractBalanceSheetLiabilities(self, result_set: List[str]) -> Dict[str, Union[Dict[str, float], float]]:
         """
-        Extracting the liabilities that is linked to the balance sheet.
+        Extracting the liabilities that is linked to the balance
+        sheet.
 
         Parameters:
             result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
