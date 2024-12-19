@@ -21,11 +21,17 @@ class Financial_Summaries(Database_Handler):
     """
     The table which the model is linked to.
     """
-    __created: int = 201
+    created: int = 201
     """
     The status code for a successful creation.
     """
-    __service_unavailable: int = 503
+    service_unavailable: int = 503
     """
     The status code for an unavailable service.
     """
+
+    def getTableName(self) -> str:
+        return self.__table_name
+
+    def setTableName(self, table_name: str) -> None:
+        self.__table_name = table_name
