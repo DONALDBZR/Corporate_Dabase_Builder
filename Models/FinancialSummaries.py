@@ -8,7 +8,7 @@ Authors:
 
 
 from Models.DatabaseHandler import Database_Handler
-from typing import Union, Tuple
+from typing import Union, Tuple, Dict
 from mysql.connector.errors import Error
 
 
@@ -44,3 +44,29 @@ class Financial_Summaries(Database_Handler):
 
     def setTableName(self, table_name: str) -> None:
         self.__table_name = table_name
+
+    def addFinancialSummary(self, financial_summary: Dict[str, Union[int, str]], company_detail: int) -> int:
+        """
+        Adding the financial summary data of the company into the
+        relational database server.
+
+        Parameters:
+            financial_summary: {financial_year: int, currency: string, date_approved: int}: The data that has been extracted for the table.
+            company_detail: int: The identifier of the company.
+
+        Returns:
+            int
+        """
+        try:
+            parameters: Tuple[int, int, str, int] = (company_detail, int(financial_summary["financial_year"]), str(financial_summary["currency"]), int(financial_summary["date_approved"]))
+            self.postData(
+                table=self.getTableName(),
+                columns="CompanyDetail, financial_year, currency, date_approved",
+                values="%s, %s, %s, %s",
+                parameters=parameters # type: ignore
+            )
+            self.getLogger().inform(f"The data has been successfully stored.\nStatus: {self.created}")
+            return self.created
+        except Error as error:
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {self.service_unavailable}\nError: {error}")
+            return self.service_unavailable
