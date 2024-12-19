@@ -3014,7 +3014,6 @@ class Document_Reader:
         """
         start_header: str = "NON-CURRENT ASSETS"
         end_header: str = "BALANCE SHEET (Continued)"
-        line_break: str = "-" * 10
         start_index: int = result_set.index(start_header)
         end_index: int = result_set.index(end_header)
         result_set = result_set[start_index:end_index]
@@ -3022,12 +3021,19 @@ class Document_Reader:
         result_set = [value for value in result_set if end_header not in value]
         non_current: Dict[str, float] = self.extractBalanceSheetAssetsNonCurrent(result_set)
         current: Dict[str, float] = self.extractBalanceSheetAssetsCurrent(result_set)
-        print(f"{line_break}\n{non_current=}\n{current=}")
-        exit()
         if not non_current and not current:
             return {}
-        self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractBalanceSheetAssets()")
-        exit()
+        result_set = [value for value in result_set if bool(search(r"[A-z]+", value)) == False]
+        result_set = [value for value in result_set if "/" not in value]
+        result_set.pop(0)
+        result_set = [value.replace(",", "") for value in result_set]
+        data: List[float] = [float(data) for data in result_set]
+        total: float = data[-1]
+        return {
+            "non_current_assets": non_current,
+            "current_assets": current,
+            "total": total
+        }
 
     def extractBalanceSheetAssetsCurrent(self, result_set: List[str]) -> Dict[str, float]:
         """
