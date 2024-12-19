@@ -361,8 +361,6 @@ class Builder:
         quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
         successful_logs: List[FinCorpLogs] = self.getFinCorpLogs().getSuccessfulRunsLogs("extractCorporateData")
         date: str = self._getDateExtractCorporateData(successful_logs, quarter)
-        print(f"{date=}")
-        exit()
         document_files: List[DocumentFiles] = self.getDocumentFiles().getCorporateRegistries(date)
         amount: int = self.getDocumentFiles().getAmount(date)
         amount_found: int = self.getDocumentFiles().getAmountFound(date)
