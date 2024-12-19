@@ -2921,11 +2921,11 @@ class Document_Reader:
         result_set = result_set[start_index:]
         equity: Dict[str, float] = self.extractBalanceSheetLiabilitiesEquity(result_set)
         non_current: Dict[str, float] = self.extractBalanceSheetLiabilitiesNonCurrent(result_set)
-        print(f"{line_break}\n{equity=}\n{non_current=}\n{result_set=}")
-        exit()
         current: Dict[str, float] = self.extractBalanceSheetLiabilitiesCurrent(result_set)
         if not equity and not non_current and not current:
             return {}
+        print(f"{line_break}\n{equity=}\n{non_current=}\n{result_set=}")
+        exit()
         self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractBalanceSheetLiabilities()")
         exit()
 
@@ -2940,20 +2940,21 @@ class Document_Reader:
         Returns:
             {trade: float, short_term_borrowings: float, current_tax_payable: float, short_term_provisions: float, others: float, total: float}
         """
-        start_index: int = result_set.index("CURRENT LIABILITIES") + 1
-        end_index: int = result_set.index("TOTAL LIABILITIES")
-        result_set = result_set[start_index:end_index]
-        result_set.remove("Trade and Other Payables")
-        result_set.remove("Short Term Borrowings")
-        result_set.remove("Current Tax Payable")
-        result_set.remove("Short Term Provisions")
-        result_set.remove("Others")
-        result_set.remove("TOTAL CURRENT LIABILITIES")
-        if len(result_set) > 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractBalanceSheetLiabilitiesCurrent()")
-            exit()
-        else:
+        result_set = [value for value in result_set if bool(search(r"[A-z]+", value)) == False]
+        result_set = [value for value in result_set if "/" not in value]
+        start_index: int = 10
+        end_index: int = start_index + 6
+        if len(result_set) == 0:
             return {}
+        data: List[float] = [float(data.replace(",", "")) for data in result_set][start_index:end_index]
+        return {
+            "trade": data[0],
+            "short_term_borrowings": data[1],
+            "current_tax_payable": data[2],
+            "short_term_provisions": data[3],
+            "others": data[4],
+            "total": data[5]
+        }
 
     def extractBalanceSheetLiabilitiesNonCurrent(self, result_set: List[str]) -> Dict[str, float]:
         """
