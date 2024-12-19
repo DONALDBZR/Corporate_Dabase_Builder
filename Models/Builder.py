@@ -1242,15 +1242,16 @@ class Builder:
             int
         """
         success_read: int = 200
+        success_write: int = 201
         service_unavailable: int = 503
-        if status >= 200 and status <= 299 and len(financial_summaries) > 0:
-            self.getLogger().error(f"The application will abort the extraction as the function has not been implemented!\nStatus: {service_unavailable}\nFunction: Builder.storeCorporateDataDomesticFinancialSummary()")
-            exit()
+        if status <= 200 and status >= 299:
+            self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {status}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
+            return status
         if status >= 200 and status <= 299 and len(financial_summaries) == 0:
             self.getLogger().inform(f"There is no data to be inserted into the Financial Summaries table.\nStatus: {success_read}\nIdentifier: {document_file.company_detail}\nData: {financial_summaries}")
             return success_read
-        self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {status}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
-        return status
+        self.getLogger().error(f"The application will abort the extraction as the function has not been implemented!\nStatus: {service_unavailable}\nFunction: Builder.storeCorporateDataDomesticFinancialSummary()")
+        exit()
 
     def storeCorporateDataDomesticAnnualReturn(self, status: int, annual_return: List[Dict[str, int]], document_file: DocumentFiles) -> int:
         """
