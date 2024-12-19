@@ -307,30 +307,10 @@ class Builder:
         Returns:
             string
         """
-        start_date: str = datetime.strftime(
-            datetime.strptime(
-                self.getDateStart(fin_corp_logs),
-                "%m/%d/%Y"
-            ),
-            "%Y-%m-%d"
-        )
-        end_date: str = datetime.strftime(
-            datetime.strptime(
-                self.getDateEnd(fin_corp_logs),
-                "%m/%d/%Y"
-            ),
-            "%Y-%m-%d"
-        )
-        start_date_timestamp: int = int(
-            datetime.strptime(
-                start_date,
-                "%Y-%m-%d"
-            ).timestamp()
-        )
-        if start_date_timestamp <= int(time()):
-            return start_date
-        else:
-            return end_date
+        start_date: str = datetime.strftime(datetime.strptime(self.getDateStart(fin_corp_logs), "%m/%d/%Y"), "%Y-%m-%d")
+        end_date: str = datetime.strftime(datetime.strptime(self.getDateEnd(fin_corp_logs), "%m/%d/%Y"), "%Y-%m-%d")
+        start_date_timestamp: int = int(datetime.strptime(start_date, "%Y-%m-%d").timestamp())
+        return start_date if start_date_timestamp <= int(time()) else end_date
 
     def _getDateDownloadCorporateFile(self, fin_corp_logs: List[FinCorpLogs], quarter: FinancialCalendar) -> str:
         """
