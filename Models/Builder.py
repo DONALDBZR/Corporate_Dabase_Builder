@@ -7,6 +7,7 @@ Authors:
 """
 
 
+from Data.FinancialSummaries import FinancialSummaries
 from Data.StateCapital import StateCapital
 from Data.BusinessDetails import BusinessDetails
 from Data.CompanyDetails import CompanyDetails
@@ -1239,8 +1240,9 @@ class Builder:
         if status >= 200 and status <= 299 and not profit_statement:
             self.getLogger().inform(f"There is no data to be inserted into the Profit Statement table.\nStatus: {ok}\nIdentifier: {document_file.company_detail}\nData: {profit_statement}")
             return ok
-        financial_summary_id: int = self.getFinancialSummaries().getIdentifier(document_file.company_detail)
-        response = self.getFinancialSummaries().addUnit(profit_statement["financial_summary"]["unit"], financial_summary_id)
+        financial_summary: FinancialSummaries = self.getFinancialSummaries().getSpecific(document_file.company_detail, profit_statement["financial_summary"]["financial_year"])
+        financial_summary.unit = profit_statement["financial_summary"]["unit"]
+        response = self.getFinancialSummaries().update(financial_summary)
         response = self.getProfitStatements().addProfitStatement(profit_statement, financial_summary_id) if response == accepted else service_unavailable
         self.getLogger().inform(f"The data has been successfully inserted into the Profit Statements table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {profit_statement}")
         return response
