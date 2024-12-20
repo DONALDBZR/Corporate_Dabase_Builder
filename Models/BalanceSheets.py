@@ -44,3 +44,28 @@ class Balance_Sheets(Database_Handler):
 
     def setTableName(self, table_name: str) -> None:
         self.__table_name = table_name
+
+    def addBalanceSheet(self, data: Dict[str, Union[int, str]], company_detail: int) -> int:
+        """
+        Adding the balance sheet of the company.
+
+        Parameters:
+            data: {financial_year: int, currency: string, unit: int}: The data of the profit statement.
+            company_detail: int: The identifier of a company.
+
+        Returns:
+            int
+        """
+        try:
+            parameters: Tuple[int, int, str, int] = (company_detail, int(data["financial_year"]), str(data["currency"]), int(data["unit"])) # type: ignore
+            self.postData(
+                table=self.getTableName(),
+                columns="CompanyDetail, financial_year, currency, unit",
+                values="%s, %s, %s, %s",
+                parameters=parameters # type: ignore
+            )
+            self.getLogger().inform(f"The data has been successfully stored.\nStatus: {self.created}")
+            return self.created
+        except Error as error:
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {self.service_unavailable}\nError: {error}")
+            return self.service_unavailable
