@@ -54,3 +54,28 @@ class Equity_And_Liabilities(Database_Handler):
 
     def setTableName(self, table_name: str) -> None:
         self.__table_name = table_name
+
+    def addLiabilities(self, data: Dict[str, float], liability: int) -> int:
+        """
+        Adding the equity and liability of the company.
+
+        Parameters:
+            data: {share_capital: float, other_reserves: float, retained_earnings: float, others: float, total: float}: The data of the equity and liability.
+            liability: int: The identifier of a liability.
+
+        Returns:
+            int
+        """
+        try:
+            parameters: Tuple[int, float, float, float, float, float] = (liability, float(data["share_capital"]), float(data["other_reserves"]), float(data["retained_earnings"]), float(data["others"]), float(data["total"]))
+            self.postData(
+                table=self.getTableName(),
+                columns="Liability, share_capital, other_reserves, retained_earnings, others, total",
+                values="%s, %s, %s, %s, %s, %s",
+                parameters=parameters # type: ignore
+            )
+            self.getLogger().inform(f"The data has been successfully stored.\nStatus: {self.created}")
+            return self.created
+        except Error as error:
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {self.service_unavailable}\nError: {error}")
+            return self.service_unavailable
