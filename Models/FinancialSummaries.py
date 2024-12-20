@@ -91,9 +91,32 @@ class Financial_Summaries(Database_Handler):
                 filter_condition="CompanyDetail = %s",
                 parameters=parameters # type: ignore
             )
-            response: Dict[str, Union[int, FinancialSummaries]] = self.getSpecific(data)
+            response: Dict[str, Union[int, FinancialSummaries]] = self._getSpecific(data)
             self.getLogger().inform(f"The data from {self.getTableName()} has been retrieved!\nStatus: {response['status']}\nData: {data}")
             return response["data"] # type: ignore
         except Error as error:
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {self.service_unavailable}\nError: {error}")
             return FinancialSummaries({})
+
+    def _getSpecific(self, dataset: Union[List[RowType], List[Dict[str, Union[int, str, None]]]]) -> Dict[str, Union[int, FinancialSummaries]]:
+        """
+        Retrieving the data into the correct data type for the
+        application.
+
+        Parameters:
+            dataset: [{identfier: int, CompanyDetail: int, financial_year: int, currency: string, date_approved: int, unit: int|null}]: The data from the relational database server.
+
+        Returns:
+            {status: int, data: {identfier: int, CompanyDetail: int, financial_year: int, currency: string, date_approved: int, unit: int|null}}
+        """
+        no_content: int = 204
+        ok: int = 200
+        service_unavailable: int = 503
+        status: int = 0
+        status = ok if len(dataset) == 1 else service_unavailable
+        status = no_content if len(dataset) == 0 else status
+        data: List[FinancialSummaries] = [FinancialSummaries(financial_summary) for financial_summary in dataset] if len(dataset) > 0 else []
+        return {
+            "status": status,
+            "data": data[0] if len(data) == 1 else FinancialSummaries({})
+        }
