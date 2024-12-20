@@ -39,6 +39,10 @@ class Financial_Summaries(Database_Handler):
     """
     The status code when there is no content.
     """
+    accepted: int = 202
+    """
+    The status code when the data can be modified.
+    """
 
     def __init__(self) -> None:
         """
@@ -117,7 +121,6 @@ class Financial_Summaries(Database_Handler):
         Returns:
             {status: int, data: {identfier: int, CompanyDetail: int, financial_year: int, currency: string, date_approved: int, unit: int|null}}
         """
-        status: int = 0
         status = self.ok if len(dataset) == 1 else self.service_unavailable
         status = self.no_content if len(dataset) == 0 else status
         data: List[FinancialSummaries] = [FinancialSummaries(financial_summary) for financial_summary in dataset] if len(dataset) > 0 else []
@@ -125,3 +128,27 @@ class Financial_Summaries(Database_Handler):
             "status": status,
             "data": data[0] if len(data) == 1 else FinancialSummaries({})
         }
+
+    def update(self, data: FinancialSummaries) -> int:
+        """
+        Updating the data of the financial summary.
+
+        Parameters:
+            data: {identfier: int, CompanyDetail: int, financial_year: int, currency: string, date_approved: int, unit: int|null}: The financial summary to be updated.
+
+        Returns:
+            int
+        """
+        try:
+            parameters: Tuple[int, str, int, Union[int, None], int, int] = (data.financial_year, data.currency, data.date_approved, data.unit, data.identifier, data.CompanyDetail)
+            self.updateData(
+                table=self.getTableName(),
+                values="financial_year = %s, currency = %s, date_approved = %s, unit = %s",
+                condition="identifier = %s AND CompanyDetail = %s",
+                parameters=parameters # type: ignore
+            )
+            self.getLogger().inform(f"The data from {self.getTableName()} has been updated!\nStatus: {self.accepted}\nData: {data}")
+            return self.accepted
+        except Error as error:
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {self.service_unavailable}\nError: {error}")
+            return self.service_unavailable
