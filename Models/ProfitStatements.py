@@ -30,6 +30,15 @@ class Profit_Statements(Database_Handler):
     The status code for an unavailable service.
     """
 
+    def __init__(self):
+        """
+        Initializing all of the dependencies which will be used to
+        operate the application.
+        """
+        super().__init__()
+        self.setTableName("ProfitStatements")
+        self.getLogger().inform("The model has been successfully been initiated with its dependencies.")
+
     def getTableName(self) -> str:
         return self.__table_name
 
