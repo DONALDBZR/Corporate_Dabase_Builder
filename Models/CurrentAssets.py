@@ -37,3 +37,9 @@ class Non_Current_Assets(Database_Handler):
     """
     The status code when there is no content.
     """
+
+    def getTableName(self) -> str:
+        return self.__table_name
+
+    def setTableName(self, table_name: str) -> None:
+        self.__table_name = table_name
