@@ -55,7 +55,7 @@ class Assets(Database_Handler):
     def setTableName(self, table_name: str) -> None:
         self.__table_name = table_name
 
-    def addAssets(self, data: Dict[str, Union[int, str]], balance_sheet: int) -> int:
+    def addAssets(self, data: Dict[str, Union[Dict[str, float], float]], balance_sheet: int) -> int:
         """
         Adding the balance sheet of the company.
 
