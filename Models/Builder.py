@@ -34,6 +34,7 @@ from time import time, sleep
 from re import findall, search
 from Models.Mail import Mail
 from Models.FinancialSummaries import Financial_Summaries
+from Models.ProfitStatements import Profit_Statements
 import os
 
 
@@ -138,6 +139,11 @@ class Builder:
     The model which will interact exclusively with the Financial
     Summaries table.
     """
+    __profit_statements: Profit_Statements
+    """
+    The model which will interact exclusively with the Profit
+    Statements table.
+    """
 
     def __init__(self) -> None:
         """
@@ -158,7 +164,14 @@ class Builder:
         self.setShareholders(Shareholders())
         self.setMembers(Member())
         self.setFinancialSummaries(Financial_Summaries())
+        self.setProfitStatement(Profit_Statements())
         self.getLogger().inform("The builder has been initialized and all of its dependencies are injected!")
+
+    def getProfitStatement(self) -> Profit_Statements:
+        return self.__profit_statements
+
+    def setProfitStatement(self, profit_statements: Profit_Statements) -> None:
+        self.__profit_statements = profit_statements
 
     def getFinancialSummaries(self) -> Financial_Summaries:
         return self.__financial_summaries
@@ -1240,10 +1253,10 @@ class Builder:
         if status >= 200 and status <= 299 and not profit_statement:
             self.getLogger().inform(f"There is no data to be inserted into the Profit Statement table.\nStatus: {ok}\nIdentifier: {document_file.company_detail}\nData: {profit_statement}")
             return ok
-        financial_summary: FinancialSummaries = self.getFinancialSummaries().getSpecific(document_file.company_detail, profit_statement["financial_summary"]["financial_year"])
-        financial_summary.unit = profit_statement["financial_summary"]["unit"]
+        financial_summary: FinancialSummaries = self.getFinancialSummaries().getSpecific(document_file.company_detail, profit_statement["financial_summary"]["financial_year"]) # type: ignore
+        financial_summary.unit = profit_statement["financial_summary"]["unit"] # type: ignore
         response = self.getFinancialSummaries().update(financial_summary)
-        response = self.getProfitStatements().addProfitStatement(profit_statement, financial_summary_id) if response == accepted else service_unavailable
+        response = self.getProfitStatements().addProfitStatement(profit_statement, financial_summary.identifier) if response == accepted else service_unavailable
         self.getLogger().inform(f"The data has been successfully inserted into the Profit Statements table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {profit_statement}")
         return response
 
