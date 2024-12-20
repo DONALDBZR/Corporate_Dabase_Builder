@@ -54,3 +54,28 @@ class Assets(Database_Handler):
 
     def setTableName(self, table_name: str) -> None:
         self.__table_name = table_name
+
+    def addAssets(self, data: Dict[str, Union[int, str]], balance_sheet: int) -> int:
+        """
+        Adding the balance sheet of the company.
+
+        Parameters:
+            data: {non_current_assets: {property_plant_equipment: float, investment_properties: float, intangible_assets: float, other_investments: float, subsidiaries_investments: float, biological_assets: float, others: float, total: float}, current_assets: {inventories: float, trade: float, cash: float, others: float, total: float}, total: float}: The data of the assets.
+            balance_sheet: int: The identifier of a balance sheet.
+
+        Returns:
+            int
+        """
+        try:
+            parameters: Tuple[int, float] = (balance_sheet, float(data["total"])) # type: ignore
+            self.postData(
+                table=self.getTableName(),
+                columns="BalanceSheet, total",
+                values="%s, %s",
+                parameters=parameters # type: ignore
+            )
+            self.getLogger().inform(f"The data has been successfully stored.\nStatus: {self.created}")
+            return self.created
+        except Error as error:
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {self.service_unavailable}\nError: {error}")
+            return self.service_unavailable
