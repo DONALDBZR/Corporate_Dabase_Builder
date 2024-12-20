@@ -7,9 +7,11 @@ Authors:
 """
 
 
+from Data.BalanceSheets import BalanceSheets
 from Models.DatabaseHandler import Database_Handler
-from typing import Dict, Union, Tuple
+from typing import Dict, Union, Tuple, List
 from mysql.connector.errors import Error
+from mysql.connector.types import RowType
 
 
 class Balance_Sheets(Database_Handler):
@@ -69,3 +71,28 @@ class Balance_Sheets(Database_Handler):
         except Error as error:
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {self.service_unavailable}\nError: {error}")
             return self.service_unavailable
+
+    def getSpecific(self, company_detail:int, financial_year: int) -> BalanceSheets:
+        """
+        Retrieving the data of the balance sheet.
+
+        Parameters:
+            company_detail: int: The identifier of the company.
+            financial_year: int: The financial year for which the data needs to be retrieved.
+
+        Returns:
+            {identifier: int, CompanyDetail: int, financial_year: int, currency: string, unit: int}
+        """
+        try:
+            parameters: Tuple[int, int] = (company_detail, financial_year)
+            data: Union[List[RowType], List[Dict[str, Union[int, str]]]] = self.getData(
+                table_name=self.getTableName(),
+                filter_condition="CompanyDetail = %s AND financial_year = %s",
+                parameters=parameters # type: ignore
+            )
+            response: Dict[str, Union[int, BalanceSheets]] = self._getSpecific(data)
+            self.getLogger().inform(f"The data from {self.getTableName()} has been retrieved!\nStatus: {response['status']}\nData: {data}")
+            return response["data"] # type: ignore
+        except Error as error:
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {self.service_unavailable}\nError: {error}")
+            return BalanceSheets({})
