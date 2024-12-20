@@ -46,3 +46,9 @@ class Liabilities(Database_Handler):
         super().__init__()
         self.setTableName("Liabilities")
         self.getLogger().inform("The model has been successfully been initiated with its dependencies.")
+
+    def getTableName(self) -> str:
+        return self.__table_name
+
+    def setTableName(self, table_name: str) -> None:
+        self.__table_name = table_name
