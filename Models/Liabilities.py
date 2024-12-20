@@ -8,8 +8,10 @@ Authors:
 
 
 from Models.DatabaseHandler import Database_Handler
-from typing import Dict, Union, Tuple
+from typing import Dict, Union, Tuple, List
 from mysql.connector.errors import Error
+from mysql.connector.types import RowType
+from Data.Liabilities import Liabilities as data_object
 
 
 class Liabilities(Database_Handler):
@@ -77,3 +79,27 @@ class Liabilities(Database_Handler):
         except Error as error:
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {self.service_unavailable}\nError: {error}")
             return self.service_unavailable
+
+    def getSpecific(self, balance_sheet: int) -> data_object:
+        """
+        Retrieving the data of the liabilities.
+
+        Parameters:
+            balance_sheet: int: The identifier of the balance sheet.
+
+        Returns:
+            {identifier: int, BalanceSheet: int, date_updated: int, total_liabilities: float, total_equity_and_liabilities: float}
+        """
+        try:
+            parameters: Tuple[int] = (balance_sheet,)
+            data: Union[List[RowType], List[Dict[str, Union[int, float]]]] = self.getData(
+                table_name=self.getTableName(),
+                filter_condition="BalanceSheet = %s",
+                parameters=parameters # type: ignore
+            )
+            response: Dict[str, Union[int, data_object]] = self._getSpecific(data)
+            self.getLogger().inform(f"The data from {self.getTableName()} has been retrieved!\nStatus: {response['status']}\nData: {data}")
+            return response["data"] # type: ignore
+        except Error as error:
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {self.service_unavailable}\nError: {error}")
+            return data_object({})
