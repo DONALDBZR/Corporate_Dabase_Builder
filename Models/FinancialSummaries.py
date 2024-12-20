@@ -7,6 +7,7 @@ Authors:
 """
 
 
+from Data.FinancialSummaries import FinancialSummaries
 from Models.DatabaseHandler import Database_Handler
 from typing import Union, Tuple, Dict, List
 from mysql.connector.errors import Error
@@ -72,12 +73,13 @@ class Financial_Summaries(Database_Handler):
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {self.service_unavailable}\nError: {error}")
             return self.service_unavailable
 
-    def getIdentifier(self, company_detail: int) -> int:
+    def getSpecific(self, company_detail: int, financial_year: int) -> FinancialSummaries:
         """
-        Retrieving the identifier of the financial summary.
+        Retrieving the data of the financial summary.
 
         Parameters:
             company_detail: int: The identifier of the company.
+            financial_year: int: The financial year for which the data needs to be retrieved.
 
         Returns:
             int
@@ -89,9 +91,9 @@ class Financial_Summaries(Database_Handler):
                 filter_condition="CompanyDetail = %s",
                 parameters=parameters # type: ignore
             )
-            response: Dict[str, Union[int, FinancialSummaries]] = self._getIdentifier(data)
+            response: Dict[str, Union[int, FinancialSummaries]] = self.getSpecific(data)
             self.getLogger().inform(f"The data from {self.getTableName()} has been retrieved!\nStatus: {response['status']}\nData: {data}")
-            return int(response["data"].identifier) # type: ignore
+            return response["data"] # type: ignore
         except Error as error:
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {self.service_unavailable}\nError: {error}")
-            return 0
+            return FinancialSummaries({})
