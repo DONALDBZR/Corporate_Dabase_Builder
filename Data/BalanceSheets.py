@@ -11,7 +11,7 @@ from mysql.connector.types import RowType
 from typing import Union, Dict
 
 @dataclass
-class FinancialSummaries:
+class BalanceSheets:
     """
     The Data Transfer Object for the Balance Sheets.
     """
