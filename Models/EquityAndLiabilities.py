@@ -54,7 +54,7 @@ class Equity_And_Liabilities(Database_Handler):
     def setTableName(self, table_name: str) -> None:
         self.__table_name = table_name
 
-    def addLiabilities(self, data: Dict[str, float], liability: int) -> int:
+    def addLiabiliy(self, data: Dict[str, float], liability: int) -> int:
         """
         Adding the equity and liability of the company.
 
