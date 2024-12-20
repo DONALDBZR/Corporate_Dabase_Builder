@@ -52,3 +52,28 @@ class Non_Current_Assets(Database_Handler):
 
     def setTableName(self, table_name: str) -> None:
         self.__table_name = table_name
+
+    def addAsset(self, data: Dict[str, float], asset: int) -> int:
+        """
+        Adding the balance sheet of the company.
+
+        Parameters:
+            data: {property_plant_equipment: float, investment_properties: float, intangible_assets: float, other_investments: float, subsidiaries_investments: float, biological_assets: float, others: float, total: float}: The data of the assets.
+            asset: int: The identifier of an asset.
+
+        Returns:
+            int
+        """
+        try:
+            parameters: Tuple[int, float, float, float, float, float, float, float, float] = (asset, data["property_plant_equipment"], data["investment_properties"], data["intangible_assets"], data["other_investments"], data["subsidiaries_investments"], data["biological_assets"], data["others"], data["total"])
+            self.postData(
+                table=self.getTableName(),
+                columns="Asset, property_plant_equipment, investment_properties, intangible_assets, other_investments, subsidiaries_investments, biological_assets, others, total",
+                values="%s, %s, %s, %s, %s, %s, %s, %s, %s",
+                parameters=parameters # type: ignore
+            )
+            self.getLogger().inform(f"The data has been successfully stored.\nStatus: {self.created}")
+            return self.created
+        except Error as error:
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {self.service_unavailable}\nError: {error}")
+            return self.service_unavailable
