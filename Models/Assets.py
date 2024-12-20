@@ -103,3 +103,22 @@ class Assets(Database_Handler):
         except Error as error:
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {self.service_unavailable}\nError: {error}")
             return data_object({})
+
+    def _getSpecific(self, dataset: Union[List[RowType], List[Dict[str, Union[int, float]]]]) -> Dict[str, Union[int, data_object]]:
+        """
+        Retrieving the data into the correct data type for the
+        application.
+
+        Parameters:
+            dataset: [{identifier: int, BalanceSheet: int, date_updated: int, total: float}]: The data from the relational database server.
+
+        Returns:
+            {status: int, data: {identifier: int, BalanceSheet: int, date_updated: int, total: float}}
+        """
+        status = self.ok if len(dataset) == 1 else self.service_unavailable
+        status = self.no_content if len(dataset) == 0 else status
+        data: List[data_object] = [data_object(asset) for asset in dataset] if len(dataset) > 0 else []
+        return {
+            "status": status,
+            "data": data[0] if len(data) == 1 else data_object({})
+        }
