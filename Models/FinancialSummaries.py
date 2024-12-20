@@ -94,7 +94,7 @@ class Financial_Summaries(Database_Handler):
             financial_year: int: The financial year for which the data needs to be retrieved.
 
         Returns:
-            int
+            {identifier: int, CompanyDetail: int, financial_year: int, currency: string, date_approved: int, unit: int}
         """
         try:
             parameters: Tuple[int, int] = (company_detail, financial_year)
