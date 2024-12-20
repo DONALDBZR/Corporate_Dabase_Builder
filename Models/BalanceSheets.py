@@ -31,6 +31,14 @@ class Balance_Sheets(Database_Handler):
     """
     The status code for an unavailable service.
     """
+    ok: int = 200
+    """
+    The status code for a successful response
+    """
+    no_content: int = 204
+    """
+    The status code when there is no content.
+    """
 
     def __init__(self):
         """
@@ -96,3 +104,22 @@ class Balance_Sheets(Database_Handler):
         except Error as error:
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {self.service_unavailable}\nError: {error}")
             return BalanceSheets({})
+
+    def _getSpecific(self, dataset: Union[List[RowType], List[Dict[str, Union[int, str]]]]) -> Dict[str, Union[int, BalanceSheets]]:
+        """
+        Retrieving the data into the correct data type for the
+        application.
+
+        Parameters:
+            dataset: [{identfier: int, CompanyDetail: int, financial_year: int, currency: string, date_approved: int, unit: int|null}]: The data from the relational database server.
+
+        Returns:
+            {status: int, data: {identfier: int, CompanyDetail: int, financial_year: int, currency: string, date_approved: int, unit: int|null}}
+        """
+        status = self.ok if len(dataset) == 1 else self.service_unavailable
+        status = self.no_content if len(dataset) == 0 else status
+        data: List[BalanceSheets] = [BalanceSheets(balance_sheet) for balance_sheet in dataset] if len(dataset) > 0 else []
+        return {
+            "status": status,
+            "data": data[0] if len(data) == 1 else BalanceSheets({})
+        }
