@@ -37,3 +37,12 @@ class Liabilities(Database_Handler):
     """
     The status code when there is no content.
     """
+
+    def __init__(self):
+        """
+        Initializing all of the dependencies which will be used to
+        operate the application.
+        """
+        super().__init__()
+        self.setTableName("Liabilities")
+        self.getLogger().inform("The model has been successfully been initiated with its dependencies.")
