@@ -85,10 +85,10 @@ class Financial_Summaries(Database_Handler):
             int
         """
         try:
-            parameters: Tuple[int] = (company_detail,)
+            parameters: Tuple[int, int] = (company_detail, financial_year)
             data: Union[List[RowType], List[Dict[str, Union[int, str]]]] = self.getData(
                 table_name=self.getTableName(),
-                filter_condition="CompanyDetail = %s",
+                filter_condition="CompanyDetail = %s AND financial_year = %s",
                 parameters=parameters # type: ignore
             )
             response: Dict[str, Union[int, FinancialSummaries]] = self._getSpecific(data)
