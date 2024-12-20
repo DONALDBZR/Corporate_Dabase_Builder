@@ -8,9 +8,8 @@ Authors:
 
 
 from Models.DatabaseHandler import Database_Handler
-from typing import Dict, Union, Tuple, List
+from typing import Dict, Tuple
 from mysql.connector.errors import Error
-from mysql.connector.types import RowType
 from Data.Liabilities import Liabilities as data_object
 
 
