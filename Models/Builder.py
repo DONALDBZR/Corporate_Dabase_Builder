@@ -164,13 +164,13 @@ class Builder:
         self.setShareholders(Shareholders())
         self.setMembers(Member())
         self.setFinancialSummaries(Financial_Summaries())
-        self.setProfitStatement(Profit_Statements())
+        self.setProfitStatements(Profit_Statements())
         self.getLogger().inform("The builder has been initialized and all of its dependencies are injected!")
 
-    def getProfitStatement(self) -> Profit_Statements:
+    def getProfitStatements(self) -> Profit_Statements:
         return self.__profit_statements
 
-    def setProfitStatement(self, profit_statements: Profit_Statements) -> None:
+    def setProfitStatements(self, profit_statements: Profit_Statements) -> None:
         self.__profit_statements = profit_statements
 
     def getFinancialSummaries(self) -> Financial_Summaries:
