@@ -31,6 +31,14 @@ class Financial_Summaries(Database_Handler):
     """
     The status code for an unavailable service.
     """
+    ok: int = 200
+    """
+    The status code for a successful response
+    """
+    no_content: int = 204
+    """
+    The status code when there is no content.
+    """
 
     def __init__(self) -> None:
         """
@@ -109,12 +117,9 @@ class Financial_Summaries(Database_Handler):
         Returns:
             {status: int, data: {identfier: int, CompanyDetail: int, financial_year: int, currency: string, date_approved: int, unit: int|null}}
         """
-        no_content: int = 204
-        ok: int = 200
-        service_unavailable: int = 503
         status: int = 0
-        status = ok if len(dataset) == 1 else service_unavailable
-        status = no_content if len(dataset) == 0 else status
+        status = self.ok if len(dataset) == 1 else self.service_unavailable
+        status = self.no_content if len(dataset) == 0 else status
         data: List[FinancialSummaries] = [FinancialSummaries(financial_summary) for financial_summary in dataset] if len(dataset) > 0 else []
         return {
             "status": status,
