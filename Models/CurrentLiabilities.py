@@ -52,3 +52,28 @@ class Non_Current_Liabilities(Database_Handler):
 
     def setTableName(self, table_name: str) -> None:
         self.__table_name = table_name
+
+    def addLiability(self, data: Dict[str, float], liability: int) -> int:
+        """
+        Adding the current liability of the company.
+
+        Parameters:
+            data: {trade: float, short_term_borrowings: float, current_tax_payable: float, short_term_provisions: float, others: float, total: float}: The data of the equity and liability.
+            liability: int: The identifier of a liability.
+
+        Returns:
+            int
+        """
+        try:
+            parameters: Tuple[int, float, float, float, float, float, float] = (liability, float(data["trade"]), float(data["short_term_borrowings"]), float(data["current_tax_payable"]), float(data["short_term_provisions"]), float(data["others"]), float(data["total"]))
+            self.postData(
+                table=self.getTableName(),
+                columns="Liability, trade, short_term_borrowings, current_tax_payable, short_term_provisions, others, total",
+                values="%s, %s, %s, %s, %s, %s, %s",
+                parameters=parameters # type: ignore
+            )
+            self.getLogger().inform(f"The data has been successfully stored.\nStatus: {self.created}")
+            return self.created
+        except Error as error:
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {self.service_unavailable}\nError: {error}")
+            return self.service_unavailable
