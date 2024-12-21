@@ -12,7 +12,7 @@ from typing import Dict, Union, Tuple
 from mysql.connector.errors import Error
 
 
-class Non_Current_Liabilities(Database_Handler):
+class Current_Liabilities(Database_Handler):
     """
     The model which will interact exclusively with the Current
     Liabilities table.
