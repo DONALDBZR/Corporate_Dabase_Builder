@@ -35,6 +35,17 @@ from re import findall, search
 from Models.Mail import Mail
 from Models.FinancialSummaries import Financial_Summaries
 from Models.ProfitStatements import Profit_Statements
+from Models.BalanceSheets import Balance_Sheets
+from Data.BalanceSheets import BalanceSheets
+from Models.Assets import Assets as Assets_Model
+from Data.Assets import Assets
+from Models.NonCurrentAssets import Non_Current_Assets
+from Models.CurrentAssets import Current_Assets
+from Models.Liabilities import Liabilities as Liabilities_Model
+from Data.Liabilities import Liabilities
+from Models.EquityAndLiabilities import Equity_And_Liabilities
+from Models.NonCurrentLiabilities import Non_Current_Liabilities
+from Models.CurrentLiabilities import Current_Liabilities
 import os
 
 
@@ -144,6 +155,46 @@ class Builder:
     The model which will interact exclusively with the Profit
     Statements table.
     """
+    __balance_sheets: Balance_Sheets
+    """
+    The model which will interact exclusively with the Balance
+    Sheets table.
+    """
+    __assets: Assets_Model
+    """
+    The model which will interact exclusively with the Assets
+    table.
+    """
+    __non_current_assets: Non_Current_Assets
+    """
+    The model which will interact exclusively with the Non
+    Current Assets table.
+    """
+    __current_assets: Current_Assets
+    """
+    The model which will interact exclusively with the Current
+    Assets table.
+    """
+    __liabilities: Liabilities_Model
+    """
+    The model which will interact exclusively with the
+    Liabilities table.
+    """
+    __equity_and_liabilities: Equity_And_Liabilities
+    """
+    The model which will interact exclusively with the Equity
+    And Liabilities table.
+    """
+    __non_current_liabilities: Non_Current_Liabilities
+    """
+    The model which will interact exclusively with the Non
+    Current Liabilities table.
+    """
+    __current_liabilities: Current_Liabilities
+    """
+    The model which will interact exclusively with the Current
+    Liabilities table.
+    """
 
     def __init__(self) -> None:
         """
@@ -165,7 +216,63 @@ class Builder:
         self.setMembers(Member())
         self.setFinancialSummaries(Financial_Summaries())
         self.setProfitStatements(Profit_Statements())
+        self.setBalanceSheets(Balance_Sheets())
+        self.setAssets(Assets_Model())
+        self.setNonCurrentAssets(Non_Current_Assets())
+        self.setCurrentAssets(Current_Assets())
+        self.setLiabilities(Liabilities_Model())
+        self.setEquityAndLiabilities(Equity_And_Liabilities())
+        self.setNonCurrentLiabilities(Non_Current_Liabilities())
+        self.setCurrentLiabilities(Current_Liabilities())
         self.getLogger().inform("The builder has been initialized and all of its dependencies are injected!")
+
+    def getCurrentLiabilities(self) -> Current_Liabilities:
+        return self.__current_liabilities
+
+    def setCurrentLiabilities(self, current_liabilities: Current_Liabilities) -> None:
+        self.__current_liabilities = current_liabilities
+
+    def getNonCurrentLiabilities(self) -> Non_Current_Liabilities:
+        return self.__non_current_liabilities
+
+    def setNonCurrentLiabilities(self, non_current_liabilities: Non_Current_Liabilities) -> None:
+        self.__non_current_liabilities = non_current_liabilities
+
+    def getEquityAndLiabilities(self) -> Equity_And_Liabilities:
+        return self.__equity_and_liabilities
+
+    def setEquityAndLiabilities(self, equity_and_liabilities: Equity_And_Liabilities) -> None:
+        self.__equity_and_liabilities = equity_and_liabilities
+
+    def getLiabilities(self) -> Liabilities_Model:
+        return self.__liabilities
+
+    def setLiabilities(self, liabilities: Liabilities_Model) -> None:
+        self.__liabilities = liabilities
+
+    def getCurrentAssets(self) -> Current_Assets:
+        return self.__current_assets
+
+    def setCurrentAssets(self, current_assets: Current_Assets) -> None:
+        self.__current_assets = current_assets
+
+    def getNonCurrentAssets(self) -> Non_Current_Assets:
+        return self.__non_current_assets
+
+    def setNonCurrentAssets(self, non_current_assets: Non_Current_Assets) -> None:
+        self.__non_current_assets = non_current_assets
+
+    def getAssets(self) -> Assets_Model:
+        return self.__assets
+
+    def setAssets(self, assets: Assets_Model) -> None:
+        self.__assets = assets
+
+    def getBalanceSheets(self) -> Balance_Sheets:
+        return self.__balance_sheets
+
+    def setBalanceSheets(self, balance_sheets: Balance_Sheets) -> None:
+        self.__balance_sheets = balance_sheets
 
     def getProfitStatements(self) -> Profit_Statements:
         return self.__profit_statements
@@ -1218,17 +1325,52 @@ class Builder:
         Returns:
             int
         """
+        response: int
         ok: int = 200
-        accepted: int = 202
         service_unavailable: int = 503
+        created: int = 201
         if status < 200 and status > 299:
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {status}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
             return status
         if status >= 200 and status <= 299 and not balance_sheet:
             self.getLogger().inform(f"There is no data to be inserted into the Balance Sheet table.\nStatus: {ok}\nIdentifier: {document_file.company_detail}\nData: {balance_sheet}")
             return ok
-        self.getLogger().error(f"The application will abort the extraction as the function has not been implemented!\nStatus: {service_unavailable}\nFunction: Builder.storeCorporateDataDomesticBalanceSheet()")
-        exit()
+        response = self.getBalanceSheets().addBalanceSheet(balance_sheet["balance_sheet"], document_file.company_detail) # type: ignore
+        if response != created:
+            self.getLogger().error(f"An error occurred while inserting the balance sheet into the relational database server.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {balance_sheet}")
+            return service_unavailable
+        archived_balance_sheet: BalanceSheets = self.getBalanceSheets().getSpecific(document_file.company_detail, balance_sheet["balance_sheet"]["financial_year"]) # type: ignore
+        response = self.getAssets().addAssets(balance_sheet["assets"], archived_balance_sheet.identifier) # type: ignore
+        if response != created:
+            self.getLogger().error(f"An error occurred while inserting the assets into the relational database server.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {balance_sheet}")
+            return service_unavailable
+        assets: Assets = self.getAssets().getSpecific(archived_balance_sheet.identifier)
+        response = self.getNonCurrentAssets().addAsset(balance_sheet["assets"]["non_current_assets"], assets.identifier) # type: ignore
+        if response != created:
+            self.getLogger().error(f"An error occurred while inserting the non current assets into the relational database server.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {balance_sheet}")
+            return service_unavailable
+        response = self.getCurrentAssets().addAsset(balance_sheet["assets"]["current_assets"], assets.identifier) # type: ignore
+        if response != created:
+            self.getLogger().error(f"An error occurred while inserting the current assets into the relational database server.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {balance_sheet}")
+            return service_unavailable
+        response = self.getLiabilities().addLiabilities(balance_sheet["liabilities"], archived_balance_sheet.identifier) # type: ignore
+        if response != created:
+            self.getLogger().error(f"An error occurred while inserting the liabilities into the relational database server.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {balance_sheet}")
+            return service_unavailable
+        liabilities: Liabilities = self.getLiabilities().getSpecific(archived_balance_sheet.identifier)
+        response = self.getEquityAndLiabilities().addLiability(balance_sheet["liabilities"]["equity_and_liabilities"], liabilities.identifier) # type: ignore
+        if response != created:
+            self.getLogger().error(f"An error occurred while inserting the equity and liabilities into the relational database server.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {balance_sheet}")
+            return service_unavailable
+        response = self.getNonCurrentLiabilities().addLiability(balance_sheet["liabilities"]["non_current"], liabilities.identifier) # type: ignore
+        if response != created:
+            self.getLogger().error(f"An error occurred while inserting the non current liabilities into the relational database server.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {balance_sheet}")
+            return service_unavailable
+        response = self.getCurrentLiabilities().addLiability(balance_sheet["liabilities"]["current"], liabilities.identifier) # type: ignore
+        if response != created:
+            self.getLogger().error(f"An error occurred while inserting the non current liabilities into the relational database server.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {balance_sheet}")
+            return service_unavailable
+        return response
 
     def storeCorporateDataDomesticProfitStatement(self, status: int, profit_statement: Dict[str, Union[Dict[str, Union[int, str]], float]], document_file: DocumentFiles) -> int:
         """
