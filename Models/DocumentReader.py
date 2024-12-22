@@ -1990,8 +1990,6 @@ class Document_Reader:
         result_set = [value for value in result_set if "Office Bearers" not in value]
         result_set = [value for value in result_set if "Associes" not in value]
         date_appointeds: List[str] = self._extractDataDomesticCivilCivilOfficeBearersDateAppointed(result_set)
-        print(f"{date_appointeds=}")
-        exit()
         result_set = [value for value in result_set if value not in date_appointeds]
         office_bearers_addresses: Dict[str, List[str]] = self._extractDataDomesticCivilCivilOfficeBearersAddresses(result_set)
         result_set = office_bearers_addresses["result_set"]
