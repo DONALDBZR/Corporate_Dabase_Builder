@@ -1655,8 +1655,14 @@ class Document_Reader:
         result_set = [value for value in result_set if "Status" not in value]
         if len(result_set) == 0:
             return response
-        self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractDataDomesticCivilCivilDetails()")
-        exit()
+        for index in range(0, len(result_set), 4):
+            response.append({
+                "type": str(result_set[index]).capitalize(),
+                "date_start": int(datetime.strptime(result_set[index + 1], "%d/%m/%Y").timestamp()),
+                "date_end": int(datetime.strptime(result_set[index + 2], "%d/%m/%Y").timestamp()),
+                "status": str(result_set[index + 3]).capitalize()
+            })
+        return response
 
     def _extractDataDomesticCivilCivilAdministrators(self, result_set: List[str]) -> Dict[str, Union[Dict[str, Union[str, int]], List[int]]]:
         """
