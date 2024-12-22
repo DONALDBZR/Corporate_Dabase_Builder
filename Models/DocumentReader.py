@@ -1653,6 +1653,9 @@ class Document_Reader:
         result_set = [value for value in result_set if "Start Date" not in value]
         result_set = [value for value in result_set if "End Date" not in value]
         result_set = [value for value in result_set if "Status" not in value]
+        result_set = [value for value in result_set if "Currency" not in value]
+        result_set = [value for value in result_set if "PART D'INTERET" not in value]
+        result_set = [value for value in result_set if "Mauritius Rupee" not in value]
         if len(result_set) == 0:
             return response
         for index in range(0, len(result_set), 4):
