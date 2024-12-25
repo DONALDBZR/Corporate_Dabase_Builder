@@ -1395,6 +1395,8 @@ class Builder:
         if status >= 200 and status <= 299 and not profit_statement:
             self.getLogger().inform(f"There is no data to be inserted into the Profit Statement table.\nStatus: {ok}\nIdentifier: {document_file.company_detail}\nData: {profit_statement}")
             return ok
+        if not profit_statement:
+            return status
         financial_summary: FinancialSummaries = self.getFinancialSummaries().getSpecific(document_file.company_detail, profit_statement["financial_summary"]["financial_year"]) # type: ignore
         financial_summary.unit = profit_statement["financial_summary"]["unit"] # type: ignore
         response = self.getFinancialSummaries().update(financial_summary)
