@@ -1335,6 +1335,8 @@ class Builder:
         if status >= 200 and status <= 299 and not balance_sheet:
             self.getLogger().inform(f"There is no data to be inserted into the Balance Sheet table.\nStatus: {ok}\nIdentifier: {document_file.company_detail}\nData: {balance_sheet}")
             return ok
+        if not balance_sheet:
+            return status
         response = self.getBalanceSheets().addBalanceSheet(balance_sheet["balance_sheet"], document_file.company_detail) # type: ignore
         if response != created:
             self.getLogger().error(f"An error occurred while inserting the balance sheet into the relational database server.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {balance_sheet}")
