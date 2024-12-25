@@ -17,7 +17,7 @@ from typing import Dict, Tuple, Union, List
 from pdfminer.high_level import extract_text
 from datetime import date, datetime
 from json import dumps
-from re import findall, search, split
+from re import L, findall, search, split
 from Models.OfficeBearers import Office_Bearers
 from Models.Shareholders import Shareholders
 from pdfminer.pdfparser import PDFSyntaxError
@@ -1654,9 +1654,14 @@ class Document_Reader:
         result_set = [value for value in result_set if "End Date" not in value]
         result_set = [value for value in result_set if "Status" not in value]
         result_set = [value for value in result_set if "Currency" not in value]
-        result_set = [value for value in result_set if "PART D'INTERET" not in value]
+        result_set = [value for value in result_set if "PART" not in value]
         result_set = [value for value in result_set if "Mauritius Rupee" not in value]
+        result_set = [value for value in result_set if "Name" not in value]
+        result_set = [value for value in result_set if "Service Address" not in value]
+        result_set = [value for value in result_set if "Appointed Date" not in value]
         if len(result_set) == 0:
+            return response
+        if len(result_set) < 4:
             return response
         for index in range(0, len(result_set), 4):
             response.append({
