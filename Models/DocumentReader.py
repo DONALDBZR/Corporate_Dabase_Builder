@@ -3217,7 +3217,7 @@ class Document_Reader:
         result_set = [value for value in result_set if "/" not in value]
         if not financial_summary and len(result_set) == 0:
             return {}
-        data: List[float] = [float(data) for data in result_set]
+        data: List[float] = [float(data.replace(",", "")) for data in result_set]
         turnover: float = data[0]
         cost_of_sales: float = data[1]
         gross_profit: float = data[2]
