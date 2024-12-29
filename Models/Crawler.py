@@ -716,13 +716,26 @@ class Crawler:
         Returns:
             {status: int, CompanyDetails: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}, DocumentFiles: bytes | null}
         """
-        self.setHtmlTags(
-            self.getHtmlTag().find_elements(
-                By.TAG_NAME,
-                "tr"
-            )
-        )
-        return self._scrapeDocumentFileFoundResultSets(delay, company_detail)
+        try:
+            self.setHtmlTags(self.getHtmlTag().find_elements(By.TAG_NAME, "tr"))
+            return self._scrapeDocumentFileFoundResultSets(delay, company_detail)
+        except StaleElementReferenceException as error:
+            self.getLogger().error(f"The row is not found.\nStatus: 404\nIdentifier: {company_detail.identifier}\nName: {company_detail.name}")
+            return {
+                "status": 404,
+                "CompanyDetails": {
+                    "identifier": company_detail.identifier,
+                    "business_registration_number": company_detail.business_registration_number,
+                    "name": company_detail.name,
+                    "file_number": company_detail.file_number,
+                    "category": company_detail.category,
+                    "date_incorporation": company_detail.date_incorporation,
+                    "nature": company_detail.nature,
+                    "status": company_detail.status,
+                    "date_verified": company_detail.date_verified
+                },
+                "DocumentFiles": None
+            }
 
     def retrieveCorporateMetadata(self, date_from: str, date_to: str, coefficient: int) -> Dict[str, int]:
         """
