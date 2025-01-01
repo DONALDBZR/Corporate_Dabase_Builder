@@ -2059,6 +2059,22 @@ class Builder:
         self.curateStateCapitalTypeA()
         self.curateStateCapitalTypeManagement()
         self.curateStateCapitalTypeC()
+        self.curateStateCapitalTypeFounder()
+
+    def curateStateCapitalTypeFounder(self) -> None:
+        """
+        Filtering the data for the founder type.
+
+        Returns:
+            void
+        """
+        founder: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital.type != None and ("Founder" in stated_capital.type.lower())]
+        filtered_data: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital not in founder]
+        self.setStateCapitalData([])
+        self.getLogger().inform(f"Stated Capital: Type: Filtering the data for the Founder type.\nAmount: {len(founder)}")
+        for index in range(0, len(founder), 1):
+            founder[index].type = "Founder"
+        self.setStateCapitalData(founder + filtered_data)
 
     def curateStateCapitalTypeC(self) -> None:
         """
