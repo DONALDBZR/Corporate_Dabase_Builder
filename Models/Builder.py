@@ -2083,7 +2083,7 @@ class Builder:
         Returns:
             void
         """
-        c_type: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital.type != None and ("Class C" in stated_capital.type.lower())]
+        c_type: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital.type != None and ("class c" in stated_capital.type.lower())]
         filtered_data: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital not in c_type]
         self.setStateCapitalData([])
         self.getLogger().inform(f"Stated Capital: Type: Filtering the data for the Class C type.\nAmount: {len(c_type)}")
