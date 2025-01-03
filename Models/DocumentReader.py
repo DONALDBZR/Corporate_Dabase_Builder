@@ -3305,8 +3305,13 @@ class Document_Reader:
         result_set = [value for value in result_set if "/" in value and bool(search(r"[0-9]+", value)) == True]
         if len(result_set) < 3:
             return response
-        self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractAnnualReturns()")
-        exit()
+        for index in range(0, len(result_set), 3):
+            response.append({
+                "date_annual_return": int(datetime.strptime(result_set[index], "%d/%m/%Y").timestamp()),
+                "date_annual_meeting": int(datetime.strptime(result_set[index + 1], "%d/%m/%Y").timestamp()),
+                "date_filled": int(datetime.strptime(result_set[index + 2], "%d/%m/%Y").timestamp())
+            })
+        return response
 
     def extractMembers(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
         """
