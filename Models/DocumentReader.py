@@ -3296,20 +3296,17 @@ class Document_Reader:
         Returns:
             [{date_annual_return: int, date_annual_meeting: int, date_filled: int}]
         """
-        start_index: int = portable_document_file_result_set.index("Annual Return filed for last 3 years") + 1
-        end_index: int = portable_document_file_result_set.index("Financial Summary/Statements filed for last 3 years")
+        response: List[Dict[str, int]] = []
+        start_header: str = "Annual Return filed for last 3 years"
+        end_header: str = "Financial Summary/Statements filed for last 3 years"
+        start_index: int = portable_document_file_result_set.index(start_header)
+        end_index: int = portable_document_file_result_set.index(end_header)
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
-        result_set = [value for value in result_set if ":" not in value]
-        result_set = [value for value in result_set if "Page" not in value]
-        result_set = [value for value in result_set if "of" not in value]
-        result_set.remove("Date Annual Return")
-        result_set.remove("Annual Meeting Date")
-        result_set.remove("Date Filed")
-        if len(result_set) >= 3:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractAnnualReturns()")
-            exit()
-        else:
-            return []
+        result_set = [value for value in result_set if "/" in value and bool(search(r"[0-9]+", value)) == True]
+        if len(result_set) < 3:
+            return response
+        self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractAnnualReturns()")
+        exit()
 
     def extractMembers(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
         """
