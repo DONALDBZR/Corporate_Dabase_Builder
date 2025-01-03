@@ -1445,17 +1445,16 @@ class Builder:
         Returns:
             int
         """
-        response: int
-        if status >= 200 and status <= 299 and len(annual_return) > 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataDomesticAnnualReturn()")
-            exit()
-        elif status >= 200 and status <= 299 and len(annual_return) == 0:
-            response = 200
-            self.getLogger().inform(f"There is no data to be inserted into the Annual Return table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {annual_return}")
-        else:
-            response = status
-            self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
-        return response
+        ok: int = 200
+        service_unavailable: int = 503
+        if status < 200 and status > 299:
+            self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {status}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
+            return status
+        if status >= 200 and status <= 299 and len(annual_return) == 0:
+            self.getLogger().inform(f"There is no data to be inserted into the Annual Return table.\nStatus: {ok}\nIdentifier: {document_file.company_detail}\nData: {annual_return}")
+            return ok
+        self.getLogger().error(f"The application will abort the extraction as the function has not been implemented!\nStatus: {service_unavailable}\nFunction: Builder.storeCorporateDataDomesticAnnualReturn()")
+        exit()
 
     def storeCorporateDataDomesticMembers(self, status: int, members: List[Dict[str, Union[str, int]]], document_file: DocumentFiles) -> int:
         """
