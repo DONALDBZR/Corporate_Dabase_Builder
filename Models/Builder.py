@@ -46,6 +46,7 @@ from Data.Liabilities import Liabilities
 from Models.EquityAndLiabilities import Equity_And_Liabilities
 from Models.NonCurrentLiabilities import Non_Current_Liabilities
 from Models.CurrentLiabilities import Current_Liabilities
+from Models.AnnualReturns import Annual_Returns
 import os
 
 
@@ -195,6 +196,11 @@ class Builder:
     The model which will interact exclusively with the Current
     Liabilities table.
     """
+    __annual_returns: Annual_Returns
+    """
+    The model which will interact exclusively with the Annual
+    Returns table.
+    """
 
     def __init__(self) -> None:
         """
@@ -224,7 +230,14 @@ class Builder:
         self.setEquityAndLiabilities(Equity_And_Liabilities())
         self.setNonCurrentLiabilities(Non_Current_Liabilities())
         self.setCurrentLiabilities(Current_Liabilities())
+        self.setAnnualReturns(Annual_Returns())
         self.getLogger().inform("The builder has been initialized and all of its dependencies are injected!")
+
+    def getAnnualReturns(self) -> Annual_Returns:
+        return self.__annual_returns
+
+    def setAnnualReturns(self, annual_returns: Annual_Returns) -> None:
+        self.__annual_returns = annual_returns
 
     def getCurrentLiabilities(self) -> Current_Liabilities:
         return self.__current_liabilities
@@ -1446,6 +1459,7 @@ class Builder:
             int
         """
         ok: int = 200
+        created: int = 201
         service_unavailable: int = 503
         if status < 200 and status > 299:
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {status}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
@@ -1453,8 +1467,10 @@ class Builder:
         if status >= 200 and status <= 299 and len(annual_return) == 0:
             self.getLogger().inform(f"There is no data to be inserted into the Annual Return table.\nStatus: {ok}\nIdentifier: {document_file.company_detail}\nData: {annual_return}")
             return ok
-        self.getLogger().error(f"The application will abort the extraction as the function has not been implemented!\nStatus: {service_unavailable}\nFunction: Builder.storeCorporateDataDomesticAnnualReturn()")
-        exit()
+        statuses: List[int] = list(set([self.getAnnualReturns().addAnnualReturn(annual_return_statement, document_file.company_detail) for annual_return_statement in annual_return]))
+        response: int = created if len(statuses) == 1 and statuses[0] else service_unavailable
+        self.getLogger().inform(f"Data has been stored into the Annual Returns table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {annual_return}")
+        return response
 
     def storeCorporateDataDomesticMembers(self, status: int, members: List[Dict[str, Union[str, int]]], document_file: DocumentFiles) -> int:
         """
