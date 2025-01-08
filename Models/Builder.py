@@ -47,6 +47,7 @@ from Models.EquityAndLiabilities import Equity_And_Liabilities
 from Models.NonCurrentLiabilities import Non_Current_Liabilities
 from Models.CurrentLiabilities import Current_Liabilities
 from Models.AnnualReturns import Annual_Returns
+from Models.Objections import Objections
 import os
 
 
@@ -201,6 +202,11 @@ class Builder:
     The model which will interact exclusively with the Annual
     Returns table.
     """
+    __objections: Objections
+    """
+    The model which will interact exclusively with the
+    Objections table.
+    """
 
     def __init__(self) -> None:
         """
@@ -231,7 +237,14 @@ class Builder:
         self.setNonCurrentLiabilities(Non_Current_Liabilities())
         self.setCurrentLiabilities(Current_Liabilities())
         self.setAnnualReturns(Annual_Returns())
+        self.setObjections(Objections())
         self.getLogger().inform("The builder has been initialized and all of its dependencies are injected!")
+
+    def getObjections(self) -> Objections:
+        return self.__objections
+
+    def setObjections(self, objections: Objections) -> None:
+        self.__objections = objections
 
     def getAnnualReturns(self) -> Annual_Returns:
         return self.__annual_returns
@@ -1194,16 +1207,18 @@ class Builder:
         Returns:
             int
         """
-        response: int
+        ok: int = 200
+        service_unavailable: int = 503
+        created: int = 201
         if status >= 200 and status <= 299 and len(objections) == 0:
-            response = 200
-            self.getLogger().inform(f"There is no data to be inserted into the Objections table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {objections}")
-        elif status >= 200 and status <= 299 and len(objections) != 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataDomesticObjections()")
-            exit()
-        else:
-            response = status
-            self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
+            self.getLogger().inform(f"There is no data to be inserted into the Objections table.\nStatus: {ok}\nIdentifier: {document_file.company_detail}\nData: {objections}")
+            return ok
+        if status < 200 and status > 299:
+            self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {status}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
+            return service_unavailable
+        statuses: List[int] = list(set([self.getObjections().addObjection(objection, document_file.company_detail) for objection in objections]))
+        response: int = created if len(statuses) == 1 and statuses[0] == created else service_unavailable
+        self.getLogger().inform(f"Data has been inserted into the Objections table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {objections}")
         return response
 
     def storeCorporateDataDomesticDetails(self, status: int, details: List[Dict[str, Union[str, int]]], document_file: DocumentFiles) -> int:
