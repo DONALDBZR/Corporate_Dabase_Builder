@@ -3177,15 +3177,10 @@ class Document_Reader:
         result_set = [value for value in result_set if ":" not in value]
         if len(result_set) < 4:
             return {}
-        financial_year_end_date: str = [date for date in result_set if bool(search(r"[\d/]+", date)) == True and "/" in date and "/06/" in date][0]
-        financial_year: int = datetime.strptime(financial_year_end_date, "%d/%m/%Y").year - 1
-        result_set = [value for value in result_set if financial_year_end_date not in value]
-        currency: str = [currency for currency in result_set if bool(search(r"[\d/]+", currency)) == False][0]
-        result_set = [value for value in result_set if currency not in value]
-        date_approved: str = [date for date in result_set if bool(search(r"[\d/]+", date)) == True and "/" in date][0]
-        date_approved_unixtime: int = int(datetime.strptime(date_approved, "%d/%m/%Y").timestamp())
-        result_set = [value for value in result_set if date_approved not in value]
-        unit: int = int([unit for unit in result_set if bool(search(r"[\d]+", unit)) == True][0])
+        financial_year: int = datetime.strptime(result_set[0], "%d/%m/%Y").year - 1
+        currency: str = result_set[1]
+        date_approved_unixtime: int = int(datetime.strptime(result_set[2], "%d/%m/%Y").timestamp())
+        unit: int = int(result_set[3])
         return {
             "financial_year": financial_year,
             "currency": currency,
