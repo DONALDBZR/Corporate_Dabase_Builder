@@ -2532,7 +2532,6 @@ class Document_Reader:
         end_index: int = next((index for index, value in enumerate(portable_document_file_result_set) if value.startswith("Last Annual Registration Fee Paid:")), len(portable_document_file_result_set))
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
         result_set = [value for value in result_set if "Object" not in value]
-        print(f"{result_set=}")
         if len(result_set) < 2:
             return response
         for index in range(0, len(result_set), 2):
