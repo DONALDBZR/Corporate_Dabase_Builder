@@ -3271,18 +3271,14 @@ class Document_Reader:
         result_set = [value for value in result_set if "Date Approved" not in value]
         if len(result_set) < 3:
             return response
-        financial_year_end_dates: List[str] = [date for date in result_set if bool(search(r"[\d/]+", date)) == True and "/06/" in date]
-        result_set = [value for value in result_set if value not in financial_year_end_dates]
-        currencies: List[str] = [currency for currency in result_set if bool(search(r"[\d/]+", currency)) == False]
-        result_set = [value for value in result_set if value not in currencies]
-        date_approveds: List[str] = [date for date in result_set if bool(search(r"[\d/]+", date)) == True]
-        limitation: int = min(len(financial_year_end_dates), len(currencies), len(date_approveds))
-        for index in range(0, limitation, 1):
+        for index in range(0, len(result_set), 3):
+            is_in_bound: bool = True if index + 3 < len(result_set) else False
             response.append({
-                "financial_year": int(datetime.strptime(financial_year_end_dates[index], "%d/%m/%Y").year - 1),
-                "currency": str(currencies[index]),
-                "date_approved": int(datetime.strptime(date_approveds[index], "%d/%m/%Y").timestamp())
+                "financial_year": int(datetime.strptime(result_set[index], "%d/%m/%Y").year - 1) if is_in_bound == True else 0,
+                "currency": str(result_set[index + 1]) if is_in_bound == True else "",
+                "date_approved": int(datetime.strptime(result_set[index + 3], "%d/%m/%Y").timestamp()) if is_in_bound == True else 0
             })
+        response = [value for value in response if value["financial_year"] != 0]
         return response
 
     def extractAnnualReturns(self, portable_document_file_result_set: List[str]) -> List[Dict[str, int]]:
