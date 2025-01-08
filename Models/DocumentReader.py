@@ -3175,7 +3175,7 @@ class Document_Reader:
         result_set = [value for value in result_set if start_header not in value]
         result_set = [value for value in result_set if end_header not in value]
         result_set = [value for value in result_set if ":" not in value]
-        if len(result_set) < 4:
+        if len(result_set) < 3:
             return {}
         financial_year: int = datetime.strptime(result_set[0], "%d/%m/%Y").year - 1
         currency: str = result_set[1]
