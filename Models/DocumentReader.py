@@ -2480,7 +2480,7 @@ class Document_Reader:
             liquidators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractLiquidators(portable_document_file_data_result_set)
             receivers: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractReceivers(portable_document_file_data_result_set)
             administrators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractAdministrators(portable_document_file_data_result_set)
-            details: List[Dict[str, Union[str, int]]] = self.extractDetails(portable_document_file_data_result_set)
+            details: List[Dict[str, Union[str, int, None]]] = self.extractDetails(portable_document_file_data_result_set)
             objections: List[Dict[str, Union[int, str]]] = self.extractObjections(portable_document_file_data_result_set)
             status = 200
             response = {
