@@ -52,3 +52,28 @@ class Details(Database_Handler):
 
     def setTableName(self, table_name: str) -> None:
         self.__table_name = table_name
+
+    def addDetail(self, data: Dict[str, Union[str, int, None]], company_detail: int) -> int:
+        """
+        Adding the detail of the company.
+
+        Parameters:
+            data: {type: string, date_start: int, date_end: int|null, status: string}: The data of the detail
+            company_detail: int: The identifier of a company
+
+        Returns:
+            int
+        """
+        try:
+            parameters: Tuple[int, str, int, Union[int, None], str] = (company_detail, str(data["type"]), int(str(data["date_start"])), data["date_end"], str(data["status"])) # type: ignore
+            self.postData(
+                table=self.getTableName(),
+                columns="CompanyDetail, type, date_start, date_end, status",
+                values="%s, %s, %s, %s, %s",
+                parameters=parameters # type: ignore
+            )
+            self.getLogger().inform(f"The data has been successfully stored.\nStatus: {self.created}")
+            return self.created
+        except Error as error:
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {self.service_unavailable}\nError: {error}")
+            return self.service_unavailable
