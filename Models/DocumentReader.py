@@ -2554,7 +2554,7 @@ class Document_Reader:
         """
         response: List[Dict[str, Union[str, int]]] = []
         start_header: str = "Winding Up Details"
-        end_header: str = "Status"
+        end_header: str = "Objections"
         start_index: int = portable_document_file_result_set.index(start_header)
         end_index: int = portable_document_file_result_set.index(end_header)
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
