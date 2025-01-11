@@ -2552,21 +2552,23 @@ class Document_Reader:
         Returns:
             [{type: string, date_start: int, date_end: int, status: string}]
         """
-        start_index: int = portable_document_file_result_set.index("Winding Up Details")
-        end_index: int = portable_document_file_result_set.index("Status") + 1
+        response: List[Dict[str, Union[str, int]]] = []
+        start_header: str = "Winding Up Details"
+        end_header: str = "Status"
+        start_index: int = portable_document_file_result_set.index(start_header)
+        end_index: int = portable_document_file_result_set.index(end_header)
         result_set: List[str] = portable_document_file_result_set[start_index:end_index]
-        result_set = [value for value in result_set if "Winding Up Details" not in value]
+        result_set = [value for value in result_set if start_header not in value]
+        result_set = [value for value in result_set if end_header not in value]
         result_set = [value for value in result_set if "Object" not in value]
         result_set = [value for value in result_set if ":" not in value]
         result_set = [value for value in result_set if "Type" not in value]
         result_set = [value for value in result_set if "Start Date" not in value]
         result_set = [value for value in result_set if "End Date" not in value]
-        result_set = [value for value in result_set if "Status" not in value]
-        if len(result_set) > 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractDetails()")
-            exit()
-        else:
-            return []
+        if len(result_set) == 0:
+            return response
+        self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractDetails()")
+        exit()
 
     def extractAdministrators(self, portable_document_file_result_set: List[str]) -> Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]:
         """
