@@ -2541,7 +2541,7 @@ class Document_Reader:
             })
         return response
 
-    def extractDetails(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
+    def extractDetails(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[str, int, None]]]:
         """
         Extracting the details of a private domestic company from
         the result set.
@@ -2552,7 +2552,7 @@ class Document_Reader:
         Returns:
             [{type: string, date_start: int, date_end: int, status: string}]
         """
-        response: List[Dict[str, Union[str, int]]] = []
+        response: List[Dict[str, Union[str, int, None]]] = []
         start_header: str = "Winding Up Details"
         end_header: str = "Objections"
         start_index: int = portable_document_file_result_set.index(start_header)
@@ -2565,7 +2565,16 @@ class Document_Reader:
         result_set = [value for value in result_set if "Type" not in value]
         result_set = [value for value in result_set if "Start Date" not in value]
         result_set = [value for value in result_set if "End Date" not in value]
-        if len(result_set) == 0:
+        result_set = [value for value in result_set if "Status" not in value]
+        if len(result_set) < 3:
+            return response
+        if len(result_set) == 3:
+            response.append({
+                "type": result_set[0].capitalize(),
+                "date_start": int(datetime.strptime(result_set[1], "%d/%m/%Y").timestamp()),
+                "date_end": None,
+                "status": result_set[3].capitalize()
+            })
             return response
         self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractDetails()")
         exit()
