@@ -2573,7 +2573,7 @@ class Document_Reader:
                 "type": result_set[0].capitalize(),
                 "date_start": int(datetime.strptime(result_set[1], "%d/%m/%Y").timestamp()),
                 "date_end": None,
-                "status": result_set[3].capitalize()
+                "status": result_set[2].capitalize()
             })
             return response
         self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractDetails()")
