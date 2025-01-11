@@ -48,6 +48,7 @@ from Models.NonCurrentLiabilities import Non_Current_Liabilities
 from Models.CurrentLiabilities import Current_Liabilities
 from Models.AnnualReturns import Annual_Returns
 from Models.Objections import Objections
+from Models.Details import Details
 import os
 
 
@@ -207,6 +208,11 @@ class Builder:
     The model which will interact exclusively with the
     Objections table.
     """
+    __details: Details
+    """
+    The model which will interact exclusively with the Details
+    table.
+    """
 
     def __init__(self) -> None:
         """
@@ -238,7 +244,14 @@ class Builder:
         self.setCurrentLiabilities(Current_Liabilities())
         self.setAnnualReturns(Annual_Returns())
         self.setObjections(Objections())
+        self.setDetails(Details())
         self.getLogger().inform("The builder has been initialized and all of its dependencies are injected!")
+
+    def getDetails(self) -> Details:
+        return self.__details
+
+    def setDetails(self, details: Details) -> None:
+        self.__details = details
 
     def getObjections(self) -> Objections:
         return self.__objections
@@ -1221,13 +1234,13 @@ class Builder:
         self.getLogger().inform(f"Data has been inserted into the Objections table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {objections}")
         return response
 
-    def storeCorporateDataDomesticDetails(self, status: int, details: List[Dict[str, Union[str, int]]], document_file: DocumentFiles) -> int:
+    def storeCorporateDataDomesticDetails(self, status: int, details: List[Dict[str, Union[str, int, None]]], document_file: DocumentFiles) -> int:
         """
         Doing the data manipulation on the details result set.
 
         Parameters:
             status: int: The status of the data manipulation.
-            details: [{type: string, date_start: int, date_end: int, status: string}]: The data that has been extracted for the details table.
+            details: [{type: string, date_start: int, date_end: int|null, status: string}]: The data that has been extracted for the details table.
             document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
 
         Returns:
@@ -1235,15 +1248,17 @@ class Builder:
         """
         ok: int = 200
         service_unavailable: int = 503
-        response: int
+        created: int = 201
         if status >= 200 and status <= 299 and len(details) == 0:
             self.getLogger().inform(f"There is no data to be inserted into the Details table.\nStatus: {ok}\nIdentifier: {document_file.company_detail}\nData: {details}")
             return ok
         if status < 200 and status > 299:
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {service_unavailable}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
             return service_unavailable
-        self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataDomesticDetails()")
-        exit()
+        statuses: List[int] = list(set([self.getDetails().addDetail(detail, document_file.company_detail) for detail in details]))
+        response: int = created if len(statuses) == 1 and statuses[0] == created else service_unavailable
+        self.getLogger().inform(f"The data has been successfully inserted into the Details table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {details}")
+        return response
 
     def storeCorporateDataDomesticAdministrators(self, status: int, administrators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]], document_file: DocumentFiles) -> int:
         """
