@@ -2872,6 +2872,7 @@ class Document_Reader:
         Returns:
             [{volume: int, property: string, nature: string, amount: int, date_charged: int, date_filled: int, currency: string}]
         """
+        volumes: List[str] = []
         start_header: str = "Charges"
         end_header: str = "Liquidators" if "Liquidators" in portable_document_file_result_set else "Winding Up Details"
         response: List[Dict[str, Union[int, str]]] = []
@@ -2905,8 +2906,54 @@ class Document_Reader:
         result_set = [value for value in result_set if "Currency" not in value]
         if len(result_set) == 0:
             return response
-        self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractCharges()")
-        exit()
+        volume_first_part: List[str] = [value for value in result_set if bool(search(r"[0-9]+", value)) == True and "/" in value and bool(search(r"[A-Z]+", value)) == True]
+        result_set = [value for value in result_set if value not in volume_first_part]
+        volume_second_part: List[str] = [value for value in result_set if bool(search(r"[0-9]+", value)) == True and "/" not in value]
+        result_set = [value for value in result_set if value not in volume_second_part]
+        volumes_limitation: int = min(len(volume_first_part), len(volume_second_part))
+        for index in range(0, volumes_limitation, 1):
+            volumes.append(f"{volume_first_part[index]}{volume_second_part[index]}")
+        result_set = " ".join(result_set).split(" ")
+        dates: List[str] = [value for value in result_set if bool(search(r"[0-9]+", value)) == True and "/" in value]
+        result_set = [value for value in result_set if value not in dates]
+        dates_charged: List[str] = []
+        dates_filled: List[str] = []
+        for index in range(0, len(dates), 2):
+            dates_charged.append(dates[index])
+            dates_filled.append(dates[index + 1])
+        amounts: List[int] = [int(value.replace(",", "")) for value in result_set if bool(search(r"[0-9]+", value)) == True]
+        result_set = [value for value in result_set if bool(search(r"[0-9]+", value)) == False]
+        natures: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == False]
+        result_set = [value for value in result_set if value not in natures]
+        processed_result_set: List[str] = []
+        for index, value in enumerate(result_set):
+            if index == 0 or "Mauritius" in value or "Rupee" in value:
+                processed_result_set.append(value)
+            else:
+                processed_result_set.append(value.lower())
+        result_set = processed_result_set
+        data: str = " ".join(result_set)
+        result_set = split(r'\s(?=[A-Z])', data)
+        properties: List[str] = []
+        for index in range(0, len(result_set), 1):
+            if len(split(r"\s", result_set[index])) > 1:
+                properties.append(result_set[index])
+        result_set = [value for value in result_set if value not in properties]
+        currencies: List[str] = []
+        for index in range(0, len(properties), 1):
+            currencies.append(result_set[index])
+        limitation: int = min(len(volumes), len(dates_charged), len(dates_filled), len(amounts), len(natures), len(properties), len(currencies))
+        for index in range(0, limitation, 1):
+            response.append({
+                "volume": volumes[index],
+                "property": properties[index],
+                "nature": natures[index].title(),
+                "amount": amounts[index],
+                "date_charged": int(datetime.strptime(dates_charged[index], "%d/%m/%Y").timestamp()),
+                "date_filled": int(datetime.strptime(dates_filled[index], "%d/%m/%Y").timestamp()),
+                "currency": currencies[index]
+            })
+        return response
 
     def extractBalanceSheet(self, portable_document_file_result_set: List[str]) -> Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]]:
         """
