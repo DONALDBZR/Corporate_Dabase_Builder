@@ -2917,12 +2917,7 @@ class Document_Reader:
         result_set = [value for value in result_set if bool(search(r"[0-9]+", value)) == False]
         natures: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == False]
         result_set = [value for value in result_set if value not in natures]
-        processed_result_set: List[str] = []
-        for index, value in enumerate(result_set):
-            processed_result_set.append(value) if index == 0 or "Mauritius" in value or "Rupee" in value else processed_result_set.append(value.lower())
-        result_set = processed_result_set
-        data: str = " ".join(result_set)
-        result_set = split(r'\s(?=[A-Z])', data)
+        result_set = self.extractChargesProcessedResultSet(result_set)
         properties: List[str] = []
         for index in range(0, len(result_set), 1):
             properties = self.extractChargesProperties(properties, result_set[index])
@@ -2942,6 +2937,24 @@ class Document_Reader:
                 "currency": currencies[index]
             })
         return response
+
+    def extractChargesProcessedResultSet(self, result_set: List[str]) -> List[str]:
+        """
+        Sanitizing the result set for better processing.
+
+        Parameters:
+            result_set: [string]: The dataset
+
+        Returns:
+            [string]
+        """
+        processed_result_set: List[str] = []
+        for index, value in enumerate(result_set):
+            processed_result_set.append(value) if index == 0 or "Mauritius" in value or "Rupee" in value else processed_result_set.append(value.lower())
+        result_set = processed_result_set
+        data: str = " ".join(result_set)
+        result_set = split(r'\s(?=[A-Z])', data)
+        return result_set
 
     def extractChargesDates(self, result_set: List[str]) -> Dict[str, List[str]]:
         """
