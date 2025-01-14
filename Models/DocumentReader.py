@@ -2909,13 +2909,10 @@ class Document_Reader:
         volumes: List[str] = processed_volume["volumes"]
         result_set = processed_volume["result_set"]
         result_set = " ".join(result_set).split(" ")
-        dates: List[str] = [value for value in result_set if bool(search(r"[0-9]+", value)) == True and "/" in value]
-        result_set = [value for value in result_set if value not in dates]
-        dates_charged: List[str] = []
-        dates_filled: List[str] = []
-        for index in range(0, len(dates), 2):
-            dates_charged.append(dates[index])
-            dates_filled.append(dates[index + 1])
+        processed_date: Dict[str, List[str]] = self.extractChargesDates(result_set)
+        dates_charged: List[str] = processed_date["dates_charged"]
+        dates_filled: List[str] = processed_date["dates_filled"]
+        result_set: List[str] = processed_date["result_set"]
         amounts: List[int] = [int(value.replace(",", "")) for value in result_set if bool(search(r"[0-9]+", value)) == True]
         result_set = [value for value in result_set if bool(search(r"[0-9]+", value)) == False]
         natures: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == False]
@@ -2945,6 +2942,29 @@ class Document_Reader:
                 "currency": currencies[index]
             })
         return response
+
+    def extractChargesDates(self, result_set: List[str]) -> Dict[str, List[str]]:
+        """
+        Extracting the dates for the charges.
+
+        Parameters:
+            result_set: [string]: The dataset
+
+        Returns:
+            {dates_charged: [string], dates_filled: [string], result_set: [string]}
+        """
+        dates: List[str] = [value for value in result_set if bool(search(r"[0-9]+", value)) == True and "/" in value]
+        result_set = [value for value in result_set if value not in dates]
+        dates_charged: List[str] = []
+        dates_filled: List[str] = []
+        for index in range(0, len(dates), 2):
+            dates_charged.append(dates[index])
+            dates_filled.append(dates[index + 1])
+        return {
+            "dates_charged": dates_charged,
+            "dates_filled": dates_filled,
+            "result_set": result_set
+        }
 
     def extractChargesVolumes(self, result_set: List[str]) -> Dict[str, List[str]]:
         """
