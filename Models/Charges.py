@@ -52,3 +52,28 @@ class Charges(Database_Handler):
 
     def setTableName(self, table_name: str) -> None:
         self.__table_name = table_name
+
+    def addCharge(self, data: Dict[str, Union[str, int]], company_detail: int) -> int:
+        """
+        Adding the detail of the company.
+
+        Parameters:
+            data: {volume: string, property: string, nature: string, amount: int, date_charged: int, date_filled: int, currency: string}: The data of the charge
+            company_detail: int: The identifier of a company
+
+        Returns:
+            int
+        """
+        try:
+            parameters: Tuple[int, str, str, str, int, int, int, str] = (company_detail, str(data["volume"]), str(data["property"]), str(data["nature"]), int(data["amount"]), int(data["date_charged"]), int(data["date_filled"]), str(data["currency"]))
+            self.postData(
+                table=self.getTableName(),
+                columns="CompanyDetail, volume, property, nature, amount, date_charged, date_filled, currency",
+                values="%s, %s, %s, %s, %s, %s, %s, %s",
+                parameters=parameters # type: ignore
+            )
+            self.getLogger().inform(f"The data has been successfully stored.\nStatus: {self.created}")
+            return self.created
+        except Error as error:
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {self.service_unavailable}\nError: {error}")
+            return self.service_unavailable
