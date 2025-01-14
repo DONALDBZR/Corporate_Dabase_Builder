@@ -2933,8 +2933,7 @@ class Document_Reader:
         result_set = split(r'\s(?=[A-Z])', data)
         properties: List[str] = []
         for index in range(0, len(result_set), 1):
-            if len(split(r"\s", result_set[index])) > 1:
-                properties.append(result_set[index])
+            properties = self.extractChargesProperties(properties, result_set[index])
         result_set = [value for value in result_set if value not in properties]
         currencies: List[str] = []
         for index in range(0, len(properties), 1):
@@ -2951,6 +2950,21 @@ class Document_Reader:
                 "currency": currencies[index]
             })
         return response
+
+    def extractChargesProperties(self, properties: List[str], property: str) -> List[str]:
+        """
+        Extracting the properties for the charges.
+
+        Parameters:
+            properties: [string]: The list of the properties.
+            property: string: The property.
+
+        Returns:
+            [string]
+        """
+        if len(split(r"\s", property)) > 1:
+            properties.append(property)
+        return properties
 
     def extractBalanceSheet(self, portable_document_file_result_set: List[str]) -> Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]]:
         """
