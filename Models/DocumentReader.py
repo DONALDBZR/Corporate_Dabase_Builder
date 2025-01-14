@@ -2960,7 +2960,8 @@ class Document_Reader:
         """
         currencies: List[str] = []
         for index in range(0, properties_amount, 1):
-            currencies.append(result_set[index])
+            currencies.append(result_set[index]) if len(result_set) > 0 else currencies.append("")
+        currencies = [currency for currency in currencies if currency != ""]
         return currencies
 
     def extractChargesProperties(self, result_set: List[str]) -> List[str]:
