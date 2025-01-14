@@ -1669,10 +1669,11 @@ class Document_Reader:
         for index in range(0, len(result_set), 4):
             response.append({
                 "type": str(result_set[index]).capitalize(),
-                "date_start": int(datetime.strptime(result_set[index + 1], "%d/%m/%Y").timestamp()),
-                "date_end": int(datetime.strptime(result_set[index + 2], "%d/%m/%Y").timestamp()),
+                "date_start": int(datetime.strptime(result_set[index + 1], "%d/%m/%Y").timestamp()) if "/" in result_set[index + 1] else 0,
+                "date_end": int(datetime.strptime(result_set[index + 2], "%d/%m/%Y").timestamp()) if "/" in result_set[index + 2] else 0,
                 "status": str(result_set[index + 3]).capitalize()
             })
+        response = [detail for detail in response if int(detail["date_start"]) != 0 and int(detail["date_end"]) != 0]
         return response
 
     def _extractDataDomesticCivilCivilAdministrators(self, result_set: List[str]) -> Dict[str, Union[Dict[str, Union[str, int]], List[int]]]:
