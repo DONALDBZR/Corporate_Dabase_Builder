@@ -1344,17 +1344,16 @@ class Builder:
         Returns:
             int
         """
-        response: int
+        ok: int = 200
+        service_unavailable: int = 503
         if status >= 200 and status <= 299 and len(charges) == 0:
-            response = 200
-            self.getLogger().inform(f"There is no data to be inserted into the Charges table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {charges}")
-        elif status >= 200 and status <= 299 and len(charges) != 0:
-            self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataDomesticCharges()")
-            exit()
-        else:
-            response = status
-            self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {response}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
-        return response
+            self.getLogger().inform(f"There is no data to be inserted into the Charges table.\nStatus: {ok}\nIdentifier: {document_file.company_detail}\nData: {charges}")
+            return ok
+        if status < 200 and status > 299:
+            self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {service_unavailable}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
+            return service_unavailable
+        self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataDomesticCharges()")
+        exit()
 
     def storeCorporateDataDomesticBalanceSheet(self, status: int, balance_sheet: Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]], document_file: DocumentFiles) -> int:
         """
