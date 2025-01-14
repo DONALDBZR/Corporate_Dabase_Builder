@@ -659,7 +659,7 @@ class Document_Reader:
         end_index: int = result_set.index(end_header)
         result_set = [value for value in result_set[start_index:end_index] + date_appointed if ":" not in value]
         result_set = [value for value in result_set if start_header not in value]
-        if len(result_set) == 0:
+        if len(result_set) < 3:
             return response
         self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader._extractDataGlobalBusinessCompanyLiquidators()")
         exit()
