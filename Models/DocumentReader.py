@@ -1991,9 +1991,13 @@ class Document_Reader:
             [{position: string, name: string, address: string, date_appointed: int}]
         """
         response: List[Dict[str, Union[str, int]]] = []
-        start_index: int = result_set.index("Office Bearers")
-        end_index: int = result_set.index("Associes") - 1
+        start_header: str = "Office Bearers"
+        end_header: str = "Associes"
+        start_index: int = result_set.index(start_header)
+        end_index: int = result_set.index(end_header)
         result_set = result_set[start_index:end_index]
+        result_set = [value for value in result_set if start_header not in value]
+        result_set = [value for value in result_set if end_header not in value]
         result_set = [value for value in result_set if "Name" not in value]
         result_set = [value for value in result_set if "Service Address" not in value]
         result_set = [value for value in result_set if "Appointed Date" not in value]
