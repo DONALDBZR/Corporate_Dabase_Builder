@@ -2920,7 +2920,7 @@ class Document_Reader:
         result_set = self.extractChargesProcessedResultSet(result_set)
         properties: List[str] = []
         for index in range(0, len(result_set), 1):
-            properties = self.extractChargesProperties(properties, result_set[index])
+            properties = self._extractChargesProperties(properties, result_set[index])
         result_set = [value for value in result_set if value not in properties]
         currencies: List[str] = []
         for index in range(0, len(properties), 1):
@@ -3002,7 +3002,7 @@ class Document_Reader:
             "result_set": result_set
         }
 
-    def extractChargesProperties(self, properties: List[str], property: str) -> List[str]:
+    def _extractChargesProperties(self, properties: List[str], property: str) -> List[str]:
         """
         Extracting the properties for the charges.
 
