@@ -49,6 +49,7 @@ from Models.CurrentLiabilities import Current_Liabilities
 from Models.AnnualReturns import Annual_Returns
 from Models.Objections import Objections
 from Models.Details import Details
+from Models.Charges import Charges
 import os
 
 
@@ -213,6 +214,11 @@ class Builder:
     The model which will interact exclusively with the Details
     table.
     """
+    __charges: Charges
+    """
+    The model which will interact exclusively with the Charges
+    table.
+    """
 
     def __init__(self) -> None:
         """
@@ -245,7 +251,14 @@ class Builder:
         self.setAnnualReturns(Annual_Returns())
         self.setObjections(Objections())
         self.setDetails(Details())
+        self.setCharges(Charges())
         self.getLogger().inform("The builder has been initialized and all of its dependencies are injected!")
+
+    def getCharges(self) -> Charges:
+        return self.__charges
+
+    def setCharges(self, charges: Charges) -> None:
+        self.__charges = charges
 
     def getDetails(self) -> Details:
         return self.__details
@@ -1346,14 +1359,17 @@ class Builder:
         """
         ok: int = 200
         service_unavailable: int = 503
+        created: int = 201
         if status >= 200 and status <= 299 and len(charges) == 0:
             self.getLogger().inform(f"There is no data to be inserted into the Charges table.\nStatus: {ok}\nIdentifier: {document_file.company_detail}\nData: {charges}")
             return ok
         if status < 200 and status > 299:
             self.getLogger().error(f"An error occurred in the application.  The extraction will be aborted and the corporate registry will be removed from the processing server.\nStatus: {service_unavailable}\nExtraction Status: {status}\nCompany Detail Identifier: {document_file.company_detail}\nDocument File Identifier: {document_file.identifier}")
             return service_unavailable
-        self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateDataDomesticCharges()")
-        exit()
+        statuses: List[int] = [self.getCharges().addCharge(charge, document_file.company_detail) for charge in charges]
+        response: int = created if len(statuses) == 1 and statuses[0] == created else service_unavailable
+        self.getLogger().inform(f"The data has been successfully inserted in the Charges table.\nStatus: {response}\nIdentifier: {document_file.company_detail}\nData: {charges}")
+        return response
 
     def storeCorporateDataDomesticBalanceSheet(self, status: int, balance_sheet: Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]], document_file: DocumentFiles) -> int:
         """
