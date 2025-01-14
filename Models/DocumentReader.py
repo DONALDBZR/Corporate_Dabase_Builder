@@ -597,12 +597,14 @@ class Document_Reader:
         Returns:
             {liquidator: {name: string, designation: string, address: string, date_appointed: int}, affidavits: [{date_filled: int, date_from: int, date_to: int}]}
         """
+        start_header: str = "Liquidators"
         response: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = {}
-        if "Liquidators" not in result_set:
+        if start_header not in result_set:
             return response
-        start_index: int = result_set.index("Liquidators")
+        start_index: int = result_set.index(start_header)
         result_set = result_set[start_index:]
-        start_index = result_set.index("Appointed Date:")
+        start_header = "Appointed Date:"
+        start_index = result_set.index(start_header)
         end_index: int = start_index + 4
         date_appointeds: List[str] = [value for value in result_set[start_index:end_index] if ":" in value or "/" in value]
         start_index = int(len(date_appointeds) / 2)
