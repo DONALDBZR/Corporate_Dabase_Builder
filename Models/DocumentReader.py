@@ -2920,9 +2920,7 @@ class Document_Reader:
         result_set = self.extractChargesProcessedResultSet(result_set)
         properties: List[str] = self.extractChargesProperties(result_set)
         result_set = [value for value in result_set if value not in properties]
-        currencies: List[str] = []
-        for index in range(0, len(properties), 1):
-            currencies.append(result_set[index])
+        currencies: List[str] = self.extractChargesCurrencies(result_set, len(properties))
         limitation: int = min(len(volumes), len(dates_charged), len(dates_filled), len(amounts), len(natures), len(properties), len(currencies))
         for index in range(0, limitation, 1):
             response.append({
@@ -2935,6 +2933,22 @@ class Document_Reader:
                 "currency": currencies[index]
             })
         return response
+
+    def extractChargesCurrencies(self, result_set: List[str], properties_amount: int) -> List[str]:
+        """
+        Extracting the currencies of the charges.
+
+        Parameters:
+            result_set: [string]: The dataset
+            properties_amount: int: The amount of properties.
+
+        Returns:
+            [string]
+        """
+        currencies: List[str] = []
+        for index in range(0, properties_amount, 1):
+            currencies.append(result_set[index])
+        return currencies
 
     def extractChargesProperties(self, result_set: List[str]) -> List[str]:
         """
