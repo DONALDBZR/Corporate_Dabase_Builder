@@ -604,7 +604,7 @@ class Document_Reader:
         start_index: int = result_set.index(start_header)
         result_set = result_set[start_index:]
         start_header = "Appointed Date:"
-        start_index = result_set.index(start_header)
+        start_index = result_set.index(start_header) if start_header in result_set else next((index for index, value in enumerate(result_set) if value.startswith(start_header)), -1)
         end_index: int = start_index + 4
         date_appointeds: List[str] = [value for value in result_set[start_index:end_index] if ":" in value or "/" in value]
         start_index = int(len(date_appointeds) / 2)
