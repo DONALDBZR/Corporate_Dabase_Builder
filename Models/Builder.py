@@ -1338,7 +1338,7 @@ class Builder:
 
         Parameters:
             status: int: The status of the data manipulation.
-            charges: [{volume: int, property: string, nature: string, amount: int, date_charged: int, date_filled: int, currency: string}]: The data that has been extracted for the charges table.
+            charges: [{volume: string, property: string, nature: string, amount: int, date_charged: int, date_filled: int, currency: string}]: The data that has been extracted for the charges table.
             document_file: {identifier: int, file_data: bytes, company_detail: int}: The data about the corporate registry.
 
         Returns:
