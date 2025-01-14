@@ -2918,9 +2918,7 @@ class Document_Reader:
         natures: List[str] = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == False]
         result_set = [value for value in result_set if value not in natures]
         result_set = self.extractChargesProcessedResultSet(result_set)
-        properties: List[str] = []
-        for index in range(0, len(result_set), 1):
-            properties = self._extractChargesProperties(properties, result_set[index])
+        properties: List[str] = self.extractChargesProperties(result_set)
         result_set = [value for value in result_set if value not in properties]
         currencies: List[str] = []
         for index in range(0, len(properties), 1):
@@ -2937,6 +2935,21 @@ class Document_Reader:
                 "currency": currencies[index]
             })
         return response
+
+    def extractChargesProperties(self, result_set: List[str]) -> List[str]:
+        """
+        Extracting the properties of the charges.
+
+        Parameters:
+            result_set: [string]: The dataset
+
+        Returns:
+            [string]
+        """
+        properties: List[str] = []
+        for index in range(0, len(result_set), 1):
+            properties = self._extractChargesProperties(properties, result_set[index])
+        return properties
 
     def extractChargesProcessedResultSet(self, result_set: List[str]) -> List[str]:
         """
