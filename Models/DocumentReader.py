@@ -3449,11 +3449,13 @@ class Document_Reader:
         if len(result_set) < 3:
             return response
         for index in range(0, len(result_set), 3):
+            is_inbounds: bool = True if index + 2 <= len(result_set) else False
             response.append({
-                "date_annual_return": int(datetime.strptime(result_set[index], "%d/%m/%Y").timestamp()),
-                "date_annual_meeting": int(datetime.strptime(result_set[index + 1], "%d/%m/%Y").timestamp()),
-                "date_filled": int(datetime.strptime(result_set[index + 2], "%d/%m/%Y").timestamp())
+                "date_annual_return": int(datetime.strptime(result_set[index], "%d/%m/%Y").timestamp()) if is_inbounds else 0,
+                "date_annual_meeting": int(datetime.strptime(result_set[index + 1], "%d/%m/%Y").timestamp()) if is_inbounds else 0,
+                "date_filled": int(datetime.strptime(result_set[index + 2], "%d/%m/%Y").timestamp()) if is_inbounds else 0
             })
+        response = [annual_return for annual_return in response if annual_return["date_annual_return"] != 0 and annual_return["date_annual_meeting"] != 0 and annual_return["date_filled"] != 0]
         return response
 
     def extractMembers(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
