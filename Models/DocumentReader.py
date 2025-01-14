@@ -2927,10 +2927,7 @@ class Document_Reader:
         result_set = [value for value in result_set if value not in natures]
         processed_result_set: List[str] = []
         for index, value in enumerate(result_set):
-            if index == 0 or "Mauritius" in value or "Rupee" in value:
-                processed_result_set.append(value)
-            else:
-                processed_result_set.append(value.lower())
+            processed_result_set.append(value) if index == 0 or "Mauritius" in value or "Rupee" in value else processed_result_set.append(value.lower())
         result_set = processed_result_set
         data: str = " ".join(result_set)
         result_set = split(r'\s(?=[A-Z])', data)
