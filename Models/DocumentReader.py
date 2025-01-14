@@ -2872,7 +2872,6 @@ class Document_Reader:
         Returns:
             [{volume: int, property: string, nature: string, amount: int, date_charged: int, date_filled: int, currency: string}]
         """
-        volumes: List[str] = []
         start_header: str = "Charges"
         end_header: str = "Liquidators" if "Liquidators" in portable_document_file_result_set else "Winding Up Details"
         response: List[Dict[str, Union[int, str]]] = []
@@ -2906,13 +2905,9 @@ class Document_Reader:
         result_set = [value for value in result_set if "Currency" not in value]
         if len(result_set) == 0:
             return response
-        volume_first_part: List[str] = [value for value in result_set if bool(search(r"[0-9]+", value)) == True and "/" in value and bool(search(r"[A-Z]+", value)) == True]
-        result_set = [value for value in result_set if value not in volume_first_part]
-        volume_second_part: List[str] = [value for value in result_set if bool(search(r"[0-9]+", value)) == True and "/" not in value]
-        result_set = [value for value in result_set if value not in volume_second_part]
-        volumes_limitation: int = min(len(volume_first_part), len(volume_second_part))
-        for index in range(0, volumes_limitation, 1):
-            volumes.append(f"{volume_first_part[index]}{volume_second_part[index]}")
+        processed_volume: Dict[str, List[str]] = self.extractChargesVolumes(result_set)
+        volumes: List[str] = processed_volume["volumes"]
+        result_set = processed_volume["result_set"]
         result_set = " ".join(result_set).split(" ")
         dates: List[str] = [value for value in result_set if bool(search(r"[0-9]+", value)) == True and "/" in value]
         result_set = [value for value in result_set if value not in dates]
@@ -2950,6 +2945,29 @@ class Document_Reader:
                 "currency": currencies[index]
             })
         return response
+
+    def extractChargesVolumes(self, result_set: List[str]) -> Dict[str, List[str]]:
+        """
+        Extracting the volumes for the charges.
+
+        Parameters:
+            result_set: [string]: The dataset
+
+        Returns:
+            {volumes: [string], result_set: [string]}
+        """
+        volumes: List[str] = []
+        volume_first_part: List[str] = [value for value in result_set if bool(search(r"[0-9]+", value)) == True and "/" in value and bool(search(r"[A-Z]+", value)) == True]
+        result_set = [value for value in result_set if value not in volume_first_part]
+        volume_second_part: List[str] = [value for value in result_set if bool(search(r"[0-9]+", value)) == True and "/" not in value]
+        result_set = [value for value in result_set if value not in volume_second_part]
+        volumes_limitation: int = min(len(volume_first_part), len(volume_second_part))
+        for index in range(0, volumes_limitation, 1):
+            volumes.append(f"{volume_first_part[index]}{volume_second_part[index]}")
+        return {
+            "volumes": volumes,
+            "result_set": result_set
+        }
 
     def extractChargesProperties(self, properties: List[str], property: str) -> List[str]:
         """
