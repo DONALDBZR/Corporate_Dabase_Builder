@@ -2590,8 +2590,16 @@ class Document_Reader:
                 "status": result_set[2].capitalize()
             })
             return response
-        self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractDetails()")
-        exit()
+        for index in range(0, len(result_set), 4):
+            is_inbounds: bool = True if index + 3 < len(result_set) else False
+            response.append({
+                "type": result_set[index].capitalize() if is_inbounds else "",
+                "date_start": int(datetime.strptime(result_set[index + 1], "%d/%m/%Y").timestamp()) if is_inbounds else 0,
+                "date_end": int(datetime.strptime(result_set[index + 2], "%d/%m/%Y").timestamp()) if is_inbounds else 0,
+                "status": result_set[index + 3].capitalize() if is_inbounds else ""
+            })
+        response = [detail for detail in response if detail["date_start"] != 0]
+        return response
 
     def extractAdministrators(self, portable_document_file_result_set: List[str]) -> Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]:
         """
