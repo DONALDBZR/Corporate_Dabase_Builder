@@ -24,6 +24,7 @@ from pdfminer.pdfparser import PDFSyntaxError
 from Models.CompanyDetails import Company_Details
 from Models.DocumentFiles import Document_Files
 from os import remove
+from time import time
 
 
 class Document_Reader:
@@ -2407,7 +2408,7 @@ class Document_Reader:
             }
         return response
 
-    def _extractDataDomesticCivilCivilCompanyDetails(self, result_set: List[str]) -> Dict[str, Union[str, int]]:
+    def _extractDataDomesticCivilCivilCompanyDetails(self, result_set: List[str]) -> Dict[str, Union[str, int, None]]:
         """
         Extracting the company details of a société civile.
 
@@ -2417,21 +2418,36 @@ class Document_Reader:
         Returns:
             {name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string}
         """
-        response: Dict[str, Union[str, int]]
-        start_index: int = result_set.index("Partnership Details") + 1
-        end_index: int = result_set.index("Business Details")
+        response: Dict[str, Union[str, int, None]]
+        start_header: str = "Partnership Details"
+        end_header: str = "Business Details"
+        start_index: int = result_set.index(start_header)
+        end_index: int = result_set.index(end_header)
         result_set = result_set[start_index:end_index]
+        result_set = [value for value in result_set if start_header not in value]
+        result_set = [value for value in result_set if end_header not in value]
         result_set = [value for value in result_set if "Registrar of Companies" not in value]
         category: str = result_set[[index for index, value in enumerate(result_set) if "Category" in value][0]].split(": ")[-1]
-        result_set = result_set + [category]
         result_set = [value for value in result_set if ":" not in value]
+        file_number: str = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[0-9]+", value)) == True][0]
+        result_set = [value for value in result_set if file_number not in value]
+        if len(result_set) == 1:
+            response = {
+                "name": result_set[0].title(),
+                "file_number": file_number,
+                "category": None,
+                "date_incorporation": int(time()),
+                "nature": None,
+                "status": None
+            }
+            return response
         response = {
-            "name": result_set[1].title(),
-            "file_number": result_set[0],
-            "category": result_set[5].title(),
-            "date_incorporation": int(datetime.strptime(result_set[2], "%d/%m/%Y").timestamp()),
-            "nature": result_set[3].title(),
-            "status": result_set[4].title()
+            "name": result_set[0].title(),
+            "file_number": file_number,
+            "category": category.title(),
+            "date_incorporation": int(datetime.strptime(result_set[1], "%d/%m/%Y").timestamp()) if "/" in result_set[1] else int(time()),
+            "nature": result_set[2].title(),
+            "status": result_set[3].title()
         }
         return response
 
