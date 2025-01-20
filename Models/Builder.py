@@ -623,7 +623,7 @@ class Builder:
         """
         no_content: int = 204
         service_unavailable: int = 503
-        if company_detail.category == None and dataset == None:
+        if dataset == None:
             return no_content
         if company_detail.category.upper() == "DOMESTIC":
             return self.storeCorporateDataDomestic(dataset, document_file, company_detail) # type: ignore
