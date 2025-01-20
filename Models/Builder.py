@@ -608,7 +608,7 @@ class Builder:
         self.getLogger().error(f"The corporate data has been extracted successfully and stored into the relational database server.\nStatus: {service_unavailable}")
         return service_unavailable
 
-    def storeCorporateData(self, dataset: Union[Dict[str, Union[int, Dict[str, Union[str, int]], List[Dict[str, str]], List[Dict[str, Union[str, int]]], List[Dict[str, int]], Dict[str, Union[Dict[str, Union[int, str]], float]], Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]]], Dict[str, Union[int, Dict[str, Union[str, int]], Dict[str, str], List[Dict[str, Union[str, int]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]], Dict[str, Union[Dict[str, str], List[Dict[str, int]]]]]]], document_file: DocumentFiles, company_detail: CompanyDetails) -> int:
+    def storeCorporateData(self, dataset: Union[Dict[str, Union[int, Dict[str, Union[str, int]], List[Dict[str, str]], List[Dict[str, Union[str, int]]], List[Dict[str, int]], Dict[str, Union[Dict[str, Union[int, str]], float]], Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]]], Dict[str, Union[int, Dict[str, Union[str, int]], Dict[str, str], List[Dict[str, Union[str, int]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]], Dict[str, Union[Dict[str, str], List[Dict[str, int]]]]]], None], document_file: DocumentFiles, company_detail: CompanyDetails) -> int:
         """
         Storing the corporate data that is extracted from the
         corporate registry.
@@ -622,20 +622,23 @@ class Builder:
             int
         """
         response: int
+        created: int = 201
+        no_content: int = 204
+        service_unavailable: int = 503
+        if company_detail.category == None and dataset == None:
+            response = no_content
         if company_detail.category.upper() == "DOMESTIC":
             response = self.storeCorporateDataDomestic(dataset, document_file, company_detail) # type: ignore
-        elif company_detail.category.upper() == "AUTHORISED COMPANY":
+        if company_detail.category.upper() == "AUTHORISED COMPANY":
             response = self.storeCorporateDataAuthorisedCompany(dataset, document_file) # type: ignore
-        elif company_detail.category.upper() == "GLOBAL BUSINESS COMPANY":
+        if company_detail.category.upper() == "GLOBAL BUSINESS COMPANY":
             response = self.storeCorporateDataGlobalBusinessCompany(dataset, document_file) # type: ignore
-        elif company_detail.category.upper() == "FOREIGN(DOM BRANCH)":
+        if company_detail.category.upper() == "FOREIGN(DOM BRANCH)":
             response = self.storeCorporateDataForeignDomestic(dataset, document_file) # type: ignore
         else:
-            self.getLogger().error(f"The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Builder.storeCorporateData()\nCategory: {company_detail.category}")
-            exit()
-        if response >= 200 and response <= 299:
-            response = 201
-        return response
+            self.getLogger().error(f"The application will abort the extraction as the function has not been implemented!\nStatus: {service_unavailable}\nFunction: Builder.storeCorporateData()\nCategory: {company_detail.category}")
+            response = service_unavailable
+        return created if response >= 200 and response <= 299 else response
 
     def storeCorporateDataForeignDomestic(self, dataset: Dict[str, Union[int, Dict[str, Union[str, int]], List[Dict[str, str]], List[Dict[str, Union[str, int]]], List[Dict[str, int]], Dict[str, Union[Dict[str, Union[int, str]], float]], Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]]], document_file: DocumentFiles) -> int:
         """
