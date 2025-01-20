@@ -591,23 +591,22 @@ class Builder:
             document_files: [{identifier: int, file_data: bytes, company_detail: int}]: The list of corporate registries.
 
         Returns:
-            void
+            int
         """
-        response: int
         data_manipulations: List[int] = []
+        ok: int = 200
+        service_unavailable: int = 503
         for index in range(0, len(document_files), 1):
             company_detail: CompanyDetails = self.getCompanyDetails().getSpecificCompanyDetails(document_files[index].company_detail)
             file_generation_status: int = self.getDocumentReader().generatePortableDocumentFile(document_files[index])
-            data_extraction: Union[Dict[str, Union[int, Dict[str, Union[str, int]], List[Dict[str, str]], List[Dict[str, Union[str, int]]], List[Dict[str, int]], Dict[str, Union[Dict[str, Union[int, str]], float]], Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]]], Dict[str, Union[int, Dict[str, Union[str, int]], Dict[str, str], List[Dict[str, Union[str, int]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]], Dict[str, Union[Dict[str, str], List[Dict[str, int]]]]]]] = self.getDocumentReader().extractData(file_generation_status, document_files[index], company_detail)
+            data_extraction: Union[Dict[str, Union[int, Dict[str, Union[str, int]], List[Dict[str, str]], List[Dict[str, Union[str, int]]], List[Dict[str, int]], Dict[str, Union[Dict[str, Union[int, str]], float]], Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]]], Dict[str, Union[int, Dict[str, Union[str, int]], Dict[str, str], List[Dict[str, Union[str, int]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]], Dict[str, Union[Dict[str, str], List[Dict[str, int]]]]]], None] = self.getDocumentReader().extractData(file_generation_status, document_files[index], company_detail)
             data_manipulations.append(self.storeCorporateData(data_extraction, document_files[index], company_detail))
         data_manipulations = list(set(data_manipulations))
         if len(data_manipulations) == 1 and data_manipulations[0] == 201:
-            response = 200
-            self.getLogger().inform(f"The corporate data has been extracted successfully and stored into the relational database server.\nStatus: {response}")
-        else:
-            response = 503
-            self.getLogger().error(f"The corporate data has been extracted successfully and stored into the relational database server.\nStatus: {response}")
-        return response
+            self.getLogger().inform(f"The corporate data has been extracted successfully and stored into the relational database server.\nStatus: {ok}")
+            return ok
+        self.getLogger().error(f"The corporate data has been extracted successfully and stored into the relational database server.\nStatus: {service_unavailable}")
+        return service_unavailable
 
     def storeCorporateData(self, dataset: Union[Dict[str, Union[int, Dict[str, Union[str, int]], List[Dict[str, str]], List[Dict[str, Union[str, int]]], List[Dict[str, int]], Dict[str, Union[Dict[str, Union[int, str]], float]], Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]]], Dict[str, Union[int, Dict[str, Union[str, int]], Dict[str, str], List[Dict[str, Union[str, int]]], Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]], Dict[str, Union[Dict[str, str], List[Dict[str, int]]]]]]], document_file: DocumentFiles, company_detail: CompanyDetails) -> int:
         """
