@@ -531,7 +531,7 @@ class Crawler:
         Returns:
             {status: int, CompanyDetails: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}, DocumentFiles: bytes | null}
         """
-        file_number_identifier: int = file_numbers.index(company_detail.file_number)
+        file_number_identifier: int = file_numbers.index(company_detail.file_number) if company_detail.file_number in file_numbers else file_number_amount * 2
         if file_number_amount == 1:
             self.setHtmlTags(self.getHtmlTags()[0].find_elements(By.TAG_NAME, "td"))
             return self.__scrapeDocumentFileFoundResultSets(delay, company_detail)
