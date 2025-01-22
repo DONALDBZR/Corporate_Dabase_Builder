@@ -11,6 +11,7 @@ from Models.DatabaseHandler import Database_Handler
 from typing import Union, Dict, Tuple, List
 from mysql.connector.errors import Error
 from mysql.connector.types import RowType
+from Data.OfficeBearers import OfficeBearer
 
 
 class Office_Bearers(Database_Handler):
@@ -21,6 +22,10 @@ class Office_Bearers(Database_Handler):
     __table_name: str
     """
     The table which the model is linked to.
+    """
+    service_unavailable: int = 503
+    """
+    The status code for service unavailable
     """
 
     def __init__(self) -> None:
@@ -67,7 +72,7 @@ class Office_Bearers(Database_Handler):
             )
             response = 201
         except Error as error:
-            response = 503
+            response = self.service_unavailable
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {response}\nError: {error}")
         return response
 
@@ -90,7 +95,7 @@ class Office_Bearers(Database_Handler):
             response = dataset["response"] # type: ignore
             self.getLogger().inform(f"The data from the {self.getTableName()} table has been successfully retrieved.\nStatus: {dataset['status']}\nData: {dataset['response']}")
         except Error as error:
-            status = 503
+            status = self.service_unavailable
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {status}\nError: {error}")
         return response
 
@@ -148,6 +153,24 @@ class Office_Bearers(Database_Handler):
             )
             response = 201
         except Error as error:
-            response = 503
+            response = self.service_unavailable
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {response}\nError: {error}")
         return response
+
+    def get(self) -> List[OfficeBearer]:
+        """
+        Retrieving all of the data from the Office Bearer tables.
+
+        Returns:
+            [{identifier: int, CompanyDetail: int, position: string, name: string, address: string|null, date_appointment: int}]
+        """
+        try:
+            data: Union[List[RowType], List[Dict[str, Union[int, str, None, float]]]] = self.getData(
+                table_name=self.getTableName()
+            )
+            response: Dict[str, Union[int, List[OfficeBearer]]] = self._get(data)
+            self.getLogger().inform(f"The data from {self.getTableName()} has been retrieved!\nStatus: {response['status']}\nData: {response['data']}")
+            return response["data"]  # type: ignore
+        except Error as error:
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {self.service_unavailable}\nError: {error}")
+            return []
