@@ -3077,11 +3077,17 @@ class Builder:
 
     def curateOfficeBearer(self) -> None:
         """
-        Curating the data that is in the Office Bearers table.  Curating the positions into the form needed.  Curating and sanitizing the name into the form needed.  Curating and sanitizing the address in to the form needed.
+        Curating the data that is in the Office Bearers table.
+        Curating the positions into the form needed.  Curating and
+        sanitizing the name into the form needed.  Curating and
+        sanitizing the address in to the form needed.
 
         Returns:
             void
         """
+        no_content: int = 204
+        accepted: int = 202
+        created: int = 201
         quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
         current_time: int = int(time())
         self.setOfficeBearerData(self.getOfficeBearers().get())
@@ -3090,15 +3096,11 @@ class Builder:
         self.curateOfficeBearerName()
         self.curateOfficeBearerAddress()
         amount_found: int = len(self.getOfficeBearerData())
-        for index in range(0, len(self.getOfficeBearerData()), 1):
-            print(f"Office Bearer[{index + 1}]: {self.getOfficeBearerData()[index]}")
-        print(f"Amount: {amount}\nAmount Found: {amount_found}\nQuality: {(amount_found / amount) * 100}")
-        # self.curateStateCapitalType()
-        # self.curateStateCapitalCurrency()
-        # self.getStateCapitalData().sort(key=lambda stated_capital: stated_capital.identifier)
-        # response: int = self.updateCuratedStateCapital()
-        # log: Tuple[str, str, int, int, int, int, int] = ("curateOfficeBearer", quarter.quarter, current_time, current_time, response, len(self.getOfficeBearerData()), len(self.getOfficeBearerData()))
-        # self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(log) # type: ignore
+        status: int = self.getOfficeBearers().delete()
+        statuses: List[int] = list(set([self.getOfficeBearers().addCuratedDirectors(office_bearer) for office_bearer in self.getOfficeBearerData()])) if status == no_content else [status]
+        status = accepted if len(statuses) == 1 and statuses[0] == created else statuses[0]
+        log: Tuple[str, str, int, int, int, int, int] = ("curateOfficeBearer", quarter.quarter, current_time, current_time, status, amount, amount_found)
+        self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(log) # type: ignore
 
     def curateOfficeBearerPosition(self) -> None:
         """
