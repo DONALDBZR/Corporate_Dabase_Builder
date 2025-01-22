@@ -1,9 +1,6 @@
 """
 The module which will have the main corporate database
 builder.
-
-Authors:
-    Andy Ewen Gaspard
 """
 
 
@@ -50,6 +47,7 @@ from Models.AnnualReturns import Annual_Returns
 from Models.Objections import Objections
 from Models.Details import Details
 from Models.Charges import Charges
+from Data.OfficeBearers import OfficeBearer
 import os
 
 
@@ -219,6 +217,10 @@ class Builder:
     The model which will interact exclusively with the Charges
     table.
     """
+    __office_bearer_data: List[OfficeBearer]
+    """
+    The Data Transfer Object for the Office Bearer.
+    """
 
     def __init__(self) -> None:
         """
@@ -253,6 +255,12 @@ class Builder:
         self.setDetails(Details())
         self.setCharges(Charges())
         self.getLogger().inform("The builder has been initialized and all of its dependencies are injected!")
+
+    def getOfficeBearerData(self) -> List[OfficeBearer]:
+        return self.__office_bearer_data
+
+    def setOfficeBearerData(self, office_bearer_data: List[OfficeBearer]) -> None:
+        self.__office_bearer_data = office_bearer_data
 
     def getCharges(self) -> Charges:
         return self.__charges
@@ -3066,3 +3074,37 @@ class Builder:
         for index in range(0, len(same_as_name), 1):
             same_as_name[index].nature = "Other Business Support Activities"
         self.setBusinessDetailsData(same_as_name + filtered_business_details)
+
+    def curateOfficeBearer(self) -> None:
+        """
+        Curating the data that is in the Office Bearers table.  Curating the positions into the form needed.
+
+        Returns:
+            void
+        """
+        quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
+        current_time: int = int(time())
+        self.setOfficeBearerData(self.getOfficeBearers().get())
+        self.curateOfficeBearerPosition()
+        for index in range(0, len(self.getOfficeBearerData()), 1):
+            print(f"Office Bearer[{index + 1}]: {self.getOfficeBearerData()[index]}")
+        # self.curateStateCapitalType()
+        # self.curateStateCapitalCurrency()
+        # self.getStateCapitalData().sort(key=lambda stated_capital: stated_capital.identifier)
+        # response: int = self.updateCuratedStateCapital()
+        # log: Tuple[str, str, int, int, int, int, int] = ("curateOfficeBearer", quarter.quarter, current_time, current_time, response, len(self.getOfficeBearerData()), len(self.getOfficeBearerData()))
+        # self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(log) # type: ignore
+
+    def curateOfficeBearerPosition(self) -> None:
+        """
+        Curating the positions into the form needed.
+
+        Returns:
+            void
+        """
+        dataset: List[OfficeBearer] = self.getOfficeBearerData()
+        self.getLogger().inform(f"Office Bearer: Position: Curating the positions into the form needed.\nAmount: {len(dataset)}")
+        for index in range(0, len(dataset), 1):
+            position: str = dataset[index].position.title()
+            dataset[index].position = position
+        self.setOfficeBearerData(dataset)
