@@ -204,3 +204,22 @@ class Office_Bearers(Database_Handler):
             "status": status,
             "data": data
         }
+
+    def delete(self) -> int:
+        """
+        Deleting the data that is in the relational database server.
+
+        Returns:
+            int
+        """
+        try:
+            self.deleteData(
+                table=self.getTableName(),
+                parameters=None
+            )
+            response = self.no_content
+            self.getLogger().inform(f"The data from {self.getTableName()} has been deleted!\nStatus: {response}")
+            return response
+        except Error as error:
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {self.service_unavailable}\nError: {error}")
+            return self.service_unavailable
