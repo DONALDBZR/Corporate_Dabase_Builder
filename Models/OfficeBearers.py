@@ -27,6 +27,18 @@ class Office_Bearers(Database_Handler):
     """
     The status code for service unavailable
     """
+    created: int = 201
+    """
+    The status code for a success creation
+    """
+    ok: int = 200
+    """
+    The status code for a success read
+    """
+    no_content: int = 204
+    """
+    The status code for no content.
+    """
 
     def __init__(self) -> None:
         """
@@ -70,7 +82,7 @@ class Office_Bearers(Database_Handler):
                 values="%s, %s, %s, %s, %s",
                 parameters=parameters # type: ignore
             )
-            response = 201
+            response = self.created
         except Error as error:
             response = self.service_unavailable
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {response}\nError: {error}")
@@ -114,10 +126,10 @@ class Office_Bearers(Database_Handler):
         status: int
         data: List[str]
         if len(result_set) > 0:
-            status = 200
+            status = self.ok
             data = [value["position"] for value in result_set]  # type: ignore
         else:
-            status = 204
+            status = self.no_content
             data = []
         response = {
             "status": status,
@@ -151,7 +163,7 @@ class Office_Bearers(Database_Handler):
                 values="%s, %s, %s, %s",
                 parameters=parameters # type: ignore
             )
-            response = 201
+            response = self.created
         except Error as error:
             response = self.service_unavailable
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {response}\nError: {error}")
@@ -174,3 +186,21 @@ class Office_Bearers(Database_Handler):
         except Error as error:
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {self.service_unavailable}\nError: {error}")
             return []
+
+    def _get(self, dataset: Union[List[RowType], List[Dict[str, Union[int, str, None]]]]) -> Dict[str, Union[int, List[OfficeBearer]]]:
+        """
+        Formatting the result set data in the correct format for the
+        Office Bearer model.
+
+        Parameters:
+            dataset: The result set data that needs to be formatted.
+
+        Returns:
+            {status: int, data: [{identifier: int, CompanyDetail: int, position: string, name: string, address: string | null, date_appointment: int}]}
+        """
+        status: int = 200 if len(dataset) > 0 else 204
+        data: List[OfficeBearer] = [OfficeBearer(office_bearer) for office_bearer in dataset] if len(dataset) > 0 else []
+        return {
+            "status": status,
+            "data": data
+        }
