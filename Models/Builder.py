@@ -3085,9 +3085,13 @@ class Builder:
         quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
         current_time: int = int(time())
         self.setOfficeBearerData(self.getOfficeBearers().get())
+        amount: int = len(self.getOfficeBearerData())
         self.curateOfficeBearerPosition()
+        self.curateOfficeBearerName()
+        amount_found: int = len(self.getOfficeBearerData())
         for index in range(0, len(self.getOfficeBearerData()), 1):
             print(f"Office Bearer[{index + 1}]: {self.getOfficeBearerData()[index]}")
+        print(f"Amount: {amount}\nAmount Found: {amount_found}\nQuality: {(amount_found / amount) * 100}")
         # self.curateStateCapitalType()
         # self.curateStateCapitalCurrency()
         # self.getStateCapitalData().sort(key=lambda stated_capital: stated_capital.identifier)
@@ -3108,3 +3112,30 @@ class Builder:
             position: str = dataset[index].position.title()
             dataset[index].position = position
         self.setOfficeBearerData(dataset)
+
+    def curateOfficeBearerName(self) -> None:
+        """
+        Curating and sanitizing the Name into the form needed.
+
+        Returns:
+            void
+        """
+        dataset: List[OfficeBearer] = self.getOfficeBearerData()
+        deleted_data: List[OfficeBearer] = [office_bearer for office_bearer in dataset if bool(search(r"[0-9]+", office_bearer.name)) == True]
+        filtered_data: List[OfficeBearer] = [office_bearer for office_bearer in dataset if bool(search(r"[0-9]+", office_bearer.name)) == False]
+        filtered_data = [office_bearer for office_bearer in filtered_data if office_bearer.name != "(Mauritius) Limited"]
+        filtered_data = [office_bearer for office_bearer in filtered_data if office_bearer.name != "(Mauritius) Ltd"]
+        filtered_data = [office_bearer for office_bearer in filtered_data if " Sottise Rd" not in office_bearer.name]
+        filtered_data = [office_bearer for office_bearer in filtered_data if office_bearer.name != "(Jnr)"]
+        filtered_data = [office_bearer for office_bearer in filtered_data if "Country" not in office_bearer.name]
+        filtered_data = [office_bearer for office_bearer in filtered_data if office_bearer.name != ". Naaz"]
+        filtered_data = [office_bearer for office_bearer in filtered_data if "Road" not in office_bearer.name]
+        filtered_data = [office_bearer for office_bearer in filtered_data if "Street" not in office_bearer.name]
+        filtered_data = [office_bearer for office_bearer in filtered_data if "Avenue" not in office_bearer.name]
+        filtered_data = [office_bearer for office_bearer in filtered_data if "Lane" not in office_bearer.name]
+        filtered_data = [office_bearer for office_bearer in filtered_data if "C/O" not in office_bearer.name]
+        for index in range(0, len(filtered_data), 1):
+            name: str = filtered_data[index].name.title().replace("Ltd", "LTD")
+            filtered_data[index].name = name
+        self.getLogger().inform(f"Office Bearer: Name: Curating and sanitizing the Name into the form needed.\nDeleted Amount: {len(deleted_data)}\nFiltered Data: {len(filtered_data)}")
+        self.setOfficeBearerData(filtered_data)
