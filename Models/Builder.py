@@ -3077,7 +3077,7 @@ class Builder:
 
     def curateOfficeBearer(self) -> None:
         """
-        Curating the data that is in the Office Bearers table.  Curating the positions into the form needed.
+        Curating the data that is in the Office Bearers table.  Curating the positions into the form needed.  Curating and sanitizing the name into the form needed.  Curating and sanitizing the address in to the form needed.
 
         Returns:
             void
@@ -3088,6 +3088,7 @@ class Builder:
         amount: int = len(self.getOfficeBearerData())
         self.curateOfficeBearerPosition()
         self.curateOfficeBearerName()
+        self.curateOfficeBearerAddress()
         amount_found: int = len(self.getOfficeBearerData())
         for index in range(0, len(self.getOfficeBearerData()), 1):
             print(f"Office Bearer[{index + 1}]: {self.getOfficeBearerData()[index]}")
@@ -3138,4 +3139,19 @@ class Builder:
             name: str = filtered_data[index].name.title().replace("Ltd", "LTD")
             filtered_data[index].name = name
         self.getLogger().inform(f"Office Bearer: Name: Curating and sanitizing the Name into the form needed.\nDeleted Amount: {len(deleted_data)}\nFiltered Data: {len(filtered_data)}")
+        self.setOfficeBearerData(filtered_data)
+
+    def curateOfficeBearerAddress(self) -> None:
+        """
+        Curating and sanitizing the address into the form needed.
+
+        Returns:
+            void
+        """
+        filtered_data: List[OfficeBearer] = [office_bearer for office_bearer in self.getOfficeBearerData() if office_bearer.address != None]
+        filtered_data = [office_bearer for office_bearer in filtered_data if ", " in str(office_bearer.address)]
+        for index in range(0, len(filtered_data), 1):
+            address: str = str(filtered_data[index].address).title()
+            filtered_data[index].address = address
+        self.getLogger().inform(f"Office Bearer: Address: Curating and sanitizing the address into the form needed.\nFiltered Data: {len(filtered_data)}")
         self.setOfficeBearerData(filtered_data)
