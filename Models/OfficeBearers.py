@@ -224,7 +224,7 @@ class Office_Bearers(Database_Handler):
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {self.service_unavailable}\nError: {error}")
             return self.service_unavailable
 
-    def addCuratedData(self, data: Dict[str, Union[str, int]]) -> int:
+    def addCuratedDirectors(self, data: Dict[str, Union[str, int]]) -> int:
         """
         Adding the directors data of the company into the relational
         database server.
