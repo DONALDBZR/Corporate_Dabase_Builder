@@ -2135,6 +2135,22 @@ class Builder:
         self.curateStateCapitalTypeManagement()
         self.curateStateCapitalTypeC()
         self.curateStateCapitalTypeFounder()
+        self.curateStateCapitalTypePreference()
+
+    def curateStateCapitalTypePreference(self) -> None:
+        """
+        Filtering the data for the preference type.
+
+        Returns:
+            void
+        """
+        preference: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital.type != None and ("preference" in stated_capital.type.lower())]
+        filtered_data: List[StateCapital] = [stated_capital for stated_capital in self.getStateCapitalData() if stated_capital not in preference]
+        self.setStateCapitalData([])
+        self.getLogger().inform(f"Stated Capital: Type: Filtering the data for the Preference type.\nAmount: {len(preference)}")
+        for index in range(0, len(preference), 1):
+            preference[index].type = "Preference"
+        self.setStateCapitalData(preference + filtered_data)
 
     def curateStateCapitalTypeFounder(self) -> None:
         """
