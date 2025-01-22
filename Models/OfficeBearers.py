@@ -223,3 +223,36 @@ class Office_Bearers(Database_Handler):
         except Error as error:
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {self.service_unavailable}\nError: {error}")
             return self.service_unavailable
+
+    def addDirectors(self, data: Dict[str, Union[str, int]]) -> int:
+        """
+        Adding the directors data of the company into the relational
+        database server.
+
+        Parameters:
+            data: {identifier: int, CompanyDetail: int, position: string, name: string, address: string, date_appointment: int}: The data that has been extracted for the office bearers table.
+
+        Returns:
+            int
+        """
+        response: int
+        try:
+            parameters: Tuple[int, int, str, str, str, int] = ( # type: ignore
+                int(str(data["identifier"]))
+                int(str(data["CompanyDetail"]))
+                str(data["position"]),
+                str(data["name"]),
+                str(data["address"]),
+                int(data["date_appointment"])
+            )
+            self.postData(
+                table=self.getTableName(),
+                columns="identifier, CompanyDetail, position, name, address, date_appointment, CompanyDetail",
+                values="%s, %s, %s, %s, %s, %s, %s",
+                parameters=parameters # type: ignore
+            )
+            response = self.created
+        except Error as error:
+            response = self.service_unavailable
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {response}\nError: {error}")
+        return response
