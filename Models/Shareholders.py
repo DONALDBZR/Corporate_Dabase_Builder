@@ -1,16 +1,12 @@
 """
 The Model which will interact exclusively with the
 Shareholders table.
-
-Authors:
-    Andy Ewen Gaspard
 """
-
-
 from Models.DatabaseHandler import Database_Handler
 from typing import Union, Dict, Tuple, List
 from mysql.connector.errors import Error
 from mysql.connector.types import RowType
+from Data.Shareholders import Shareholder
 
 
 class Shareholders(Database_Handler):
@@ -21,6 +17,22 @@ class Shareholders(Database_Handler):
     __table_name: str
     """
     The table which the model is linked to.
+    """
+    service_unavailable: int = 503
+    """
+    The status code for service unavailable
+    """
+    created: int = 201
+    """
+    The status code for a success creation
+    """
+    ok: int = 200
+    """
+    The status code for a success read
+    """
+    no_content: int = 204
+    """
+    The status code for no content.
     """
 
     def __init__(self) -> None:
@@ -65,9 +77,9 @@ class Shareholders(Database_Handler):
                 values="%s, %s, %s, %s, %s",
                 parameters=parameters # type: ignore
             )
-            response = 201
+            response = self.created
         except Error as error:
-            response = 503
+            response = self.service_unavailable
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {response}\nError: {error}")
         return response
 
@@ -90,7 +102,7 @@ class Shareholders(Database_Handler):
             response = dataset["response"] # type: ignore
             self.getLogger().inform(f"The data from the {self.getTableName()} table has been successfully retrieved.\nStatus: {dataset['status']}\nData: {dataset['response']}")
         except Error as error:
-            status = 503
+            status = self.service_unavailable
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {status}\nError: {error}")
         return response
 
@@ -109,10 +121,10 @@ class Shareholders(Database_Handler):
         status: int
         data: List[str]
         if len(result_set) > 0:
-            status = 200
+            status = self.ok
             data = [value["type_shares"] for value in result_set]  # type: ignore
         else:
-            status = 204
+            status = self.no_content
             data = []
         response = {
             "status": status,
@@ -139,7 +151,7 @@ class Shareholders(Database_Handler):
             response = dataset["response"] # type: ignore
             self.getLogger().inform(f"The data from the {self.getTableName()} table has been successfully retrieved.\nStatus: {dataset['status']}\nData: {dataset['response']}")
         except Error as error:
-            status = 503
+            status = self.service_unavailable
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {status}\nError: {error}")
         return response
 
@@ -158,13 +170,101 @@ class Shareholders(Database_Handler):
         status: int
         data: List[str]
         if len(result_set) > 0:
-            status = 200
+            status = self.ok
             data = [value["currencies"] for value in result_set]  # type: ignore
         else:
-            status = 204
+            status = self.no_content
             data = []
         response = {
             "status": status,
             "response": data
         }
+        return response
+
+    def get(self) -> List[Shareholder]:
+        """
+        Retrieving all of the data from the Shareholders table.
+
+        Returns:
+            [{identifier: int, CompanyDetail: int, name: string, amount_shares: int, type_shares: string, currency: string}]
+        """
+        try:
+            data: Union[List[RowType], List[Dict[str, Union[int, str]]]] = self.getData(
+                table_name=self.getTableName()
+            )
+            response: Dict[str, Union[int, List[Shareholder]]] = self._get(data)
+            self.getLogger().inform(f"The data from {self.getTableName()} has been retrieved!\nStatus: {response['status']}\nData: {response['data']}")
+            return response["data"]  # type: ignore
+        except Error as error:
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {self.service_unavailable}\nError: {error}")
+            return []
+
+    def _get(self, dataset: Union[List[RowType], List[Dict[str, Union[int, str]]]]) -> Dict[str, Union[int, List[Shareholder]]]:
+        """
+        Formatting the result set data in the correct format for the
+        Shareholder model.
+
+        Parameters:
+            dataset: [{identifier: int, CompanyDetail: int, name: string, amount_shares: int, type_shares: string, currency: string}]: The result set data that needs to be formatted.
+
+        Returns:
+            {status: int, data: [{identifier: int, CompanyDetail: int, name: string, amount_shares: int, type_shares: string, currency: string}]}
+        """
+        status: int = self.ok if len(dataset) > 0 else self.no_content
+        data: List[Shareholder] = [Shareholder(shareholder) for shareholder in dataset] if len(dataset) > 0 else []
+        return {
+            "status": status,
+            "data": data
+        }
+
+    def delete(self) -> int:
+        """
+        Deleting the data that is in the relational database server.
+
+        Returns:
+            int
+        """
+        try:
+            self.deleteData(
+                table=self.getTableName(),
+                parameters=None
+            )
+            response = self.no_content
+            self.getLogger().inform(f"The data from {self.getTableName()} has been deleted!\nStatus: {response}")
+            return response
+        except Error as error:
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {self.service_unavailable}\nError: {error}")
+            return self.service_unavailable
+
+    def addCuratedShareholder(self, data: Shareholder) -> int:
+        """
+        Adding the shareholder data of the company into the
+        relational database server.
+
+        Parameters:
+            data: {identifier: int, CompanyDetail: int, name: string, amount_shares: int, type_shares: string, currency: string}: The data that has been extracted for the office bearers table.
+
+        Returns:
+            int
+        """
+        response: int
+        try:
+            parameters: Tuple[int, int, str, int, str, str] = (
+                data.identifier,
+                data.CompanyDetail,
+                data.name,
+                data.amount_shares,
+                data.type_shares,
+                data.currency
+            )
+            self.postData(
+                table=self.getTableName(),
+                columns="identifier, CompanyDetail, name, amount_shares, type_shares, currency",
+                values="%s, %s, %s, %s, %s, %s",
+                parameters=parameters # type: ignore
+            )
+            response = self.created
+        except Error as error:
+            response = self.service_unavailable
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {response}\nError: {error}")
         return response

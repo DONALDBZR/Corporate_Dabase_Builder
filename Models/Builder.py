@@ -48,6 +48,7 @@ from Models.Objections import Objections
 from Models.Details import Details
 from Models.Charges import Charges
 from Data.OfficeBearers import OfficeBearer
+from Data.Shareholders import Shareholder
 import os
 
 
@@ -221,6 +222,10 @@ class Builder:
     """
     The Data Transfer Object for the Office Bearer.
     """
+    __shareholder_data: List[Shareholder]
+    """
+    The Data Transfer Object for the Office Bearer.
+    """
 
     def __init__(self) -> None:
         """
@@ -255,6 +260,12 @@ class Builder:
         self.setDetails(Details())
         self.setCharges(Charges())
         self.getLogger().inform("The builder has been initialized and all of its dependencies are injected!")
+
+    def getShareholderData(self) -> List[Shareholder]:
+        return self.__shareholder_data
+
+    def setShareholderData(self, shareholder_data: List[Shareholder]) -> None:
+        self.__shareholder_data = shareholder_data
 
     def getOfficeBearerData(self) -> List[OfficeBearer]:
         return self.__office_bearer_data
@@ -3095,6 +3106,11 @@ class Builder:
         self.curateOfficeBearerPosition()
         self.curateOfficeBearerName()
         self.curateOfficeBearerAddress()
+        dataset: List[OfficeBearer] = [office_bearer for office_bearer in self.getOfficeBearerData()]
+        for index in range(0, len(dataset), 1):
+            identifier: int = index + 1
+            dataset[index].identifier = identifier
+        self.setOfficeBearerData(dataset)
         amount_found: int = len(self.getOfficeBearerData())
         status: int = self.getOfficeBearers().delete()
         statuses: List[int] = list(set([self.getOfficeBearers().addCuratedDirectors(office_bearer) for office_bearer in self.getOfficeBearerData()])) if status == no_content else [status]
@@ -3157,3 +3173,124 @@ class Builder:
             filtered_data[index].address = address
         self.getLogger().inform(f"Office Bearer: Address: Curating and sanitizing the address into the form needed.\nFiltered Data: {len(filtered_data)}")
         self.setOfficeBearerData(filtered_data)
+
+    def curateShareholders(self) -> None:
+        """
+        Curating the data that is in the Shareholders table.
+        Curating and sanitizing the type of the shareholders.
+        Curating and sanitizing the currency of the shareholders.
+        Curating and sanitizing the name of the shareholders.
+
+        Returns:
+            void
+        """
+        no_content: int = 204
+        accepted: int = 202
+        created: int = 201
+        quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
+        current_time: int = int(time())
+        self.setShareholderData(self.getShareholders().get())
+        amount: int = len(self.getShareholderData())
+        self.curateShareholdersType()
+        self.curateShareholdersCurrency()
+        self.curateShareholdersName()
+        dataset: List[Shareholder] = [shareholder for shareholder in self.getShareholderData()]
+        for index in range(0, len(dataset), 1):
+            identifier: int = index + 1
+            dataset[index].identifier = identifier
+        self.setShareholderData(dataset)
+        amount_found: int = len(self.getShareholderData())
+        status: int = self.getShareholders().delete()
+        statuses: List[int] = list(set([self.getShareholders().addCuratedShareholder(shareholder) for shareholder in self.getShareholderData()])) if status == no_content else [status]
+        status = accepted if len(statuses) == 1 and statuses[0] == created else statuses[0]
+        log: Tuple[str, str, int, int, int, int, int] = ("curateShareholders", quarter.quarter, current_time, current_time, status, amount, amount_found)
+        self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(log) # type: ignore
+
+    def curateShareholdersType(self) -> None:
+        """
+        Curating and sanitizing the type of the shares.
+
+        Returns:
+            void
+        """
+        ordinary: List[Shareholder] = [shareholder for shareholder in self.getShareholderData() if "ordinary" in shareholder.type_shares.lower()]
+        remaining_data: List[Shareholder] = [shareholder for shareholder in self.getShareholderData() if shareholder not in ordinary]
+        social_part: List[Shareholder] = [shareholder for shareholder in remaining_data if shareholder.type_shares.lower() == "part sociale" or shareholder.type_shares.lower() == "part d'interet"]
+        remaining_data = [shareholder for shareholder in remaining_data if shareholder not in social_part]
+        class_d: List[Shareholder] = [shareholder for shareholder in remaining_data if "class d" in shareholder.type_shares.lower()]
+        remaining_data = [shareholder for shareholder in remaining_data if shareholder not in class_d]
+        ordinary = ordinary + remaining_data
+        for index in range(0, len(ordinary), 1):
+            type: str = "Ordinary"
+            ordinary[index].type_shares = type
+        self.getLogger().inform(f"Shareholders: Type: Curating and sanitizing the type of the shares for Ordinary Shares.\nAmount: {len(ordinary)}")
+        for index in range(0, len(social_part), 1):
+            type: str = "Part Sociale"
+            social_part[index].type_shares = type
+        self.getLogger().inform(f"Shareholders: Type: Curating and sanitizing the type of the shares for Part Sociale.\nAmount: {len(social_part)}")
+        for index in range(0, len(class_d), 1):
+            type: str = "Class D"
+            class_d[index].type_shares = type
+        self.getLogger().inform(f"Shareholders: Type: Curating and sanitizing the type of the shares for Class D Shares.\nAmount: {len(class_d)}")
+        self.setShareholderData(ordinary + social_part + class_d)
+
+    def curateShareholdersCurrency(self) -> None:
+        """
+        Curating and sanitizing the currency of the shareholders.
+
+        Returns:
+            void
+        """
+        mauritian_rupee: List[Shareholder] = [shareholder for shareholder in self.getShareholderData() if "mauritius rupee" in shareholder.currency.lower()]
+        remaining_data: List[Shareholder] = [shareholder for shareholder in self.getShareholderData() if shareholder not in mauritian_rupee]
+        us_dollar: List[Shareholder] = [shareholder for shareholder in remaining_data if "us dollar" in shareholder.currency.lower()]
+        remaining_data = [shareholder for shareholder in remaining_data if shareholder not in us_dollar]
+        mauritian_rupee = mauritian_rupee + remaining_data
+        for index in range(0, len(mauritian_rupee), 1):
+            currency: str = "Mauritius Rupee"
+            mauritian_rupee[index].currency = currency
+        self.getLogger().inform(f"Shareholders: Currency: Curating and sanitizing the currency of the shares for Mauritian Rupee.\nAmount: {len(mauritian_rupee)}")
+        for index in range(0, len(us_dollar), 1):
+            currency: str = "US Dollar"
+            us_dollar[index].currency = currency
+        self.getLogger().inform(f"Shareholders: Currency: Curating and sanitizing the currency of the shares for American Dollar.\nAmount: {len(us_dollar)}")
+        self.setShareholderData(mauritian_rupee + us_dollar)
+
+    def curateShareholdersName(self) -> None:
+        """
+        Curating and sanitizing the name of the shareholders.
+
+        Returns:
+            void
+        """
+        filtered_data: List[Shareholder] = [shareholder for shareholder in self.getShareholderData() if "service address" not in shareholder.name.lower()]
+        filtered_data = [shareholder for shareholder in filtered_data if "street" not in shareholder.name.lower()]
+        filtered_data = [shareholder for shareholder in filtered_data if "lane" not in shareholder.name.lower()]
+        filtered_data = [shareholder for shareholder in filtered_data if "morcellement" not in shareholder.name.lower()]
+        filtered_data = [shareholder for shareholder in filtered_data if "port louis" not in shareholder.name.lower()]
+        filtered_data = [shareholder for shareholder in filtered_data if "mauritius rupee" not in shareholder.name.lower()]
+        filtered_data = [shareholder for shareholder in filtered_data if "avenue" not in shareholder.name.lower()]
+        filtered_data = [shareholder for shareholder in filtered_data if "quatre bornes" not in shareholder.name.lower()]
+        filtered_data = [shareholder for shareholder in filtered_data if shareholder.name.lower() != "mauritius"]
+        filtered_data = [shareholder for shareholder in filtered_data if "vacoas" not in shareholder.name.lower()]
+        filtered_data = [shareholder for shareholder in filtered_data if "office bearers" not in shareholder.name.lower()]
+        filtered_data = [shareholder for shareholder in filtered_data if "position" not in shareholder.name.lower()]
+        filtered_data = [shareholder for shareholder in filtered_data if "gerant" not in shareholder.name.lower()]
+        filtered_data = [shareholder for shareholder in filtered_data if "date issued" not in shareholder.name.lower()]
+        filtered_data = [shareholder for shareholder in filtered_data if "road" not in shareholder.name.lower()]
+        filtered_data = [shareholder for shareholder in filtered_data if "," not in shareholder.name.lower()]
+        filtered_data = [shareholder for shareholder in filtered_data if "part" not in shareholder.name.lower()]
+        filtered_data = [shareholder for shareholder in filtered_data if "d'interet" not in shareholder.name.lower()]
+        filtered_data = [shareholder for shareholder in filtered_data if "louis mauritius" not in shareholder.name.lower()]
+        filtered_data = [shareholder for shareholder in filtered_data if " rd " not in shareholder.name.lower()]
+        filtered_data = [shareholder for shareholder in filtered_data if "floor" not in shareholder.name.lower()]
+        filtered_data = [shareholder for shareholder in filtered_data if "goodlands" not in shareholder.name.lower()]
+        filtered_data = [shareholder for shareholder in filtered_data if "nhdc" not in shareholder.name.lower()]
+        filtered_data = [shareholder for shareholder in filtered_data if "mahebourg" not in shareholder.name.lower()]
+        filtered_data = [shareholder for shareholder in filtered_data if "rue" not in shareholder.name.lower()]
+        filtered_data = [shareholder for shareholder in filtered_data if " morc " not in shareholder.name.lower()]
+        for index in range(0, len(filtered_data), 1):
+            name: str = filtered_data[index].name.title().replace("ltd", "LTD").replace("Ltd", "LTD")
+            filtered_data[index].name = name
+        self.getLogger().inform(f"Shareholders: Name: Curating and sanitizing the name of the shareholders.\nAmount: {len(filtered_data)}")
+        self.setShareholderData(filtered_data)
