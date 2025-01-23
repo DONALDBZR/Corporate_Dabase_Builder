@@ -1,9 +1,6 @@
 """
 The module which will have the main corporate database
 builder.
-
-Authors:
-    Andy Ewen Gaspard
 """
 
 
@@ -50,6 +47,7 @@ from Models.AnnualReturns import Annual_Returns
 from Models.Objections import Objections
 from Models.Details import Details
 from Models.Charges import Charges
+from Data.OfficeBearers import OfficeBearer
 import os
 
 
@@ -219,6 +217,10 @@ class Builder:
     The model which will interact exclusively with the Charges
     table.
     """
+    __office_bearer_data: List[OfficeBearer]
+    """
+    The Data Transfer Object for the Office Bearer.
+    """
 
     def __init__(self) -> None:
         """
@@ -253,6 +255,12 @@ class Builder:
         self.setDetails(Details())
         self.setCharges(Charges())
         self.getLogger().inform("The builder has been initialized and all of its dependencies are injected!")
+
+    def getOfficeBearerData(self) -> List[OfficeBearer]:
+        return self.__office_bearer_data
+
+    def setOfficeBearerData(self, office_bearer_data: List[OfficeBearer]) -> None:
+        self.__office_bearer_data = office_bearer_data
 
     def getCharges(self) -> Charges:
         return self.__charges
@@ -3066,3 +3074,86 @@ class Builder:
         for index in range(0, len(same_as_name), 1):
             same_as_name[index].nature = "Other Business Support Activities"
         self.setBusinessDetailsData(same_as_name + filtered_business_details)
+
+    def curateOfficeBearer(self) -> None:
+        """
+        Curating the data that is in the Office Bearers table.
+        Curating the positions into the form needed.  Curating and
+        sanitizing the name into the form needed.  Curating and
+        sanitizing the address in to the form needed.
+
+        Returns:
+            void
+        """
+        no_content: int = 204
+        accepted: int = 202
+        created: int = 201
+        quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
+        current_time: int = int(time())
+        self.setOfficeBearerData(self.getOfficeBearers().get())
+        amount: int = len(self.getOfficeBearerData())
+        self.curateOfficeBearerPosition()
+        self.curateOfficeBearerName()
+        self.curateOfficeBearerAddress()
+        amount_found: int = len(self.getOfficeBearerData())
+        status: int = self.getOfficeBearers().delete()
+        statuses: List[int] = list(set([self.getOfficeBearers().addCuratedDirectors(office_bearer) for office_bearer in self.getOfficeBearerData()])) if status == no_content else [status]
+        status = accepted if len(statuses) == 1 and statuses[0] == created else statuses[0]
+        log: Tuple[str, str, int, int, int, int, int] = ("curateOfficeBearer", quarter.quarter, current_time, current_time, status, amount, amount_found)
+        self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(log) # type: ignore
+
+    def curateOfficeBearerPosition(self) -> None:
+        """
+        Curating the positions into the form needed.
+
+        Returns:
+            void
+        """
+        dataset: List[OfficeBearer] = self.getOfficeBearerData()
+        self.getLogger().inform(f"Office Bearer: Position: Curating the positions into the form needed.\nAmount: {len(dataset)}")
+        for index in range(0, len(dataset), 1):
+            position: str = dataset[index].position.title()
+            dataset[index].position = position
+        self.setOfficeBearerData(dataset)
+
+    def curateOfficeBearerName(self) -> None:
+        """
+        Curating and sanitizing the Name into the form needed.
+
+        Returns:
+            void
+        """
+        dataset: List[OfficeBearer] = self.getOfficeBearerData()
+        deleted_data: List[OfficeBearer] = [office_bearer for office_bearer in dataset if bool(search(r"[0-9]+", office_bearer.name)) == True]
+        filtered_data: List[OfficeBearer] = [office_bearer for office_bearer in dataset if bool(search(r"[0-9]+", office_bearer.name)) == False]
+        filtered_data = [office_bearer for office_bearer in filtered_data if office_bearer.name != "(Mauritius) Limited"]
+        filtered_data = [office_bearer for office_bearer in filtered_data if office_bearer.name != "(Mauritius) Ltd"]
+        filtered_data = [office_bearer for office_bearer in filtered_data if " Sottise Rd" not in office_bearer.name]
+        filtered_data = [office_bearer for office_bearer in filtered_data if office_bearer.name != "(Jnr)"]
+        filtered_data = [office_bearer for office_bearer in filtered_data if "Country" not in office_bearer.name]
+        filtered_data = [office_bearer for office_bearer in filtered_data if office_bearer.name != ". Naaz"]
+        filtered_data = [office_bearer for office_bearer in filtered_data if "Road" not in office_bearer.name]
+        filtered_data = [office_bearer for office_bearer in filtered_data if "Street" not in office_bearer.name]
+        filtered_data = [office_bearer for office_bearer in filtered_data if "Avenue" not in office_bearer.name]
+        filtered_data = [office_bearer for office_bearer in filtered_data if "Lane" not in office_bearer.name]
+        filtered_data = [office_bearer for office_bearer in filtered_data if "C/O" not in office_bearer.name]
+        for index in range(0, len(filtered_data), 1):
+            name: str = filtered_data[index].name.title().replace("Ltd", "LTD")
+            filtered_data[index].name = name
+        self.getLogger().inform(f"Office Bearer: Name: Curating and sanitizing the Name into the form needed.\nDeleted Amount: {len(deleted_data)}\nFiltered Data: {len(filtered_data)}")
+        self.setOfficeBearerData(filtered_data)
+
+    def curateOfficeBearerAddress(self) -> None:
+        """
+        Curating and sanitizing the address into the form needed.
+
+        Returns:
+            void
+        """
+        filtered_data: List[OfficeBearer] = [office_bearer for office_bearer in self.getOfficeBearerData() if office_bearer.address != None]
+        filtered_data = [office_bearer for office_bearer in filtered_data if ", " in str(office_bearer.address)]
+        for index in range(0, len(filtered_data), 1):
+            address: str = str(filtered_data[index].address).title()
+            filtered_data[index].address = address
+        self.getLogger().inform(f"Office Bearer: Address: Curating and sanitizing the address into the form needed.\nFiltered Data: {len(filtered_data)}")
+        self.setOfficeBearerData(filtered_data)
