@@ -180,3 +180,21 @@ class Shareholders(Database_Handler):
             "response": data
         }
         return response
+
+    def get(self) -> List[Shareholder]:
+        """
+        Retrieving all of the data from the Shareholders table.
+
+        Returns:
+            [{identifier: int, CompanyDetail: int, name: string, amount_shares: int, type_shares: string, currency: string}]
+        """
+        try:
+            data: Union[List[RowType], List[Dict[str, Union[int, str]]]] = self.getData(
+                table_name=self.getTableName()
+            )
+            response: Dict[str, Union[int, List[Shareholder]]] = self._get(data)
+            self.getLogger().inform(f"The data from {self.getTableName()} has been retrieved!\nStatus: {response['status']}\nData: {response['data']}")
+            return response["data"]  # type: ignore
+        except Error as error:
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {self.service_unavailable}\nError: {error}")
+            return []
