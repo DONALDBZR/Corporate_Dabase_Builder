@@ -3171,7 +3171,7 @@ class Builder:
 
     def curateShareholders(self) -> None:
         """
-        Curating the data that is in the Shareholders table.  Curating and sanitizing the type of the shares.
+        Curating the data that is in the Shareholders table.  Curating and sanitizing the type of the shareholders.  Curating and sanitizing the currency of the shareholders.
 
         Returns:
             void
@@ -3184,6 +3184,7 @@ class Builder:
         self.setShareholderData(self.getShareholders().get())
         amount: int = len(self.getShareholderData())
         self.curateShareholdersType()
+        self.curateShareholdersCurrency()
         amount_found: int = len(self.getShareholderData())
         print(f"Amount: {amount}\nAmount Found: {amount_found}\nQuality: {(amount_found / amount) * 100} %")
         # status: int = self.getOfficeBearers().delete()
@@ -3219,3 +3220,25 @@ class Builder:
             class_d[index].type_shares = type
         self.getLogger().inform(f"Shareholders: Type: Curating and sanitizing the type of the shares for Class D Shares.\nAmount: {len(class_d)}")
         self.setShareholderData(ordinary + social_part + class_d)
+
+    def curateShareholdersCurrency(self) -> None:
+        """
+        Curating and sanitizing the currency of the shareholders.
+
+        Returns:
+            void
+        """
+        mauritian_rupee: List[Shareholder] = [shareholder for shareholder in self.getShareholderData() if "mauritius rupee" in shareholder.currency.lower()]
+        remaining_data: List[Shareholder] = [shareholder for shareholder in self.getShareholderData() if shareholder not in mauritian_rupee]
+        us_dollar: List[Shareholder] = [shareholder for shareholder in remaining_data if "us dollar" in shareholder.currency.lower()]
+        remaining_data = [shareholder for shareholder in remaining_data if shareholder not in us_dollar]
+        mauritian_rupee = mauritian_rupee + remaining_data
+        for index in range(0, len(mauritian_rupee), 1):
+            currency: str = "Mauritius Rupee"
+            mauritian_rupee[index].currency = currency
+        self.getLogger().inform(f"Shareholders: Currency: Curating and sanitizing the currency of the shares for Mauritian Rupee.\nAmount: {len(mauritian_rupee)}")
+        for index in range(0, len(us_dollar), 1):
+            currency: str = "US Dollar"
+            us_dollar[index].currency = currency
+        self.getLogger().inform(f"Shareholders: Currency: Curating and sanitizing the currency of the shares for American Dollar.\nAmount: {len(us_dollar)}")
+        self.setShareholderData(mauritian_rupee + us_dollar)
