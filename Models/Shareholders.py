@@ -121,10 +121,10 @@ class Shareholders(Database_Handler):
         status: int
         data: List[str]
         if len(result_set) > 0:
-            status = 200
+            status = self.ok
             data = [value["type_shares"] for value in result_set]  # type: ignore
         else:
-            status = 204
+            status = self.no_content
             data = []
         response = {
             "status": status,
