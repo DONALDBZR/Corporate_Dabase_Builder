@@ -3106,6 +3106,11 @@ class Builder:
         self.curateOfficeBearerPosition()
         self.curateOfficeBearerName()
         self.curateOfficeBearerAddress()
+        dataset: List[OfficeBearer] = [office_bearer for office_bearer in self.getOfficeBearerData()]
+        for index in range(0, len(dataset), 1):
+            identifier: int = index + 1
+            dataset[index].identifier = identifier
+        self.setOfficeBearerData(dataset)
         amount_found: int = len(self.getOfficeBearerData())
         status: int = self.getOfficeBearers().delete()
         statuses: List[int] = list(set([self.getOfficeBearers().addCuratedDirectors(office_bearer) for office_bearer in self.getOfficeBearerData()])) if status == no_content else [status]
