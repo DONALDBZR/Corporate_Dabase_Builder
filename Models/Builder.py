@@ -3171,7 +3171,10 @@ class Builder:
 
     def curateShareholders(self) -> None:
         """
-        Curating the data that is in the Shareholders table.  Curating and sanitizing the type of the shareholders.  Curating and sanitizing the currency of the shareholders.  Curating and sanitizing the name of the shareholders.
+        Curating the data that is in the Shareholders table.
+        Curating and sanitizing the type of the shareholders.
+        Curating and sanitizing the currency of the shareholders.
+        Curating and sanitizing the name of the shareholders.
 
         Returns:
             void
@@ -3192,11 +3195,11 @@ class Builder:
             dataset[index].identifier = identifier
         self.setShareholderData(dataset)
         amount_found: int = len(self.getShareholderData())
-        # status: int = self.getShareholders().delete()
-        # statuses: List[int] = list(set([self.getShareholders().addCuratedShareholder(shareholder) for shareholder in self.getShareholderData()])) if status == no_content else [status]
-        # status = accepted if len(statuses) == 1 and statuses[0] == created else statuses[0]
-        # log: Tuple[str, str, int, int, int, int, int] = ("curateShareholders", quarter.quarter, current_time, current_time, status, amount, amount_found)
-        # self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(log) # type: ignore
+        status: int = self.getShareholders().delete()
+        statuses: List[int] = list(set([self.getShareholders().addCuratedShareholder(shareholder) for shareholder in self.getShareholderData()])) if status == no_content else [status]
+        status = accepted if len(statuses) == 1 and statuses[0] == created else statuses[0]
+        log: Tuple[str, str, int, int, int, int, int] = ("curateShareholders", quarter.quarter, current_time, current_time, status, amount, amount_found)
+        self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(log) # type: ignore
 
     def curateShareholdersType(self) -> None:
         """
