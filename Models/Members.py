@@ -104,3 +104,21 @@ class Member(Database_Handler):
         except Error as error:
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {self.service_unavailable}\nError: {error}")
             return []
+
+    def _get(self, dataset: Union[List[RowType], List[Dict[str, Union[int, str]]]]) -> Dict[str, Union[int, List[Member_Data]]]:
+        """
+        Formatting the result set data in the correct format for the
+        Member model.
+
+        Parameters:
+            dataset: [{identifier: int, CompanyDetail: int, name: string, amount_shares: int, type_shares: string, currency: string}]: The result set data that needs to be formatted.
+
+        Returns:
+            {status: int, data: [{identifier: int, CompanyDetail: int, name: string, amount: int, date_start: int, currency: string}]}
+        """
+        status: int = self.ok if len(dataset) > 0 else self.no_content
+        data: List[Member_Data] = [Member_Data(shareholder) for shareholder in dataset] if len(dataset) > 0 else []
+        return {
+            "status": status,
+            "data": data
+        }
