@@ -247,8 +247,8 @@ class Office_Bearers(Database_Handler):
             )
             self.postData(
                 table=self.getTableName(),
-                columns="identifier, CompanyDetail, position, name, address, date_appointment, CompanyDetail",
-                values="%s, %s, %s, %s, %s, %s, %s",
+                columns="identifier, CompanyDetail, position, name, address, date_appointment",
+                values="%s, %s, %s, %s, %s, %s",
                 parameters=parameters # type: ignore
             )
             response = self.created
