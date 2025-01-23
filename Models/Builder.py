@@ -48,6 +48,7 @@ from Models.Objections import Objections
 from Models.Details import Details
 from Models.Charges import Charges
 from Data.OfficeBearers import OfficeBearer
+from Data.Shareholders import Shareholder
 import os
 
 
@@ -221,6 +222,10 @@ class Builder:
     """
     The Data Transfer Object for the Office Bearer.
     """
+    __shareholder_data: List[Shareholder]
+    """
+    The Data Transfer Object for the Office Bearer.
+    """
 
     def __init__(self) -> None:
         """
@@ -255,6 +260,12 @@ class Builder:
         self.setDetails(Details())
         self.setCharges(Charges())
         self.getLogger().inform("The builder has been initialized and all of its dependencies are injected!")
+
+    def getShareholderData(self) -> List[Shareholder]:
+        return self.__shareholder_data
+
+    def setShareholderData(self, shareholder_data: List[Shareholder]) -> None:
+        self.__shareholder_data = shareholder_data
 
     def getOfficeBearerData(self) -> List[OfficeBearer]:
         return self.__office_bearer_data
@@ -3157,3 +3168,54 @@ class Builder:
             filtered_data[index].address = address
         self.getLogger().inform(f"Office Bearer: Address: Curating and sanitizing the address into the form needed.\nFiltered Data: {len(filtered_data)}")
         self.setOfficeBearerData(filtered_data)
+
+    def curateShareholders(self) -> None:
+        """
+        Curating the data that is in the Shareholders table.  Curating and sanitizing the type of the shares.
+
+        Returns:
+            void
+        """
+        no_content: int = 204
+        accepted: int = 202
+        created: int = 201
+        quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
+        current_time: int = int(time())
+        self.setShareholderData(self.getShareholders().get())
+        amount: int = len(self.getShareholderData())
+        self.curateShareholdersType()
+        amount_found: int = len(self.getShareholderData())
+        print(f"Amount: {amount}\nAmount Found: {amount_found}\nQuality: {(amount_found / amount) * 100} %")
+        # status: int = self.getOfficeBearers().delete()
+        # statuses: List[int] = list(set([self.getOfficeBearers().addCuratedDirectors(office_bearer) for office_bearer in self.getOfficeBearerData()])) if status == no_content else [status]
+        # status = accepted if len(statuses) == 1 and statuses[0] == created else statuses[0]
+        # log: Tuple[str, str, int, int, int, int, int] = ("curateOfficeBearer", quarter.quarter, current_time, current_time, status, amount, amount_found)
+        # self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(log) # type: ignore
+
+    def curateShareholdersType(self) -> None:
+        """
+        Curating and sanitizing the type of the shares.
+
+        Returns:
+            void
+        """
+        ordinary: List[Shareholder] = [shareholder for shareholder in self.getShareholderData() if "ordinary" in shareholder.type_shares.lower()]
+        remaining_data: List[Shareholder] = [shareholder for shareholder in self.getShareholderData() if shareholder not in ordinary]
+        social_part: List[Shareholder] = [shareholder for shareholder in remaining_data if shareholder.type_shares.lower() == "part sociale" or shareholder.type_shares.lower() == "part d'interet"]
+        remaining_data = [shareholder for shareholder in remaining_data if shareholder not in social_part]
+        class_d: List[Shareholder] = [shareholder for shareholder in remaining_data if "class d" in shareholder.type_shares.lower()]
+        remaining_data = [shareholder for shareholder in remaining_data if shareholder not in class_d]
+        ordinary = ordinary + remaining_data
+        for index in range(0, len(ordinary), 1):
+            type: str = "Ordinary"
+            ordinary[index].type_shares = type
+        self.getLogger().inform(f"Shareholders: Type: Curating and sanitizing the type of the shares for Ordinary Shares.\nAmount: {len(ordinary)}")
+        for index in range(0, len(social_part), 1):
+            type: str = "Part Sociale"
+            social_part[index].type_shares = type
+        self.getLogger().inform(f"Shareholders: Type: Curating and sanitizing the type of the shares for Part Sociale.\nAmount: {len(social_part)}")
+        for index in range(0, len(class_d), 1):
+            type: str = "Class D"
+            class_d[index].type_shares = type
+        self.getLogger().inform(f"Shareholders: Type: Curating and sanitizing the type of the shares for Class D Shares.\nAmount: {len(class_d)}")
+        self.setShareholderData(ordinary + social_part + class_d)
