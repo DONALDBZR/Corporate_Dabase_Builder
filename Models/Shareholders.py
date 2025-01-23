@@ -151,7 +151,7 @@ class Shareholders(Database_Handler):
             response = dataset["response"] # type: ignore
             self.getLogger().inform(f"The data from the {self.getTableName()} table has been successfully retrieved.\nStatus: {dataset['status']}\nData: {dataset['response']}")
         except Error as error:
-            status = 503
+            status = self.service_unavailable
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {status}\nError: {error}")
         return response
 
