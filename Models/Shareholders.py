@@ -18,6 +18,22 @@ class Shareholders(Database_Handler):
     """
     The table which the model is linked to.
     """
+    service_unavailable: int = 503
+    """
+    The status code for service unavailable
+    """
+    created: int = 201
+    """
+    The status code for a success creation
+    """
+    ok: int = 200
+    """
+    The status code for a success read
+    """
+    no_content: int = 204
+    """
+    The status code for no content.
+    """
 
     def __init__(self) -> None:
         """
@@ -61,9 +77,9 @@ class Shareholders(Database_Handler):
                 values="%s, %s, %s, %s, %s",
                 parameters=parameters # type: ignore
             )
-            response = 201
+            response = self.created
         except Error as error:
-            response = 503
+            response = self.service_unavailable
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {response}\nError: {error}")
         return response
 
