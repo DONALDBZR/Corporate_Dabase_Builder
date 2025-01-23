@@ -1,16 +1,12 @@
 """
 The Model which will interact exclusively with the
 Shareholders table.
-
-Authors:
-    Andy Ewen Gaspard
 """
-
-
 from Models.DatabaseHandler import Database_Handler
 from typing import Union, Dict, Tuple, List
 from mysql.connector.errors import Error
 from mysql.connector.types import RowType
+from Data.Shareholders import Shareholder
 
 
 class Shareholders(Database_Handler):
