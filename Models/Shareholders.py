@@ -235,3 +235,36 @@ class Shareholders(Database_Handler):
         except Error as error:
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {self.service_unavailable}\nError: {error}")
             return self.service_unavailable
+
+    def addCuratedShareholder(self, data: Shareholder) -> int:
+        """
+        Adding the shareholder data of the company into the
+        relational database server.
+
+        Parameters:
+            data: {identifier: int, CompanyDetail: int, name: string, amount_shares: int, type_shares: string, currency: string}: The data that has been extracted for the office bearers table.
+
+        Returns:
+            int
+        """
+        response: int
+        try:
+            parameters: Tuple[int, int, str, int, str, str] = (
+                data.identifier,
+                data.CompanyDetail,
+                data.name,
+                data.amount_shares,
+                data.type_shares,
+                data.currency
+            )
+            self.postData(
+                table=self.getTableName(),
+                columns="identifier, CompanyDetail, name, amount_shares, type_shares, currency",
+                values="%s, %s, %s, %s, %s, %s",
+                parameters=parameters # type: ignore
+            )
+            response = self.created
+        except Error as error:
+            response = self.service_unavailable
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {response}\nError: {error}")
+        return response
