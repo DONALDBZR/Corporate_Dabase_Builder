@@ -3308,7 +3308,7 @@ class Builder:
 
     def curateMembers(self) -> None:
         """
-        Curating the data that is in the Members table.  Curating the currency in the members table.  Curating and sanitizing the names of the members.
+        Curating the data that is in the Members table.  Curating the currency in the members table.  Curating and sanitizing the names of the members. Curating the amount of the shares of the members and filtering based on them.
 
         Returns:
             void
@@ -3322,6 +3322,7 @@ class Builder:
         amount: int = len(self.getMemberData())
         self.curateMembersCurrencies()
         self.curateMembersNames()
+        self.curateMembersAmount()
         amount_found: int = len(self.getMemberData())
         amounts: List[int] = list(set([member.amount for member in self.getMemberData()]))
         print(f"Amount: {amount}\nAmount Found: {amount_found}\nQuality: {(amount_found / amount) * 100}\nAmounts: {amounts}")
@@ -3396,4 +3397,16 @@ class Builder:
             name: str = filtered_data[index].name.title().replace("ltd", "LTD").replace("Ltd", "LTD")
             filtered_data[index].name = name
         self.getLogger().inform(f"Members: Name: Curating and sanitizing the name of the members.\nAmount: {len(filtered_data)}")
+        self.setMemberData(filtered_data)
+
+    def curateMembersAmount(self) -> None:
+        """
+        Curating the amount of the shares of the members and
+        filtering based on them.
+
+        Returns:
+            None
+        """
+        filtered_data: List[Member] = [member for member in self.getMemberData() if member.amount > 0]
+        self.getLogger().inform(f"Members: Amount: Curating and sanitizing the amount of the shares of the members.\nAmount: {len(filtered_data)}")
         self.setMemberData(filtered_data)
