@@ -141,3 +141,36 @@ class Member(Database_Handler):
         except Error as error:
             self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {self.service_unavailable}\nError: {error}")
             return self.service_unavailable
+
+    def addCuratedMember(self, data: Member_Data) -> int:
+        """
+        Adding the member data of the company into the relational
+        database server.
+
+        Parameters:
+            data: {identifier: int, CompanyDetail: int, name: string, amount: int, date_start: int, currency: string}: The data that has been extracted for the members table.
+
+        Returns:
+            int
+        """
+        response: int
+        try:
+            parameters: Tuple[int, int, str, int, int, str] = (
+                data.identifier,
+                data.CompanyDetail,
+                data.name,
+                data.amount,
+                data.date_start,
+                data.currency
+            )
+            self.postData(
+                table=self.getTableName(),
+                columns="identifier, CompanyDetail, name, amount, date_start, currency",
+                values="%s, %s, %s, %s, %s, %s",
+                parameters=parameters # type: ignore
+            )
+            response = self.created
+        except Error as error:
+            response = self.service_unavailable
+            self.getLogger().error(f"An error occurred in {self.getTableName()}\nStatus: {response}\nError: {error}")
+        return response
