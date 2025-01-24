@@ -3308,7 +3308,7 @@ class Builder:
 
     def curateMembers(self) -> None:
         """
-        Curating the data that is in the Members table.  Curating the currency in the members table.
+        Curating the data that is in the Members table.  Curating the currency in the members table.  Curating and sanitizing the names of the members.
 
         Returns:
             void
@@ -3321,9 +3321,10 @@ class Builder:
         self.setMemberData(self.getMembers().get())
         amount: int = len(self.getMemberData())
         self.curateMembersCurrencies()
+        self.curateMembersNames()
         amount_found: int = len(self.getMemberData())
-        currencies: List[str] = list(set([member.currency for member in self.getMemberData()]))
-        print(f"Amount: {amount}\nAmount Found: {amount_found}\nQuality: {(amount_found / amount) * 100}\nCurrencies: {currencies}")
+        amounts: List[int] = list(set([member.amount for member in self.getMemberData()]))
+        print(f"Amount: {amount}\nAmount Found: {amount_found}\nQuality: {(amount_found / amount) * 100}\nAmounts: {amounts}")
         # dataset: List[Member] = [member for member in self.getMemberData()]
         # for index in range(0, len(dataset), 1):
         #     identifier: int = index + 1
@@ -3357,3 +3358,42 @@ class Builder:
             us_dollar[index].currency = currency
         self.getLogger().inform(f"Members: Currency: Curating and sanitizing the currency of the members for American Dollar.\nAmount: {len(us_dollar)}")
         self.setMemberData(mauritian_rupee + us_dollar)
+
+    def curateMembersNames(self) -> None:
+        """
+        Curating and sanitizing the names of the members.
+
+        Returns:
+            None
+        """
+        filtered_data: List[Member] = [member for member in self.getMemberData() if "service address" not in member.name.lower()]
+        filtered_data = [member for member in filtered_data if "street" not in member.name.lower()]
+        filtered_data = [member for member in filtered_data if "lane" not in member.name.lower()]
+        filtered_data = [member for member in filtered_data if "morcellement" not in member.name.lower()]
+        filtered_data = [member for member in filtered_data if "port louis" not in member.name.lower()]
+        filtered_data = [member for member in filtered_data if "mauritius rupee" not in member.name.lower()]
+        filtered_data = [member for member in filtered_data if "avenue" not in member.name.lower()]
+        filtered_data = [member for member in filtered_data if "quatre bornes" not in member.name.lower()]
+        filtered_data = [member for member in filtered_data if member.name.lower() != "mauritius"]
+        filtered_data = [member for member in filtered_data if "vacoas" not in member.name.lower()]
+        filtered_data = [member for member in filtered_data if "office bearers" not in member.name.lower()]
+        filtered_data = [member for member in filtered_data if "position" not in member.name.lower()]
+        filtered_data = [member for member in filtered_data if "gerant" not in member.name.lower()]
+        filtered_data = [member for member in filtered_data if "date issued" not in member.name.lower()]
+        filtered_data = [member for member in filtered_data if "road" not in member.name.lower()]
+        filtered_data = [member for member in filtered_data if "," not in member.name.lower()]
+        filtered_data = [member for member in filtered_data if "part" not in member.name.lower()]
+        filtered_data = [member for member in filtered_data if "d'interet" not in member.name.lower()]
+        filtered_data = [member for member in filtered_data if "louis mauritius" not in member.name.lower()]
+        filtered_data = [member for member in filtered_data if " rd " not in member.name.lower()]
+        filtered_data = [member for member in filtered_data if "floor" not in member.name.lower()]
+        filtered_data = [member for member in filtered_data if "goodlands" not in member.name.lower()]
+        filtered_data = [member for member in filtered_data if "nhdc" not in member.name.lower()]
+        filtered_data = [member for member in filtered_data if "mahebourg" not in member.name.lower()]
+        filtered_data = [member for member in filtered_data if "rue" not in member.name.lower()]
+        filtered_data = [member for member in filtered_data if " morc " not in member.name.lower()]
+        for index in range(0, len(filtered_data), 1):
+            name: str = filtered_data[index].name.title().replace("ltd", "LTD").replace("Ltd", "LTD")
+            filtered_data[index].name = name
+        self.getLogger().inform(f"Members: Name: Curating and sanitizing the name of the members.\nAmount: {len(filtered_data)}")
+        self.setMemberData(filtered_data)
