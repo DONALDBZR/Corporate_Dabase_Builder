@@ -23,7 +23,7 @@ from Models.BusinessDetails import Business_Details
 from Models.StateCapital import State_Capital
 from Models.OfficeBearers import Office_Bearers
 from Models.Shareholders import Shareholders
-from Models.Members import Member
+from Models.Members import Member as Member_Model
 from datetime import datetime, timedelta
 from Environment import Environment
 from typing import List, Tuple, Union, Dict
@@ -49,6 +49,7 @@ from Models.Details import Details
 from Models.Charges import Charges
 from Data.OfficeBearers import OfficeBearer
 from Data.Shareholders import Shareholder
+from Data.Members import Member
 import os
 
 
@@ -127,7 +128,7 @@ class Builder:
     The model which will interact exclusively with the
     Shareholders.
     """
-    __members: Member
+    __members: Member_Model
     """
     The model which will interact exclusively with the Members.
     """
@@ -224,7 +225,11 @@ class Builder:
     """
     __shareholder_data: List[Shareholder]
     """
-    The Data Transfer Object for the Office Bearer.
+    The Data Transfer Object for the Shareholder.
+    """
+    __member_data: List[Member]
+    """
+    The data of the Members table.
     """
 
     def __init__(self) -> None:
@@ -244,7 +249,7 @@ class Builder:
         self.setStateCapital(State_Capital())
         self.setOfficeBearers(Office_Bearers())
         self.setShareholders(Shareholders())
-        self.setMembers(Member())
+        self.setMembers(Member_Model())
         self.setFinancialSummaries(Financial_Summaries())
         self.setProfitStatements(Profit_Statements())
         self.setBalanceSheets(Balance_Sheets())
@@ -260,6 +265,12 @@ class Builder:
         self.setDetails(Details())
         self.setCharges(Charges())
         self.getLogger().inform("The builder has been initialized and all of its dependencies are injected!")
+
+    def getMemberData(self) -> List[Member]:
+        return self.__member_data
+
+    def setMemberData(self, member_data: List[Member]) -> None:
+        self.__member_data = member_data
 
     def getShareholderData(self) -> List[Shareholder]:
         return self.__shareholder_data
@@ -453,10 +464,10 @@ class Builder:
     def setShareholders(self, shareholders: Shareholders) -> None:
         self.__shareholders = shareholders
 
-    def getMembers(self) -> Member:
+    def getMembers(self) -> Member_Model:
         return self.__members
 
-    def setMembers(self, members: Member) -> None:
+    def setMembers(self, members: Member_Model) -> None:
         self.__members = members
 
     def getMailer(self) -> Mail:
@@ -3294,3 +3305,55 @@ class Builder:
             filtered_data[index].name = name
         self.getLogger().inform(f"Shareholders: Name: Curating and sanitizing the name of the shareholders.\nAmount: {len(filtered_data)}")
         self.setShareholderData(filtered_data)
+
+    def curateMembers(self) -> None:
+        """
+        Curating the data that is in the Members table.  Curating the currency in the members table.
+
+        Returns:
+            void
+        """
+        no_content: int = 204
+        accepted: int = 202
+        created: int = 201
+        quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
+        current_time: int = int(time())
+        self.setMemberData(self.getMembers().get())
+        amount: int = len(self.getMemberData())
+        self.curateMembersCurrencies()
+        amount_found: int = len(self.getMemberData())
+        currencies: List[str] = list(set([member.currency for member in self.getMemberData()]))
+        print(f"Amount: {amount}\nAmount Found: {amount_found}\nQuality: {(amount_found / amount) * 100}\nCurrencies: {currencies}")
+        # dataset: List[Member] = [member for member in self.getMemberData()]
+        # for index in range(0, len(dataset), 1):
+        #     identifier: int = index + 1
+        #     dataset[index].identifier = identifier
+        # self.setMemberData(dataset)
+        # amount_found: int = len(self.getShareholderData())
+        # status: int = self.getShareholders().delete()
+        # statuses: List[int] = list(set([self.getShareholders().addCuratedShareholder(shareholder) for shareholder in self.getShareholderData()])) if status == no_content else [status]
+        # status = accepted if len(statuses) == 1 and statuses[0] == created else statuses[0]
+        # log: Tuple[str, str, int, int, int, int, int] = ("curateShareholders", quarter.quarter, current_time, current_time, status, amount, amount_found)
+        # self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(log) # type: ignore
+
+    def curateMembersCurrencies(self) -> None:
+        """
+        Curating the currency in the members table.
+
+        Returns:
+            None
+        """
+        mauritian_rupee: List[Member] = [member for member in self.getMemberData() if "mauritius rupee" in member.currency.lower()]
+        remaining_data: List[Member] = [member for member in self.getMemberData() if member not in mauritian_rupee]
+        us_dollar: List[Member] = [member for member in remaining_data if "us dollar" in member.currency.lower()]
+        remaining_data = [member for member in remaining_data if member not in us_dollar]
+        mauritian_rupee = mauritian_rupee + remaining_data
+        for index in range(0, len(mauritian_rupee), 1):
+            currency: str = "Mauritius Rupee"
+            mauritian_rupee[index].currency = currency
+        self.getLogger().inform(f"Members: Currency: Curating and sanitizing the currency of the members for Mauritian Rupee.\nAmount: {len(mauritian_rupee)}")
+        for index in range(0, len(us_dollar), 1):
+            currency: str = "Mauritius Rupee"
+            us_dollar[index].currency = currency
+        self.getLogger().inform(f"Members: Currency: Curating and sanitizing the currency of the members for American Dollar.\nAmount: {len(us_dollar)}")
+        self.setMemberData(mauritian_rupee + us_dollar)
