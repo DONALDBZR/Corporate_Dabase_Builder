@@ -3308,7 +3308,10 @@ class Builder:
 
     def curateMembers(self) -> None:
         """
-        Curating the data that is in the Members table.  Curating the currency in the members table.  Curating and sanitizing the names of the members. Curating the amount of the shares of the members and filtering based on them.
+        Curating the data that is in the Members table.  Curating
+        the currency in the members table.  Curating and sanitizing
+        the names of the members. Curating the amount of the shares
+        of the members and filtering based on them.
 
         Returns:
             void
@@ -3323,20 +3326,17 @@ class Builder:
         self.curateMembersCurrencies()
         self.curateMembersNames()
         self.curateMembersAmount()
+        dataset: List[Member] = [member for member in self.getMemberData()]
+        for index in range(0, len(dataset), 1):
+            identifier: int = index + 1
+            dataset[index].identifier = identifier
+        self.setMemberData(dataset)
         amount_found: int = len(self.getMemberData())
-        amounts: List[int] = list(set([member.amount for member in self.getMemberData()]))
-        print(f"Amount: {amount}\nAmount Found: {amount_found}\nQuality: {(amount_found / amount) * 100}\nAmounts: {amounts}")
-        # dataset: List[Member] = [member for member in self.getMemberData()]
-        # for index in range(0, len(dataset), 1):
-        #     identifier: int = index + 1
-        #     dataset[index].identifier = identifier
-        # self.setMemberData(dataset)
-        # amount_found: int = len(self.getShareholderData())
-        # status: int = self.getShareholders().delete()
-        # statuses: List[int] = list(set([self.getShareholders().addCuratedShareholder(shareholder) for shareholder in self.getShareholderData()])) if status == no_content else [status]
-        # status = accepted if len(statuses) == 1 and statuses[0] == created else statuses[0]
-        # log: Tuple[str, str, int, int, int, int, int] = ("curateShareholders", quarter.quarter, current_time, current_time, status, amount, amount_found)
-        # self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(log) # type: ignore
+        status: int = self.getMembers().delete()
+        statuses: List[int] = list(set([self.getMembers().addCuratedMember(member) for member in self.getMemberData()])) if status == no_content else [status]
+        status = accepted if len(statuses) == 1 and statuses[0] == created else statuses[0]
+        log: Tuple[str, str, int, int, int, int, int] = ("curateMembers", quarter.quarter, current_time, current_time, status, amount, amount_found)
+        self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(log) # type: ignore
 
     def curateMembersCurrencies(self) -> None:
         """
