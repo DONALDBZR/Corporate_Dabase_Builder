@@ -2147,7 +2147,7 @@ class Document_Reader:
             [string]
         """
         response: List[str] = []
-        dates_appointed: List[str] = [date_appointed for date_appointed in result_set if bool(search(r"[\d]+", date_appointed)) == True and "/" in date_appointed]
+        dates_appointed: List[str] = [date_appointed for date_appointed in result_set if bool(search(r"[\d]+", date_appointed)) == True and "/" in date_appointed and bool(search(r"[A-z]+", date_appointed)) == False]
         for index in range(0, len(dates_appointed), 1):
             dates: List[str] = dates_appointed[index].split(" ")
             date: str = [date for date in dates if bool(search(r"[0-9]", date)) == True and "/" in date][0] if len(dates) > 1 else dates_appointed[index]
