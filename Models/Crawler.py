@@ -596,7 +596,23 @@ class Crawler:
         Returns:
             {status: int, CompanyDetails: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}, DocumentFiles: bytes | null}
         """
-        if len(self.getHtmlTags()) > 1:
+        if len(self.getHtmlTags()) <= 1:
+            return {
+                "status": 404,
+                "CompanyDetails": {
+                    "identifier": company_detail.identifier,
+                    "business_registration_number": company_detail.business_registration_number,
+                    "name": company_detail.name,
+                    "file_number": company_detail.file_number,
+                    "category": company_detail.category,
+                    "date_incorporation": company_detail.date_incorporation,
+                    "nature": company_detail.nature,
+                    "status": company_detail.status,
+                    "date_verified": company_detail.date_verified
+                },
+                "DocumentFiles": None
+            }
+        try:
             buttons_cell: WebElement = self.getHtmlTags()[7].find_element(By.TAG_NAME, "div")
             print_button: WebElement = buttons_cell.find_elements(By.TAG_NAME, "fa-icon")[1]
             self.__moveMouse(print_button)
@@ -605,11 +621,29 @@ class Crawler:
             sleep(delay)
             self.getDriver().switch_to.window(self.getDriver().window_handles[-1])
             sleep(delay)
-            file_downloader_response = self.downloadFile()
+            file_downloader_response: Dict[str, Union[int, bytes, None]] = self.downloadFile()
             return self.handleDocumentFileFoundIndividualRecord(file_downloader_response, company_detail) # type: ignore
-        else:
+        except (ElementClickInterceptedException, TimeoutError) as error:
+            self.getLogger().error(f"An error occurred while clicking on the print button: {error}")
             return {
-                "status": 404,
+                "status": 403,
+                "CompanyDetails": {
+                    "identifier": company_detail.identifier,
+                    "business_registration_number": company_detail.business_registration_number,
+                    "name": company_detail.name,
+                    "file_number": company_detail.file_number,
+                    "category": company_detail.category,
+                    "date_incorporation": company_detail.date_incorporation,
+                    "nature": company_detail.nature,
+                    "status": company_detail.status,
+                    "date_verified": company_detail.date_verified
+                },
+                "DocumentFiles": None
+            }
+        except IndexError as error:
+            self.getLogger().error(f"An error occurred while finding the print button: {error}")
+            return {
+                "status": 401,
                 "CompanyDetails": {
                     "identifier": company_detail.identifier,
                     "business_registration_number": company_detail.business_registration_number,
