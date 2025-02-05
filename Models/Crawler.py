@@ -597,22 +597,14 @@ class Crawler:
             {status: int, CompanyDetails: {identifier: int, business_registration_number: string, name: string, file_number: string, category: string, date_incorporation: int, nature: string, status: string, date_verified: int}, DocumentFiles: bytes | null}
         """
         if len(self.getHtmlTags()) > 1:
-            buttons_cell: WebElement = self.getHtmlTags()[7].find_element(
-                By.TAG_NAME,
-                "div"
-            )
-            print_button: WebElement = buttons_cell.find_elements(
-                By.TAG_NAME,
-                "fa-icon"
-            )[1]
+            buttons_cell: WebElement = self.getHtmlTags()[7].find_element(By.TAG_NAME, "div")
+            print_button: WebElement = buttons_cell.find_elements(By.TAG_NAME, "fa-icon")[1]
             self.__moveMouse(print_button)
-            time.sleep(delay)
+            sleep(delay)
             print_button.click()
-            time.sleep(delay)
-            self.getDriver().switch_to.window(
-                self.getDriver().window_handles[-1]
-            )
-            time.sleep(delay)
+            sleep(delay)
+            self.getDriver().switch_to.window(self.getDriver().window_handles[-1])
+            sleep(delay)
             file_downloader_response = self.downloadFile()
             return self.handleDocumentFileFoundIndividualRecord(file_downloader_response, company_detail) # type: ignore
         else:
