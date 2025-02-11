@@ -1878,6 +1878,8 @@ class Builder:
             void
         """
         status: int
+        recipient: str = "andygaspard@hotmail.com"
+        subject: str = "Corporate Registry Downloaded"
         quarter: FinancialCalendar = self.getFinancialCalendar().getCurrentQuarter()  # type: ignore
         successful_logs: List[FinCorpLogs] = self.getFinCorpLogs().getSuccessfulRunsLogs("downloadCorporateFile")
         date: str = self._getDateDownloadCorporateFile(successful_logs, quarter)
@@ -1902,6 +1904,9 @@ class Builder:
             status = 409
         logs: Tuple[str, str, int, int, int, int, int] = ("downloadCorporateFile", quarter.quarter, int(datetime.strptime(date, "%Y-%m-%d").timestamp()), int(datetime.strptime(date, "%Y-%m-%d").timestamp()), status, amount, amount_found)
         self.getFinCorpLogs().postSuccessfulCorporateDataCollectionRun(logs) # type: ignore
+        message: str = f"The process execution returns {status}.  On {amount} corporate registries, {amount_found} have been downloaded!"
+        self.setMailer(Mail())
+        self.getMailer().send(recipient, subject, message)
 
     def collectCorporateMetadata(self) -> None:
         """
