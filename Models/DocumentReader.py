@@ -4131,7 +4131,7 @@ class Document_Reader:
         result_set = [value for value in result_set if file_number not in value]
         name: str = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True][0]
         result_set = [value for value in result_set if name not in value]
-        category: str = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == False and "Limited By".upper() not in value][0]
+        category: str = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == False and "Limited By".upper() not in value][0] if len([value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == False and "Limited By".upper() not in value]) > 0 else "Domestic"
         result_set = [value for value in result_set if category not in value]
         date_incorporation: int = int(datetime.strptime([value for value in result_set if bool(search(r"[\d]", value)) == True and "/" in value][0], "%d/%m/%Y").timestamp())
         nature: str = [value for value in result_set if bool(search(r"[A-Z]+", value)) == True and bool(search(r"[a-z]+", value)) == True and "Live" not in value and "Defunct" not in value][0]
