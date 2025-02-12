@@ -2378,6 +2378,8 @@ class Document_Reader:
         result_set = [value for value in result_set if "/" not in value]
         result_set = [value for value in result_set if bool(search(r"[\d]+", value)) == True]
         result_set = [value for value in result_set if bool(search(r"[a-z]+", value)) == True]
+        result_set = [value for value in result_set if "Page" not in value]
+        result_set = [value for value in result_set if "of" not in value]
         response: List[int] = [int(value.split(" ")[0]) for value in result_set if bool(search(r"[\d]+", value)) == True]
         return response
 
