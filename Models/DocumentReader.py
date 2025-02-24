@@ -149,7 +149,7 @@ class Document_Reader:
             return self.extractDataGlobalBusinessCompany(status, dataset)
         if company_detail.category.upper() == "FOREIGN(DOM BRANCH)":
             return self.extractDataForeignDomestic(status, dataset)
-        if company_detail.category == None or company_detail.category == "None":
+        if company_detail.category == None or company_detail.category == "None" or "mauritius" in company_detail.category.lower():
             return None
         self.getLogger().error(f"The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractData()\nCategory: {company_detail.category}")
         exit()
