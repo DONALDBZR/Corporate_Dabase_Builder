@@ -981,8 +981,8 @@ class Document_Reader:
             "name": result_set[1].title(),
             "category": result_set[3].title(),
             "date_incorporation": int(datetime.strptime(date_of_incorporation, "%d/%m/%Y").timestamp()),
-            "nature": result_set[5].title(),
-            "status": result_set[6].title(),
+            "nature": result_set[5].title() if len(result_set) == 7 else "",
+            "status": result_set[6].title() if len(result_set) == 7 else "",
         }
         return response
 
