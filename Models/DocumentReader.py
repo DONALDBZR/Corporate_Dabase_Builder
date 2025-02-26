@@ -1356,50 +1356,57 @@ class Document_Reader:
             return {
                 "status": extraction_status
             }
-        portable_document_file_data: str = extract_text(file_name)
-        cache_file = open(cache_data_file_name, "w")
-        portable_document_file_data_result_set: List[str] = list(filter(None, portable_document_file_data.split("\n")))
-        company_details: Dict[str, Union[str, int]] = self.extractCompanyDetails(portable_document_file_data_result_set)
-        business_details: List[Dict[str, str]] = self.extractDataDomesticPublicBusinessDetails(portable_document_file_data_result_set)
-        certificates: List[Dict[str, Union[str, int]]] = self.extractCertificates(portable_document_file_data_result_set)
-        office_bearers: List[Dict[str, Union[str, int]]] = self.extractOfficeBearers(portable_document_file_data_result_set)
-        shareholders: List[Dict[str, Union[str, int]]] = self.extractDataDomesticPublicShareholder(portable_document_file_data_result_set)
-        members: List[Dict[str, Union[str, int]]] = self.extractMembers(portable_document_file_data_result_set)
-        annual_return: List[Dict[str, int]] = self.extractAnnualReturns(portable_document_file_data_result_set)
-        financial_summaries: List[Dict[str, Union[int, str]]] = self.extractFinancialSummaries(portable_document_file_data_result_set)
-        profit_statement: Dict[str, Union[Dict[str, Union[int, str]], float]] = self.extractProfitStatements(portable_document_file_data_result_set)
-        state_capital: List[Dict[str, Union[str, int, float]]] = self.extractStateCapital(portable_document_file_data_result_set)
-        balance_sheet: Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]] = self.extractBalanceSheet(portable_document_file_data_result_set)
-        charges: List[Dict[str, Union[int, str]]] = self.extractCharges(portable_document_file_data_result_set)
-        liquidators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractLiquidators(portable_document_file_data_result_set)
-        receivers: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractReceivers(portable_document_file_data_result_set)
-        administrators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractAdministrators(portable_document_file_data_result_set)
-        details: List[Dict[str, Union[str, int, None]]] = self.extractDetails(portable_document_file_data_result_set)
-        objections: List[Dict[str, Union[int, str]]] = self.extractObjections(portable_document_file_data_result_set)
-        response = {
-            "status": 200,
-            "company_details": company_details,
-            "business_details": business_details,
-            "certificates": certificates,
-            "office_bearers": office_bearers,
-            "shareholders": shareholders,
-            "members": members,
-            "annual_return": annual_return,
-            "financial_summaries": financial_summaries,
-            "profit_statement": profit_statement,
-            "state_capital": state_capital, # type: ignore
-            "balance_sheet": balance_sheet,
-            "charges": charges,
-            "liquidators": liquidators,
-            "receivers": receivers,
-            "administrators": administrators,
-            "details": details,
-            "objections": objections
-        }
-        cache_file.write(dumps(response, indent=4))
-        cache_file.close()
-        self.getLogger().inform(f"Data has been extracted from the portable document file version of the corporate registry.\nStatus: {response['status']}\nDocument File Identifier: {dataset.identifier}\nFile Location: {file_name}\nCompany Details Identifier: {dataset.company_detail}")
-        return response
+        try:
+            portable_document_file_data: str = extract_text(file_name)
+            cache_file = open(cache_data_file_name, "w")
+            portable_document_file_data_result_set: List[str] = list(filter(None, portable_document_file_data.split("\n")))
+            company_details: Dict[str, Union[str, int]] = self.extractCompanyDetails(portable_document_file_data_result_set)
+            business_details: List[Dict[str, str]] = self.extractDataDomesticPublicBusinessDetails(portable_document_file_data_result_set)
+            certificates: List[Dict[str, Union[str, int]]] = self.extractCertificates(portable_document_file_data_result_set)
+            office_bearers: List[Dict[str, Union[str, int]]] = self.extractOfficeBearers(portable_document_file_data_result_set)
+            shareholders: List[Dict[str, Union[str, int]]] = self.extractDataDomesticPublicShareholder(portable_document_file_data_result_set)
+            members: List[Dict[str, Union[str, int]]] = self.extractMembers(portable_document_file_data_result_set)
+            annual_return: List[Dict[str, int]] = self.extractAnnualReturns(portable_document_file_data_result_set)
+            financial_summaries: List[Dict[str, Union[int, str]]] = self.extractFinancialSummaries(portable_document_file_data_result_set)
+            profit_statement: Dict[str, Union[Dict[str, Union[int, str]], float]] = self.extractProfitStatements(portable_document_file_data_result_set)
+            state_capital: List[Dict[str, Union[str, int, float]]] = self.extractStateCapital(portable_document_file_data_result_set)
+            balance_sheet: Dict[str, Union[Dict[str, Union[int, str]], Dict[str, Union[Dict[str, float], float]]]] = self.extractBalanceSheet(portable_document_file_data_result_set)
+            charges: List[Dict[str, Union[int, str]]] = self.extractCharges(portable_document_file_data_result_set)
+            liquidators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractLiquidators(portable_document_file_data_result_set)
+            receivers: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractReceivers(portable_document_file_data_result_set)
+            administrators: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = self.extractAdministrators(portable_document_file_data_result_set)
+            details: List[Dict[str, Union[str, int, None]]] = self.extractDetails(portable_document_file_data_result_set)
+            objections: List[Dict[str, Union[int, str]]] = self.extractObjections(portable_document_file_data_result_set)
+            response = {
+                "status": 200,
+                "company_details": company_details,
+                "business_details": business_details,
+                "certificates": certificates,
+                "office_bearers": office_bearers,
+                "shareholders": shareholders,
+                "members": members,
+                "annual_return": annual_return,
+                "financial_summaries": financial_summaries,
+                "profit_statement": profit_statement,
+                "state_capital": state_capital, # type: ignore
+                "balance_sheet": balance_sheet,
+                "charges": charges,
+                "liquidators": liquidators,
+                "receivers": receivers,
+                "administrators": administrators,
+                "details": details,
+                "objections": objections
+            }
+            cache_file.write(dumps(response, indent=4))
+            cache_file.close()
+            self.getLogger().inform(f"Data has been extracted from the portable document file version of the corporate registry.\nStatus: {response['status']}\nDocument File Identifier: {dataset.identifier}\nFile Location: {file_name}\nCompany Details Identifier: {dataset.company_detail}")
+            return response
+        except PDFSyntaxError as error:
+            extraction_status = 400
+            self.getLogger().error(f"There is an error in the portable document file.\nStatus: {extraction_status}\nDocument File Identifier: {dataset.identifier}\nCompany Detail Identifier: {dataset.company_detail}\nError: {error}")
+            return {
+                "status": extraction_status
+            }
 
     def extractDataDomesticPublicShareholder(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[str, int]]]:
         """
