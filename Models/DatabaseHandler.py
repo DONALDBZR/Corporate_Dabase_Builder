@@ -353,8 +353,14 @@ class Database_Handler:
         self.getLogger().inform(
             f"Query built for updating data!\nQuery: {self.getQuery()}\nParameters: {self.getParameters()}"
         )
-        self._query(self.getQuery(), self.getParameters())
-        self._execute()
+        try:
+            self.__getDatabaseHandler().start_transaction()
+            self._query(self.getQuery(), self.getParameters())
+            self._execute()
+            self.__getDatabaseHandler().commit()
+        except Error as error:
+            self.__getDatabaseHandler().rollback()
+            self.getLogger().error(f"Update failed! Rolling back transaction.\nError: {error}")
 
     def deleteData(self, table: str, parameters: Union[Tuple[Any], None], condition: str = "") -> None:
         """
