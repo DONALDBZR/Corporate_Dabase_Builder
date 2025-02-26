@@ -381,5 +381,11 @@ class Database_Handler:
         self.getLogger().inform(
             f"Query built for removing data!\nQuery: {self.getQuery()}\nParameters: {self.getParameters()}"
         )
-        self._query(self.getQuery(), self.getParameters())
-        self._execute()
+        try:
+            self.__getDatabaseHandler().start_transaction()
+            self._query(self.getQuery(), self.getParameters())
+            self._execute()
+            self.__getDatabaseHandler().commit()
+        except Error as error:
+            self.__getDatabaseHandler().rollback()
+            self.getLogger().error(f"Delete operation failed! Rolling back transaction.\nError: {error}")
