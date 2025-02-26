@@ -308,13 +308,15 @@ class Database_Handler:
             f"Query built for adding data!\nQuery: {self.getQuery()}\nParameters: {self.getParameters()}"
         )
         try:
-            self.__getDatabaseHandler().start_transaction()
+            self.__getDatabaseHandler().start_transaction() if not self.__getDatabaseHandler().in_transaction else print(f"Model: Database_Handler\nMethod: postData\nMessage: The application is already in a transaction.")
             self._query(self.getQuery(), self.getParameters())
             self._execute()
             self.__getDatabaseHandler().commit()
         except Error as error:
             self.__getDatabaseHandler().rollback()
             self.__handlePostDataError(error)
+        finally:
+            self.__getStatement().close() if self.__getStatement() else print(f"Model: Database_Handler\nMethod: postData\nMessage: The statement is already closed.")
 
     def __handlePostDataError(self, error: Error) -> None:
         """
