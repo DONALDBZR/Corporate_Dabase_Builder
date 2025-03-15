@@ -1,13 +1,10 @@
 """
-The module which will have the object-relational mapper of
-the application.
+This module provides the Database_Handler class, which is responsible for handling database operations such as retrieving, inserting, updating, and deleting data in a MySQL database.
 
 Authors:
-    Andy Ewen Gaspard
-    Solofonavalona Randriantsilavo
+    Darkness4869
+    Solofonavalona Randriansilavo
 """
-
-
 from mysql.connector.pooling import PooledMySQLConnection
 from mysql.connector.connection import MySQLConnection
 from mysql.connector.cursor import MySQLCursor
@@ -87,13 +84,11 @@ class Database_Handler:
                     password=self.__getPassword()
                 ) # type: ignore
             )
-            self.getLogger().inform(
-                "The application has been successfully connected to the database server!"
-            )
+            self.getLogger().inform("The application has been successfully connected to the database server!")
         except Error as error:
-            self.getLogger().error(
-                f"Connection Failed!\nError: {error}"
-            )
+            self.getLogger().error(f"Connection Failed!\nError: {error}")
+            self.close()
+            raise RuntimeError(error)
 
     def __getHost(self) -> str:
         return self.__host
@@ -167,9 +162,7 @@ class Database_Handler:
                 dictionary=True
             )
         )
-        self.getLogger().debug(
-            f"Query to be used as a request to the database server!\nQuery: {query}\nParameters: {parameters}"
-        )
+        self.getLogger().debug(f"Query to be used as a request to the database server!\nQuery: {query}\nParameters: {parameters}")
         self.__getStatement().execute(query, parameters)
 
     def _execute(self) -> None:
@@ -180,7 +173,14 @@ class Database_Handler:
         Returns:
             void
         """
-        self.__getDatabaseHandler().commit()
+        try:
+            self.__getDatabaseHandler().commit()
+            self.__getStatement().close()
+        except Error as error:
+            self.__getDatabaseHandler().rollback()
+            self.__getStatement().close()
+            self.getLogger().error(f"There is an error while committing transaction into the database.\nError: {error}")
+            raise RuntimeError(error)
 
     def _resultSet(self) -> List[RowType]:
         """
@@ -217,9 +217,7 @@ class Database_Handler:
         self._getFilter(filter_condition)
         self._getSort(sort_condition)
         self._getLimit(limit_condition)
-        self.getLogger().inform(
-            f"Query built for retrieving data!\nQuery: {self.getQuery()}\nParameters: {self.getParameters()}"
-        )
+        self.getLogger().inform(f"Query built for retrieving data!\nQuery: {self.getQuery()}\nParameters: {self.getParameters()}")
         self._query(self.getQuery(), self.getParameters())
         return self._resultSet()
 
@@ -304,36 +302,23 @@ class Database_Handler:
         query = f"INSERT INTO {table}({columns}) VALUES ({values})"
         self.setQuery(query)
         self.setParameters(parameters)
-        self.getLogger().inform(
-            f"Query built for adding data!\nQuery: {self.getQuery()}\nParameters: {self.getParameters()}"
-        )
-        try:
-            self.__getDatabaseHandler().start_transaction() if not self.__getDatabaseHandler().in_transaction else print(f"Model: Database_Handler\nMethod: postData\nMessage: The application is already in a transaction.")
-            self._query(self.getQuery(), self.getParameters())
-            self._execute()
-            self.__getDatabaseHandler().commit()
-        except Error as error:
-            self.__getDatabaseHandler().rollback()
-            self.__handlePostDataError(error)
-        finally:
-            self.__getStatement().close() if self.__getStatement() else print(f"Model: Database_Handler\nMethod: postData\nMessage: The statement is already closed.")
+        self.getLogger().inform(f"Query built for adding data!\nQuery: {self.getQuery()}\nParameters: {self.getParameters()}")
+        self.__startTransaction()
+        self._query(self.getQuery(), self.getParameters())
+        self._execute()
 
-    def __handlePostDataError(self, error: Error) -> None:
+    def __startTransaction(self) -> None:
         """
-        Handling any error that is generated on the relational
-        database server's level.
-
-        Parameters:
-            error: mysql.connector.Error: The error object of MySQL
+        Starting the database transaction.
 
         Returns:
-            void
+            None
         """
-        if error.errno == errorcode.ER_DUP_ENTRY or "Duplicate entry" in str(error.msg):
-            self.getLogger().error(f"The application is trying to insert a duplicate entry, a SQLSTATE[{errorcode.ER_DUP_ENTRY}] will be generated so that the transaction will be ignored.\nError: {error.msg}\nMySQL Error Number: {errorcode.ER_DUP_ENTRY}\nSQL State: SQLSTATE[{errorcode.ER_DUP_ENTRY}]")
-        else:
-            self.getLogger().error(f"An error occured while trying to post data to the relational database server.\nError: {error.msg}\nMySQL Error Number: {error.errno}\nSQL State: {error.sqlstate}")
-            exit()
+        if self.__getDatabaseHandler().in_transaction:
+            self.getLogger().warn(f"Model: Database_Handler\nMethod: postData\nMessage: The application is already in a transaction.")
+            return
+        self.__getDatabaseHandler().start_transaction()
+        self.getLogger().inform("Database Transaction started.")
 
     def updateData(self, table: str, values: str, parameters: Union[Tuple[Any], None], condition: str = "") -> None:
         """
@@ -352,9 +337,7 @@ class Database_Handler:
         self.setQuery(query)
         self.setParameters(parameters)
         self._getFilter(condition)
-        self.getLogger().inform(
-            f"Query built for updating data!\nQuery: {self.getQuery()}\nParameters: {self.getParameters()}"
-        )
+        self.getLogger().inform(f"Query built for updating data!\nQuery: {self.getQuery()}\nParameters: {self.getParameters()}")
         self._query(self.getQuery(), self.getParameters())
         self._execute()
 
@@ -374,14 +357,19 @@ class Database_Handler:
         self.setQuery(query)
         self.setParameters(parameters)
         self._getFilter(condition)
-        self.getLogger().inform(
-            f"Query built for removing data!\nQuery: {self.getQuery()}\nParameters: {self.getParameters()}"
-        )
-        try:
-            self.__getDatabaseHandler().start_transaction()
-            self._query(self.getQuery(), self.getParameters())
-            self._execute()
-            self.__getDatabaseHandler().commit()
-        except Error as error:
-            self.__getDatabaseHandler().rollback()
-            self.getLogger().error(f"Delete operation failed! Rolling back transaction.\nError: {error}")
+        self.getLogger().inform(f"Query built for removing data!\nQuery: {self.getQuery()}\nParameters: {self.getParameters()}")
+        self.__startTransaction()
+        self._query(self.getQuery(), self.getParameters())
+        self._execute()
+
+    def close(self) -> None:
+        """
+        Closing the database handler.
+
+        Returns:
+            None
+        """
+        if not self.__getDatabaseHandler().is_connected():
+            return
+        self.__getDatabaseHandler().close()
+        self.getLogger().inform("Database connection closed.")
