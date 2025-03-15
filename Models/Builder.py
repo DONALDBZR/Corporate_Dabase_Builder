@@ -29,7 +29,7 @@ from datetime import datetime, timedelta
 from Environment import Environment
 from typing import List, Tuple, Union, Dict
 from time import time, sleep
-from re import findall, search
+from re import L, findall, search
 from Models.Mail import Mail
 from Models.FinancialSummaries import Financial_Summaries
 from Models.ProfitStatements import Profit_Statements
@@ -2400,13 +2400,31 @@ class Builder:
             processeds.append(business_detail)
             return processeds
         for current, new, is_start in replacements:
-            if is_start and registered_address.startswith(current):
-                registered_address = registered_address.replace(current, new, 1)
-            elif not is_start and current in registered_address.lower():
-                registered_address = registered_address.replace(current, new)
+            registered_address = self.__businessDetailsRegisteredAddressesFormatCorrectValue(current, new, is_start, registered_address)
         business_detail.registered_address = registered_address
         processeds.append(business_detail)
         return processeds
+
+    def __businessDetailsRegisteredAddressesFormatCorrectValue(self, current_needle: str, new_needle: str, is_start: bool, registered_address: str) -> str:
+        """
+        Applying a specific formatting correction to a registered address.
+
+        This method checks whether a given substring (`current_needle`) is present in the `registered_address` and replaces it with `new_needle` based on the specified conditions.
+
+        Parameters:
+            current_needle (str): The substring to be replaced.
+            new_needle (str): The replacement string.
+            is_start (bool): If True, the replacement is applied only if `current_needle` appears at the beginning of `registered_address`.
+            registered_address (str): The address string to be formatted.
+
+        Returns:
+            str
+        """
+        if is_start and registered_address.startswith(current_needle):
+            return registered_address.replace(current_needle, new_needle, 1)
+        if not is_start and current_needle in registered_address.lower():
+            return registered_address.replace(current_needle, new_needle)
+        return registered_address
 
     def sanitizeBusinessDetailsRegisteredAddressesFormat(self)-> None:
         """
