@@ -2354,6 +2354,37 @@ class Builder:
         """
         self.sanitizeBusinessDetailsRegisteredAddressesFormat()
         self.sanitizeBusinessDetailsRegisteredAddressesErroneous()
+        self.santizeBusinessDetailsRegisteredAddressesFormatting()
+
+    def santizeBusinessDetailsRegisteredAddressesFormatting(self) -> None:
+        """
+        Sanitizing and standardizing the formatting of registered addresses in business details.
+
+        This method processes a list of business details, modifying the registered addresses to ensure a consistent format. It applies various replacements, such as removing or substituting specific substrings, capitalizing words, and correcting abbreviations.
+
+        The function logs the number of business details being processed before applying transformations.  The replacements list contains tuples defining:
+            - `current_value`: The substring to be replaced.
+            - `new_value`: The replacement string.
+            - `is_start`: A boolean indicating whether the replacement should apply only if `current_value` appears at the beginning of the address.
+
+        Returns:
+            None
+        """
+        replacements: List[Tuple[str, str, bool]] = [("-", "", True), (", ", "", True), (". ", "", True), ("(B) ", "", True), ("(", "", True), ("& ", "", True), (" morc ", " Morcellement ", False), (" st,", " Street, ", False), (" rd, ", " Road, ", False), (" ave ", " Avenue ", False), (" ste ", " Sainte ", False), ("apps ", "Appartment ", False), ("appt ", "Appartment ", False), ("apt ", "Appartment ", False), ("blk ", "Block ", False), (" rt ", " Route ", False), (" rd ", " Road, ", False), (" ave, ", " Avenue ", False), (" mt ", " Montagne ", False), (" - ", " ", False), (" se ", " Sugar Estate ", False), ("blvd", "Boulevard ", True), ("grnw ", "Grand River North West, ", False), ("govt ", "Government ", False), ("imp ", "Impasse ", False), ("morc ", "Morcellement ", False), ("morc.", "Morcellement ", False), ("mont", "Montagne ", False), ("pte ", "Pointe ", False)]
+        business_details: List[BusinessDetails] = []
+        self.getLogger().inform(f"Business Details: Registered Address: Formatting the registered addresses into the correct format for processing.\nAmount: {len(self.getBusinessDetailsData())}")
+        for business_detail in self.getBusinessDetailsData():
+            registered_address: Union[str, None] = business_detail.registered_address
+            if registered_address:
+                registered_address = registered_address.title()
+                for current_value, new_value, is_start in replacements:
+                    if is_start and registered_address.startswith(current_value):
+                        registered_address = registered_address.replace(current_value, new_value, 1)
+                    elif not is_start and current_value in registered_address.lower():
+                        registered_address = registered_address.replace(current_value, new_value)
+                business_detail.registered_address = registered_address
+            business_details.append(business_detail)
+        self.setBusinessDetailsData(business_details)
 
     def sanitizeBusinessDetailsRegisteredAddressesFormat(self)-> None:
         """
