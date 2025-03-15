@@ -3224,17 +3224,19 @@ class Builder:
 
     def curateOfficeBearerPosition(self) -> None:
         """
-        Curating the positions into the form needed.
+        Standardizing the formatting of office bearer positions.
+
+        This method processes office bearer data, ensuring that all position titles are properly capitalized using title case.
 
         Returns:
-            void
+            None
         """
-        dataset: List[OfficeBearer] = self.getOfficeBearerData()
-        self.getLogger().inform(f"Office Bearer: Position: Curating the positions into the form needed.\nAmount: {len(dataset)}")
-        for index in range(0, len(dataset), 1):
-            position: str = dataset[index].position.title()
-            dataset[index].position = position
-        self.setOfficeBearerData(dataset)
+        office_bearers: List[OfficeBearer] = self.getOfficeBearerData()
+        self.getLogger().inform(f"Office Bearer: Position: Curating the positions into the form needed.\nAmount: {len(office_bearers)}")
+        for office_bearer in office_bearers:
+            position: str = office_bearer.position.title()
+            office_bearer.position = position
+        self.setOfficeBearerData(office_bearers)
 
     def curateOfficeBearerName(self) -> None:
         """
