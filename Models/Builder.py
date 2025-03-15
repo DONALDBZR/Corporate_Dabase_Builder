@@ -2548,18 +2548,20 @@ class Builder:
 
     def sanitizeBusinessDetailsNameSameNames(self) -> None:
         """
-        Sanitizing the names which are equal to ".".
+        Replacing placeholder business names with their corresponding company names.
+
+        This method processes business details where the `name` field contains placeholder values such as `"."` or `"-"`. It replaces these placeholders with the actual company names retrieved from `CompanyDetails`.
 
         Returns:
-            void
+            None
         """
-        same_names: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.name == "."]
+        names: List[str] = [".", "-"]
+        same_names: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail.name in names]
         filtered_business_data: List[BusinessDetails] = [business_detail for business_detail in self.getBusinessDetailsData() if business_detail not in same_names]
         self.getLogger().inform(f"Business Details: Name: The names are being sanitized where '.' will be replaced by their company names.\nAmount: {len(same_names)}")
-        self.setBusinessDetailsData([])
-        for index in range(0, len(same_names), 1):
-            company_detail: CompanyDetails = [company_detail for company_detail in self.getCompanyDetailsData() if company_detail.identifier == same_names[index].CompanyDetail][0]
-            same_names[index].name = company_detail.name.title()
+        for business_detail in same_names:
+            company_detail: CompanyDetails = [company_detail for company_detail in self.getCompanyDetailsData() if company_detail.identifier == business_detail.CompanyDetail][0]
+            business_detail.name = company_detail.name.title()
         self.setBusinessDetailsData(same_names + filtered_business_data)
 
     def sanitizeBusinessDetailsNameCountriesNames(self) -> None:
