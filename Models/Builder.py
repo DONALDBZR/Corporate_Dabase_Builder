@@ -3240,29 +3240,26 @@ class Builder:
 
     def curateOfficeBearerName(self) -> None:
         """
-        Curating and sanitizing the Name into the form needed.
+        Curating and sanitizing the names of office bearers by filtering out invalid names and formatting valid ones.
+
+        The function performs the following steps:
+            1. Retrieves a list of office bearers.
+            2. Filters out office bearers whose names contain numeric digits.
+            3. Further filters out names that contain predefined keywords.
+            4. Formats the remaining names by applying title case and replacing "Ltd" with "LTD".
+            5. Logs the number of deleted and retained office bearers.
+            6. Updates the office bearer data with the cleaned list.
 
         Returns:
-            void
+            None
         """
-        dataset: List[OfficeBearer] = self.getOfficeBearerData()
-        deleted_data: List[OfficeBearer] = [office_bearer for office_bearer in dataset if bool(search(r"[0-9]+", office_bearer.name)) == True]
-        filtered_data: List[OfficeBearer] = [office_bearer for office_bearer in dataset if bool(search(r"[0-9]+", office_bearer.name)) == False]
-        filtered_data = [office_bearer for office_bearer in filtered_data if office_bearer.name != "(Mauritius) Limited"]
-        filtered_data = [office_bearer for office_bearer in filtered_data if office_bearer.name != "(Mauritius) Ltd"]
-        filtered_data = [office_bearer for office_bearer in filtered_data if " Sottise Rd" not in office_bearer.name]
-        filtered_data = [office_bearer for office_bearer in filtered_data if office_bearer.name != "(Jnr)"]
-        filtered_data = [office_bearer for office_bearer in filtered_data if "Country" not in office_bearer.name]
-        filtered_data = [office_bearer for office_bearer in filtered_data if office_bearer.name != ". Naaz"]
-        filtered_data = [office_bearer for office_bearer in filtered_data if "Road" not in office_bearer.name]
-        filtered_data = [office_bearer for office_bearer in filtered_data if "Street" not in office_bearer.name]
-        filtered_data = [office_bearer for office_bearer in filtered_data if "Avenue" not in office_bearer.name]
-        filtered_data = [office_bearer for office_bearer in filtered_data if "Lane" not in office_bearer.name]
-        filtered_data = [office_bearer for office_bearer in filtered_data if "C/O" not in office_bearer.name]
-        for index in range(0, len(filtered_data), 1):
-            name: str = filtered_data[index].name.title().replace("Ltd", "LTD")
-            filtered_data[index].name = name
-        self.getLogger().inform(f"Office Bearer: Name: Curating and sanitizing the Name into the form needed.\nDeleted Amount: {len(deleted_data)}\nFiltered Data: {len(filtered_data)}")
+        keywords: List[str] = ["C/O", "C.O", "Business Park", "Country", "Road", "Street", "Avenue", "Lane", "Building", "Mountain", "Commercial Centre", "Business Centre", "House", "Rue "]
+        office_bearers: List[OfficeBearer] = self.getOfficeBearerData()
+        deleted: List[OfficeBearer] = [office_bearer for office_bearer in office_bearers if search(r"\d", office_bearer.name)]
+        filtered_data: List[OfficeBearer] = [office_bearer for office_bearer in office_bearers if office_bearer not in deleted and not any(keyword in office_bearer.name for keyword in keywords)]
+        for office_bearer in filtered_data:
+            office_bearer.name = office_bearer.name.title().replace("Ltd", "LTD")
+        self.getLogger().inform(f"Office Bearer: Name: Curating and sanitizing the Name into the form needed.\nDeleted Amount: {len(deleted)}\nFiltered Data: {len(filtered_data)}")
         self.setOfficeBearerData(filtered_data)
 
     def curateOfficeBearerAddress(self) -> None:
