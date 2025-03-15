@@ -4,6 +4,7 @@ builder.
 """
 
 
+from numpy import append
 from Data.FinancialSummaries import FinancialSummaries
 from Data.StateCapital import StateCapital
 from Data.BusinessDetails import BusinessDetails
@@ -2374,17 +2375,38 @@ class Builder:
         business_details: List[BusinessDetails] = []
         self.getLogger().inform(f"Business Details: Registered Address: Formatting the registered addresses into the correct format for processing.\nAmount: {len(self.getBusinessDetailsData())}")
         for business_detail in self.getBusinessDetailsData():
-            registered_address: Union[str, None] = business_detail.registered_address
-            if registered_address:
-                registered_address = registered_address.title()
-                for current_value, new_value, is_start in replacements:
-                    if is_start and registered_address.startswith(current_value):
-                        registered_address = registered_address.replace(current_value, new_value, 1)
-                    elif not is_start and current_value in registered_address.lower():
-                        registered_address = registered_address.replace(current_value, new_value)
-                business_detail.registered_address = registered_address
-            business_details.append(business_detail)
+            business_details = self.__businessDetailsRegisteredAddressesFormat(business_details, replacements, business_detail)
         self.setBusinessDetailsData(business_details)
+
+    def __businessDetailsRegisteredAddressesFormat(self, processeds: List[BusinessDetails], replacements: List[Tuple[str, str, bool]], business_detail: BusinessDetails) -> List[BusinessDetails]:
+        """
+        Applying formatting corrections to a business's registered address.
+
+        This method modifies the `registered_address` of a given `BusinessDetails` object based on a list of replacement rules and appends the processed object to a list.
+
+        Parameters:
+            processeds (List[BusinessDetails]): A list to store processed business details.
+            replacements (List[Tuple[str, str, bool]]): A list of tuples where:
+                - `current` (str): The substring to replace.
+                - `new` (str): The replacement string.
+                - `is_start` (bool): If True, the replacement applies only if `current` appears at the beginning of the address.
+            business_detail (BusinessDetails): The business detail object to be formatted.
+
+        Returns:
+            List[BusinessDetails]: The updated list of processed business details.
+        """
+        registered_address: Union[str, None] = business_detail.registered_address
+        if not registered_address:
+            processeds.append(business_detail)
+            return processeds
+        for current, new, is_start in replacements:
+            if is_start and registered_address.startswith(current):
+                registered_address = registered_address.replace(current, new, 1)
+            elif not is_start and current in registered_address.lower():
+                registered_address = registered_address.replace(current, new)
+        business_detail.registered_address = registered_address
+        processeds.append(business_detail)
+        return processeds
 
     def sanitizeBusinessDetailsRegisteredAddressesFormat(self)-> None:
         """
