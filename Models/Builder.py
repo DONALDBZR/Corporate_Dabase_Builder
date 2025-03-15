@@ -2642,6 +2642,26 @@ class Builder:
         self.sanitizeBusinessDetailsNameNoNameDomesticCompanies()
         self.sanitizeBusinessDetailsNameAddressesAsNames()
         self.sanitizeBusinessDetailsNameNamesAsNatures()
+        self.sanitizeBusinessDetailsNameFormat()
+
+    def sanitizeBusinessDetailsNameFormat(self) -> None:
+        """
+        Sanitizing and standardizing the formatting of business names.
+
+        This method processes a list of business details, ensuring that business names follow proper capitalization and format rules. It converts names to title case and standardizes specific abbreviations.  The function logs the number of business details being processed before making modifications.
+
+        Returns:
+            None
+        """
+        business_details: List[BusinessDetails] = []
+        self.getLogger().inform(f"Business Details: Name: The names are being sanitized where the correct values are to be applied.\nAmount: {len(self.getBusinessDetailsData())}")
+        for business_detail in self.getBusinessDetailsData():
+            if business_detail.name:
+                name: str = business_detail.name.title()
+                name = name.replace(" Ltd", " LTD")
+                business_detail.name = name
+            business_details.append(business_detail)
+        self.setBusinessDetailsData(business_details)
 
     def sanitizeBusinessDetailsNature(self) -> None:
         """
