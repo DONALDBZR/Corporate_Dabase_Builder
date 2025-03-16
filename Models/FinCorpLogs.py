@@ -8,6 +8,7 @@ Authors:
 """
 
 
+from time import sleep
 from Models.DatabaseHandler import Database_Handler
 from Data.FinCorpLogs import FinCorpLogs
 from typing import Union, Dict, List, Tuple, Any
@@ -123,15 +124,15 @@ class FinCorp_Logs(Database_Handler):
 
     def postSuccessfulCorporateDataCollectionRun(self, data: Tuple[Any]) -> None:
         """
-        Inserting the successful run for the corporate data
-        collection.
+        Inserting the successful run for the corporate data collection.
 
         Parameters:
-            data: array
+            data (Tuple[Any]): The data to be inserted.
 
         Returns:
-            void
+            None
         """
+        sleep(1)
         return self.postData(
             table=self.getTableName(),
             columns="method_name, quarter, date_start, date_to, status, amount, amount_found",
