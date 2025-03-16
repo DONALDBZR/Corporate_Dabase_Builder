@@ -618,14 +618,13 @@ class Document_Reader:
 
     def extractDataGlobalBusinessCompanyLiquidatorsAffidavits(self, result_set: List[str]) -> List[Dict[str, int]]:
         """
-        Extracting the affidavits of the liquidator of a global
-        business company from the corporate registry.
+        Extracting the affidavits of the liquidator of a global business company from the corporate registry.
 
         Parameters:
-            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+            result_set (List[str]): The result set which is based from the portable document file version of the corporate registry.
 
         Returns:
-            [{date_filled: int, date_from: int, date_to: int}]
+            List[Dict[str, int]]
         """
         response: List[Dict[str, int]] = []
         start_index: int = result_set.index("Affidavits of Liquidator") + 1
@@ -637,8 +636,15 @@ class Document_Reader:
         result_set = [value for value in result_set if "To" not in value]
         if len(result_set) < 3:
             return response
-        self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractDataGlobalBusinessCompanyLiquidatorsAffidavits()")
-        exit()
+        for index in range(0, len(result_set), 3):
+            date_filled: int = int(datetime.strptime(result_set[index], "%d/%m/%Y").timestamp())
+            date_from: int = int(datetime.strptime(result_set[index + 1], "%d/%m/%Y").timestamp())
+            date_to: int = int(datetime.strptime(result_set[index + 2], "%d/%m/%Y").timestamp())
+            response.append({
+                "date_filled": date_filled,
+                "date_from": date_from,
+                "date_to": date_to,
+            })
         return response
 
     def _extractDataGlobalBusinessCompanyLiquidators(self, result_set: List[str], date_appointed: List[str]) -> Dict[str, Union[str, int]]:
