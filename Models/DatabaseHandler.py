@@ -12,7 +12,7 @@ from Environment import Environment
 from Models.Logger import Corporate_Database_Builder_Logger
 from typing import List, Tuple, Union, Any
 from mysql.connector.types import RowType
-from mysql.connector import Error, errorcode
+from mysql.connector import Error, errorcode, IntegrityError
 import mysql.connector
 import logging
 
@@ -144,17 +144,19 @@ class Database_Handler:
     def setLogger(self, logger: Corporate_Database_Builder_Logger) -> None:
         self.__Logger = logger
 
-    def _query(self, query: str, parameters: Union[Tuple[Any], None]):
+    def _query(self, query: str, parameters: Union[Tuple[Any], None]) -> None:
         """
-        Preparing the SQL query that is going to be handled by the
-        database handler.
+        Executing a SQL query with optional parameters using a prepared statement.
 
         Parameters:
-            query: string
-            parameters: array | null
+            query (str): The SQL query string to be executed.
+            parameters (Union[Tuple[Any], None]): A tuple of parameters to be used in the query, or None if no parameters are needed.
 
         Returns:
-            Generator[MySQLCursor, None, None] | None
+            None
+
+        Raises:
+            IntegrityError: If an integrity constraint is violated and is not handled by `__handleQueryError`.
         """
         self.__setStatement(
             self.__getDatabaseHandler().cursor(
@@ -163,7 +165,28 @@ class Database_Handler:
             )
         )
         self.getLogger().debug(f"Query to be used as a request to the database server!\nQuery: {query}\nParameters: {parameters}")
-        self.__getStatement().execute(query, parameters)
+        try:
+            self.__getStatement().execute(query, parameters)
+        except IntegrityError as error:
+            self.__handleQueryError(error)
+
+    def __handleQueryError(self, error: IntegrityError) -> None:
+        """
+        Handling database integrity errors, specifically duplicate entry errors.
+
+        Parameters:
+            error (IntegrityError): The IntegrityError instance raised during a database operation.
+
+        Returns:
+            None
+
+        Raises:
+            IntegrityError: If the error is not a duplicate entry error.
+        """
+        if error.errno == errorcode.ER_DUP_ENTRY:
+            self.getLogger().warn(f"Duplicate entry error.\nError: {error}")
+            return
+        raise error
 
     def _execute(self) -> None:
         """
