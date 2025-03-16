@@ -585,14 +585,13 @@ class Document_Reader:
 
     def extractDataGlobalBusinessCompanyLiquidators(self, result_set: List[str]) -> Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]:
         """
-        Extracting the liquidator of a global business company from
-        the corporate registry.
+        Extracting the liquidator of a global business company from the corporate registry.
 
         Parameters:
-            result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+            result_set (List[str]): The result set which is based from the portable document file version of the corporate registry.
 
         Returns:
-            {liquidator: {name: string, designation: string, address: string, date_appointed: int}, affidavits: [{date_filled: int, date_from: int, date_to: int}]}
+            Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]]
         """
         start_header: str = "Liquidators"
         response: Dict[str, Union[Dict[str, Union[str, int]], List[Dict[str, int]]]] = {}
@@ -608,7 +607,7 @@ class Document_Reader:
         date_appointeds = date_appointeds[start_index:]
         liquidator: Dict[str, Union[str, int]] = self._extractDataGlobalBusinessCompanyLiquidators(result_set, date_appointeds)
         affidavits: List[Dict[str, int]] = self.extractDataGlobalBusinessCompanyLiquidatorsAffidavits(result_set)
-        if not liquidator and len(affidavits) == 0:
+        if (not liquidator and len(affidavits) == 0) or (liquidator and len(affidavits) == 0) or (not liquidator and len(affidavits) != 0):
             return response
         self.getLogger().error("The application will abort the extraction as the function has not been implemented!\nStatus: 503\nFunction: Document_Reader.extractDataGlobalBusinessCompanyLiquidators()")
         exit()
