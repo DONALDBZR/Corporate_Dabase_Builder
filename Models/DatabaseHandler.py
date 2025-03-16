@@ -12,7 +12,7 @@ from Environment import Environment
 from Models.Logger import Corporate_Database_Builder_Logger
 from typing import List, Tuple, Union, Any
 from mysql.connector.types import RowType
-from mysql.connector import Error, errorcode, IntegrityError
+from mysql.connector import Error, errorcode, IntegrityError, InterfaceError
 import mysql.connector
 import logging
 
@@ -167,15 +167,15 @@ class Database_Handler:
         self.getLogger().debug(f"Query to be used as a request to the database server!\nQuery: {query}\nParameters: {parameters}")
         try:
             self.__getStatement().execute(query, parameters)
-        except IntegrityError as error:
+        except (IntegrityError, InterfaceError) as error:
             self.__handleQueryError(error)
 
-    def __handleQueryError(self, error: IntegrityError) -> None:
+    def __handleQueryError(self, error: Union[IntegrityError, InterfaceError]) -> None:
         """
         Handling database integrity errors, specifically duplicate entry errors.
 
         Parameters:
-            error (IntegrityError): The IntegrityError instance raised during a database operation.
+            error (Union[IntegrityError, InterfaceError]): The IntegrityError instance raised during a database operation.
 
         Returns:
             None
@@ -183,7 +183,7 @@ class Database_Handler:
         Raises:
             IntegrityError: If the error is not a duplicate entry error.
         """
-        if error.errno == errorcode.ER_DUP_ENTRY:
+        if error.errno == errorcode.ER_DUP_ENTRY or "Duplicate Entry" in str(error).title():
             self.getLogger().warn(f"Duplicate entry error.\nError: {error}")
             return
         raise error
