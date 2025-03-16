@@ -3441,14 +3441,13 @@ class Document_Reader:
 
     def extractFinancialSummaries(self, portable_document_file_result_set: List[str]) -> List[Dict[str, Union[int, str]]]:
         """
-        Extracting the data for the financial summaries from the
-        result set.
+        Extracting the data for the financial summaries from the result set.
 
         Parameters:
-            portable_document_file_result_set: [string]: The result set which is based from the portable document file version of the corporate registry.
+            portable_document_file_result_set: (List[str]): The result set which is based from the portable document file version of the corporate registry.
 
         Returns:
-            [{financial_year: int, currency: string, date_approved: int, unit: int}]
+            List[Dict[str, Union[int, str]]]
         """
         response: List[Dict[str, Union[int, str]]] = []
         start_header: str = "Financial Summary/Statements filed for last 3 years"
@@ -3468,7 +3467,7 @@ class Document_Reader:
             return response
         for index in range(0, len(result_set), 3):
             is_in_bound: bool = True if index + 3 < len(result_set) else False
-            financial_year: int = int(datetime.strptime(result_set[index], "%d/%m/%Y").year - 1) if is_in_bound == True else 0
+            financial_year: int = int(datetime.strptime(result_set[index], "%d/%m/%Y").year - 1) if is_in_bound == True and self.__isValidDate(result_set[index]) else 0
             currency: str = str(result_set[index + 1]) if is_in_bound == True else ""
             date_approved: int = int(datetime.strptime(result_set[index + 3], "%d/%m/%Y").timestamp()) if is_in_bound == True and self.__isValidDate(result_set[index + 3]) else 0
             response.append({
