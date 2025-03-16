@@ -3468,13 +3468,33 @@ class Document_Reader:
             return response
         for index in range(0, len(result_set), 3):
             is_in_bound: bool = True if index + 3 < len(result_set) else False
+            financial_year: int = int(datetime.strptime(result_set[index], "%d/%m/%Y").year - 1) if is_in_bound == True else 0
+            currency: str = str(result_set[index + 1]) if is_in_bound == True else ""
+            date_approved: int = int(datetime.strptime(result_set[index + 3], "%d/%m/%Y").timestamp()) if is_in_bound == True and self.__isValidDate(result_set[index + 3]) else 0
             response.append({
-                "financial_year": int(datetime.strptime(result_set[index], "%d/%m/%Y").year - 1) if is_in_bound == True else 0,
-                "currency": str(result_set[index + 1]) if is_in_bound == True else "",
-                "date_approved": int(datetime.strptime(result_set[index + 3], "%d/%m/%Y").timestamp()) if is_in_bound == True else 0
+                "financial_year": financial_year,
+                "currency": currency,
+                "date_approved": date_approved
             })
         response = [value for value in response if value["financial_year"] != 0]
         return response
+
+    def __isValidDate(self, date: str) -> bool:
+        """
+        Checking if the date is in the correct format.
+
+        Parameters:
+            date (string): The date
+
+        Returns:
+            bool
+        """
+        try:
+            datetime.strptime(date, "%d/%m/%Y")
+            return True
+        except ValueError as error:
+            self.getLogger().error(f"The date is not in the correct format.\nError: {error}\nDate: {date}")
+            return False
 
     def extractAnnualReturns(self, portable_document_file_result_set: List[str]) -> List[Dict[str, int]]:
         """
