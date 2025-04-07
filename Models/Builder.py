@@ -4,7 +4,6 @@ builder.
 """
 
 
-from numpy import append
 from Data.FinancialSummaries import FinancialSummaries
 from Data.StateCapital import StateCapital
 from Data.BusinessDetails import BusinessDetails
